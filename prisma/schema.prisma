@@ -1,0 +1,1870 @@
+// BizSphere-Ug database schema (PostgreSQL)
+// Follows the "Database and Website Design Blueprint" v1.0 (23 Oct 2026).
+//
+// Principles carried over from the blueprint:
+//  - Repeatable information lives in child tables (offers, contacts, sources,
+//    ingredients, steps, prices, application rounds).
+//  - Amounts are Decimal with separate currency/unit/date fields. Unknown values
+//    stay NULL (with a reason where useful). Zero means zero.
+//  - Publication status, verification checks and freshness are kept separate.
+//  - Every specialised record hangs off one ContentItem (shared publishing layer).
+//  - Access to member-only detail is enforced on the server (see src/lib/access.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────
+
+enum Role {
+  USER // registered visitor or member (membership comes from Subscription)
+  CONTRIBUTOR // business account owner / staff
+  EDITOR
+  ADMIN
+}
+
+enum ContentType {
+  BUSINESS_IDEA
+  MACHINE
+  SUPPLIER
+  FUNDING_PROGRAMME
+  INVESTMENT_OPPORTUNITY
+  GUIDE
+  CONSULTANT
+  RECIPE
+  TOOL
+  WEBSITE
+  NEWS
+}
+
+enum PublicationStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AccessLevel {
+  PUBLIC // everything visible to everyone
+  PREVIEW // preview free, full detail for members
+  MEMBERS // members only (listing card still visible)
+}
+
+enum BusinessStage {
+  IDEA
+  STARTING
+  GROWING
+  ESTABLISHED
+}
+
+enum LocationType {
+  COUNTRY
+  REGION
+  DISTRICT
+  TOWN
+}
+
+enum CategoryKind {
+  INDUSTRY
+  BUSINESS_TYPE
+  MACHINE_CATEGORY
+  PRODUCT_CATEGORY
+  GUIDE_PROCESS
+  RECIPE_CATEGORY
+  TOOL_CATEGORY
+  WEBSITE_CATEGORY
+  NEWS_CATEGORY
+  SERVICE_SPECIALTY
+}
+
+enum CheckType {
+  BUSINESS_CONTACT
+  REGISTRATION
+  PHYSICAL_ADDRESS
+  IDENTITY
+  CREDENTIAL
+  PROFESSIONAL_REGISTRATION
+  OFFICIAL_TERMS
+  PRICE_EVIDENCE
+  LINK
+}
+
+enum CheckResult {
+  PASSED
+  FAILED
+  NOT_CHECKED
+}
+
+enum ClaimType {
+  SOURCE_FACT
+  EDITOR_EXPLANATION
+  ESTIMATE
+  PROMOTER_CLAIM
+}
+
+enum OrgStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum OrgAccountType {
+  SUPPLIER
+  MACHINE_DEALER
+  CONSULTANCY
+  FUNDING_PROVIDER
+  SERVICE_PROVIDER
+}
+
+enum OrgMemberRole {
+  OWNER
+  STAFF
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ScenarioLevel {
+  LOW
+  STANDARD
+  HIGHER
+}
+
+enum MachineCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum SupplierType {
+  MANUFACTURER
+  DISTRIBUTOR
+  WHOLESALER
+  RETAILER
+  IMPORTER
+  SERVICE_PROVIDER
+}
+
+enum FundingType {
+  LOAN
+  GRANT
+  EQUITY
+  GUARANTEE
+  OTHER
+}
+
+enum RateType {
+  FIXED
+  VARIABLE
+}
+
+enum RoundStatus {
+  UPCOMING
+  OPEN
+  CLOSED
+}
+
+enum PriceType {
+  RETAIL
+  WHOLESALE
+  FARM_GATE
+}
+
+enum ToolType {
+  TEMPLATE
+  CALCULATOR
+  CHECKLIST
+}
+
+enum AccessCost {
+  FREE
+  PAID
+  FREEMIUM
+}
+
+enum ArticleType {
+  NEWS
+  REPORT
+  ANALYSIS
+  OPINION
+}
+
+enum PlanAudience {
+  MEMBER
+  BUSINESS
+}
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  MTN_MOMO
+  AIRTEL_MONEY
+  CARD
+  BANK_TRANSFER
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum SubmissionType {
+  NEW_BUSINESS
+  LISTING
+  SUPPLIER_OFFER
+  PRICE_OBSERVATION
+  FUNDING_ROUND
+  CORRECTION
+}
+
+enum SubmissionStatus {
+  PENDING
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+}
+
+enum EnquiryStatus {
+  NEW
+  REPLIED
+  CLOSED
+}
+
+// ─────────────────────────────────────────────────────────────
+// People, organizations, places, categories
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  phone        String? // stored as text
+  passwordHash String?
+  role         Role      @default(USER)
+  isSuspended  Boolean   @default(false)
+  lastActiveAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orgMemberships     OrganizationMember[]
+  subscriptions      Subscription[]
+  savedItems         SavedItem[]
+  collections        Collection[]
+  savedSearches      SavedSearch[]
+  createdContent     ContentItem[]        @relation("ContentCreatedBy")
+  reviewedContent    ContentItem[]        @relation("ContentReviewedBy")
+  verificationChecks VerificationCheck[]
+  submissions        Submission[]         @relation("SubmittedBy")
+  assignedReviews    Submission[]         @relation("AssignedTo")
+  revisions          ContentRevision[]
+  auditLogs          AuditLog[]
+  enquiries          Enquiry[]
+  contactReveals     ContactReveal[]
+  priceCollections   PriceObservation[]
+  documents          Document[]
+  correctionReports  CorrectionReport[]
+  correctionsDecided CorrectionReport[]   @relation("CorrectionDecidedBy")
+  toolValidations    ToolTestCase[]
+  toolCalculations   ToolCalculation[]
+  fileVersions       FileVersion[]
+  reviewsWritten     ConsultantReview[]   @relation("ReviewAuthor")
+  reviewsModerated   ConsultantReview[]   @relation("ReviewModerator")
+  alerts             Alert[]
+  moderationEvents   ModerationEvent[]
+
+  @@map("users")
+}
+
+model Organization {
+  id                 String         @id @default(cuid())
+  legalName          String
+  tradingName        String?
+  accountType        OrgAccountType
+  registrationNumber String?
+  tin                String?
+  description        String?
+  website            String?
+  logoUrl            String?
+  status             OrgStatus      @default(PENDING)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  members               OrganizationMember[]
+  locations             OrganizationLocation[]
+  contacts              Contact[]
+  supplier              Supplier?
+  fundingProvider       FundingProvider?
+  consultants           Consultant[]
+  subscriptions         Subscription[]
+  submissions           Submission[]
+  documents             Document[]
+  enquiries             Enquiry[]
+  contactReveals        ContactReveal[]
+  categories            OrganizationCategory[]
+  ownedFiles            MediaAsset[]
+  promotedOpportunities InvestmentOpportunity[]
+  newsMentions          NewsOrganization[]
+
+  @@index([status])
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  userId         String
+  organizationId String
+  role           OrgMemberRole @default(OWNER)
+  createdAt      DateTime      @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, organizationId])
+  @@map("organization_members")
+}
+
+model OrganizationCategory {
+  organizationId String
+  categoryId     String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  category     Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, categoryId])
+  @@map("organization_categories")
+}
+
+model Location {
+  id       String       @id @default(cuid())
+  name     String
+  type     LocationType
+  parentId String?
+
+  parent   Location?  @relation("LocationTree", fields: [parentId], references: [id])
+  children Location[] @relation("LocationTree")
+
+  contentLinks    ContentLocation[]
+  orgLocations    OrganizationLocation[]
+  markets         Market[]
+  budgetScenarios BudgetScenario[]
+  recipeCostings  RecipeCosting[]
+
+  @@unique([name, type, parentId])
+  @@map("locations")
+}
+
+model OrganizationLocation {
+  id              String   @id @default(cuid())
+  organizationId  String
+  locationId      String?
+  label           String? // e.g. "Head office", "Jinja branch"
+  town            String?
+  physicalAddress String?
+  latitude        Decimal? @db.Decimal(9, 6)
+  longitude       Decimal? @db.Decimal(9, 6)
+  isPrimary       Boolean  @default(false)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  location     Location?    @relation(fields: [locationId], references: [id])
+
+  @@map("organization_locations")
+}
+
+/// Contact details are member-only data. Never send them to the browser for
+/// visitors without an entitlement (see src/lib/access.ts).
+model Contact {
+  id              String  @id @default(cuid())
+  organizationId  String?
+  consultantId    String?
+  personName      String?
+  personRole      String?
+  email           String?
+  phone           String?
+  whatsapp        String?
+  website         String?
+  preferredMethod String?
+  isPrimary       Boolean @default(false)
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  consultant   Consultant?   @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+model Category {
+  id       String       @id @default(cuid())
+  name     String
+  slug     String
+  kind     CategoryKind
+  parentId String?
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+
+  primaryFor   ContentItem[]          @relation("PrimaryCategory")
+  contentLinks ContentCategory[]
+  orgLinks     OrganizationCategory[]
+  products     Product[]
+
+  @@unique([kind, slug])
+  @@map("categories")
+}
+
+/// Controlled list of measurement units (blueprint 03: "stable identifiers for
+/// units"). Unit text fields elsewhere should use a `code` from here. A
+/// conversion is only applied when `toBase` is known (e.g. kg→g = 1000), never
+/// for packaging units like "bag" whose weight varies.
+model Unit {
+  code      String   @id // kg, g, l, ml, piece, bag_50kg, loaves_per_hour...
+  name      String
+  dimension String // mass, volume, count, length, rate, time, energy
+  baseCode  String? // unit this converts to
+  toBase    Decimal? @db.Decimal(18, 6)
+
+  @@map("units")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Shared publishing layer
+// ─────────────────────────────────────────────────────────────
+
+model ContentItem {
+  id                String            @id @default(cuid())
+  contentType       ContentType
+  title             String
+  slug              String            @unique
+  shortSummary      String?
+  overview          String?
+  primaryCategoryId String?
+  businessStages    BusinessStage[]
+  coverageNotes     String?
+  publicationStatus PublicationStatus @default(DRAFT)
+  accessLevel       AccessLevel       @default(PREVIEW)
+  publishedAt       DateTime?
+  lastReviewedAt    DateTime?
+  nextReviewDueAt   DateTime?
+  expiresAt         DateTime?
+  createdById       String?
+  reviewedById      String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  primaryCategory Category? @relation("PrimaryCategory", fields: [primaryCategoryId], references: [id])
+  createdBy       User?     @relation("ContentCreatedBy", fields: [createdById], references: [id])
+  reviewedBy      User?     @relation("ContentReviewedBy", fields: [reviewedById], references: [id])
+
+  categories   ContentCategory[]
+  locations    ContentLocation[]
+  audiences    ContentAudience[]
+  entitlements ContentEntitlement[]
+  alerts       Alert[]
+  evidence     EvidenceLink[]
+  media        MediaAsset[]
+  checks       VerificationCheck[]
+  relatedFrom  RelatedContent[]     @relation("RelatedFrom")
+  relatedTo    RelatedContent[]     @relation("RelatedTo")
+  revisions    ContentRevision[]
+  savedBy      SavedItem[]
+  collections  CollectionItem[]
+  submissions  Submission[]
+  corrections  CorrectionReport[]
+  enquiries    Enquiry[]
+
+  businessIdea          BusinessIdea?
+  machine               Machine?
+  supplier              Supplier?
+  fundingProgramme      FundingProgramme?
+  investmentOpportunity InvestmentOpportunity?
+  guide                 Guide?
+  consultant            Consultant?
+  recipe                Recipe?
+  tool                  Tool?
+  website               UsefulWebsite?
+  news                  NewsArticle?
+
+  @@index([contentType, publicationStatus])
+  @@index([nextReviewDueAt])
+  @@map("content_items")
+}
+
+model ContentCategory {
+  contentItemId String
+  categoryId    String
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, categoryId])
+  @@map("content_categories")
+}
+
+model ContentLocation {
+  contentItemId String
+  locationId    String
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  location    Location    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, locationId])
+  @@map("content_locations")
+}
+
+/// Target audiences (blueprint 03 "Audience"): e.g. youth, women entrepreneurs,
+/// farmers, students, diaspora investors. Business stage lives on ContentItem.
+model Audience {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  contentLinks ContentAudience[]
+
+  @@map("audiences")
+}
+
+model ContentAudience {
+  contentItemId String
+  audienceId    String
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  audience    Audience    @relation(fields: [audienceId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, audienceId])
+  @@map("content_audiences")
+}
+
+/// Plan entitlement keys required to see an item's full detail, in addition to
+/// accessLevel (e.g. "downloads", "priceHistory"). Matched against
+/// MembershipPlan.entitlements on the server.
+model ContentEntitlement {
+  contentItemId String
+  entitlement   String
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, entitlement])
+  @@map("content_entitlements")
+}
+
+model Source {
+  id                String    @id @default(cuid())
+  publisherName     String?
+  sourceTitle       String
+  sourceUrl         String?
+  sourceType        String? // official, quotation, market visit, interview...
+  sourcePublishedAt DateTime?
+  accessedAt        DateTime?
+  createdAt         DateTime  @default(now())
+
+  evidenceLinks     EvidenceLink[]
+  budgetLines       BudgetLine[]
+  recipeCostLines   RecipeCostingLine[]
+  guideFees         GuideFee[]
+  priceObservations PriceObservation[]
+
+  @@map("sources")
+}
+
+model EvidenceLink {
+  id             String    @id @default(cuid())
+  contentItemId  String
+  sourceId       String
+  claimSupported String
+  claimType      ClaimType @default(SOURCE_FACT)
+  evidenceNotes  String?
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  source      Source      @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@map("evidence_links")
+}
+
+model MediaAsset {
+  id                  String      @id @default(cuid())
+  contentItemId       String?
+  fileLocation        String
+  mediaType           String // image, video, manual, spec_sheet...
+  caption             String?
+  altText             String?
+  credit              String?
+  usagePermission     String?
+  displayOrder        Int         @default(0)
+  accessLevel         AccessLevel @default(PUBLIC)
+  /// Downloads (blueprint 02): ownership and review date. Files are served only
+  /// through /api/files/[id], which checks access on the server.
+  ownerOrganizationId String?
+  reviewDueAt         DateTime?
+
+  contentItem       ContentItem?  @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  ownerOrganization Organization? @relation(fields: [ownerOrganizationId], references: [id], onDelete: SetNull)
+  versions          FileVersion[]
+
+  @@map("media_assets")
+}
+
+/// Every uploaded version of a downloadable file. Exactly one should be current.
+model FileVersion {
+  id           String   @id @default(cuid())
+  mediaAssetId String
+  versionLabel String
+  fileLocation String
+  mimeType     String?
+  sizeBytes    Int?
+  changeNotes  String?
+  isCurrent    Boolean  @default(true)
+  uploadedById String?
+  uploadedAt   DateTime @default(now())
+
+  mediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  uploadedBy User?      @relation(fields: [uploadedById], references: [id])
+
+  @@unique([mediaAssetId, versionLabel])
+  @@map("file_versions")
+}
+
+/// One row per specific check. The UI shows e.g. "Business contact checked on 12 March 2026".
+model VerificationCheck {
+  id                String      @id @default(cuid())
+  contentItemId     String
+  checkType         CheckType
+  result            CheckResult @default(NOT_CHECKED)
+  checkedAt         DateTime    @default(now())
+  checkedById       String?
+  evidenceReference String?
+  evidenceNotes     String?
+  reviewDueAt       DateTime?
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  checkedBy   User?       @relation(fields: [checkedById], references: [id])
+
+  @@index([contentItemId, checkType])
+  @@map("verification_checks")
+}
+
+model RelatedContent {
+  fromItemId       String
+  toItemId         String
+  relationshipType String // e.g. needs_machine, fits_funding, uses_guide
+  editorialNotes   String?
+  displayOrder     Int     @default(0)
+
+  fromItem ContentItem @relation("RelatedFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
+  toItem   ContentItem @relation("RelatedTo", fields: [toItemId], references: [id], onDelete: Cascade)
+
+  @@id([fromItemId, toItemId, relationshipType])
+  @@map("related_content")
+}
+
+model ContentRevision {
+  id            String   @id @default(cuid())
+  contentItemId String
+  editorId      String?
+  snapshot      Json
+  note          String?
+  createdAt     DateTime @default(now())
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  editor      User?       @relation(fields: [editorId], references: [id])
+
+  @@map("content_revisions")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 04 Business ideas and plans
+// ─────────────────────────────────────────────────────────────
+
+model BusinessIdea {
+  id                     String           @id @default(cuid())
+  contentItemId          String           @unique
+  businessModel          String?
+  productsOrServices     String?
+  customerProblem        String?
+  valueProposition       String?
+  experienceLevel        ExperienceLevel?
+  requiredSkills         String?
+  ownerTimeCommitment    String?
+  locationRequirements   String?
+  homeBasedSuitable      Boolean?
+  targetCustomers        String?
+  demandEvidence         String?
+  competitorNotes        String?
+  salesChannels          String?
+  seasonality            String?
+  premisesRequirements   String?
+  staffingRequirements   String?
+  staffCount             Int?
+  licencesToInvestigate  String?
+  operatingCosts         String?
+  sellingPriceAssumption String?
+  salesVolumeAssumption  String?
+  workingCapitalNotes    String?
+  successFactors         String?
+  majorRisks             String?
+  riskReductionActions   String?
+  growthOptions          String?
+
+  contentItem ContentItem      @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  steps       IdeaStep[]
+  scenarios   BudgetScenario[]
+
+  @@map("business_ideas")
+}
+
+model IdeaStep {
+  id          String  @id @default(cuid())
+  ideaId      String
+  stepNumber  Int
+  title       String
+  description String?
+
+  idea BusinessIdea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([ideaId, stepNumber])
+  @@map("idea_steps")
+}
+
+model BudgetScenario {
+  id             String        @id @default(cuid())
+  ideaId         String
+  name           String
+  level          ScenarioLevel @default(STANDARD)
+  currency       String        @default("UGX")
+  locationId     String?
+  estimateDate   DateTime?
+  assumptions    String?
+  operatingScale String?
+
+  idea     BusinessIdea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  location Location?    @relation(fields: [locationId], references: [id])
+  lines    BudgetLine[]
+
+  @@unique([ideaId, level])
+  @@map("budget_scenarios")
+}
+
+/// Totals are always calculated from lines, never stored.
+model BudgetLine {
+  id            String   @id @default(cuid())
+  scenarioId    String
+  costCategory  String
+  description   String
+  quantity      Decimal  @default(1) @db.Decimal(14, 3)
+  unit          String?
+  unitCost      Decimal? @db.Decimal(16, 2) // NULL = not yet sourced
+  unknownReason String?
+  frequency     String? // once, monthly...
+  isRecurring   Boolean  @default(false)
+  isContingency Boolean  @default(false)
+  sourceId      String?
+  displayOrder  Int      @default(0)
+
+  scenario BudgetScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  source   Source?        @relation(fields: [sourceId], references: [id])
+
+  @@map("budget_lines")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 05 Machines  /  06 Suppliers
+// ─────────────────────────────────────────────────────────────
+
+model Machine {
+  id                       String   @id @default(cuid())
+  contentItemId            String   @unique
+  manufacturer             String?
+  brand                    String?
+  modelNumber              String?
+  machineType              String?
+  function                 String?
+  materialsProcessed       String?
+  productsProduced         String?
+  capacityMin              Decimal? @db.Decimal(14, 3)
+  capacityMax              Decimal? @db.Decimal(14, 3)
+  capacityUnit             String?
+  capacityBasis            String?
+  automationLevel          String?
+  operatorsRequired        Int?
+  powerSource              String?
+  ratedPowerKw             Decimal? @db.Decimal(10, 2)
+  voltage                  Int?
+  phase                    Int?
+  dimensions               String?
+  weightKg                 Decimal? @db.Decimal(10, 2)
+  spaceRequirements        String?
+  installationRequirements String?
+  consumables              String?
+  maintenance              String?
+  sparePartsNotes          String?
+  trainingRequirements     String?
+  safetyInstructions       String?
+  /// Category-specific attributes (a grain mill and a sewing machine differ).
+  specifications           Json?
+
+  contentItem ContentItem     @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  offers      SupplierOffer[]
+
+  @@map("machines")
+}
+
+model Supplier {
+  id                 String        @id @default(cuid())
+  contentItemId      String        @unique
+  organizationId     String        @unique
+  supplierType       SupplierType?
+  yearsEstablished   Int?
+  minimumOrder       String?
+  sellsWholesale     Boolean?
+  sellsRetail        Boolean?
+  paymentMethods     String[]
+  brandsSupplied     String[]
+  deliveryAreas      String?
+  leadTime           String?
+  returnsPolicy      String?
+  offersInstallation Boolean?
+  offersMaintenance  Boolean?
+  offersTraining     Boolean?
+  sparePartsLocal    Boolean?
+  exportCapability   Boolean?
+  listingClaimed     Boolean       @default(false)
+
+  contentItem  ContentItem              @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  offers       SupplierOffer[]
+  listings     SupplierProductListing[]
+
+  @@map("suppliers")
+}
+
+/// A dated offer for one machine from one supplier.
+model SupplierOffer {
+  id                  String            @id @default(cuid())
+  machineId           String
+  supplierId          String
+  condition           MachineCondition  @default(NEW)
+  priceMin            Decimal?          @db.Decimal(16, 2)
+  priceMax            Decimal?          @db.Decimal(16, 2)
+  currency            String            @default("UGX")
+  minimumOrder        Int?
+  availability        String?
+  taxTreatment        String?
+  deliveryCoverage    String?
+  deliveryCharge      Decimal?          @db.Decimal(16, 2)
+  leadTime            String?
+  warrantyMonths      Int?
+  installationSupport Boolean?
+  trainingSupport     Boolean?
+  sparePartsLocal     Boolean?
+  quotationUrl        String?
+  quotedAt            DateTime?
+  validUntil          DateTime?
+  status              PublicationStatus @default(IN_REVIEW)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  machine     Machine      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  supplier    Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@index([machineId, status])
+  @@map("supplier_offers")
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  localNames   String[]
+  categoryId   String?
+  variety      String?
+  grade        String?
+  packaging    String?
+  standardUnit String?
+
+  category     Category?                @relation(fields: [categoryId], references: [id])
+  observations PriceObservation[]
+  listings     SupplierProductListing[]
+  recipeLines  RecipeIngredient[]
+
+  @@unique([name, variety, grade])
+  @@map("products")
+}
+
+model SupplierProductListing {
+  id                   String    @id @default(cuid())
+  supplierId           String
+  productId            String?
+  productName          String
+  specifications       String?
+  unit                 String?
+  minimumOrderQuantity Decimal?  @db.Decimal(14, 3)
+  availability         String?
+  priceMin             Decimal?  @db.Decimal(16, 2)
+  priceMax             Decimal?  @db.Decimal(16, 2)
+  currency             String    @default("UGX")
+  quotedAt             DateTime?
+  validUntil           DateTime?
+
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  product  Product? @relation(fields: [productId], references: [id])
+
+  @@map("supplier_product_listings")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 07 Funding
+// ─────────────────────────────────────────────────────────────
+
+model FundingProvider {
+  id               String  @id @default(cuid())
+  organizationId   String  @unique
+  providerCategory String? // bank, government fund, NGO, investor...
+  country          String  @default("Uganda")
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  programmes   FundingProgramme[]
+
+  @@map("funding_providers")
+}
+
+model FundingProgramme {
+  id                    String      @id @default(cuid())
+  contentItemId         String      @unique
+  providerId            String
+  fundingType           FundingType
+  purpose               String?
+  // eligibility (filterable + full wording)
+  eligibilityText       String?
+  requiresRegistration  Boolean?
+  minOperatingMonths    Int?
+  minAnnualTurnover     Decimal?    @db.Decimal(16, 2)
+  applicantRequirements String?
+  // amount
+  amountMin             Decimal?    @db.Decimal(16, 2)
+  amountMax             Decimal?    @db.Decimal(16, 2)
+  currency              String      @default("UGX")
+  amountBasis           String?
+  matchingContribution  String?
+  // loan terms
+  interestRate          Decimal?    @db.Decimal(6, 3)
+  rateBasis             String? // per year, per month, flat...
+  rateType              RateType?
+  fees                  String?
+  repaymentMonths       Int?
+  repaymentFrequency    String?
+  gracePeriodMonths     Int?
+  collateralRequired    Boolean?
+  guarantorRequired     Boolean?
+  // grant terms
+  eligibleExpenses      String?
+  milestones            String?
+  reportingRequirements String?
+  restrictions          String?
+  // equity terms
+  investmentInstrument  String?
+  ownershipTerms        String?
+  governanceTerms       String?
+  selectionCriteria     String?
+  // evidence
+  officialTermsUrl      String?
+  termsVersionDate      DateTime?
+  termsLastCheckedAt    DateTime?
+
+  contentItem ContentItem        @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  provider    FundingProvider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  rounds      ApplicationRound[]
+
+  @@index([fundingType])
+  @@map("funding_programmes")
+}
+
+model ApplicationRound {
+  id                String      @id @default(cuid())
+  programmeId       String
+  opensAt           DateTime?
+  closesAt          DateTime?
+  timeZone          String      @default("Africa/Kampala")
+  isRolling         Boolean     @default(false)
+  status            RoundStatus @default(UPCOMING)
+  applicationUrl    String?
+  requiredDocuments String[]
+  process           String?
+
+  programme   FundingProgramme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@index([status, closesAt])
+  @@map("application_rounds")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 08 Guides and investment opportunities
+// ─────────────────────────────────────────────────────────────
+
+model Guide {
+  id                   String    @id @default(cuid())
+  contentItemId        String    @unique
+  resourceType         String? // procedure, book, video...
+  jurisdiction         String    @default("Uganda")
+  responsibleAuthority String?
+  purpose              String?
+  prerequisites        String?
+  submissionChannel    String?
+  expectedOutcome      String?
+  issuingBody          String?
+  publicationDate      DateTime?
+  effectiveDate        DateTime?
+  version              String?
+  superseded           Boolean   @default(false)
+  officialUrl          String?
+  videoUrl             String?
+  language             String    @default("English")
+  practicalNotes       String? // BizSphere explanation, kept apart from official text
+  commonMistakes       String?
+
+  contentItem ContentItem     @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  steps       GuideStep[]
+  documents   GuideDocument[]
+  fees        GuideFee[]
+
+  @@map("guides")
+}
+
+model GuideStep {
+  id          String  @id @default(cuid())
+  guideId     String
+  stepNumber  Int
+  instruction String
+  isOfficial  Boolean @default(true)
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@unique([guideId, stepNumber])
+  @@map("guide_steps")
+}
+
+model GuideDocument {
+  id      String  @id @default(cuid())
+  guideId String
+  name    String
+  notes   String?
+
+  guide Guide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_documents")
+}
+
+model GuideFee {
+  id             String    @id @default(cuid())
+  guideId        String
+  description    String
+  amount         Decimal?  @db.Decimal(16, 2)
+  currency       String    @default("UGX")
+  feeBasis       String?
+  processingTime String?
+  checkedAt      DateTime?
+  sourceId       String?
+
+  guide  Guide   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  source Source? @relation(fields: [sourceId], references: [id])
+
+  @@map("guide_fees")
+}
+
+model InvestmentOpportunity {
+  id                      String    @id @default(cuid())
+  contentItemId           String    @unique
+  opportunityType         String?
+  promoter                String?
+  promoterOrganizationId  String?
+  sector                  String?
+  projectDescription      String?
+  capitalSought           Decimal?  @db.Decimal(18, 2)
+  currency                String    @default("UGX")
+  minimumParticipation    Decimal?  @db.Decimal(18, 2)
+  useOfFunds              String?
+  investmentStructure     String?
+  investorRights          String?
+  revenueModel            String?
+  term                    String?
+  exitArrangements        String?
+  businessStage           String?
+  financialEvidence       String?
+  assumptions             String?
+  risks                   String?
+  independentEvidence     String?
+  opensAt                 DateTime?
+  deadline                DateTime?
+  applicationProcess      String?
+  requiredDocuments       String[]
+  contactNotes            String?
+  /// Always shown as the promoter's claim, never as an established outcome.
+  promoterReturnClaim     String?
+  calculationBasis        String?
+  claimVerificationStatus String?
+
+  contentItem          ContentItem   @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  promoterOrganization Organization? @relation(fields: [promoterOrganizationId], references: [id], onDelete: SetNull)
+
+  @@index([deadline])
+  @@map("investment_opportunities")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 09 Consultants and experts
+// ─────────────────────────────────────────────────────────────
+
+model Consultant {
+  id                String   @id @default(cuid())
+  contentItemId     String   @unique
+  organizationId    String?
+  fullName          String
+  professionalTitle String?
+  photoUrl          String?
+  specialties       String[]
+  languages         String[]
+  deliveryModes     String[] // in person, online
+  experience        String?
+  feeMin            Decimal? @db.Decimal(16, 2)
+  feeMax            Decimal? @db.Decimal(16, 2)
+  currency          String   @default("UGX")
+  pricingBasis      String?
+  consultationMins  Int?
+  quotationRequired Boolean  @default(false)
+  availability      String?
+  responseTime      String?
+  bookingUrl        String?
+
+  contentItem    ContentItem               @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  organization   Organization?             @relation(fields: [organizationId], references: [id])
+  contacts       Contact[]
+  qualifications ConsultantQualification[]
+  services       ConsultantService[]
+  projects       ConsultantProject[]
+  reviews        ConsultantReview[]
+
+  @@map("consultants")
+}
+
+/// Selected projects, case studies and client references (only where the
+/// client has permitted publication).
+model ConsultantProject {
+  id                   String  @id @default(cuid())
+  consultantId         String
+  title                String
+  clientName           String?
+  year                 Int?
+  summary              String?
+  outcome              String?
+  isCaseStudy          Boolean @default(false)
+  publicationPermitted Boolean @default(false)
+  referenceContact     String? // member-only; never shown unless publicationPermitted
+
+  consultant Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+
+  @@map("consultant_projects")
+}
+
+enum ReviewModeration {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Service reviews are kept apart from profile verification (blueprint 09).
+model ConsultantReview {
+  id                  String           @id @default(cuid())
+  consultantId        String
+  authorId            String?
+  rating              Int // 1..5, enforced in constraints.sql
+  body                String?
+  confirmedEngagement Boolean          @default(false)
+  engagementEvidence  String?
+  moderation          ReviewModeration @default(PENDING)
+  moderatedById       String?
+  moderatedAt         DateTime?
+  createdAt           DateTime         @default(now())
+
+  consultant  Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  author      User?      @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  moderatedBy User?      @relation("ReviewModerator", fields: [moderatedById], references: [id])
+
+  @@index([consultantId, moderation])
+  @@map("consultant_reviews")
+}
+
+model ConsultantQualification {
+  id                    String  @id @default(cuid())
+  consultantId          String
+  qualification         String
+  institution           String?
+  professionalBody      String?
+  registrationReference String?
+  year                  Int?
+
+  consultant Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+
+  @@map("consultant_qualifications")
+}
+
+model ConsultantService {
+  id           String  @id @default(cuid())
+  consultantId String
+  name         String
+  description  String?
+  deliverables String?
+  deliveryMode String?
+  coverage     String?
+
+  consultant Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+
+  @@map("consultant_services")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 10 Recipes
+// ─────────────────────────────────────────────────────────────
+
+model Recipe {
+  id                String   @id @default(cuid())
+  contentItemId     String   @unique
+  cuisine           String?
+  skillLevel        String?
+  equipment         String?
+  yieldQuantity     Decimal? @db.Decimal(12, 3)
+  yieldUnit         String?
+  servings          Int?
+  prepMinutes       Int?
+  cookMinutes       Int?
+  allergens         String[]
+  dietaryLabels     String[]
+  storage           String?
+  shelfLife         String?
+  shelfLifeEvidence String? // required before a shelf-life claim is published
+  videoUrl          String?
+  videoDurationSec  Int?
+  transcript        String?
+
+  contentItem ContentItem        @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  ingredients RecipeIngredient[]
+  steps       RecipeStep[]
+  costings    RecipeCosting[]
+
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  id         String   @id @default(cuid())
+  recipeId   String
+  productId  String?
+  name       String
+  quantity   Decimal? @db.Decimal(12, 3) // NULL = "to taste" or not yet tested; never 0 for unknown
+  unit       String?
+  prepNote   String?
+  substitute String?
+  order      Int      @default(0)
+
+  recipe       Recipe              @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  product      Product?            @relation(fields: [productId], references: [id])
+  costingLines RecipeCostingLine[]
+
+  @@map("recipe_ingredients")
+}
+
+model RecipeStep {
+  id              String  @id @default(cuid())
+  recipeId        String
+  stepNumber      Int
+  instruction     String
+  durationMinutes Int?
+  temperatureC    Int?
+  mediaUrl        String?
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, stepNumber])
+  @@map("recipe_steps")
+}
+
+/// Dated costing scenario, kept separate from the base recipe.
+model RecipeCosting {
+  id               String   @id @default(cuid())
+  recipeId         String
+  costedAt         DateTime
+  locationId       String?
+  currency         String   @default("UGX")
+  ingredientCost   Decimal? @db.Decimal(16, 2)
+  packagingCost    Decimal? @db.Decimal(16, 2)
+  energyCost       Decimal? @db.Decimal(16, 2)
+  labourCost       Decimal? @db.Decimal(16, 2)
+  wastagePercent   Decimal? @db.Decimal(5, 2)
+  portionSize      String?
+  portionsPerBatch Int?
+  sellingPrice     Decimal? @db.Decimal(16, 2)
+  notes            String?
+
+  recipe   Recipe              @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  location Location?           @relation(fields: [locationId], references: [id])
+  lines    RecipeCostingLine[]
+
+  @@map("recipe_costings")
+}
+
+/// Ingredient price used in one costing, with the unit conversion preserved.
+/// Batch ingredient cost = sum(quantityUsed * unitPrice / conversionFactor).
+model RecipeCostingLine {
+  id               String   @id @default(cuid())
+  costingId        String
+  ingredientId     String?
+  description      String
+  quantityUsed     Decimal  @db.Decimal(12, 3)
+  usedUnit         String
+  purchaseUnit     String?
+  unitPrice        Decimal? @db.Decimal(16, 2) // price per purchaseUnit; NULL = not sourced
+  conversionFactor Decimal? @db.Decimal(12, 6) // usedUnits per purchaseUnit
+  unknownReason    String?
+  sourceId         String?
+
+  costing    RecipeCosting     @relation(fields: [costingId], references: [id], onDelete: Cascade)
+  ingredient RecipeIngredient? @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
+  source     Source?           @relation(fields: [sourceId], references: [id])
+
+  @@map("recipe_costing_lines")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 11 Tools and templates
+// ─────────────────────────────────────────────────────────────
+
+model Tool {
+  id                String    @id @default(cuid())
+  contentItemId     String    @unique
+  toolType          ToolType
+  purpose           String?
+  intendedUser      String?
+  requiredInputs    String?
+  usageSteps        String?
+  workedExample     String?
+  limitations       String?
+  fileFormat        String?
+  supportedSoftware String?
+  editable          Boolean?
+  hasMacros         Boolean?
+  calculatorRoute   String?
+  jurisdiction      String?
+  effectiveDate     DateTime?
+  ruleSourceUrl     String?
+  licence           String?
+  publisher         String?
+
+  contentItem ContentItem   @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  versions    ToolVersion[]
+
+  @@map("tools")
+}
+
+model ToolVersion {
+  id             String   @id @default(cuid())
+  toolId         String
+  versionNumber  String
+  releasedAt     DateTime
+  changeNotes    String?
+  superseded     Boolean  @default(false)
+  fileUrl        String?
+  /// Calculator formula/rule definitions, units, rounding. Past results stay tied to this version.
+  ruleDefinition Json?
+
+  tool         Tool              @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  testCases    ToolTestCase[]
+  calculations ToolCalculation[]
+
+  @@unique([toolId, versionNumber])
+  @@map("tool_versions")
+}
+
+/// A saved calculator result. Stays tied to the rule version used at the time
+/// (blueprint 11), so later rule changes never rewrite old results.
+model ToolCalculation {
+  id            String   @id @default(cuid())
+  toolVersionId String
+  userId        String
+  label         String?
+  inputs        Json
+  outputs       Json
+  createdAt     DateTime @default(now())
+
+  toolVersion ToolVersion @relation(fields: [toolVersionId], references: [id], onDelete: Restrict)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("tool_calculations")
+}
+
+model ToolTestCase {
+  id              String    @id @default(cuid())
+  toolVersionId   String
+  inputs          Json
+  expectedOutput  Json
+  lastValidatedAt DateTime?
+  validatorId     String?
+
+  toolVersion ToolVersion @relation(fields: [toolVersionId], references: [id], onDelete: Cascade)
+  validator   User?       @relation(fields: [validatorId], references: [id])
+
+  @@map("tool_test_cases")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 12 Markets and prices
+// ─────────────────────────────────────────────────────────────
+
+model Market {
+  id            String  @id @default(cuid())
+  name          String
+  marketType    String?
+  locationId    String?
+  town          String?
+  address       String?
+  operatingDays String?
+  contact       String?
+
+  location     Location?          @relation(fields: [locationId], references: [id])
+  observations PriceObservation[]
+
+  @@map("markets")
+}
+
+/// Historical observations are kept; never overwrite yesterday's price.
+model PriceObservation {
+  id                 String            @id @default(cuid())
+  marketId           String
+  productId          String
+  observedAt         DateTime
+  collectedAt        DateTime?
+  priceMin           Decimal?          @db.Decimal(16, 2)
+  priceMax           Decimal?          @db.Decimal(16, 2)
+  currency           String            @default("UGX")
+  quotedUnit         String // e.g. "50 kg bag"
+  quantityBasis      Decimal?          @db.Decimal(12, 3)
+  priceType          PriceType
+  productCondition   String?
+  grade              String?
+  packageSize        String?
+  conversionFactor   Decimal?          @db.Decimal(12, 6)
+  includesTax        Boolean?
+  includesTransport  Boolean?
+  sourceId           String?
+  collectionMethod   String?
+  quoteCount         Int?
+  collectorId        String?
+  verificationResult CheckResult       @default(NOT_CHECKED)
+  notes              String?
+  status             PublicationStatus @default(IN_REVIEW)
+  createdAt          DateTime          @default(now())
+
+  market      Market       @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  source      Source?      @relation(fields: [sourceId], references: [id])
+  collector   User?        @relation(fields: [collectorId], references: [id])
+  submissions Submission[]
+
+  @@index([productId, marketId, observedAt])
+  @@map("price_observations")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 13 Useful websites and news
+// ─────────────────────────────────────────────────────────────
+
+model UsefulWebsite {
+  id                  String      @id @default(cuid())
+  contentItemId       String      @unique
+  canonicalUrl        String
+  operator            String?
+  siteType            String?
+  mainFunction        String?
+  resources           String?
+  useCase             String?
+  countries           String[]
+  languages           String[]
+  accessCost          AccessCost?
+  pricingUrl          String?
+  accountRequired     Boolean?
+  restrictions        String?
+  officialSite        Boolean?
+  ownershipEvidence   String?
+  editorialAssessment String?
+  lastContentReviewAt DateTime?
+  availabilityStatus  String? // available, intermittent, unavailable
+  lastLinkCheckAt     DateTime?
+  linkStatus          Int? // last HTTP status
+  redirectUrl         String?
+  isAffiliate         Boolean     @default(false)
+  disclosure          String?
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@map("useful_websites")
+}
+
+model NewsArticle {
+  id               String      @id @default(cuid())
+  contentItemId    String      @unique
+  standfirst       String?
+  body             String?
+  articleType      ArticleType @default(NEWS)
+  author           String?
+  publisher        String?
+  originalUrl      String?
+  eventDate        DateTime?
+  effectiveDate    DateTime? // kept apart from publication date
+  whatChanged      String?
+  whoAffected      String?
+  nextAction       String?
+  correctionStatus String?
+  updateNotes      String?
+  imageCredit      String?
+  sourceLinks      String[]
+
+  contentItem   ContentItem        @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  organizations NewsOrganization[]
+
+  @@map("news_articles")
+}
+
+/// Organizations a news item concerns (blueprint 13 "related organizations").
+model NewsOrganization {
+  newsId         String
+  organizationId String
+
+  news         NewsArticle  @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([newsId, organizationId])
+  @@map("news_organizations")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Members, payments, saved items
+// ─────────────────────────────────────────────────────────────
+
+model MembershipPlan {
+  id           String       @id @default(cuid())
+  code         String       @unique // free, member, business_basic, business_featured...
+  name         String
+  audience     PlanAudience
+  priceMonthly Decimal?     @db.Decimal(14, 2) // NULL until the client confirms prices
+  priceYearly  Decimal?     @db.Decimal(14, 2)
+  currency     String       @default("UGX")
+  /// e.g. { "fullDetail": true, "contacts": true, "downloads": true, "alerts": true, "maxListings": 10 }
+  entitlements Json
+  isActive     Boolean      @default(true)
+  sortOrder    Int          @default(0)
+
+  subscriptions Subscription[]
+
+  @@map("membership_plans")
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String?
+  organizationId   String?
+  planId           String
+  status           SubscriptionStatus @default(ACTIVE)
+  period           BillingPeriod      @default(MONTHLY)
+  startedAt        DateTime           @default(now())
+  currentPeriodEnd DateTime?
+  cancelledAt      DateTime?
+
+  user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan         MembershipPlan @relation(fields: [planId], references: [id])
+  payments     Payment[]
+
+  @@index([userId, status])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  subscriptionId String
+  amount         Decimal       @db.Decimal(14, 2)
+  currency       String        @default("UGX")
+  method         PaymentMethod
+  providerRef    String?
+  status         PaymentStatus @default(PENDING)
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model SavedItem {
+  userId        String
+  contentItemId String
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@id([userId, contentItemId])
+  @@map("saved_items")
+}
+
+model Collection {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  isShared  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CollectionItem[]
+
+  @@map("collections")
+}
+
+model CollectionItem {
+  collectionId  String
+  contentItemId String
+  note          String?
+  addedAt       DateTime @default(now())
+
+  collection  Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, contentItemId])
+  @@map("collection_items")
+}
+
+model SavedSearch {
+  id        String    @id @default(cuid())
+  userId    String
+  query     String
+  filters   Json?
+  alert     Boolean   @default(false)
+  lastRunAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alerts Alert[]
+
+  @@map("saved_searches")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Review queue, corrections, documents, enquiries, audit
+// ─────────────────────────────────────────────────────────────
+
+model Submission {
+  id                 String           @id @default(cuid())
+  type               SubmissionType
+  status             SubmissionStatus @default(PENDING)
+  contentItemId      String?
+  organizationId     String?
+  supplierOfferId    String?
+  priceObservationId String?
+  roundId            String?
+  payload            Json?
+  submittedById      String?
+  assignedToId       String?
+  decisionNote       String?
+  decidedAt          DateTime?
+  createdAt          DateTime         @default(now())
+
+  contentItem      ContentItem?      @relation(fields: [contentItemId], references: [id], onDelete: SetNull)
+  organization     Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  supplierOffer    SupplierOffer?    @relation(fields: [supplierOfferId], references: [id], onDelete: SetNull)
+  priceObservation PriceObservation? @relation(fields: [priceObservationId], references: [id], onDelete: SetNull)
+  round            ApplicationRound? @relation(fields: [roundId], references: [id], onDelete: SetNull)
+  submittedBy      User?             @relation("SubmittedBy", fields: [submittedById], references: [id])
+  assignedTo       User?             @relation("AssignedTo", fields: [assignedToId], references: [id])
+  events           ModerationEvent[]
+
+  @@index([status, type, createdAt])
+  @@map("submissions")
+}
+
+model CorrectionReport {
+  id            String           @id @default(cuid())
+  contentItemId String
+  reporterId    String?
+  reporterEmail String?
+  message       String
+  status        SubmissionStatus @default(PENDING)
+  decisionNote  String?
+  decidedById   String?
+  decidedAt     DateTime?
+  createdAt     DateTime         @default(now())
+
+  contentItem ContentItem       @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  reporter    User?             @relation(fields: [reporterId], references: [id])
+  decidedBy   User?             @relation("CorrectionDecidedBy", fields: [decidedById], references: [id])
+  events      ModerationEvent[]
+
+  @@index([status, createdAt])
+  @@map("correction_reports")
+}
+
+/// Moderation history: every status change on a submission or correction,
+/// so decisions can be traced after the fact (blueprint 14).
+model ModerationEvent {
+  id                 String   @id @default(cuid())
+  submissionId       String?
+  correctionReportId String?
+  actorId            String?
+  fromStatus         String?
+  toStatus           String
+  note               String?
+  createdAt          DateTime @default(now())
+
+  submission       Submission?       @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  correctionReport CorrectionReport? @relation(fields: [correctionReportId], references: [id], onDelete: Cascade)
+  actor            User?             @relation(fields: [actorId], references: [id])
+
+  @@index([submissionId])
+  @@index([correctionReportId])
+  @@map("moderation_events")
+}
+
+enum AlertKind {
+  DEADLINE // funding round or opportunity closing soon
+  PRICE // new observation for a saved product
+  CONTENT_UPDATED // a saved item changed
+  SAVED_SEARCH // new results for a saved search
+  SUBMISSION // decision on something the user submitted
+  SYSTEM
+}
+
+/// Member alerts shown in /account (and later sent by email/SMS).
+model Alert {
+  id            String    @id @default(cuid())
+  userId        String
+  kind          AlertKind
+  title         String
+  body          String?
+  link          String?
+  contentItemId String?
+  savedSearchId String?
+  readAt        DateTime?
+  emailedAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentItem ContentItem? @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  savedSearch SavedSearch? @relation(fields: [savedSearchId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("alerts")
+}
+
+/// Usage events to learn what information visitors need (blueprint 14).
+/// No personal data beyond the optional user id.
+model UsageEvent {
+  id            String   @id @default(cuid())
+  userId        String?
+  event         String // view, download, contact_reveal, save, apply_click, compare...
+  contentItemId String?
+  path          String?
+  details       Json?
+  createdAt     DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([contentItemId])
+  @@map("usage_events")
+}
+
+/// Private files such as verification documents. Never served publicly.
+model Document {
+  id             String   @id @default(cuid())
+  organizationId String?
+  uploadedById   String?
+  purpose        String // registration_certificate, director_id, trading_licence, quotation...
+  fileLocation   String
+  mimeType       String?
+  sizeBytes      Int?
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploadedBy   User?         @relation(fields: [uploadedById], references: [id])
+
+  @@map("documents")
+}
+
+model Enquiry {
+  id             String        @id @default(cuid())
+  organizationId String
+  contentItemId  String?
+  fromUserId     String?
+  message        String
+  status         EnquiryStatus @default(NEW)
+  createdAt      DateTime      @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contentItem  ContentItem? @relation(fields: [contentItemId], references: [id], onDelete: SetNull)
+  fromUser     User?        @relation(fields: [fromUserId], references: [id])
+
+  @@map("enquiries")
+}
+
+model ContactReveal {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, createdAt])
+  @@map("contact_reveals")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SearchEvent {
+  id           String   @id @default(cuid())
+  userId       String?
+  query        String
+  filters      Json?
+  resultsCount Int
+  createdAt    DateTime @default(now())
+
+  @@map("search_events")
+}

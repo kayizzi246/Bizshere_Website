@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: bizsphere-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bizsphere
+      POSTGRES_PASSWORD: bizsphere
+      POSTGRES_DB: bizsphere
+    ports:
+      - "5432:5432"
+    volumes:
+      - bizsphere-pgdata:/var/lib/postgresql/data
+
+volumes:
+  bizsphere-pgdata:

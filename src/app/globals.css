@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Plus Jakarta Sans";
+}
+
+body {
+  @apply bg-page text-ink antialiased font-sans;
+}
+
+a {
+  @apply text-brand hover:text-brand-dark;
+}
+
+@layer components {
+  .container-site { @apply mx-auto w-full max-w-site px-6; }
+  .card { @apply rounded-2xl border border-line bg-white; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-bold transition-colors; }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark hover:text-white; }
+  .btn-outline { @apply btn border border-line-strong bg-white text-ink hover:border-ink hover:text-ink; }
+  .btn-danger { @apply btn border border-[#C9A39C] bg-white text-bad-fg; }
+  .label { @apply flex flex-col gap-1.5 text-sm font-bold text-ink-soft; }
+  .input { @apply min-h-[46px] rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-normal text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20; }
+  .eyebrow { @apply text-xs font-bold uppercase tracking-wider text-brand; }
+  .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold; }
+  .badge-ok { @apply badge bg-brand-tint text-brand-dark; }
+  .badge-warn { @apply badge bg-warn-bg text-warn-fg; }
+  .badge-bad { @apply badge bg-bad-bg text-bad-fg; }
+  .badge-info { @apply badge bg-info-bg text-info-fg; }
+  .badge-muted { @apply badge bg-[#EEF0EC] text-ink-soft; }
+  .blurred { @apply pointer-events-none select-none blur-[5px]; }
+  .table-base { @apply w-full border-collapse text-sm; }
+  .table-base th { @apply bg-page px-4 py-3 text-left font-bold; }
+  .table-base td { @apply border-t border-line px-4 py-3 align-top; }
+}
