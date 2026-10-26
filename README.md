@@ -76,7 +76,8 @@ Sign in as the visitor and the member in two browsers to see the free preview vs
 | `npm run db:setup` | First time: apply migrations, constraints, seed |
 | `npm run db:migrate` | Create and apply a new migration after editing `schema.prisma` |
 | `npm run db:constraints` | Re-apply `prisma/sql/constraints.sql` (safe to repeat) |
-| `npm run db:seed` | Load sample data (safe to repeat) |
+| `npm run db:seed` | Load sample data and demo accounts (development only; safe to repeat) |
+| `npm run db:production-setup` | Online database: migrations, constraints, admin and reference data (no demo accounts) |
 | `npm run db:reset` | Wipe and rebuild the database (asks first). Run `db:constraints` and `db:seed` after |
 | `npm run db:studio` | Browse the database in Prisma Studio |
 | `npm run jobs` | Daily jobs: close funding rounds, deadline alerts, stale quotes, expiries, link checks |
@@ -143,7 +144,12 @@ Full status and what's next: [docs/07-delivery-plan.md](docs/07-delivery-plan.md
 
 ## 5. Deploying
 
-Any Node host that can reach PostgreSQL works (a VPS, Render, Railway, Fly.io). On deploy:
+**Vercel (recommended):** follow [docs/08-deploy-to-vercel.md](docs/08-deploy-to-vercel.md).
+Daily jobs run through Vercel Cron (`vercel.json` → `/api/cron/daily`). Set up the online
+database once with `npm run db:production-setup`, which creates the admin and reference data
+only, with no demo accounts.
+
+**Any other Node host** that can reach PostgreSQL (a VPS, Render, Railway, Fly.io):
 
 ```bash
 npm ci

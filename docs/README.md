@@ -12,6 +12,7 @@ Read them in this order. Each document says who it is for.
 | 05 | [Editor guide](05-editor-guide.md) | Editors, admins | How to add and check content, record verification, handle corrections and prices |
 | 06 | [Client information checklist](06-client-information-checklist.md) | Client, project lead | Brand items still needed (logo, colours, fonts...) and where each goes |
 | 07 | [Delivery plan](07-delivery-plan.md) | Client, project lead | The five delivery stages, what is done, what is left, the acceptance test |
+| 08 | [Deploy to Vercel](08-deploy-to-vercel.md) | Whoever puts the site online | Step-by-step: Vercel project, Neon database, tables, admin, daily jobs |
 
 ## Source documents
 

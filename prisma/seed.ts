@@ -16,32 +16,18 @@ async function main() {
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@bizsphere.local";
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "change-me-now";
   const demoPassword = process.env.SEED_DEMO_PASSWORD ?? "Demo-12345";
+  // Production (`npm run db:seed:production`, or SEED_SAMPLE_DATA=false): admin +
+  // reference data only. No demo accounts with known passwords, no sample listings.
+  const sampleData = !process.argv.includes("--production") && process.env.SEED_SAMPLE_DATA !== "false";
+  if (!sampleData && (adminPassword === "change-me-now" || adminPassword.length < 12)) {
+    throw new Error("Production seed: set SEED_ADMIN_PASSWORD to a strong password (12+ characters).");
+  }
 
-  // ── Users ────────────────────────────────────────────────
+  // ── Admin ────────────────────────────────────────────────
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {},
     create: { name: "Platform Admin", email: adminEmail, role: "ADMIN", passwordHash: await bcrypt.hash(adminPassword, 10) },
-  });
-  const editor = await prisma.user.upsert({
-    where: { email: "editor@bizsphere.local" },
-    update: {},
-    create: { name: "Sample Editor", email: "editor@bizsphere.local", role: "EDITOR", passwordHash: await bcrypt.hash(demoPassword, 10) },
-  });
-  const member = await prisma.user.upsert({
-    where: { email: "member@bizsphere.local" },
-    update: {},
-    create: { name: "Sample Member", email: "member@bizsphere.local", role: "USER", passwordHash: await bcrypt.hash(demoPassword, 10) },
-  });
-  const owner = await prisma.user.upsert({
-    where: { email: "dealer@bizsphere.local" },
-    update: {},
-    create: { name: "Sample Dealer", email: "dealer@bizsphere.local", role: "CONTRIBUTOR", phone: "+256000000000", passwordHash: await bcrypt.hash(demoPassword, 10) },
-  });
-  await prisma.user.upsert({
-    where: { email: "visitor@bizsphere.local" },
-    update: {},
-    create: { name: "Sample Visitor", email: "visitor@bizsphere.local", role: "USER", passwordHash: await bcrypt.hash(demoPassword, 10) },
   });
 
   // ── Places ───────────────────────────────────────────────
@@ -91,6 +77,57 @@ async function main() {
       create: { code, name, audience: "BUSINESS", sortOrder: order, entitlements: ent, ...(code === "business_basic" ? { priceMonthly: 0, priceYearly: 0 } : {}) },
     });
   }
+  // ── Reference data: audiences and units ─────────────────
+  for (const name of ["Youth", "Women entrepreneurs", "Farmers and agribusiness", "Students and graduates", "Diaspora investors", "Existing SMEs"]) {
+    await prisma.audience.upsert({ where: { slug: slugify(name) }, update: {}, create: { name, slug: slugify(name) } });
+  }
+  // toBase only where the conversion is exact. Packaging units (bag, crate) have no fixed weight.
+  const units: [string, string, string, string | null, number | null][] = [
+    ["kg", "Kilogram", "mass", null, null], ["g", "Gram", "mass", "kg", 0.001], ["t", "Tonne", "mass", "kg", 1000],
+    ["l", "Litre", "volume", null, null], ["ml", "Millilitre", "volume", "l", 0.001],
+    ["piece", "Piece", "count", null, null], ["dozen", "Dozen", "count", "piece", 12],
+    ["bag", "Bag (weight varies)", "count", null, null], ["crate", "Crate (size varies)", "count", null, null],
+    ["kg_per_hour", "Kilograms per hour", "rate", null, null], ["l_per_hour", "Litres per hour", "rate", null, null],
+    ["pieces_per_hour", "Pieces per hour", "rate", null, null], ["kw", "Kilowatt", "power", null, null],
+    ["hour", "Hour", "time", null, null], ["day", "Day", "time", "hour", 24], ["month", "Month", "time", null, null],
+  ];
+  for (const [code, name, dimension, baseCode, toBase] of units) {
+    await prisma.unit.upsert({ where: { code }, update: {}, create: { code, name, dimension, baseCode, toBase } });
+  }
+  const recipeCat = await cat("RECIPE_CATEGORY", "Baked goods");
+  const toolCat = await cat("TOOL_CATEGORY", "Costing and pricing");
+  const siteCat = await cat("WEBSITE_CATEGORY", "Government services");
+  const newsCat = await cat("NEWS_CATEGORY", "Funding and finance");
+  await cat("SERVICE_SPECIALTY", "Business planning");
+
+  if (!sampleData) {
+    await prisma.auditLog.create({ data: { actorId: admin.id, action: "seed.production", entityType: "system", details: { at: now.toISOString() } } });
+    console.log("Production seed complete (admin + reference data, no sample content). Admin:", adminEmail);
+    return;
+  }
+
+  // ── Demo accounts (development only) ────────────────────
+  const editor = await prisma.user.upsert({
+    where: { email: "editor@bizsphere.local" },
+    update: {},
+    create: { name: "Sample Editor", email: "editor@bizsphere.local", role: "EDITOR", passwordHash: await bcrypt.hash(demoPassword, 10) },
+  });
+  const member = await prisma.user.upsert({
+    where: { email: "member@bizsphere.local" },
+    update: {},
+    create: { name: "Sample Member", email: "member@bizsphere.local", role: "USER", passwordHash: await bcrypt.hash(demoPassword, 10) },
+  });
+  const owner = await prisma.user.upsert({
+    where: { email: "dealer@bizsphere.local" },
+    update: {},
+    create: { name: "Sample Dealer", email: "dealer@bizsphere.local", role: "CONTRIBUTOR", phone: "+256000000000", passwordHash: await bcrypt.hash(demoPassword, 10) },
+  });
+  await prisma.user.upsert({
+    where: { email: "visitor@bizsphere.local" },
+    update: {},
+    create: { name: "Sample Visitor", email: "visitor@bizsphere.local", role: "USER", passwordHash: await bcrypt.hash(demoPassword, 10) },
+  });
+
   // Give the sample member an active subscription
   const hasSub = await prisma.subscription.findFirst({ where: { userId: member.id } });
   if (!hasSub) {
@@ -291,29 +328,6 @@ async function main() {
     }
   }
   void flour;
-
-  // ── Reference data: audiences and units ─────────────────
-  for (const name of ["Youth", "Women entrepreneurs", "Farmers and agribusiness", "Students and graduates", "Diaspora investors", "Existing SMEs"]) {
-    await prisma.audience.upsert({ where: { slug: slugify(name) }, update: {}, create: { name, slug: slugify(name) } });
-  }
-  // toBase only where the conversion is exact. Packaging units (bag, crate) have no fixed weight.
-  const units: [string, string, string, string | null, number | null][] = [
-    ["kg", "Kilogram", "mass", null, null], ["g", "Gram", "mass", "kg", 0.001], ["t", "Tonne", "mass", "kg", 1000],
-    ["l", "Litre", "volume", null, null], ["ml", "Millilitre", "volume", "l", 0.001],
-    ["piece", "Piece", "count", null, null], ["dozen", "Dozen", "count", "piece", 12],
-    ["bag", "Bag (weight varies)", "count", null, null], ["crate", "Crate (size varies)", "count", null, null],
-    ["kg_per_hour", "Kilograms per hour", "rate", null, null], ["l_per_hour", "Litres per hour", "rate", null, null],
-    ["pieces_per_hour", "Pieces per hour", "rate", null, null], ["kw", "Kilowatt", "power", null, null],
-    ["hour", "Hour", "time", null, null], ["day", "Day", "time", "hour", 24], ["month", "Month", "time", null, null],
-  ];
-  for (const [code, name, dimension, baseCode, toBase] of units) {
-    await prisma.unit.upsert({ where: { code }, update: {}, create: { code, name, dimension, baseCode, toBase } });
-  }
-  const recipeCat = await cat("RECIPE_CATEGORY", "Baked goods");
-  const toolCat = await cat("TOOL_CATEGORY", "Costing and pricing");
-  const siteCat = await cat("WEBSITE_CATEGORY", "Government services");
-  const newsCat = await cat("NEWS_CATEGORY", "Funding and finance");
-  await cat("SERVICE_SPECIALTY", "Business planning");
 
   // ── Recipe (no prices: costing comes from real dated quotes) ──
   const recipeItem = await upsertContent("basic-white-bread-batch", {

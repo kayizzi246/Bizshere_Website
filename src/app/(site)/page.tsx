@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { date, itemHref, money, moneyRange } from "@/lib/format";
+import { date, itemHref, money } from "@/lib/format";
 import { budgetTotal } from "@/lib/costing";
 import { Icon } from "@/components/Icon";
 
@@ -32,7 +32,7 @@ const FAQ: [string, string][] = [
 ];
 
 export default async function HomePage() {
-  const [idea, rounds, prices, guides, plans] = await Promise.all([
+  const [idea, guides] = await Promise.all([
     prisma.contentItem.findFirst({
       where: { contentType: "BUSINESS_IDEA", publicationStatus: "PUBLISHED" },
       include: {
@@ -42,24 +42,11 @@ export default async function HomePage() {
       },
       orderBy: { publishedAt: "desc" },
     }),
-    prisma.applicationRound.findMany({
-      where: { status: "OPEN", programme: { contentItem: { publicationStatus: "PUBLISHED" } } },
-      include: { programme: { include: { contentItem: true } } },
-      orderBy: { closesAt: "asc" },
-      take: 3,
-    }),
-    prisma.priceObservation.findMany({
-      where: { status: "PUBLISHED" },
-      include: { product: true, market: true },
-      orderBy: { observedAt: "desc" },
-      take: 4,
-    }),
     prisma.contentItem.findMany({
       where: { contentType: { in: ["GUIDE", "TOOL", "RECIPE", "NEWS"] }, publicationStatus: "PUBLISHED" },
       orderBy: { publishedAt: "desc" },
       take: 4,
     }),
-    prisma.membershipPlan.findMany({ where: { isActive: true, audience: "MEMBER" }, orderBy: { sortOrder: "asc" } }),
   ]);
   const scenario = idea?.businessIdea?.scenarios[0];
 
@@ -175,133 +162,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── How it works ────────────────────────────────── */}
-      <section className="bg-white py-20">
-        <div className="container-site flex flex-col gap-12">
-          <SectionHead eyebrow="How it works" title="Three steps to a business you can start" />
-          <ol className="grid gap-6 md:grid-cols-3">
-            {[
-              ["Choose an idea", "Compare plans by budget, skills and premises. Each one shows its steps and a dated startup budget."],
-              ["Find what you need", "Every plan links to the machines, suppliers, experts and recipes it needs, with offers side by side."],
-              ["Fund it and start", "See funding you may qualify for, with full terms and deadlines. Save everything into one collection."],
-            ].map(([t, x], n) => (
-              <li key={t} className="relative flex flex-col gap-3 rounded-2xl border border-line bg-page p-7">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-base font-extrabold text-white">{n + 1}</span>
-                <span className="text-xl font-extrabold">{t}</span>
-                <span className="leading-relaxed text-ink-muted">{x}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ── Showcase: funding ───────────────────────────── */}
-      <section className="container-site grid items-center gap-12 py-20 lg:grid-cols-2">
-        <div className="flex flex-col gap-5">
-          <span className="eyebrow">Funding</span>
-          <h2 className="text-4xl font-extrabold tracking-tight">Never miss a funding deadline</h2>
-          <p className="text-lg leading-relaxed text-ink-muted">Loans, grants and equity in one place, with interest, collateral and eligibility checked against the provider&apos;s official terms. Save a programme and we&apos;ll remind you before it closes.</p>
-          <Bullets items={["Full terms, checked against the official source", "Open rounds with deadlines in East Africa Time", "Reminder alerts 7 days before closing"]} />
-          <Link href="/funding" className="btn-primary self-start rounded-full px-6">See open funding <Icon name="arrow" className="h-4 w-4" /></Link>
-        </div>
-        <Panel title="Open funding" icon="calendar" href="/funding">
-          {rounds.length === 0 ? <Empty text="No open rounds right now. New rounds appear here as soon as they open." /> : rounds.map((r) => (
-            <Link key={r.id} href={`/funding/${r.programme.contentItem.slug}`} className="flex items-center justify-between gap-4 border-t border-line py-4 text-ink first:border-0 hover:text-ink">
-              <span className="flex flex-col"><span className="font-bold">{r.programme.contentItem.title}</span><span className="text-sm text-ink-muted"><span className="capitalize">{r.programme.fundingType.toLowerCase()}</span> ·{moneyRange(r.programme.amountMin, r.programme.amountMax, r.programme.currency, "Amount to be confirmed")}</span></span>
-              <span className="badge-ok whitespace-nowrap">{r.isRolling ? "Rolling" : `Closes ${date(r.closesAt)}`}</span>
-            </Link>
-          ))}
-        </Panel>
-      </section>
-
-      {/* ── Showcase: prices ────────────────────────────── */}
-      <section className="bg-white">
-        <div className="container-site grid items-center gap-12 py-20 lg:grid-cols-2">
-          <Panel title="Latest market prices" icon="prices" href="/prices" className="lg:order-1">
-            {prices.length === 0 ? <Empty text="Price observations appear here as soon as our collectors publish them." /> : prices.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-4 border-t border-line py-4 first:border-0">
-                <span className="flex flex-col"><span className="font-bold">{p.product.name}{p.grade ? `, ${p.grade}` : ""}</span><span className="text-sm text-ink-muted">{p.market.name} · {p.quotedUnit}</span></span>
-                <span className="flex flex-col items-end"><span className="font-extrabold">{moneyRange(p.priceMin, p.priceMax, p.currency)}</span><span className="text-xs text-ink-muted">Observed {date(p.observedAt)}</span></span>
-              </div>
-            ))}
-          </Panel>
-          <div className="flex flex-col gap-5 lg:order-2">
-            <span className="eyebrow">Markets and prices</span>
-            <h2 className="text-4xl font-extrabold tracking-tight">Prices you can actually compare</h2>
-            <p className="text-lg leading-relaxed text-ink-muted">Every price shows the market, the grade, the unit and the day it was observed. We only compare like with like, so a 50 kg bag is never set against a 25 kg one.</p>
-            <Bullets items={["Retail, wholesale and farm-gate prices", "Old prices clearly marked", "Full price history for members"]} />
-            <Link href="/prices" className="btn-primary self-start rounded-full px-6">Check prices <Icon name="arrow" className="h-4 w-4" /></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trust ───────────────────────────────────────── */}
-      <section className="bg-brand-deep text-white">
-        <div className="container-site flex flex-col gap-12 py-20">
-          <div className="flex max-w-2xl flex-col gap-3">
-            <span className="text-sm font-bold uppercase tracking-wider text-brand-mint">Why people trust it</span>
-            <h2 className="text-4xl font-extrabold tracking-tight">Information you can check, not just believe</h2>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["calendar", "Dated and sourced", "Every page lists its sources and when it was last reviewed."],
-              ["shield", "Specific checks", "We say exactly what we checked: a contact, a registration, an address."],
-              ["check", "Unknown stays unknown", "A cost we haven't sourced says so. It is never shown as zero."],
-              ["link", "Open to correction", "Spot something wrong? Report it from any page and an editor checks it."],
-            ].map(([i, t, x]) => (
-              <div key={t} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-brand-mint"><Icon name={i} /></span>
-                <span className="text-lg font-extrabold">{t}</span>
-                <span className="leading-relaxed text-[#C9DDD0]">{x}</span>
-              </div>
-            ))}
-          </div>
-          <Link href="/methodology" className="inline-flex items-center gap-1 self-start font-bold text-brand-mint hover:text-white">Read how we research <Icon name="arrow" className="h-4 w-4" /></Link>
-        </div>
-      </section>
-
-      {/* ── Pricing ─────────────────────────────────────── */}
-      <section className="container-site flex flex-col gap-10 py-20">
-        <SectionHead eyebrow="Pricing" title="Start free. Upgrade when you're ready." text="Search and previews are free. Membership unlocks everything you need to act." center />
-        <div className="mx-auto grid w-full max-w-4xl gap-5 md:grid-cols-2">
-          {(plans.length ? plans : [{ id: "free", code: "free", name: "Free", priceMonthly: null, currency: "UGX" }, { id: "member", code: "member", name: "Member", priceMonthly: null, currency: "UGX" }]).map((p) => {
-            const featured = p.code === "member";
-            const features = featured
-              ? ["Full business plans and budgets", "Supplier and expert contacts", "Full funding terms and deadline alerts", "Price history, templates and downloads"]
-              : ["Search every directory", "Previews of every page", "Save items and collections"];
-            return (
-              <div key={p.id} className={`relative flex flex-col gap-5 rounded-3xl p-8 ${featured ? "bg-brand-deep text-white shadow-2xl shadow-brand/20" : "card"}`}>
-                {featured ? <span className="absolute -top-3 right-6 rounded-full bg-brand-mint px-3 py-1 text-xs font-extrabold text-brand-deep">Everything unlocked</span> : null}
-                <span className="text-lg font-extrabold">{p.name}</span>
-                <span className="text-4xl font-extrabold tracking-tight">
-                  {p.code === "free" ? "UGX 0" : money(p.priceMonthly, p.currency, "Coming soon")}
-                  {p.code !== "free" && p.priceMonthly !== null ? <span className="ml-1 text-base font-normal opacity-80">/ month</span> : null}
-                </span>
-                <ul className="flex flex-col gap-3">
-                  {features.map((f) => <li key={f} className="flex items-start gap-2.5"><Icon name="check" className={`mt-0.5 h-5 w-5 shrink-0 ${featured ? "text-brand-mint" : "text-brand"}`} />{f}</li>)}
-                </ul>
-                <Link href={featured ? "/membership" : "/signup"} className={`btn mt-auto min-h-[50px] rounded-full ${featured ? "bg-white font-extrabold text-brand-deep hover:bg-brand-tint hover:text-brand-deep" : "border border-line-strong text-ink hover:border-ink hover:text-ink"}`}>
-                  {featured ? "See membership" : "Create free account"}
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-        <p className="text-center text-sm text-ink-muted">Pay with MTN Mobile Money, Airtel Money or card · Cancel any time</p>
-      </section>
-
-      {/* ── For businesses ──────────────────────────────── */}
-      <section className="container-site pb-20">
-        <div className="grid items-center gap-8 rounded-3xl border border-line bg-white p-8 md:grid-cols-[auto_1fr_auto] md:p-10">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-tint text-brand"><Icon name="store" className="h-7 w-7" /></span>
-          <div className="flex flex-col gap-1.5">
-            <h2 className="text-2xl font-extrabold tracking-tight">Sell machines, supplies or services?</h2>
-            <p className="text-ink-muted">List your business where new entrepreneurs look for suppliers. Add your offers, get enquiries and show the checks you&apos;ve passed.</p>
-          </div>
-          <Link href="/join" className="btn-primary rounded-full px-6">List your business</Link>
-        </div>
-      </section>
-
       {/* ── Resources ───────────────────────────────────── */}
       {guides.length ? (
         <section className="bg-white py-20">
@@ -369,28 +229,3 @@ function SectionHead({ eyebrow, title, text, center = false }: { eyebrow: string
   );
 }
 
-function Bullets({ items }: { items: string[] }) {
-  return (
-    <ul className="flex flex-col gap-2.5">
-      {items.map((i) => <li key={i} className="flex items-start gap-2.5 text-[15px]"><Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-brand" />{i}</li>)}
-    </ul>
-  );
-}
-
-function Panel({ title, icon, href, children, className = "" }: { title: string; icon: string; href: string; children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`rounded-3xl border border-line bg-page p-3 shadow-xl shadow-ink/5 ${className}`}>
-      <div className="rounded-2xl border border-line bg-white p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="flex items-center gap-2.5 font-extrabold"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={icon} className="h-4 w-4" /></span>{title}</span>
-          <Link href={href} className="text-sm font-bold">View all</Link>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return <p className="py-4 text-sm text-ink-muted">{text}</p>;
-}
