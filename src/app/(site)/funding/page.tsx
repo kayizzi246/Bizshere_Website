@@ -1,21 +1,21 @@
 import { DirectoryList } from "@/components/DirectoryList";
-import { FUNDING_TABS, date, moneyRange } from "@/lib/format";
+import { directory } from "@/config/directories";
+import { FUNDING_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Funding programmes" };
+export const metadata = { title: "Funding sources" };
 
+// Public fields only: the amount is member detail.
 async function meta(ids: string[]) {
-  const rows = await prisma.fundingProgramme.findMany({
-    where: { contentItemId: { in: ids } },
-    include: { rounds: { where: { status: "OPEN" }, orderBy: { closesAt: "asc" }, take: 1 } },
-  });
-  return Object.fromEntries(rows.map((p) => {
-    const r = p.rounds[0];
-    const when = r ? (r.isRolling ? "Rolling applications" : `Closes ${date(r.closesAt)}`) : "No open round";
-    return [p.contentItemId, `${p.fundingType.toLowerCase()} · ${moneyRange(p.amountMin, p.amountMax, p.currency, "Amount to be confirmed")} · ${when}`];
-  }));
+  const rows = await prisma.fundingProgramme.findMany({ where: { contentItemId: { in: ids } }, include: { provider: { include: { organization: true } } } });
+  return Object.fromEntries(rows.map((p) => [p.contentItemId, [
+    p.fundingType.charAt(0) + p.fundingType.slice(1).toLowerCase(),
+    p.provider.organization.tradingName ?? p.provider.organization.legalName,
+    p.providerCategory ?? p.provider.providerCategory,
+  ].filter(Boolean).join(" · ")]));
 }
 
 export default function Page() {
-  return <DirectoryList types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" meta={meta} title="Funding programmes" intro="Loans, grants and equity, with eligibility and round dates. Upper amounts are ceilings, not guaranteed awards." />;
+  const d = directory("/funding");
+  return <DirectoryList types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" meta={meta} title={d.title} intro={d.text} />;
 }

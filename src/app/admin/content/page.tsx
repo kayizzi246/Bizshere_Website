@@ -33,7 +33,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
         <Link href={`/admin/content/new${type ? `?type=${type}` : ""}`} className="btn-primary">Add {type ? contentTypeLabel[type].toLowerCase() : "content"}</Link>
       </div>
 
-      <div role="tablist" className="flex flex-wrap gap-1.5 border-b border-[#D9DDD6]">
+      <div role="tablist" className="flex flex-wrap gap-1.5 border-b border-[#D6D3CF]">
         {DIRS.map(([t, l]) => (
           <Link key={t} role="tab" aria-selected={type === t} href={"?" + new URLSearchParams({ ...(t ? { type: t } : {}), fresh }).toString()} className={`-mb-px border-b-[3px] px-3.5 py-3 text-sm ${type === t ? "border-brand font-extrabold text-brand-dark" : "border-transparent font-semibold text-ink-soft"}`}>{l}</Link>
         ))}

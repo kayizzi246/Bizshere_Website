@@ -3,7 +3,7 @@ export function StaticPage({ title, intro, children, draft = false }: { title: s
   return (
     <div className="container-site flex max-w-3xl flex-col gap-6 py-10">
       <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold tracking-tight">{title}</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
         {intro ? <p className="text-lg leading-relaxed text-ink-soft">{intro}</p> : null}
       </div>
       {draft ? (

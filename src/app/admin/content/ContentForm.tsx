@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
+import { directoryFor, MAIN, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import type { FormOptions } from "./load";
 
@@ -19,7 +19,10 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const [state, action] = useFormState<ContentFormState, FormData>(saveContent, {});
   const err = (k: string) => state.errors?.[k];
   const v = (k: string) => values[k] ?? "";
-  const groups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))];
+  const lb = dir.labels ?? {};
+  // The client's field list comes first; the original blueprint's extra fields fold away below it.
+  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN);
+  const mainFields = dir.fields.filter((f) => f.group === MAIN);
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -27,13 +30,14 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
       {values.id ? <input type="hidden" name="id" value={values.id} /> : null}
       {state.errors ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{err("form") ?? "Please fix the highlighted fields."}</p> : null}
 
-      <Section title="1. Identity and publishing">
+      <Section title="1. Name and publishing">
         <Row>
-          <Input name="title" label="Title" defaultValue={v("title")} error={err("title")} required />
+          <Input name="title" label={lb.title ?? "Title"} defaultValue={v("title")} error={err("title")} required />
           <Input name="slug" label="Web address (slug)" defaultValue={v("slug")} error={err("slug")} help="Leave empty to build it from the title" />
         </Row>
-        <TextArea name="shortSummary" label="Short summary (shown on cards)" defaultValue={v("shortSummary")} rows={2} />
-        <TextArea name="overview" label="Overview" defaultValue={v("overview")} rows={5} />
+        <TextArea name="shortSummary" label={`${lb.shortSummary ?? "Short summary"} (shown on cards)`} defaultValue={v("shortSummary")} rows={2} />
+        <TextArea name="overview" label={lb.overview ?? "Overview"} defaultValue={v("overview")} rows={5} />
+        <Select name="primaryCategoryId" label={lb.category ?? "Primary category"} defaultValue={v("primaryCategoryId")} options={[{ value: "", label: "None" }, ...options.categories]} />
         <Row>
           <Select name="publicationStatus" label="Status" defaultValue={v("publicationStatus") || "DRAFT"} error={err("publicationStatus")} options={["DRAFT", "IN_REVIEW", "PUBLISHED", "ARCHIVED"].map((s) => ({ value: s, label: s.replace("_", " ").toLowerCase() }))} />
           <Select name="accessLevel" label="Access" defaultValue={v("accessLevel") || "PREVIEW"} error={err("accessLevel")} options={[{ value: "PUBLIC", label: "Public (all detail free)" }, { value: "PREVIEW", label: "Preview free, detail for members" }, { value: "MEMBERS", label: "Members only" }]} />
@@ -53,13 +57,14 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         </Section>
       ) : null}
 
-      {groups.map((g, n) => (
-        <Section key={g} title={`${n + (dir.link ? 3 : 2)}. ${g}`}>
+      {mainFields.length ? (
+        <Section title={`${dir.link ? 3 : 2}. ${MAIN}`}>
+          <p className="-mt-2 text-sm text-ink-muted">These are shown on the public page.</p>
           <div className="flex flex-wrap gap-3.5">
-            {dir.fields.filter((f) => (f.group ?? "Details") === g).map((f) => <FieldInput key={f.name} f={f} value={v(`f_${f.name}`)} error={err(f.name)} />)}
+            {mainFields.map((f) => <FieldInput key={f.name} f={f} value={v(`f_${f.name}`)} error={err(f.name)} />)}
           </div>
         </Section>
-      ))}
+      ) : null}
 
       {dir.children?.map((c) => (
         <Section key={c.key} title={c.label}>
@@ -67,8 +72,26 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         </Section>
       ))}
 
+      {extraGroups.length ? (
+        <details className="card group p-6 [&_summary::-webkit-details-marker]:hidden" open={extraGroups.some((g) => dir.fields.some((f) => f.group === g && err(f.name)))}>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+            <span className="flex flex-col"><span className="text-lg font-extrabold">More fields (optional)</span><span className="text-sm text-ink-muted">Extra detail from the original blueprint. Not shown on the public page.</span></span>
+            <span className="text-xl text-ink-muted transition group-open:rotate-45">+</span>
+          </summary>
+          <div className="mt-5 flex flex-col gap-6">
+            {extraGroups.map((g) => (
+              <div key={g} className="flex flex-col gap-3">
+                <h3 className="font-extrabold">{g}</h3>
+                <div className="flex flex-wrap gap-3.5">
+                  {dir.fields.filter((f) => (f.group ?? "Details") === g).map((f) => <FieldInput key={f.name} f={f} value={v(`f_${f.name}`)} error={err(f.name)} />)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
+      ) : null}
+
       <Section title="Classification and audience">
-        <Select name="primaryCategoryId" label="Primary category" defaultValue={v("primaryCategoryId")} options={[{ value: "", label: "None" }, ...options.categories]} />
         <Checks name="categories" legend="Other categories and industries" options={options.categories} checked={multi?.categories ?? []} />
         <Checks name="businessStages" legend="Business stages" options={["IDEA", "STARTING", "GROWING", "ESTABLISHED"].map((s) => ({ value: s, label: s.toLowerCase() }))} checked={multi?.businessStages ?? []} />
         <Checks name="audiences" legend="Audiences" options={options.audiences} checked={multi?.audiences ?? []} />

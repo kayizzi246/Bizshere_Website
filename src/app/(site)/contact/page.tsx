@@ -28,7 +28,7 @@ export default function ContactPage() {
       <H2>Other ways to reach the right team</H2>
       <ul className="list-disc pl-5">
         <li>Found something wrong on a page? <Link href="/corrections">Report a correction</Link> from that page.</li>
-        <li>Want your business listed? <Link href="/join">List your business</Link>.</li>
+        <li>Want your business listed? Send us your business name, what you sell and how to reach you. Our team adds and checks every listing.</li>
         <li>Questions about plans and payments? See <Link href="/membership">membership</Link>.</li>
       </ul>
     </StaticPage>

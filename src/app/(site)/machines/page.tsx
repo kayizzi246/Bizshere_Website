@@ -1,18 +1,17 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import { directory } from "@/config/directories";
 import { MACHINE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Machines" };
+export const metadata = { title: "Business machines" };
 
+// Public fields only: price and source are member detail.
 async function meta(ids: string[]) {
-  const rows = await prisma.machine.findMany({ where: { contentItemId: { in: ids } }, include: { _count: { select: { offers: { where: { status: "PUBLISHED" } } } } } });
-  return Object.fromEntries(rows.map((m) => [m.contentItemId, [
-    m.capacityMax ? `Up to ${m.capacityMax} ${m.capacityUnit ?? ""}` : null,
-    m.powerSource, m.voltage ? `${m.voltage} V` : null, m.phase ? `${m.phase}-phase` : null,
-    `${m._count.offers} seller offer(s)`,
-  ].filter(Boolean).join(" · ")]));
+  const rows = await prisma.machine.findMany({ where: { contentItemId: { in: ids } } });
+  return Object.fromEntries(rows.map((m) => [m.contentItemId, [m.machineType, m.function].filter(Boolean).join(" · ")]));
 }
 
 export default function Page() {
-  return <DirectoryList types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} title="Machines" intro="Specifications and dated offers from different sellers." />;
+  const d = directory("/machines");
+  return <DirectoryList types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} title={d.title} intro={d.text} />;
 }

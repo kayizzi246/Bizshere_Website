@@ -70,7 +70,7 @@ Do this once, **from your computer**, in the VS Code terminal (PowerShell).
    You should see `All migrations have been successfully applied`,
    `Script executed successfully` and `Production seed complete`.
 
-   This creates all 75 tables, the database rules and search index, your admin account
+   This creates all 76 tables, the database rules and search index, your admin account
    and the reference lists (districts, categories, plans, units). It does **not** add
    demo accounts or sample listings.
 

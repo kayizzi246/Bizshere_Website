@@ -20,9 +20,14 @@ export type Directory = {
   model: "businessIdea" | "machine" | "supplier" | "fundingProgramme" | "investmentOpportunity" | "guide" | "consultant" | "recipe" | "tool" | "website" | "news";
   /** Extra required link chosen in the form. */
   link?: { field: "organizationId" | "providerId"; label: string };
+  /** Form labels for the shared fields, in the client's wording (e.g. "Machine name", "Brief"). */
+  labels?: { title?: string; shortSummary?: string; overview?: string; category?: string };
   fields: Field[];
   children?: ChildList[];
 };
+
+/** The client's field list for each directory. Shown first in the form and on the public page. */
+export const MAIN = "Main details";
 
 const t = (name: string, label: string, group?: string, help?: string): Field => ({ name, label, kind: "text", group, help });
 const ta = (name: string, label: string, group?: string, help?: string): Field => ({ name, label, kind: "textarea", group, help });
@@ -40,7 +45,10 @@ const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is ze
 export const DIRECTORIES: Directory[] = [
   {
     type: "BUSINESS_IDEA", label: "Business idea", model: "businessIdea",
+    labels: { title: "Business idea name", shortSummary: "Brief", overview: "Description", category: "Category" },
     fields: [
+      t("businessType", "Business type", MAIN, "e.g. Manufacturing, Retail, Service"), ta("keyRequirements", "Key requirements", MAIN),
+      ta("successFactors", "Success factors", MAIN), ta("remarks", "Remarks", MAIN),
       ta("businessModel", "Business model", "Concept"), ta("productsOrServices", "Products or services", "Concept"),
       ta("customerProblem", "Customer problem", "Concept"), ta("valueProposition", "Value proposition", "Concept"),
       e("experienceLevel", "Experience level", ["BEGINNER", "INTERMEDIATE", "ADVANCED"], "Suitability"),
@@ -52,16 +60,21 @@ export const DIRECTORIES: Directory[] = [
       i("staffCount", "Staff count", "Implementation"), ta("licencesToInvestigate", "Licences and registrations to investigate", "Implementation"),
       ta("operatingCosts", "Operating costs", "Operating economics"), ta("sellingPriceAssumption", "Selling-price assumptions", "Operating economics"),
       ta("salesVolumeAssumption", "Sales-volume assumptions", "Operating economics"), ta("workingCapitalNotes", "Working capital", "Operating economics"),
-      ta("successFactors", "Success factors", "Assessment"), ta("majorRisks", "Major risks", "Assessment"),
+      ta("majorRisks", "Major risks", "Assessment"),
       ta("riskReductionActions", "Risk reduction", "Assessment"), ta("growthOptions", "Growth options", "Assessment"),
     ],
     children: [{ key: "ideaSteps", label: "Startup steps", help: "One step per line: Title | description" }],
   },
   {
     type: "MACHINE", label: "Machine", model: "machine",
+    labels: { title: "Machine name", shortSummary: "Brief", overview: "Description", category: "Category" },
     fields: [
-      t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"), t("machineType", "Machine type", "Identity"),
-      ta("function", "Function", "Applications"), t("materialsProcessed", "Materials processed", "Applications"), t("productsProduced", "Products produced", "Applications"),
+      ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
+      d("priceMin", "Price from", MAIN, MONEY_HELP), d("priceMax", "Price to", MAIN, "Same as the first box for a single price"), cur(MAIN),
+      ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), u("pictureUrl", "Picture (image URL)", MAIN),
+      l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
+      t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"),
+      t("materialsProcessed", "Materials processed", "Applications"), t("productsProduced", "Products produced", "Applications"),
       d("capacityMin", "Capacity min", "Performance"), d("capacityMax", "Capacity max", "Performance"), t("capacityUnit", "Capacity unit", "Performance", "Use a unit code, e.g. kg_per_hour"),
       t("capacityBasis", "Capacity basis", "Performance"), t("automationLevel", "Automation level", "Performance"), i("operatorsRequired", "Operators required", "Performance"),
       t("powerSource", "Power source", "Installation"), d("ratedPowerKw", "Rated power (kW)", "Installation"), i("voltage", "Voltage (V)", "Installation"), i("phase", "Phase", "Installation"),
@@ -74,8 +87,11 @@ export const DIRECTORIES: Directory[] = [
   {
     type: "SUPPLIER", label: "Supplier", model: "supplier",
     link: { field: "organizationId", label: "Organization" },
+    labels: { title: "Supplier name", shortSummary: "Brief (optional)", overview: "About (optional)", category: "Category" },
     fields: [
-      e("supplierType", "Supplier type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], "Profile"),
+      e("supplierType", "Type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
+      t("country", "Country", MAIN), l("items", "Items supplied", MAIN),
+      t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
       i("yearsEstablished", "Year established (only if confirmed)", "Profile"), l("brandsSupplied", "Brands supplied", "Products"),
       t("minimumOrder", "Minimum order", "Commercial terms"), b("sellsWholesale", "Sells wholesale", "Commercial terms"), b("sellsRetail", "Sells retail", "Commercial terms"),
       l("paymentMethods", "Payment methods", "Commercial terms"), ta("deliveryAreas", "Delivery areas", "Commercial terms"), t("leadTime", "Lead time", "Commercial terms"), ta("returnsPolicy", "Returns policy", "Commercial terms"),
@@ -85,19 +101,23 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "FUNDING_PROGRAMME", label: "Funding programme", model: "fundingProgramme",
-    link: { field: "providerId", label: "Funding provider" },
+    link: { field: "providerId", label: "Fund provider" },
+    labels: { title: "Fund name", shortSummary: "Brief", overview: "Description (optional)", category: "Category" },
     fields: [
-      e("fundingType", "Funding type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], "Programme"), ta("purpose", "Purpose", "Programme"),
-      ta("eligibilityText", "Eligibility (provider's full wording)", "Eligibility"), b("requiresRegistration", "Registration required", "Eligibility"),
+      e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN),
+      t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
+      ta("eligibilityText", "Eligibility", MAIN),
+      d("amountMin", "Amount given, from", MAIN, MONEY_HELP), d("amountMax", "Amount given, up to", MAIN, "A ceiling, not a guarantee"), cur(MAIN),
+      l("eligibleBusinessTypes", "Eligible business types", MAIN), u("officialTermsUrl", "Source link", MAIN),
+      ta("purpose", "Purpose", "Programme"), b("requiresRegistration", "Registration required", "Eligibility"),
       i("minOperatingMonths", "Minimum months operating", "Eligibility"), d("minAnnualTurnover", "Minimum annual turnover", "Eligibility", MONEY_HELP), ta("applicantRequirements", "Applicant requirements", "Eligibility"),
-      d("amountMin", "Minimum amount", "Amount", MONEY_HELP), d("amountMax", "Maximum amount (a ceiling, not a guarantee)", "Amount", MONEY_HELP), cur("Amount"),
       t("amountBasis", "Amount basis", "Amount"), t("matchingContribution", "Matching contribution", "Amount"),
       d("interestRate", "Interest rate (%)", "Loan terms"), t("rateBasis", "Rate basis", "Loan terms", "e.g. per year, flat"), e("rateType", "Rate type", ["FIXED", "VARIABLE"], "Loan terms"),
       ta("fees", "Fees", "Loan terms"), i("repaymentMonths", "Repayment period (months)", "Loan terms"), t("repaymentFrequency", "Repayment frequency", "Loan terms"),
       i("gracePeriodMonths", "Grace period (months)", "Loan terms"), b("collateralRequired", "Collateral required", "Loan terms"), b("guarantorRequired", "Guarantor required", "Loan terms"),
       ta("eligibleExpenses", "Eligible expenses", "Grant terms"), ta("milestones", "Milestones", "Grant terms"), ta("reportingRequirements", "Reporting", "Grant terms"), ta("restrictions", "Restrictions", "Grant terms"),
       t("investmentInstrument", "Investment instrument", "Equity terms"), ta("ownershipTerms", "Ownership terms", "Equity terms"), ta("governanceTerms", "Governance", "Equity terms"), ta("selectionCriteria", "Selection criteria", "Equity terms"),
-      u("officialTermsUrl", "Official terms URL", "Evidence"), dt("termsVersionDate", "Terms version date", "Evidence"), dt("termsLastCheckedAt", "Terms last checked", "Evidence"),
+      dt("termsVersionDate", "Terms version date", "Evidence"), dt("termsLastCheckedAt", "Terms last checked", "Evidence"),
     ],
   },
   {
@@ -113,9 +133,12 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "GUIDE", label: "Guide", model: "guide",
+    type: "GUIDE", label: "Business information / guideline", model: "guide",
+    labels: { title: "Title", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
-      t("resourceType", "Resource type", "Identity", "procedure, book, video..."), t("jurisdiction", "Jurisdiction", "Identity"), t("responsibleAuthority", "Responsible authority", "Identity"),
+      t("resourceType", "Doc type", MAIN, "e.g. Guideline, Book, Video, Website, Investment opportunity, Form"),
+      u("downloadUrl", "Download link", MAIN),
+      t("jurisdiction", "Jurisdiction", "Identity"), t("responsibleAuthority", "Responsible authority", "Identity"),
       ta("purpose", "Purpose", "Procedure"), ta("prerequisites", "Prerequisites", "Procedure"), t("submissionChannel", "Submission channel", "Procedure"), ta("expectedOutcome", "Expected outcome", "Procedure"),
       t("issuingBody", "Issuing body", "Authority and dates"), dt("publicationDate", "Publication date", "Authority and dates"), dt("effectiveDate", "Effective date", "Authority and dates"),
       t("version", "Version", "Authority and dates"), b("superseded", "Superseded", "Authority and dates"),
@@ -129,9 +152,13 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "CONSULTANT", label: "Consultant / expert", model: "consultant",
+    labels: { title: "Page title (usually the consultant's name)", shortSummary: "Brief (optional)", overview: "Profile", category: "Category" },
     fields: [
-      { name: "fullName", label: "Full name", kind: "text", required: true, group: "Identity" }, t("professionalTitle", "Professional title", "Identity"), u("photoUrl", "Photo URL", "Identity"),
-      l("specialties", "Specialties", "Expertise"), l("languages", "Languages", "Expertise"), l("deliveryModes", "Delivery modes", "Expertise"), ta("experience", "Experience", "Experience"),
+      { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, l("specialties", "Specialty", MAIN),
+      t("country", "Country", MAIN), t("district", "District", MAIN),
+      t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
+      t("professionalTitle", "Professional title", "Identity"), u("photoUrl", "Photo URL", "Identity"),
+      l("languages", "Languages", "Expertise"), l("deliveryModes", "Delivery modes", "Expertise"), ta("experience", "Experience", "Experience"),
       d("feeMin", "Fee from", "Fees", MONEY_HELP), d("feeMax", "Fee to", "Fees", MONEY_HELP), cur("Fees"), t("pricingBasis", "Pricing basis", "Fees", "per hour, per day, per project"),
       i("consultationMins", "Consultation length (min)", "Fees"), b("quotationRequired", "Quotation required", "Fees"),
       t("availability", "Availability", "Availability"), t("responseTime", "Response time", "Availability"), u("bookingUrl", "Booking / enquiry link", "Availability"),
@@ -139,13 +166,15 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "RECIPE", label: "Recipe", model: "recipe",
+    labels: { title: "Recipe name", shortSummary: "Brief (optional)", overview: "Description (optional)", category: "Category" },
     fields: [
+      u("videoUrl", "Video link", MAIN), ta("remarks", "Remark", MAIN),
       t("cuisine", "Cuisine", "Recipe"), t("skillLevel", "Skill level", "Recipe"), ta("equipment", "Equipment", "Recipe"),
       d("yieldQuantity", "Yield quantity", "Yield and time"), t("yieldUnit", "Yield unit", "Yield and time"), i("servings", "Servings", "Yield and time"),
       i("prepMinutes", "Preparation (min)", "Yield and time"), i("cookMinutes", "Cooking (min)", "Yield and time"),
       l("allergens", "Allergens", "Food information"), l("dietaryLabels", "Dietary labels", "Food information"), ta("storage", "Storage", "Food information"),
       t("shelfLife", "Shelf life", "Food information"), ta("shelfLifeEvidence", "Shelf-life evidence (required for shelf life to show)", "Food information"),
-      u("videoUrl", "Video URL", "Media"), i("videoDurationSec", "Video length (s)", "Media"), ta("transcript", "Transcript", "Media"),
+      i("videoDurationSec", "Video length (s)", "Media"), ta("transcript", "Transcript", "Media"),
     ],
     children: [
       { key: "recipeIngredients", label: "Ingredients", help: "One per line: quantity | unit | name | preparation note | substitute. Leave quantity empty if unknown or 'to taste'." },
@@ -154,8 +183,10 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "TOOL", label: "Tool / template", model: "tool",
+    labels: { title: "Tool name", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
-      e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], "Identity"), ta("purpose", "Purpose", "Identity"), t("intendedUser", "Intended user", "Identity"),
+      e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), u("downloadUrl", "Download link", MAIN),
+      ta("purpose", "Purpose", "Identity"), t("intendedUser", "Intended user", "Identity"),
       ta("requiredInputs", "Required inputs", "Instructions"), ta("usageSteps", "Usage steps", "Instructions"), ta("workedExample", "Worked example", "Instructions"), ta("limitations", "Limitations", "Instructions"),
       t("fileFormat", "File format", "Compatibility"), t("supportedSoftware", "Supported software", "Compatibility"), b("editable", "Editable", "Compatibility"), b("hasMacros", "Contains macros", "Compatibility"),
       t("calculatorRoute", "Calculator route", "Access", "e.g. /tools/calc/paye"), t("licence", "Licence", "Access"), t("publisher", "Publisher", "Access"),
@@ -164,9 +195,10 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "WEBSITE", label: "Useful website", model: "website",
+    labels: { title: "Site name", shortSummary: "Brief (optional)", overview: "Description (optional)", category: "Category" },
     fields: [
-      { name: "canonicalUrl", label: "Website URL", kind: "url", required: true, group: "Identity" }, t("operator", "Operated by", "Identity"),
-      t("siteType", "Type", "Classification"), t("mainFunction", "Main function", "Classification"), ta("resources", "Resources available", "Classification"), ta("useCase", "Business use case", "Classification"),
+      { name: "canonicalUrl", label: "Link", kind: "url", required: true, group: MAIN }, t("siteType", "Type", MAIN), t("mainFunction", "Function", MAIN), ta("remarks", "Remark", MAIN),
+      t("operator", "Operated by", "Identity"), ta("resources", "Resources available", "Classification"), ta("useCase", "Business use case", "Classification"),
       l("countries", "Countries served", "Coverage"), l("languages", "Languages", "Coverage"),
       e("accessCost", "Cost", ["FREE", "PAID", "FREEMIUM"], "Access"), u("pricingUrl", "Pricing URL", "Access"), b("accountRequired", "Account required", "Access"), ta("restrictions", "Restrictions", "Access"),
       b("officialSite", "Official site", "Trust"), ta("ownershipEvidence", "Ownership evidence", "Trust"), ta("editorialAssessment", "Editorial assessment", "Trust"),

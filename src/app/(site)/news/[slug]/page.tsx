@@ -22,7 +22,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
       <Crumbs trail={[["/guides", "Guides and tools"], ["/news", "Business news"]]} title={item.title} />
       <article className="flex flex-col gap-3">
         <span className="eyebrow">{n.articleType.toLowerCase()} · {item.primaryCategory?.name ?? "Business"}</span>
-        <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight">{item.title}</h1>
+        <h1 className="max-w-4xl text-3xl font-extrabold tracking-tight">{item.title}</h1>
         {n.standfirst ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{n.standfirst}</p> : null}
         <span className="text-sm text-ink-muted">
           {[n.author, n.publisher].filter(Boolean).join(", ") || "BizSphere-Ug"} · Published {date(item.publishedAt)}

@@ -29,6 +29,8 @@ SELECT bsu_add_check('application_rounds', 'round_dates', '"opensAt" IS NULL OR 
 
 SELECT bsu_add_check('consultants', 'consultant_fee_range', '"feeMin" IS NULL OR "feeMax" IS NULL OR "feeMin" <= "feeMax"');
 SELECT bsu_add_check('machines', 'machine_capacity_range', '"capacityMin" IS NULL OR "capacityMax" IS NULL OR "capacityMin" <= "capacityMax"');
+SELECT bsu_add_check('machines', 'machine_price_range', '"priceMin" IS NULL OR "priceMax" IS NULL OR "priceMin" <= "priceMax"');
+SELECT bsu_add_check('machines', 'machine_price_positive', '("priceMin" IS NULL OR "priceMin" >= 0) AND ("priceMax" IS NULL OR "priceMax" >= 0)');
 
 SELECT bsu_add_check('budget_lines', 'budget_line_quantity', '"quantity" >= 0');
 SELECT bsu_add_check('budget_lines', 'budget_line_cost', '"unitCost" IS NULL OR "unitCost" >= 0');
@@ -58,6 +60,7 @@ SELECT bsu_add_check('supplier_offers', 'offer_currency_iso', '"currency" ~ ''^[
 SELECT bsu_add_check('supplier_product_listings', 'listing_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
 SELECT bsu_add_check('price_observations', 'obs_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
 SELECT bsu_add_check('funding_programmes', 'funding_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
+SELECT bsu_add_check('machines', 'machine_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
 SELECT bsu_add_check('budget_scenarios', 'scenario_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
 SELECT bsu_add_check('recipe_costings', 'costing_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');
 SELECT bsu_add_check('investment_opportunities', 'opp_currency_iso', '"currency" ~ ''^[A-Z]{3}$''');

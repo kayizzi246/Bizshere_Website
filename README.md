@@ -1,8 +1,8 @@
 # BizSphere-Ug
 
 Business information platform for Uganda: a public website with free previews and
-member-only detail, a business portal for suppliers, dealers, experts and funders,
-and an admin area for review, verification and content freshness.
+member-only detail, and an admin area where staff onboard businesses and manage all
+content, verification and freshness. There is no business self-service area.
 
 Built from the **Database and Website Design Blueprint v1.0**
 (`docs/source/`). All project documents are indexed in **[docs/README.md](docs/README.md)**.
@@ -10,7 +10,7 @@ Built from the **Database and Website Design Blueprint v1.0**
 | | |
 |---|---|
 | Framework | Next.js 14 (App Router, TypeScript, server components and server actions) |
-| Database | PostgreSQL via Prisma 6 (75 tables, see [data dictionary](docs/03-database/data-dictionary.md)) |
+| Database | PostgreSQL via Prisma 6 (76 tables, see [data dictionary](docs/03-database/data-dictionary.md)) |
 | Auth | NextAuth (email + password, JWT sessions, roles) |
 | Styling | Tailwind CSS with brand tokens in `tailwind.config.ts` |
 
@@ -57,7 +57,7 @@ step 3, or point `DATABASE_URL` in `.env` at your server. Everything else is the
 | `editor@bizsphere.local` | Editor | `Demo-12345` |
 | `member@bizsphere.local` | Paying member (sees everything) | `Demo-12345` |
 | `visitor@bizsphere.local` | Free user (sees previews) | `Demo-12345` |
-| `dealer@bizsphere.local` | Business owner | `Demo-12345` |
+| `dealer@bizsphere.local` | Former business-owner account (now signs in like a free user) | `Demo-12345` |
 
 Sign in as the visitor and the member in two browsers to see the free preview vs full detail.
 
@@ -90,7 +90,7 @@ Sign in as the visitor and the member in two browsers to see the free preview vs
 ```
 docs/                    Project documents (start at docs/README.md); source PDFs in docs/source/
 prisma/
-  schema.prisma          All 75 tables (blueprint sections 03–14)
+  schema.prisma          All 76 tables (blueprint sections 03–14)
   migrations/            Migration history (apply with migrate deploy)
   sql/constraints.sql    CHECK rules, ISO currency codes, partial unique indexes, search index
   seed.ts                Sample data (no invented prices: unknown amounts stay empty)
@@ -102,10 +102,9 @@ src/
   app/
     (site)/              Public site: home, search, 11 directories with detail pages,
                          account, corrections, membership, about/contact/methodology/terms/privacy
-    business/            Business portal: dashboard, add a machine offer
     admin/               Dashboard, review queue, content editor (all directories),
                          corrections, market prices, users
-    api/                 Auth, business sign-up, gated file downloads, payment webhook, health
+    api/                 Auth, gated file downloads, payment webhook, health
     actions/member.ts    Save, collections, saved searches, alerts, corrections
   components/            Header, footer, Gate, DetailParts (shared detail-page sections)...
   config/site.ts         Site name, tagline, public contact details (waiting on client)

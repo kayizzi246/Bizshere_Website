@@ -92,19 +92,18 @@ export function minutes(m: number | null | undefined) {
 
 /** Guide and directory sub-sections shown as tabs on the Guides and tools pages. */
 export const GUIDE_TABS: [string, string][] = [
-  ["/guides", "Guides"],
-  ["/tools", "Tools and templates"],
-  ["/recipes", "Recipes"],
+  ["/guides", "Information and guidelines"],
+  ["/tools", "Business tools"],
   ["/websites", "Useful websites"],
   ["/news", "Business news"],
 ];
 
 export const FUNDING_TABS: [string, string][] = [
-  ["/funding", "Funding programmes"],
+  ["/funding", "Funding sources"],
   ["/opportunities", "Investment opportunities"],
 ];
 
 export const MACHINE_TABS: [string, string][] = [
-  ["/machines", "Machines"],
+  ["/machines", "Business machines"],
   ["/suppliers", "Suppliers"],
 ];

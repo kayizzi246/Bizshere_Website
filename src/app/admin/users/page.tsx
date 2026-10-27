@@ -65,7 +65,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" className="flex flex-wrap gap-1 rounded-[10px] bg-[#E6E9E3] p-1">
+        <div role="tablist" className="flex flex-wrap gap-1 rounded-[10px] bg-[#E9E7E4] p-1">
           {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`rounded-lg px-3.5 py-2 text-sm ${tab === t ? "bg-white font-extrabold text-brand-dark" : "font-semibold text-ink-soft"}`}>{l}</Link>)}
         </div>
         <form className="flex gap-2"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[42px]" /><button className="btn-outline min-h-[42px]">Search</button></form>
@@ -82,8 +82,8 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
                   const plan = org?.subscriptions[0]?.plan.name ?? u.subscriptions[0]?.plan.name ?? "Free";
                   const status = u.isSuspended ? ["badge-bad", "Suspended"] : org?.status === "PENDING" ? ["badge-warn", "Pending verification"] : ["badge-ok", "Active"];
                   return (
-                    <tr key={u.id} className={u.id === selectedId ? "bg-[#F1F8F3]" : ""}>
-                      <td><Link href={qs({ user: u.id })} className="flex flex-col text-ink"><span className="font-bold">{org?.legalName ?? u.name}</span><span className="text-xs text-ink-muted">{u.email}</span></Link></td>
+                    <tr key={u.id} className={u.id === selectedId ? "bg-[#FFF3EA]" : ""}>
+                      <td><Link href={qs({ user: u.id })} className="flex flex-col text-ink"><span className="font-bold">{org?.legalName ?? u.name}</span><span className="text-xs text-ink-muted">{u.email ?? u.phone}</span></Link></td>
                       <td className="capitalize">{org ? org.accountType.toLowerCase().replace("_", " ") : u.role.toLowerCase()}</td>
                       <td>{plan}</td>
                       <td><span className={status[0]}>{status[1]}</span></td>
@@ -99,7 +99,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
 
         {sel ? (
           <aside className="card flex flex-[1_1_320px] flex-col gap-4 p-5">
-            <div className="flex flex-col"><span className="text-lg font-extrabold">{sel.name}</span><span className="text-sm text-ink-muted">{sel.email} · joined {date(sel.createdAt)}</span></div>
+            <div className="flex flex-col"><span className="text-lg font-extrabold">{sel.name}</span><span className="text-sm text-ink-muted">{sel.email ?? sel.phone} · joined {date(sel.createdAt)}</span></div>
             <div className="flex flex-col gap-2 text-sm">
               <Row k="Phone" v={sel.phone ?? "—"} />
               <Row k="Business" v={sel.orgMemberships[0]?.organization.legalName ?? "—"} />

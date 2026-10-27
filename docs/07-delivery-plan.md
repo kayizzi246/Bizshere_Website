@@ -26,7 +26,7 @@ Status as of 26 Oct 2026. Details per requirement: [04 Blueprint traceability](0
 - [x] Guides with official steps, documents and fees
 - [x] Experts with services, qualifications, projects and moderated reviews (display)
 - [x] Admin entry forms for every directory, budgets, rounds, evidence, checks
-- [x] Business portal: sign-up, offers, all through review
+- [x] ~~Business portal: sign-up, offers, all through review~~ Removed Oct 2026: the admin onboards and manages every business
 - [ ] Admin screens: supplier product listings, branches and contacts; guide fees; expert qualifications, services and projects
 
 ## Stage 3: Resources 🟡

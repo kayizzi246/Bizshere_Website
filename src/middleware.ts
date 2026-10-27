@@ -9,12 +9,10 @@ export default withAuth(
     if (path.startsWith("/admin") && role !== "ADMIN" && role !== "EDITOR") {
       return NextResponse.redirect(new URL("/", req.url));
     }
-    if (path.startsWith("/business") && !["CONTRIBUTOR", "EDITOR", "ADMIN"].includes(role ?? "")) {
-      return NextResponse.redirect(new URL("/join", req.url));
-    }
     return NextResponse.next();
   },
   { pages: { signIn: "/login" } },
 );
 
-export const config = { matcher: ["/admin/:path*", "/business/:path*"] };
+// Businesses are onboarded and managed by the admin; there is no business self-service area.
+export const config = { matcher: ["/admin/:path*"] };

@@ -7,6 +7,7 @@
  */
 import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedSamples } from "./seed-samples";
 
 const prisma = new PrismaClient();
 const now = new Date();
@@ -419,6 +420,20 @@ async function main() {
   if (!pending) {
     await prisma.submission.create({
       data: { type: "NEW_BUSINESS", organizationId: dealer.id, submittedById: owner.id, payload: { note: "Sample application" } },
+    });
+  }
+
+  // ── Sample content for every directory, following the client's field list ──
+  await seedSamples({ prisma, editorId: editor.id, districts, now, days });
+
+  // ── Homepage updates marquee (only if none exist, so admin edits are kept) ──
+  if ((await prisma.siteUpdate.count()) === 0) {
+    await prisma.siteUpdate.createMany({
+      data: [
+        { message: "Sample: a new SME equipment loan round is open", href: "/funding/sample-sme-equipment-loan", sortOrder: 1 },
+        { message: "Sample: market prices are updated as new observations come in", href: "/prices", sortOrder: 2 },
+        { message: "Sample: want your business listed? Contact our team", href: "/contact", sortOrder: 3 },
+      ],
     });
   }
 

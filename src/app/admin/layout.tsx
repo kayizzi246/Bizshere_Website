@@ -10,8 +10,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
   ]);
   return (
-    <div className="flex min-h-screen flex-wrap items-stretch bg-[#F3F4F1]">
-      <aside className="flex max-w-full flex-[1_1_250px] flex-col gap-4 bg-brand-admin px-3.5 py-5 text-[#C9DDD0]">
+    <div className="flex min-h-screen flex-wrap items-stretch bg-[#F2F1EF]">
+      <aside className="flex max-w-full flex-[1_1_250px] flex-col gap-4 bg-brand-admin px-3.5 py-5 text-[#D9D6D2]">
         <div className="px-2"><Logo href="/admin" light sub="Admin" /></div>
         <SideNav dark items={[
           { href: "/admin", label: "Dashboard" },
@@ -27,10 +27,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           { section: "People" },
           { href: "/admin/users", label: "Users and businesses" },
           { section: "Site" },
+          { href: "/admin/updates", label: "Homepage updates" },
           { href: "/", label: "View website" },
         ]} />
-        <div className="mt-auto flex items-center gap-2.5 rounded-xl bg-[#173A29] p-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2E5A43] text-sm font-extrabold text-white">{(user.name ?? "A").slice(0, 2).toUpperCase()}</span>
+        <div className="mt-auto flex items-center gap-2.5 rounded-xl bg-[#1F1F1F] p-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2E2E2E] text-sm font-extrabold text-white">{(user.name ?? "A").slice(0, 2).toUpperCase()}</span>
           <span className="flex flex-col"><span className="text-sm font-bold text-white">{user.name}</span><span className="text-xs capitalize text-brand-mint">{user.role.toLowerCase()}</span></span>
         </div>
       </aside>

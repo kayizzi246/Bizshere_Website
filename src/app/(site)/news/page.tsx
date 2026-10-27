@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import { directory } from "@/config/directories";
 import { GUIDE_TABS, date } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
@@ -10,5 +11,5 @@ async function meta(ids: string[]) {
 }
 
 export default function Page() {
-  return <DirectoryList types={["NEWS"]} tabs={GUIDE_TABS} active="/news" meta={meta} title="Business news and updates" intro="Changes to rules, funding, markets and deadlines that affect businesses in Uganda." />;
+  return <DirectoryList types={["NEWS"]} tabs={GUIDE_TABS} active="/news" meta={meta} title={directory("/news").title} intro={directory("/news").text} />;
 }

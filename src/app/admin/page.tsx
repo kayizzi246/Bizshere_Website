@@ -111,6 +111,6 @@ function Kpi({ href, label, value, sub, warn }: { href: string; label: string; v
 
 function Alert({ tone, href, show, children }: { tone: "bad" | "warn" | "muted"; href: string; show: boolean; children: React.ReactNode }) {
   if (!show) return null;
-  const cls = { bad: "bg-bad-bg text-[#5E1D13]", warn: "bg-warn-bg text-[#5C3B00]", muted: "bg-[#F3F4F1] text-ink-soft" }[tone];
+  const cls = { bad: "bg-bad-bg text-[#5E1D13]", warn: "bg-warn-bg text-[#5C3B00]", muted: "bg-[#F2F1EF] text-ink-soft" }[tone];
   return <Link href={href} className={`rounded-xl p-3 text-sm leading-snug hover:opacity-90 ${cls}`}>{children}</Link>;
 }

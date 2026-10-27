@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
-import { date, isOlderThan, moneyRange } from "@/lib/format";
+import { date, isOlderThan, money } from "@/lib/format";
 import { Gate } from "@/components/Gate";
 import type { PriceType } from "@prisma/client";
 
@@ -19,7 +19,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
   const observations = product
     ? await prisma.priceObservation.findMany({
         where: { productId: product.id, priceType, status: "PUBLISHED" },
-        include: { market: { include: { location: true } } },
+        include: { market: { include: { location: { include: { parent: true } } } } },
         orderBy: { observedAt: "desc" },
       })
     : [];
@@ -36,7 +36,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
     <>
       <section className="border-b border-line bg-white">
         <div className="container-site flex flex-col gap-4 py-8">
-          <h1 className="text-4xl font-extrabold tracking-tight">Markets and prices</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Markets and prices</h1>
           <p className="text-ink-muted">Dated price observations from markets across Uganda. Every price shows when it was observed.</p>
           <form className="flex flex-wrap items-end gap-3">
             <label className="label flex-[1_1_220px]">Product
@@ -57,19 +57,22 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
         <p className="text-sm text-ink-muted">Only markets with the same grade and unit{unit ? ` (${unit})` : ""} are compared.</p>
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="table-base min-w-[760px] text-[15px]">
-              <thead><tr><th>Market</th><th>District</th><th>Price range</th><th>Observed</th><th>Quotes</th></tr></thead>
+            <table className="table-base min-w-[980px] text-[15px]">
+              <thead><tr><th>Market name</th><th>Country</th><th>District</th><th>Product name</th><th>Min price</th><th>Max price</th><th>Remark</th><th>Observed</th></tr></thead>
               <tbody>
                 {visible.map((o) => (
                   <tr key={o.id}>
                     <td className="font-bold">{o.market.name}</td>
-                    <td className="text-ink-muted">{o.market.location?.name ?? "—"}</td>
-                    <td className="font-extrabold">{moneyRange(o.priceMin, o.priceMax, o.currency, "—")}</td>
-                    <td>{date(o.observedAt)} {isOlderThan(o.observedAt, STALE_DAYS) ? <span className="badge-warn ml-1">May be out of date</span> : null}</td>
-                    <td className="text-ink-muted">{o.quoteCount ?? "—"}</td>
+                    <td className="text-ink-muted">{o.market.location?.type === "DISTRICT" ? o.market.location.parent?.name ?? "—" : o.market.location?.name ?? "—"}</td>
+                    <td className="text-ink-muted">{o.market.location?.type === "DISTRICT" ? o.market.location.name : "—"}</td>
+                    <td>{product?.name}{product?.grade ? `, ${product.grade}` : ""} <span className="text-ink-muted">({o.quotedUnit})</span></td>
+                    <td className="font-extrabold">{money(o.priceMin, o.currency, "—")}</td>
+                    <td className="font-extrabold">{money(o.priceMax, o.currency, "—")}</td>
+                    <td className="max-w-[220px] text-ink-soft">{o.notes ?? "—"}</td>
+                    <td className="whitespace-nowrap">{date(o.observedAt)} {isOlderThan(o.observedAt, STALE_DAYS) ? <span className="badge-warn ml-1">May be out of date</span> : null}</td>
                   </tr>
                 ))}
-                {visible.length === 0 ? <tr><td colSpan={5} className="text-ink-muted">No published observations for this product yet.</td></tr> : null}
+                {visible.length === 0 ? <tr><td colSpan={8} className="text-ink-muted">No published observations for this product yet.</td></tr> : null}
               </tbody>
             </table>
           </div>

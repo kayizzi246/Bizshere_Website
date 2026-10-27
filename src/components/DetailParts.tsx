@@ -23,7 +23,7 @@ export function Identity({ eyebrow, title, summary, children }: { eyebrow: strin
   return (
     <section className="flex flex-col gap-3">
       <span className="eyebrow">{eyebrow}</span>
-      <h1 className="text-4xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
       {summary ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{summary}</p> : null}
       {children}
     </section>
@@ -46,7 +46,7 @@ export function Facts({ items }: { items: [string, React.ReactNode][] }) {
 export function Card({ title, children, className = "" }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`card flex flex-col gap-3 p-7 ${className}`}>
-      {title ? <h2 className="text-xl font-extrabold">{title}</h2> : null}
+      {title ? <h2 className="text-lg font-extrabold">{title}</h2> : null}
       {children}
     </section>
   );

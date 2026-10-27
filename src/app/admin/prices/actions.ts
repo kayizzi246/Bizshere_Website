@@ -30,7 +30,7 @@ const observationSchema = z.object({
   publish: z.boolean(),
 })
   .refine((d) => d.priceMin !== undefined || d.priceMax !== undefined, { message: "Enter at least one price", path: ["priceMin"] })
-  .refine((d) => d.priceMin === undefined || d.priceMax === undefined || d.priceMin <= d.priceMax, { message: "Lowest price can't be above highest", path: ["priceMax"] })
+  .refine((d) => d.priceMin === undefined || d.priceMax === undefined || d.priceMin <= d.priceMax, { message: "Min price can't be above highest", path: ["priceMax"] })
   .refine((d) => d.observedAt <= new Date(), { message: "Observation date can't be in the future", path: ["observedAt"] });
 
 /** Adds a dated observation. Observations are never edited in place: history is kept (blueprint 12). */

@@ -38,7 +38,7 @@ Status as of 26 Oct 2026.
 | § | Directory | Tables | Public pages | Admin entry | Status |
 |---|---|---|---|---|---|
 | 04 | Business ideas | business_ideas, idea_steps, budget_scenarios, budget_lines | `/business-ideas`, detail with low/standard/higher budget, totals from lines | Main form, steps, budget scenarios and lines | ✅ |
-| 05 | Machines | machines (+JSON specifications), supplier_offers | `/machines`, detail with offers table | Main form; offers come from business portal + review | 🟡 admin can't add an offer directly |
+| 05 | Machines | machines (+JSON specifications), supplier_offers | `/machines`, detail with offers table | Main form, including the client's Price and Source fields (seller offers are no longer entered: the business portal was removed) | ✅ |
 | 06 | Suppliers | suppliers, supplier_product_listings, organizations, contacts, organization_locations | `/suppliers`, detail with offers, products, terms, branches, gated contacts | Main form | 🟡 no screens for product listings, branches, contacts |
 | 07 | Funding | funding_providers, funding_programmes, application_rounds | `/funding`, detail with terms, eligibility, rounds | Main form, rounds editor | ✅ |
 | 08 | Guides | guides, guide_steps, guide_documents, guide_fees | `/guides`, detail with official steps vs BizSphere tips, documents, fees | Main form, steps, documents | 🟡 no fee editor |
@@ -84,7 +84,7 @@ Status as of 26 Oct 2026.
 | Mobile filter drawer | ⬜ (depends on directory filters) |
 | Alternative contact wherever WhatsApp appears | ✅ |
 | Member dashboard: saved, collections, alerts, account | ✅ `/account` |
-| Contributor dashboard: submissions and review status | ✅ `/business` |
+| Contributor dashboard: submissions and review status | ➖ Removed (Oct 2026): businesses are managed by the admin |
 | Access enforced on server incl. downloads and APIs | ✅ |
 
 ## §18 Administration

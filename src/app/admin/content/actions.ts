@@ -130,6 +130,11 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     if (!linkId) errors[dir.link.field] = `Choose the ${dir.link.label.toLowerCase()}`;
     specialised[dir.link.field] = linkId;
   }
+  // "From" can't be above "to" (machine price, fund amount)
+  for (const [lo, hi] of [["priceMin", "priceMax"], ["amountMin", "amountMax"]]) {
+    const a = specialised[lo], z = specialised[hi];
+    if (a instanceof Prisma.Decimal && z instanceof Prisma.Decimal && a.greaterThan(z)) errors[hi] = "Can't be lower than the first amount";
+  }
   // Enum fields that the database requires on create
   for (const req of ["fundingType", "toolType"]) if (req in specialised && specialised[req] === null) errors[req] = "Required";
 

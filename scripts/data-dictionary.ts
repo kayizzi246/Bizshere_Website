@@ -26,6 +26,8 @@ const GROUPS: [string, string[]][] = [
   ["13 Useful websites and business news", ["UsefulWebsite", "NewsArticle", "NewsOrganization"]],
   ["14/17 Membership, payments and saved items", ["MembershipPlan", "Subscription", "Payment", "SavedItem", "Collection", "CollectionItem", "SavedSearch", "Alert"]],
   ["14/18 Review, moderation and analytics", ["Submission", "ModerationEvent", "CorrectionReport", "Document", "Enquiry", "ContactReveal", "AuditLog", "SearchEvent", "UsageEvent"]],
+  ["Site", ["SiteUpdate"]],
+  ["Sign-in", ["PhoneCode"]],
 ];
 
 const { models, enums } = Prisma.dmmf.datamodel;

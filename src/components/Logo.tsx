@@ -3,7 +3,7 @@ import Link from "next/link";
 // Placeholder mark until the client sends the real logo (request item A1).
 export function Logo({ href = "/", light = false, sub }: { href?: string; light?: boolean; sub?: string }) {
   return (
-    <Link href={href} className={`flex items-center gap-2.5 text-xl font-extrabold tracking-tight ${light ? "text-white hover:text-white" : "text-ink hover:text-ink"}`}>
+    <Link href={href} className={`flex items-center gap-2.5 font-display text-xl font-extrabold tracking-tight ${light ? "text-white hover:text-white" : "text-ink hover:text-ink"}`}>
       <span className="flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-brand text-lg text-white">B</span>
       <span className="flex flex-col leading-tight">
         <span>

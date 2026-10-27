@@ -13,8 +13,11 @@ start it, with every price, budget and contact dated and sourced.
 | Area | URL | Who | What they do |
 |---|---|---|---|
 | Public website | `/` | Visitors, free users, paying members | Search, browse 11 directories, read previews (free) or full detail (members), save items, report corrections |
-| Business portal | `/business` | Suppliers, dealers, consultancies, funders | Manage their profile and submit machine offers; everything goes to review |
-| Admin | `/admin` | Editors, admins | Add and edit content, review submissions, record verification checks, handle corrections, enter market prices, manage users |
+| Admin | `/admin` | Editors, admins | Onboard businesses, add and edit all content, record verification checks, handle corrections, enter market prices, manage users |
+
+Businesses do not sign up or manage listings themselves (the business portal and
+self-service sign-up were removed in October 2026). They contact the team and an admin
+creates and maintains their listing.
 
 ## The 11 directories
 
@@ -54,7 +57,7 @@ suppliers · Funding and opportunities · Guides and tools · Markets and prices
 | Visitor | Browses, reads previews, sources and freshness |
 | Registered user | Plus saves items, collections, saved searches |
 | Member (paid plan) | Full detail, contacts, downloads, price history, alerts |
-| Contributor (business) | Business portal; submissions go to review |
+| Contributor (business) | No separate area any more; signs in like a registered user |
 | Editor | Admin: content, review, checks, corrections, prices |
 | Admin | Plus users, roles and settings |
 

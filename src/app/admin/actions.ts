@@ -83,7 +83,7 @@ export async function decideSubmission(form: FormData) {
     await tx.moderationEvent.create({ data: { submissionId: id, actorId: editor.id, fromStatus: sub.status, toStatus: decision, note: note || null } });
     if (sub.submittedById && sub.submittedById !== editor.id) {
       const title = { APPROVED: "Your submission was approved", CHANGES_REQUESTED: "Changes requested on your submission", REJECTED: "Your submission was not approved" }[decision];
-      await tx.alert.create({ data: { userId: sub.submittedById, kind: "SUBMISSION", title, body: note || null, link: "/business" } });
+      await tx.alert.create({ data: { userId: sub.submittedById, kind: "SUBMISSION", title, body: note || null, link: "/account" } });
     }
   });
 

@@ -50,7 +50,6 @@ export async function requireRole(roles: Role[]) {
 
 export const requireStaff = () => requireRole(["EDITOR", "ADMIN"]);
 export const requireAdmin = () => requireRole(["ADMIN"]);
-export const requireBusiness = () => requireRole(["CONTRIBUTOR", "EDITOR", "ADMIN"]);
 
 /** Number of items shown free before the "Show more" gate. */
 export const FREE_PREVIEW = { budgetLines: 2, steps: 2, specs: 3, markets: 2 } as const;

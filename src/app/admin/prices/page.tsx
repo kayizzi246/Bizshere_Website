@@ -29,8 +29,8 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
           <label className="label flex-[1_1_160px]">Price type<select name="priceType" className="input"><option value="WHOLESALE">Wholesale</option><option value="RETAIL">Retail</option><option value="FARM_GATE">Farm-gate</option></select></label>
         </div>
         <div className="flex flex-wrap gap-3.5">
-          <label className="label flex-[1_1_160px]">Lowest price<input name="priceMin" inputMode="numeric" className="input" /></label>
-          <label className="label flex-[1_1_160px]">Highest price<input name="priceMax" inputMode="numeric" className="input" /></label>
+          <label className="label flex-[1_1_160px]">Min price<input name="priceMin" inputMode="numeric" className="input" /></label>
+          <label className="label flex-[1_1_160px]">Max price<input name="priceMax" inputMode="numeric" className="input" /></label>
           <label className="label flex-[0_1_100px]">Currency<input name="currency" defaultValue="UGX" className="input" /></label>
           <label className="label flex-[1_1_180px]">Quoted unit<input name="quotedUnit" required placeholder="Must match the product's unit to compare" className="input" /></label>
           <label className="label flex-[1_1_140px]">Grade<input name="grade" className="input" /></label>
@@ -42,7 +42,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
           <label className="label flex-[1_1_140px]">Includes tax<select name="includesTax" className="input"><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
           <label className="label flex-[1_1_140px]">Includes transport<select name="includesTransport" className="input"><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
         </div>
-        <label className="label">Notes<input name="notes" className="input" /></label>
+        <label className="label">Remark<input name="notes" className="input" /></label>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="publish" className="h-4 w-4 accent-brand" />Publish now (I checked the evidence). Otherwise it goes to the review queue.</label>
           <button className="btn-primary">Add observation</button>
@@ -73,7 +73,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
         <h2 className="p-5 text-lg font-extrabold">Recent observations</h2>
         <div className="overflow-x-auto">
           <table className="table-base min-w-[860px]">
-            <thead><tr><th>Product</th><th>Market</th><th>Price</th><th>Unit</th><th>Observed</th><th>Status</th><th>By</th></tr></thead>
+            <thead><tr><th>Product</th><th>Market</th><th>Min – max price</th><th>Unit</th><th>Observed</th><th>Status</th><th>By</th></tr></thead>
             <tbody>
               {recent.map((o) => (
                 <tr key={o.id}>

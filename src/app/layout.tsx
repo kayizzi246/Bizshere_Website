@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+
+// Brand typography (style guide, section 5). Both are variable fonts, self-hosted by
+// next/font, so there is no request to Google and no layout shift on load.
+//   Manrope: headings, navigation, hero text, UI titles (Medium–ExtraBold)
+//   Inter:   body text, forms, tables, buttons, labels (Regular–Semibold)
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "BizSphere-Ug", template: "%s | BizSphere-Ug" },
@@ -9,16 +17,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        />
-      </head>
+    // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
+    <html lang="en" className={`${manrope.variable} ${inter.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>

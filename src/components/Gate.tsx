@@ -51,9 +51,9 @@ export function Gate({
 
 export function SubscribeModal({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(12,28,20,0.6)] px-4 pt-24" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/50 backdrop-blur-sm px-4 pt-24" onClick={onClose}>
       <div className="w-full max-w-[540px] overflow-hidden rounded-[20px] bg-white" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between bg-brand-deep px-7 py-5">
+        <div className="flex items-center justify-between bg-gradient-to-r from-ink to-[#2B2B2B] px-7 py-5">
           <span className="flex items-center gap-2.5 text-sm font-bold text-brand-mint"><Lock /> Members only</span>
           <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-2xl text-white">×</button>
         </div>
@@ -86,7 +86,7 @@ function Lock() {
 
 export function Check() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D6B45" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E05A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
       <path d="M5 12l4 4 10-10" />
     </svg>
   );

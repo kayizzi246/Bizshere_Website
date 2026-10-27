@@ -6,7 +6,7 @@
  * docs/06-client-information-checklist.md). When the client sends them:
  *   A1 logo / A2 icon   → public/brand/ + src/components/Logo.tsx + src/app/icon.png
  *   A3/A4 colours       → tailwind.config.ts (brand.*) — keep the token names
- *   A5 fonts            → src/app/layout.tsx and --font-sans in globals.css
+ *   A5 fonts            → src/app/layout.tsx (next/font) and fontFamily in tailwind.config.ts
  *   A7 slogan / tone    → `tagline` below
  */
 type SiteConfig = {

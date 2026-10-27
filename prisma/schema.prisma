@@ -261,8 +261,9 @@ enum EnquiryStatus {
 model User {
   id           String    @id @default(cuid())
   name         String
-  email        String    @unique
-  phone        String? // stored as text
+  // People sign up with an email, a phone number or Google, so either may be empty.
+  email        String?   @unique
+  phone        String?   @unique // international format, e.g. +256700123456
   passwordHash String?
   role         Role      @default(USER)
   isSuspended  Boolean   @default(false)
@@ -698,6 +699,10 @@ model ContentRevision {
 model BusinessIdea {
   id                     String           @id @default(cuid())
   contentItemId          String           @unique
+  // client field list (Oct 2026): Business Type, Key Requirements, Remarks
+  businessType           String?
+  keyRequirements        String?
+  remarks                String?
   businessModel          String?
   productsOrServices     String?
   customerProblem        String?
@@ -793,6 +798,14 @@ model BudgetLine {
 model Machine {
   id                       String   @id @default(cuid())
   contentItemId            String   @unique
+  // client field list (Oct 2026): Price, Source, Remarks, Picture, Videos. Unknown price stays NULL.
+  priceMin                 Decimal? @db.Decimal(16, 2)
+  priceMax                 Decimal? @db.Decimal(16, 2)
+  currency                 String   @default("UGX")
+  sources                  String? // where to buy, in Uganda and overseas
+  remarks                  String?
+  pictureUrl               String?
+  videoUrls                String[]
   manufacturer             String?
   brand                    String?
   modelNumber              String?
@@ -832,6 +845,12 @@ model Supplier {
   id                 String        @id @default(cuid())
   contentItemId      String        @unique
   organizationId     String        @unique
+  // client field list (Oct 2026): Country, Items, Email, Phone, Website. Contact fields are shown to members only.
+  country            String?
+  items              String[]
+  email              String?
+  phone              String?
+  website            String?
   supplierType       SupplierType?
   yearsEstablished   Int?
   minimumOrder       String?
@@ -951,6 +970,9 @@ model FundingProgramme {
   id                    String      @id @default(cuid())
   contentItemId         String      @unique
   providerId            String
+  // client field list (Oct 2026): Provider Category, Eligible Biz Type
+  providerCategory      String? // bank, government agency, private...
+  eligibleBusinessTypes String[]
   fundingType           FundingType
   purpose               String?
   // eligibility (filterable + full wording)
@@ -1024,6 +1046,8 @@ model ApplicationRound {
 model Guide {
   id                   String    @id @default(cuid())
   contentItemId        String    @unique
+  // client field list (Oct 2026): Download Link
+  downloadUrl          String?
   resourceType         String? // procedure, book, video...
   jurisdiction         String    @default("Uganda")
   responsibleAuthority String?
@@ -1138,6 +1162,12 @@ model Consultant {
   id                String   @id @default(cuid())
   contentItemId     String   @unique
   organizationId    String?
+  // client field list (Oct 2026): Country, District, Email, Phone, Website. Contact fields are shown to members only.
+  country           String?
+  district          String?
+  email             String?
+  phone             String?
+  website           String?
   fullName          String
   professionalTitle String?
   photoUrl          String?
@@ -1248,6 +1278,8 @@ model ConsultantService {
 model Recipe {
   id                String   @id @default(cuid())
   contentItemId     String   @unique
+  // client field list (Oct 2026): Remark
+  remarks           String?
   cuisine           String?
   skillLevel        String?
   equipment         String?
@@ -1359,6 +1391,8 @@ model RecipeCostingLine {
 model Tool {
   id                String    @id @default(cuid())
   contentItemId     String    @unique
+  // client field list (Oct 2026): Download Link
+  downloadUrl       String?
   toolType          ToolType
   purpose           String?
   intendedUser      String?
@@ -1500,6 +1534,8 @@ model UsefulWebsite {
   id                  String      @id @default(cuid())
   contentItemId       String      @unique
   canonicalUrl        String
+  // client field list (Oct 2026): Remark
+  remarks             String?
   operator            String?
   siteType            String?
   mainFunction        String?
@@ -1867,4 +1903,37 @@ model SearchEvent {
   createdAt    DateTime @default(now())
 
   @@map("search_events")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Site
+// ─────────────────────────────────────────────────────────────
+
+/// Short announcements shown in the scrolling bar on the homepage. Managed by staff at /admin/updates.
+model SiteUpdate {
+  id        String    @id @default(cuid())
+  message   String
+  href      String? // optional link, internal ("/funding") or external
+  isActive  Boolean   @default(true)
+  sortOrder Int       @default(0)
+  startsAt  DateTime? // hidden before this date
+  endsAt    DateTime? // hidden after this date
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@map("site_updates")
+}
+
+/// One-time sign-in codes sent by SMS. Only a hash is stored; codes expire after 10 minutes and allow 5 attempts.
+model PhoneCode {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
+  @@map("phone_codes")
 }

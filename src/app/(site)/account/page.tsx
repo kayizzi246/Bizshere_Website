@@ -28,8 +28,8 @@ export default async function AccountPage() {
     <div className="container-site flex flex-col gap-6 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight">My account</h1>
-          <p className="text-ink-muted">{user.name} · {user.email}</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">My account</h1>
+          <p className="text-ink-muted">{user.name} · {user.email ?? user.phone}</p>
         </div>
         <div className="card flex items-center gap-4 px-5 py-3">
           <span className="flex flex-col text-sm">
@@ -42,7 +42,7 @@ export default async function AccountPage() {
 
       <section className="card flex flex-col gap-3 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-extrabold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
+          <h2 className="text-lg font-extrabold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
           {unread ? <form action={markAlertsRead}><button className="btn-outline min-h-[36px] px-3">Mark all read</button></form> : null}
         </div>
         {alerts.length === 0 ? <p className="text-sm text-ink-muted">No alerts yet. Save funding programmes or searches to get deadline and update alerts.</p> : alerts.map((a) => (
@@ -55,7 +55,7 @@ export default async function AccountPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="card flex min-w-0 flex-[2_1_520px] flex-col gap-3 p-6">
-          <h2 className="text-xl font-extrabold">Saved ({saved.length})</h2>
+          <h2 className="text-lg font-extrabold">Saved ({saved.length})</h2>
           {saved.length === 0 ? <p className="text-sm text-ink-muted">Use ☆ Save on any page to keep it here.</p> : saved.map((s) => (
             <div key={s.contentItemId} className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
               <span className="flex flex-col">
@@ -77,7 +77,7 @@ export default async function AccountPage() {
         </section>
 
         <section className="card flex min-w-0 flex-[1_1_340px] flex-col gap-3 p-6">
-          <h2 className="text-xl font-extrabold">Collections</h2>
+          <h2 className="text-lg font-extrabold">Collections</h2>
           <p className="text-sm text-ink-muted">Group what you need for one plan, e.g. &ldquo;Bakery in Mukono&rdquo;.</p>
           <form action={createCollection} className="flex gap-2">
             <input name="name" required maxLength={80} placeholder="New collection name" aria-label="New collection name" className="input min-h-[40px] flex-1" />
@@ -102,7 +102,7 @@ export default async function AccountPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="card flex min-w-0 flex-[1_1_420px] flex-col gap-3 p-6">
-          <h2 className="text-xl font-extrabold">Saved searches</h2>
+          <h2 className="text-lg font-extrabold">Saved searches</h2>
           {searches.length === 0 ? <p className="text-sm text-ink-muted">Run a search and choose &ldquo;Save this search&rdquo;.</p> : searches.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 border-t border-line pt-3">
               <Link href={`/search?q=${encodeURIComponent(s.query)}`} className="font-bold">{s.query || "All content"}</Link>
@@ -111,7 +111,7 @@ export default async function AccountPage() {
           ))}
         </section>
         <section className="card flex min-w-0 flex-[1_1_420px] flex-col gap-3 p-6">
-          <h2 className="text-xl font-extrabold">Saved calculations</h2>
+          <h2 className="text-lg font-extrabold">Saved calculations</h2>
           {calculations.length === 0 ? <p className="text-sm text-ink-muted">Results you save from calculators appear here, tied to the rule version used.</p> : calculations.map((c) => (
             <div key={c.id} className="flex justify-between gap-3 border-t border-line pt-3 text-sm">
               <Link href={itemHref(c.toolVersion.tool.contentItem)} className="font-bold">{c.label ?? c.toolVersion.tool.contentItem.title}</Link>
