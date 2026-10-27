@@ -703,6 +703,8 @@ model BusinessIdea {
   businessType           String?
   keyRequirements        String?
   remarks                String?
+  pictureUrl             String? // main photo: https://… or a path on this site (/ideas/…)
+  pictureCredit          String? // photographer and licence, shown under the photo
   businessModel          String?
   productsOrServices     String?
   customerProblem        String?
@@ -805,6 +807,7 @@ model Machine {
   sources                  String? // where to buy, in Uganda and overseas
   remarks                  String?
   pictureUrl               String?
+  pictureCredit            String? // photographer and licence, shown under the photo
   videoUrls                String[]
   manufacturer             String?
   brand                    String?
@@ -1936,4 +1939,13 @@ model PhoneCode {
 
   @@index([phone, createdAt])
   @@map("phone_codes")
+}
+
+/// Simple site-wide settings edited in the admin, e.g. the YouTube channel on the homepage.
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }

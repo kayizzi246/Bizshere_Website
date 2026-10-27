@@ -33,7 +33,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
       <section className="card flex flex-col gap-3 overflow-hidden p-6">
         <h2 className="text-lg font-extrabold">Preview</h2>
         {live.length ? (
-          <div className="-mx-6 [&_.container-site]:max-w-none"><UpdatesMarquee updates={live} /></div>
+          <div className="-mx-6 -my-3 bg-page"><UpdatesMarquee updates={live} /></div>
         ) : (
           <p className="text-sm text-ink-muted">Nothing is live, so the bar is hidden on the homepage.</p>
         )}

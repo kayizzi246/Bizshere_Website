@@ -27,23 +27,26 @@ export function phoneKey(raw: string): string | null {
 
 const isTest = (phone: string) => Boolean(testPhone() && testCode() && phone === `+${testPhone()}`);
 
-export type SendResult = { ok: true; phone: string } | { ok: false; error: string };
+const CODE_LENGTH = 6;
+
+/** `length` lets the code box submit by itself once enough digits are typed. */
+export type SendResult = { ok: true; phone: string; length: number } | { ok: false; error: string };
 
 export async function sendCode(raw: string): Promise<SendResult> {
   const phone = phoneKey(raw);
   if (!phone) return { ok: false, error: "Enter a valid phone number, e.g. 0772 123 456" };
-  if (isTest(phone)) return { ok: true, phone };
+  if (isTest(phone)) return { ok: true, phone, length: testCode().length };
 
   const last = await prisma.phoneCode.findFirst({ where: { phone }, orderBy: { createdAt: "desc" } });
   if (last && Date.now() - last.createdAt.getTime() < RESEND_SECONDS * 1000) {
     return { ok: false, error: "A code was just sent. Wait a few seconds before asking for another." };
   }
-  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
   const sent = await sendSms(phone, `Your BizSphere-Ug code is ${code}. It expires in ${CODE_MINUTES} minutes.`);
   if (!sent) return { ok: false, error: "We can't send text messages yet. Please try again later." };
   await prisma.phoneCode.deleteMany({ where: { phone } });
   await prisma.phoneCode.create({ data: { phone, codeHash: await bcrypt.hash(code, 10), expiresAt: new Date(Date.now() + CODE_MINUTES * 60_000) } });
-  return { ok: true, phone };
+  return { ok: true, phone, length: CODE_LENGTH };
 }
 
 /** True when `code` is the current code for `phone`. A used code can't be used again. */

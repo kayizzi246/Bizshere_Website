@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { getSession } from "@/lib/auth";
+import { HeaderSearch } from "./HeaderSearch";
+import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
@@ -8,17 +10,21 @@ import { Icon } from "./Icon";
 // Shown as plain links next to the "Directories" menu on desktop.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
-const link = "whitespace-nowrap rounded-lg px-3 py-2 font-display text-sm font-medium text-ink-muted transition-colors hover:text-ink";
+const link = "whitespace-nowrap rounded-lg px-2.5 py-2 font-display text-[13px] font-medium text-ink-muted transition-colors hover:text-ink";
+const searchBtn = "mr-1 inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border border-line-strong px-3 font-display text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand";
 
-/** Floating header: a white rounded bar inset from the page edges, links on the right. */
+/**
+ * Floating header: a white rounded bar inset from the page edges, links on the right.
+ * No sign-in or sign-out: people stay signed in on their device (see authOptions.session),
+ * and staff sign in at their private link.
+ */
 export async function SiteHeader() {
-  const session = await getSession();
-  const role = session?.user?.role;
-  const staff = role === "ADMIN" || role === "EDITOR";
+  const viewer = await getViewer();
+  const staff = viewer.isStaff;
 
   return (
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4">
-      <div className="relative mx-auto flex h-14 max-w-site items-center gap-4 rounded-2xl border border-line/80 bg-white/90 pl-4 pr-2 backdrop-blur-md sm:pl-5">
+      <div className="relative mx-auto flex h-14 max-w-site items-center gap-4 rounded-2xl border border-line/80 bg-white pl-4 pr-2 sm:pl-5">
         <Logo />
 
         <nav aria-label="Main" className="ml-auto hidden h-full items-center gap-0.5 lg:flex">
@@ -57,21 +63,19 @@ export async function SiteHeader() {
 
           <span aria-hidden className="mx-2 h-5 w-px bg-line-strong" />
 
-          {session ? (
-            <>
-              <Link href="/account" className="whitespace-nowrap px-3 py-2 font-display text-sm font-semibold text-ink hover:text-brand">My account</Link>
-              <Link href="/api/auth/signout" className="inline-flex h-10 items-center rounded-lg bg-brand-deep px-4 font-display text-sm font-semibold text-white transition hover:bg-brand-dark hover:text-white">Sign out</Link>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="whitespace-nowrap px-3 py-2 font-display text-sm font-semibold text-ink hover:text-brand">Sign in</Link>
-              <Link href="/signup" className="inline-flex h-10 items-center rounded-lg bg-brand-deep px-4 font-display text-sm font-semibold text-white transition hover:bg-brand-dark hover:text-white">Get started free</Link>
-            </>
-          )}
+          {/* useSearchParams needs a Suspense boundary on static pages */}
+          <Suspense fallback={<Link href="/search" aria-label="Search" className={searchBtn}><Icon name="search" className="h-4 w-4" /></Link>}>
+            <HeaderSearch className={searchBtn} />
+          </Suspense>
+
+          <AccessButton viewer={viewer} />
         </nav>
 
         {/* Mobile menu: works without JavaScript */}
-        <details className="group relative ml-auto lg:hidden">
+        <Suspense fallback={null}>
+          <HeaderSearch label={false} className="ml-auto flex h-10 w-10 items-center justify-center rounded-lg border border-line text-ink lg:hidden" />
+        </Suspense>
+        <details className="group relative lg:hidden">
           <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-lg border border-line text-ink [&::-webkit-details-marker]:hidden" aria-label="Menu">
             <Icon name="menu" />
           </summary>
@@ -86,20 +90,26 @@ export async function SiteHeader() {
             <div className="my-1 border-t border-line" />
             <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
             {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
-            {session ? (
-              <>
-                <Link href="/account" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">My account</Link>
-                <Link href="/api/auth/signout" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Sign out</Link>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Sign in</Link>
-                <Link href="/signup" className="mt-1 inline-flex h-11 items-center justify-center rounded-lg bg-brand-deep px-4 font-display text-[15px] font-semibold text-white hover:bg-brand-dark hover:text-white">Get started free</Link>
-              </>
-            )}
+            <AccessButton viewer={viewer} mobile />
           </div>
         </details>
       </div>
     </header>
+  );
+}
+
+/** The one call to action: start free, finish subscribing, or (for members) a quiet "Full access" mark. */
+function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
+  const size = mobile ? "mt-1 h-11 justify-center text-[15px]" : "h-9 text-[13px]";
+  if (viewer.isMember) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand-tint px-4 font-display font-bold text-brand-dark ${size}`}>
+        <Icon name="check" className="h-4 w-4" /> Full access
+      </span>
+    );
+  }
+  const [href, label] = viewer.userId ? ["/membership", "Get full access"] : ["/signup", "Get started free"];
+  return (
+    <Link href={href} className={`inline-flex items-center whitespace-nowrap rounded-lg bg-brand-deep px-4 font-display font-semibold text-white transition hover:bg-brand-dark hover:text-white ${size}`}>{label}</Link>
   );
 }

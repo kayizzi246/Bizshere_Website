@@ -22,7 +22,9 @@ const credentialsSchema = z.object({
 export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  // No sign-out in the site: a person stays signed in on their device for a year, so a
+  // subscriber keeps their access. On a new device they enter their number again.
+  session: { strategy: "jwt", maxAge: 365 * 24 * 60 * 60 },
   pages: { signIn: "/login" },
   providers: [
     CredentialsProvider({

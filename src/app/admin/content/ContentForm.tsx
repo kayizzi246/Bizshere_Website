@@ -117,7 +117,8 @@ function FieldInput({ f, value, error }: { f: Field; value: string; error?: stri
   if (f.kind === "textarea" || f.kind === "json") return <div className="flex-[1_1_100%]"><TextArea name={name} label={f.label} defaultValue={value} help={f.help} error={error} rows={f.kind === "json" ? 3 : 3} mono={f.kind === "json"} /></div>;
   if (f.kind === "bool") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Unknown" }, { value: "true", label: "Yes" }, { value: "false", label: "No" }]} />;
   if (f.kind === "enum") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Choose…" }, ...(f.options ?? []).map((o) => ({ value: o, label: o.replace(/_/g, " ").toLowerCase() }))]} />;
-  const type = f.kind === "date" ? "date" : f.kind === "url" ? "url" : "text";
+  // URL fields are plain text so site paths (/ideas/…) are accepted; the server checks the format.
+  const type = f.kind === "date" ? "date" : "text";
   return <Input name={name} label={f.label} type={type} defaultValue={value} error={error} help={f.help} required={f.required} inputMode={f.kind === "int" || f.kind === "decimal" ? "decimal" : undefined} />;
 }
 

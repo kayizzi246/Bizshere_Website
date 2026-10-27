@@ -16,6 +16,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   size?: "md" | "lg";
 }) {
   const [phone, setPhone] = useState<string | null>(null); // set once a code has been sent
+  const [length, setLength] = useState(6);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const codeInput = useRef<HTMLInputElement>(null);
@@ -28,18 +29,20 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
     setError(null);
     const res = await requestCode(raw);
     setBusy(false);
-    if (res.ok) setPhone(res.phone);
+    if (res.ok) { setPhone(res.phone); setLength(res.length); }
     else setError(res.error);
   }
 
   async function verify(code: string) {
-    if (!phone) return;
+    if (!phone || busy) return;
     setBusy(true);
     setError(null);
     const r = await signIn("phone", { phone, code, redirect: false });
     setBusy(false);
-    if (!r || r.error) setError("That code isn't right, or it has expired.");
-    else onSignedIn();
+    if (!r || r.error) {
+      setError("That code isn't right, or it has expired.");
+      if (codeInput.current) { codeInput.current.value = ""; codeInput.current.focus(); }
+    } else onSignedIn();
   }
 
   if (phone) {
@@ -48,7 +51,10 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
         <p className="text-[15px] text-ink-soft">Enter the code we sent to <strong className="whitespace-nowrap text-ink">{phone}</strong>.</p>
         <label className="label">
           Code
-          <input ref={codeInput} name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="• • • •" className={`input ${field} text-center font-display font-bold tracking-[0.5em]`} />
+          {/* Checks itself as soon as the last digit is typed (or pasted, or filled from the SMS) */}
+          <input ref={codeInput} name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={length} placeholder={"•".repeat(length)}
+            onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); e.target.value = v; if (v.length === length) verify(v); }}
+            className={`input ${field} text-center font-display font-bold tracking-[0.5em]`} />
         </label>
         {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-sm font-medium text-bad-fg">{error}</p> : null}
         <button disabled={busy} className={`btn-primary w-full ${field}`}>{busy ? "Checking…" : "Verify and continue"}</button>

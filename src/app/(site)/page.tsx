@@ -3,8 +3,9 @@ import { ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DIRECTORIES } from "@/config/directories";
 import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
-import { budgetTotal } from "@/lib/costing";
+import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
+import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { liveSiteUpdates } from "@/lib/site-updates";
 import { getViewer } from "@/lib/access";
@@ -20,12 +21,6 @@ export const dynamic = "force-dynamic";
 
 const TYPE_ICON: Record<string, string> = { BUSINESS_IDEA: "idea", MACHINE: "machine", SUPPLIER: "supplier", FUNDING_PROGRAMME: "funding", CONSULTANT: "expert", GUIDE: "guide", TOOL: "tool", RECIPE: "recipe", NEWS: "news", WEBSITE: "link" };
 
-// Hero pills: [icon, title, text, icon colours]. Product facts only, no invented numbers.
-const HERO_PILLS: [string, string, string, string][] = [
-  ["check", "All in one", "10 connected directories", "bg-brand text-white"],
-  ["calendar", "Dated and sourced", "Every price shows its date", "bg-white text-ink"],
-  ["funding", "Mobile money", "Pay with MoMo or Airtel", "bg-brand-mint text-ink"],
-];
 
 const FAQ: [string, string][] = [
   ["Is BizSphere-Ug free to use?", "Yes. You can search everything and read a preview of every page for free. A membership unlocks full budgets, contacts, funding terms, price history and downloads."],
@@ -36,14 +31,12 @@ const FAQ: [string, string][] = [
 ];
 
 export default async function HomePage() {
-  const [viewer, memberPlan, idea, guides, updates, typeCounts, priceCount] = await Promise.all([
+  const [viewer, memberPlan, idea, guides, updates, typeCounts, priceCount, yt] = await Promise.all([
     getViewer(),
     prisma.membershipPlan.findUnique({ where: { code: "member" } }),
     prisma.contentItem.findFirst({
       where: { contentType: "BUSINESS_IDEA", publicationStatus: "PUBLISHED" },
       include: {
-        primaryCategory: true,
-        businessIdea: { include: { steps: { orderBy: { stepNumber: "asc" }, take: 3 }, scenarios: { where: { level: "STANDARD" }, include: { lines: { orderBy: { displayOrder: "asc" } } } } } },
         relatedFrom: { where: { toItem: { publicationStatus: "PUBLISHED" } }, include: { toItem: true }, take: 6, orderBy: { displayOrder: "asc" } },
       },
       orderBy: { publishedAt: "desc" },
@@ -56,8 +49,8 @@ export default async function HomePage() {
     liveSiteUpdates(),
     prisma.contentItem.groupBy({ by: ["contentType"], where: { publicationStatus: "PUBLISHED" }, _count: { _all: true } }),
     prisma.priceObservation.count({ where: { status: "PUBLISHED" } }),
+    homeVideo(),
   ]);
-  const scenario = idea?.businessIdea?.scenarios[0];
   const counts = new Map(typeCounts.map((c) => [c.contentType, c._count._all]));
   // Directory cards open the onboarding pop-up (sign up → pay) for anyone without full access.
   const onboard = viewer.isMember ? undefined : "";
@@ -76,7 +69,7 @@ export default async function HomePage() {
           <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,#000,transparent_70%)]" />
 
           <div className="hero-rise relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-5 pb-10 pt-24 text-center sm:pt-28">
-            <Link href="/search" className="group inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm text-white ring-1 ring-white/15 transition hover:bg-white/15 hover:text-white">
+            <Link href="/search" className="group inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm text-white border border-white/15 transition hover:bg-white/15 hover:text-white">
               <span className="rounded-full bg-brand px-2.5 py-0.5 font-display text-[11px] font-extrabold tracking-wide text-white">NEW</span>
               Search every directory with its own filters
               <ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -95,22 +88,9 @@ export default async function HomePage() {
               Everything you need, in one place.
             </h1>
 
-            {/* Three things to know, as pills */}
-            <ul className="flex flex-wrap justify-center gap-3">
-              {HERO_PILLS.map(([icon, title, text, tone]) => (
-                <li key={title} className="flex items-center gap-3 rounded-2xl bg-white/[0.06] py-2.5 pl-2.5 pr-5 text-left ring-1 ring-white/10 backdrop-blur">
-                  <span className={`flex h-10 w-10 items-center justify-center rounded-full ${tone}`}><Icon name={icon} className="h-5 w-5" /></span>
-                  <span className="flex flex-col">
-                    <span className="font-display text-[15px] font-extrabold text-white">{title}</span>
-                    <span className="text-[13px] text-white/60">{text}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-
             {/* One big call to action, ringed in white */}
             <div className="mt-2 flex flex-col items-center gap-3">
-              <span className="rounded-full bg-white/10 p-1.5 ring-1 ring-white/20">
+              <span>
                 <Link href="/signup" className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand pl-8 pr-2.5 font-display text-lg font-bold text-white transition hover:bg-brand-dark hover:text-white sm:pl-10">
                   Get started free
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition group-hover:translate-x-0.5"><Icon name="arrow" className="h-5 w-5" /></span>
@@ -132,67 +112,42 @@ export default async function HomePage() {
             </ul>
           </div>
 
-          {/* Product preview: an app window rising from the bottom of the panel, built from real data */}
-          <div className="rise-late relative mx-auto max-w-5xl px-4 sm:px-8">
-            <div className="relative h-[300px] overflow-hidden rounded-t-2xl border border-b-0 border-white/15 bg-white/10 p-2 pb-0 backdrop-blur sm:h-[380px]">
-              <div className="flex h-full overflow-hidden rounded-t-xl bg-white text-left text-ink">
-                {/* Sidebar */}
-                <div className="hidden w-52 shrink-0 flex-col gap-1 border-r border-line bg-page/60 p-3 md:flex">
-                  <span className="mb-2 flex items-center gap-2 px-2 pt-1 font-display text-sm font-extrabold"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand text-[11px] text-white">B</span>BizSphere</span>
-                  {DIRECTORIES.slice(0, 7).map((d, n) => {
-                    const c = d.type === "PRICES" ? priceCount : (counts.get(d.type) ?? 0);
-                    return (
-                      <span key={d.href} className={`flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs ${n === 0 ? "bg-brand font-semibold text-white" : "text-ink-soft"}`}>
-                        <span className="flex items-center gap-2"><Icon name={d.icon} className="h-3.5 w-3.5" />{d.nav}</span>
-                        <span className={n === 0 ? "text-white/80" : "text-ink-muted"}>{c}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-                {/* The plan */}
-                <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 sm:p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <span className="eyebrow">Business idea · {idea?.primaryCategory?.name ?? "Food production"}</span>
-                      <p className="title truncate text-lg">{idea?.title ?? "Small bakery"}</p>
-                    </div>
-                    <span className="badge-info shrink-0">{scenario?.estimateDate ? `Est. ${date(scenario.estimateDate)}` : "Dated estimate"}</span>
-                  </div>
-                  <div className="rounded-xl border border-line">
-                    <div className="border-b border-line px-3.5 py-2 text-xs font-bold text-ink-soft">Startup budget · standard</div>
-                    {(scenario?.lines.slice(0, 4) ?? []).map((l) => (
-                      <div key={l.id} className="flex justify-between gap-3 border-b border-line px-3.5 py-2 text-[13px] last:border-0">
-                        <span className="truncate text-ink-soft">{l.description}</span>
-                        <span className="whitespace-nowrap font-semibold">{l.unitCost === null ? <span className="font-normal text-ink-muted">Being sourced</span> : money(Number(l.unitCost) * Number(l.quantity), scenario?.currency)}</span>
-                      </div>
-                    ))}
-                    {scenario ? (
-                      <div className="flex justify-between gap-3 bg-page px-3.5 py-2 text-[13px] font-extrabold"><span>Total</span><span className="text-right">{(() => { const t = budgetTotal(scenario.lines); return t === null ? "When all lines are sourced" : money(t, scenario.currency); })()}</span></div>
-                    ) : null}
-                  </div>
-                </div>
-                {/* What it links to (only when the plan has links) */}
-                <div className={`${idea?.relatedFrom.length ? "lg:flex" : ""} hidden w-60 shrink-0 flex-col gap-2 border-l border-line p-4`}>
-                  <span className="text-xs font-bold text-ink-soft">Links to</span>
-                  {(idea?.relatedFrom ?? []).slice(0, 5).map((r) => (
-                    <span key={r.toItem.id} className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-2 text-xs font-medium">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-tint text-brand"><Icon name={TYPE_ICON[r.toItem.contentType] ?? "link"} className="h-3.5 w-3.5" /></span>
-                      <span className="truncate">{r.toItem.title}</span>
-                    </span>
-                  ))}
-                </div>
+          {/* Watch us: the live stream while we're live on YouTube, otherwise the latest video (set at /admin/video) */}
+          <div id="watch" className="rise-late relative mx-auto w-full max-w-4xl scroll-mt-24 px-4 pb-6 sm:px-8 sm:pb-10">
+            <div className="overflow-hidden rounded-2xl border border-white/15 bg-white/[0.06] p-2">
+              <div className="flex flex-wrap items-center justify-between gap-3 px-2 pb-2.5 pt-1">
+                <span className="flex min-w-0 items-center gap-2.5 text-left">
+                  {yt.video?.live ? (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#FF0033] px-2 py-0.5 font-display text-[11px] font-extrabold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
+                  ) : (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white/10 px-2 py-0.5 font-display text-[11px] font-extrabold tracking-wider text-white/80"><Icon name="video" className="h-3.5 w-3.5" />{yt.video ? "LATEST VIDEO" : "VIDEOS"}</span>
+                  )}
+                  <span className="truncate text-sm font-semibold text-white">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "Watch BizSphere-Ug")}</span>
+                </span>
+                {yt.channelId ? (
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 font-display text-xs font-bold text-ink transition hover:bg-brand hover:text-white">
+                    <Icon name="video" className="h-3.5 w-3.5" /> Subscribe on YouTube
+                  </a>
+                ) : null}
               </div>
-            </div>
-            <div className="float-slow absolute -top-7 right-2 hidden items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3 text-ink sm:flex">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-tint text-brand"><Icon name="shield" /></span>
-              <span className="flex flex-col"><span className="text-sm font-extrabold">Business contact checked</span><span className="text-xs text-ink-muted">Every check shows its date</span></span>
+              <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
+                {yt.video ? (
+                  <YouTubePlayer id={yt.video.id} title={yt.video.title ?? "BizSphere-Ug on YouTube"} live={yt.video.live} />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-white/25 text-white/50"><Icon name="video" className="h-7 w-7" /></span>
+                    <p className="font-display text-lg font-bold text-white">Live sessions and videos are coming</p>
+                    <p className="max-w-sm text-sm text-white/60">When we go live on YouTube, you can watch right here.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Updates marquee (managed at /admin/updates) ── */}
-      <UpdatesMarquee updates={updates} />
+      <UpdatesMarquee updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
       {/* ── Directories ─────────────────────────────────── */}
       <section className="border-y border-line bg-white">
@@ -208,9 +163,10 @@ export default async function HomePage() {
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand transition duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} /></span>
                     <span className={count ? "badge-ok" : "badge-muted"}>{count ? <><span data-count={count}>{count}</span>&nbsp;{d.unit[count === 1 ? 0 : 1]}</> : "Coming soon"}</span>
                   </div>
-                  <h3 className="mt-4 font-display text-lg font-extrabold leading-snug tracking-tight text-ink group-hover:text-brand-dark">{d.title}</h3>
+                  {/* Inter, not Manrope: Manrope tops out at 800; Inter goes to 900 (black) */}
+                  <h3 className="mt-4 font-sans text-2xl font-black leading-tight tracking-tight text-ink group-hover:text-brand-dark">{d.title}</h3>
                   <span className="mb-4 mt-1.5 text-sm leading-relaxed text-ink-muted">{d.text}</span>
-                  <span className="mt-auto flex items-center justify-between border-t border-line pt-3.5 text-sm font-semibold text-brand">
+                  <span className="mt-auto flex items-center justify-between border-t border-line pt-3.5 text-sm font-bold text-brand">
                     Open {d.short}
                     <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-1" />
                   </span>
@@ -218,7 +174,7 @@ export default async function HomePage() {
               );
             })}
             {/* 10 directories leave two slots on the last row: fill them with search */}
-            <form action="/search" role="search" data-reveal style={{ "--d": "90ms" } as React.CSSProperties} className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-[#2B2B2B] p-6 text-white sm:col-span-2 lg:flex-row lg:items-center lg:gap-8 lg:p-8">
+            <form action="/search" role="search" data-reveal style={{ "--d": "90ms" } as React.CSSProperties} className="relative flex flex-col justify-between gap-5 overflow-hidden rounded-2xl bg-ink p-6 text-white sm:col-span-2 lg:flex-row lg:items-center lg:gap-8 lg:p-8">
               <div className="relative flex flex-col gap-1.5 lg:max-w-xs">
                 <span className="title text-lg">Not sure where to start?</span>
                 <span className="text-sm leading-relaxed text-white/85">Search the whole site by business, product or place.</span>
@@ -286,7 +242,7 @@ export default async function HomePage() {
         <div className="container-site grid gap-8 py-14 lg:grid-cols-[1fr_1.6fr]">
           <div data-reveal className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
             <SectionHead eyebrow="FAQ" title="Questions people ask" />
-            <div className="card flex items-center gap-4 bg-gradient-to-br from-brand-tint to-white p-4">
+            <div className="card flex items-center gap-4 bg-brand-tint p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-[72px] w-auto shrink-0 mix-blend-multiply" />
               <div className="flex flex-col gap-1.5">
@@ -312,7 +268,7 @@ export default async function HomePage() {
 
       {/* ── Final CTA ───────────────────────────────────── */}
       <section className="container-site py-14">
-        <div data-reveal className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-ink via-[#1C1C1C] to-[#2B2B2B] px-8 py-10 text-white md:px-12">
+        <div data-reveal className="relative overflow-hidden rounded-[28px] bg-ink px-8 py-10 text-white md:px-12">
           <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:44px_44px]" />
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-6">

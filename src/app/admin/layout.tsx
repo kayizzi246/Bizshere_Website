@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           { href: "/admin/users", label: "Users and businesses" },
           { section: "Site" },
           { href: "/admin/updates", label: "Homepage updates" },
+          { href: "/admin/video", label: "Homepage video" },
           { href: "/", label: "View website" },
         ]} />
         <div className="mt-auto flex items-center gap-2.5 rounded-xl bg-[#1F1F1F] p-3">

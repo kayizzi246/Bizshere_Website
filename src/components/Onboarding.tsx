@@ -81,31 +81,42 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   }, [next, onClose, router, setStep]);
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-ink/50 px-4 py-8 backdrop-blur-sm sm:items-center" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-ink/60 px-4 py-8 sm:items-center" onClick={onClose}>
       <div ref={panel} className="onboard-pop relative w-full max-w-[560px] overflow-hidden rounded-3xl bg-white" onClick={(e) => e.stopPropagation()}>
-        <div aria-hidden className="h-1.5 bg-gradient-to-r from-brand via-[#FF8A3D] to-brand" />
+        <div aria-hidden className="h-1.5 bg-brand" />
         <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-5 flex h-10 w-10 items-center justify-center rounded-xl text-ink-muted hover:bg-page hover:text-ink"><X className="h-5 w-5" /></button>
         <div className="p-7 sm:p-10">
           {step === "account" ? (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-2 pr-10">
                 <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">Get full access</h2>
-                <p className="text-[15px] leading-relaxed text-ink-muted">Sign in with your phone number to unlock full plans, contacts, prices and downloads.</p>
+                <p className="text-[15px] leading-relaxed text-ink-muted">Enter your phone number to unlock full plans, contacts, prices and downloads. Already subscribed? Use the same number and you&apos;re straight back in.</p>
               </div>
               <PhoneSignIn onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : null}
           {step === "pay" ? <PayStep plan={plan} onDone={() => { router.refresh(); setStep("done"); }} /> : null}
-          {step === "done" ? (
-            <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-8 w-8" /></span>
-              <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">You have full access</h2>
-              <p className="text-[15px] text-ink-muted">Every plan, contact, price and download is now open to you.</p>
-              <button type="button" onClick={() => { router.push(next); onClose(); }} className="btn-primary mt-2 min-h-[56px] w-full text-lg">Continue</button>
-            </div>
-          ) : null}
+          {step === "done" ? <DoneStep onContinue={() => { router.push(next); onClose(); }} /> : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Success screen: moves on to the page they tapped by itself; the button is there for the impatient. */
+function DoneStep({ onContinue }: { onContinue: () => void }) {
+  const go = useRef(onContinue);
+  go.current = onContinue;
+  useEffect(() => {
+    const t = setTimeout(() => go.current(), 1500);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div className="flex flex-col items-center gap-4 py-6 text-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-8 w-8" /></span>
+      <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">You have full access</h2>
+      <p className="text-[15px] text-ink-muted">Taking you there now…</p>
+      <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[56px] w-full text-lg">Continue</button>
     </div>
   );
 }
@@ -116,19 +127,44 @@ const METHODS = [
   { id: "CARD", label: "Card", icon: CreditCard },
 ] as const;
 
+/** +256772123456 → "0772 123 456"; anything else is shown as stored. */
+function localPhone(p: string) {
+  const m = /^\+256(\d{3})(\d{3})(\d{3})$/.exec(p);
+  return m ? `0${m[1]} ${m[2]} ${m[3]}` : p;
+}
+
+/** Network from a Ugandan mobile number: MTN 076/077/078/039, Airtel 070/074/075/020. */
+function networkOf(p: string): "MTN_MOMO" | "AIRTEL_MONEY" | null {
+  const m = /^\+256(\d{2})/.exec(p);
+  if (!m) return null;
+  if (["76", "77", "78", "39"].includes(m[1])) return "MTN_MOMO";
+  if (["70", "74", "75", "20"].includes(m[1])) return "AIRTEL_MONEY";
+  return null;
+}
+
 function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   const [period, setPeriod] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
   const [method, setMethod] = useState<(typeof METHODS)[number]["id"]>("MTN_MOMO");
+  const [payPhone, setPayPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckoutOutcome | null>(null);
   const price = period === "MONTHLY" ? plan.monthly : plan.yearly;
+
+  // Pre-fill the number they signed in with, and pick its network, so most people only tap "Pay".
+  useEffect(() => {
+    accessState().then((s) => {
+      if (!s.phone) return;
+      setPayPhone((cur) => cur || localPhone(s.phone!));
+      const net = networkOf(s.phone);
+      if (net) setMethod(net);
+    }).catch(() => {});
+  }, []);
 
   async function pay(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setResult(null);
-    const phone = String(new FormData(e.currentTarget).get("payPhone") ?? "");
-    const res = await startMembership({ period, method, phone });
+    const res = await startMembership({ period, method, phone: payPhone });
     setBusy(false);
     if (res.status === "active") onDone();
     else if (res.status === "redirect") window.location.href = res.url;
@@ -169,7 +205,9 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
       {method !== "CARD" ? (
         <label className="label">
           Mobile money number
-          <input name="payPhone" type="tel" inputMode="tel" placeholder="0772 123 456" autoComplete="tel" className="input min-h-[56px] text-lg" />
+          <input name="payPhone" type="tel" inputMode="tel" placeholder="0772 123 456" autoComplete="tel" value={payPhone}
+            onChange={(e) => { setPayPhone(e.target.value); const net = networkOf(`+256${e.target.value.replace(/\D/g, "").replace(/^(256|0)/, "")}`); if (net) setMethod(net); }}
+            className="input min-h-[56px] text-lg" />
           <span className="text-xs font-normal text-ink-muted">You&apos;ll get a prompt on this phone to approve the payment.</span>
         </label>
       ) : null}

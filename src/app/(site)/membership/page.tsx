@@ -31,7 +31,7 @@ export default async function MembershipPage({ searchParams }: { searchParams: {
           const featured = p.code === "member";
           const price = yearly ? p.priceYearly : p.priceMonthly;
           return (
-            <div key={p.id} className={`flex flex-[1_1_320px] max-w-md flex-col gap-4 rounded-[20px] p-8 ${featured ? "bg-gradient-to-br from-ink to-[#2B2B2B] text-white" : "card"}`}>
+            <div key={p.id} className={`flex flex-[1_1_320px] max-w-md flex-col gap-4 rounded-[20px] p-8 ${featured ? "bg-ink text-white" : "card"}`}>
               <span className="text-lg font-extrabold">{p.name}</span>
               <span className="text-4xl font-extrabold">{money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{yearly ? "per year" : "per month"}</span> : null}</span>
               <Link href={p.code === "free" ? "/signup" :`/membership/checkout?plan=${p.code}&period=${yearly ? "yearly" : "monthly"}`} className={featured ? "btn min-h-[50px] bg-white font-extrabold text-brand-deep hover:text-brand-deep" : "btn-outline min-h-[50px]"}>

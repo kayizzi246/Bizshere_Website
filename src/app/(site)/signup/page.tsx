@@ -21,7 +21,8 @@ export default function SignupPage() {
       <PhoneAuthCard
         title="Create your free account"
         googleEnabled={googleEnabled}
-        redirectTo="/account"
+        // Straight on to the payment step of the onboarding pop-up, not a dead-end account page.
+        redirectTo="/?onboard=pay&next=%2Fbusiness-ideas"
         footer={<>
           <p className="text-xs text-ink-muted">By continuing you agree to our <Link href="/terms">terms</Link> and <Link href="/privacy">privacy policy</Link>.</p>
           <p className="border-t border-line pt-4 text-sm text-ink-muted">Selling machines, supplies or services? <Link href="/contact" className="font-bold">Contact our team</Link> to get listed.</p>

@@ -19,9 +19,11 @@ export async function requestCode(phone: string): Promise<SendResult> {
   return sendCode(phone);
 }
 
+/** `phone` pre-fills the mobile money number at the payment step. */
 export async function accessState() {
   const viewer = await getViewer();
-  return { signedIn: Boolean(viewer.userId), isMember: viewer.isMember };
+  const user = viewer.userId ? await prisma.user.findUnique({ where: { id: viewer.userId }, select: { phone: true } }) : null;
+  return { signedIn: Boolean(viewer.userId), isMember: viewer.isMember, phone: user?.phone ?? null };
 }
 
 /** Simulated payments for demos. Never set PAYMENT_SIMULATE on the live server. */

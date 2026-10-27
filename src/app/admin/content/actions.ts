@@ -54,7 +54,8 @@ function parseField(f: Field, raw: string, errors: Record<string, string>): unkn
       if (!f.options?.includes(raw)) errors[f.name] = "Choose an option";
       return raw;
     case "url":
-      if (!/^https?:\/\//i.test(raw)) errors[f.name] = "Must start with http:// or https://";
+      // A full web address, or a path to a file on this site such as /ideas/bakery.jpg
+      if (!/^(https?:\/\/|\/[^/])/i.test(raw)) errors[f.name] = "Must start with https:// (or / for a file on this site)";
       return raw;
     case "json":
       try { return JSON.parse(raw); } catch { errors[f.name] = "Invalid JSON"; return null; }

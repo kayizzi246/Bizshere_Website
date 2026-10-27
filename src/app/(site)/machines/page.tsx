@@ -11,7 +11,12 @@ async function meta(ids: string[]) {
   return Object.fromEntries(rows.map((m) => [m.contentItemId, [m.machineType, m.function].filter(Boolean).join(" · ")]));
 }
 
+async function images(ids: string[]) {
+  const rows = await prisma.machine.findMany({ where: { contentItemId: { in: ids }, pictureUrl: { not: null } }, select: { contentItemId: true, pictureUrl: true } });
+  return Object.fromEntries(rows.map((m) => [m.contentItemId, m.pictureUrl!]));
+}
+
 export default function Page() {
   const d = directory("/machines");
-  return <DirectoryList types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} images={images} title={d.title} intro={d.text} />;
 }

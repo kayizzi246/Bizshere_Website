@@ -10,6 +10,22 @@
  */
 import { Prisma, type PrismaClient } from "@prisma/client";
 
+/** [idea slug, photo, credit]. Files in public/ideas, all from Wikimedia Commons under CC BY-SA 4.0. */
+const IDEA_PHOTOS: [string, string, string][] = [
+  ["small-bakery", "/ideas/bakery.jpg", "Photo: Tomascastelazo, Wikimedia Commons, CC BY-SA 4.0"],
+  ["sample-maize-milling", "/ideas/maize-mill.jpg", "Photo: Emmanuel Ssekaggo, Wikimedia Commons, CC BY-SA 4.0"],
+  ["sample-liquid-soap-making", "/ideas/liquid-soap.jpg", "Photo: Ruky Wunpini, Wikimedia Commons, CC BY-SA 4.0"],
+  ["sample-poultry-layers-farm", "/ideas/poultry-layers.jpg", "Photo: Shark2025, Wikimedia Commons, CC BY-SA 4.0"],
+];
+
+/** [machine slug, photo, credit]. Files in public/machines, from Wikimedia Commons (see its README). */
+const MACHINE_PHOTOS: [string, string, string][] = [
+  ["sample-hammer-mill-maize", "/machines/hammer-mill.jpg", "Photo: HammerMillMan777, Wikimedia Commons, CC BY-SA 4.0"],
+  ["sample-liquid-soap-mixer", "/machines/mixing-tank.jpg", "Photo: Cjp24, Wikimedia Commons, CC BY-SA 3.0"],
+  ["sample-band-sealing-machine", "/machines/band-sealer.jpg", "Photo: M5s, Wikimedia Commons, CC BY-SA 4.0"],
+  ["deck-baking-oven-2-decks", "/machines/deck-oven.jpg", "Photo: Turaids, Wikimedia Commons, CC BY-SA 4.0"],
+];
+
 type Ctx = {
   prisma: PrismaClient;
   editorId: string;
@@ -75,6 +91,10 @@ export async function seedSamples({ prisma, editorId, districts, now, days }: Ct
     });
   }
   await fill(prisma.businessIdea, "small-bakery", { businessType: "Food production", keyRequirements: "Premises with power and water\nAn oven and mixer\nFood handling permit", successFactors: "Fresh bread every morning\nRegular orders from shops and schools", remarks: "Sample remark: replace with notes from the research team." }, "businessType", prisma);
+  // Sample photos from Wikimedia Commons (credits in public/ideas/README.md). Only fills empty pictures.
+  for (const [slug, pictureUrl, pictureCredit] of IDEA_PHOTOS) {
+    await prisma.businessIdea.updateMany({ where: { contentItem: { slug }, pictureUrl: null }, data: { pictureUrl, pictureCredit } });
+  }
 
   // ── 2. Business machines ──────────────────────────────────
   const agroMach = await cat("MACHINE_CATEGORY", "Agro-processing machines");
@@ -89,6 +109,11 @@ export async function seedSamples({ prisma, editorId, districts, now, days }: Ct
       prisma.machine.create({ data: { contentItemId, function: fn, machineType: type, priceMin: D(min), priceMax: D(max), currency: "UGX", sources, remarks: "Sample remark: prices change; confirm with the seller before buying.", videoUrls: [SAMPLE_URL + "video"] } }));
   }
   await fill(prisma.machine, "deck-baking-oven-2-decks", { function: "Bakes bread, buns and pastries on two decks.", machineType: "Deck oven", priceMin: D(9_000_000), priceMax: D(15_000_000), sources: "Kampala: bakery equipment dealers (sample)\nOverseas: manufacturers in China and Turkey (sample)", remarks: "Sample remark: needs three-phase power.", videoUrls: [SAMPLE_URL + "video"] }, "machineType", prisma);
+
+  // Sample machine photos (credits in public/machines/README.md). Only fills empty pictures.
+  for (const [slug, pictureUrl, pictureCredit] of MACHINE_PHOTOS) {
+    await prisma.machine.updateMany({ where: { contentItem: { slug }, pictureUrl: null }, data: { pictureUrl, pictureCredit } });
+  }
 
   // ── 3. Suppliers ──────────────────────────────────────────
   const inputsCat = await cat("PRODUCT_CATEGORY", "Agricultural inputs");

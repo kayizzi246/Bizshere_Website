@@ -7,6 +7,7 @@ import { filtersFor, parseTab, searchListings, searchPrices, TABS, type Tab } fr
 import { saveSearch } from "@/app/actions/member";
 import { Gate } from "@/components/Gate";
 import { Icon } from "@/components/Icon";
+import { AutoSubmit } from "@/components/AutoSubmit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Search" };
@@ -42,19 +43,45 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
 
   return (
     <form action="/search">
-      {tab !== "ALL" ? <input type="hidden" name="in" value={tab} /> : null}
+      <AutoSubmit />
 
-      {/* ── Search bar and service tabs ── */}
+      {/* ── Advanced search bar: "Search in" + keywords, then that service's own fields ── */}
       <section className="border-b border-line bg-white">
         <div className="container-site flex flex-col gap-5 pt-6">
-          <h1 className="text-2xl font-extrabold">Search</h1>
-          <div className="flex gap-2">
-            <label className="flex min-h-[52px] flex-1 items-center gap-3 rounded-xl border border-line-strong bg-white px-4 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20">
-              <Icon name="search" className="h-5 w-5 shrink-0 text-ink-muted" />
-              <span className="sr-only">Search {tabLabel.toLowerCase()}</span>
-              <input name="q" type="search" defaultValue={q} placeholder={PLACEHOLDER[tab]} className="w-full bg-transparent text-base outline-none placeholder:text-ink-muted" />
-            </label>
-            <button className="btn-primary min-h-[52px] px-6">Search</button>
+          <h1 className="text-2xl font-extrabold">{tab === "ALL" ? "Search" : `Search ${tabLabel.toLowerCase()}`}</h1>
+          <div className="flex flex-col gap-3 rounded-2xl border border-line-strong bg-page p-3 sm:p-4">
+            <div className="flex flex-wrap items-end gap-2.5">
+              <label className="label flex-[1_1_180px] text-[13px]">
+                Search in
+                {/* Switching service clears the other service's filters (data-reset) */}
+                <select name="in" defaultValue={tab} data-reset="" className="input min-h-[52px] bg-white text-[15px] font-semibold">
+                  {TABS.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+                </select>
+              </label>
+              <label className="label flex-[3_1_280px] text-[13px]">
+                Keywords
+                <span className="flex min-h-[52px] items-center gap-3 rounded-xl border border-line-strong bg-white px-4 focus-within:border-brand">
+                  <Icon name="search" className="h-5 w-5 shrink-0 text-ink-muted" />
+                  <input name="q" type="search" defaultValue={q} placeholder={PLACEHOLDER[tab]} className="w-full bg-transparent text-base font-normal outline-none placeholder:text-ink-muted" />
+                </span>
+              </label>
+              <button className="btn-primary min-h-[52px] flex-[0_0_auto] px-7">Search</button>
+            </div>
+            {filters.length ? (
+              <div className="flex flex-wrap items-end gap-2.5 border-t border-line pt-3">
+                {filters.map((f) => (
+                  <label key={f.name} className="label min-w-0 flex-[1_1_170px] text-[13px]">
+                    {f.label}
+                    <select name={f.name} defaultValue={values[f.name] ?? ""} className={`input min-h-[44px] text-sm ${values[f.name] ? "border-brand bg-brand-tint font-semibold text-brand-dark" : "bg-white"}`}>
+                      <option value="">Any</option>
+                      {f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="border-t border-line pt-3 text-sm text-ink-muted">Pick a service in <strong className="text-ink-soft">Search in</strong> to get its own filters, like a supplier&apos;s country or an expert&apos;s specialty.</p>
+            )}
           </div>
           <nav aria-label="What to search" className="-mb-px flex gap-1 overflow-x-auto">
             {TABS.map((t) => (
@@ -67,29 +94,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
         </div>
       </section>
 
-      <div className="container-site grid gap-6 py-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
-        {/* ── Filters for this service, always open ── */}
-        <aside className="card flex flex-col gap-4 p-5 lg:sticky lg:top-24">
-          <h2 className="text-base font-extrabold">{tab === "ALL" ? "Narrow it down" : `Filter ${tabLabel.toLowerCase()}`}</h2>
-          {filters.length ? (
-            <>
-              {filters.map((f) => (
-                <label key={f.name} className="label text-[13px]">
-                  {f.label}
-                  <select name={f.name} defaultValue={values[f.name] ?? ""} className="input min-h-[42px] text-sm">
-                    <option value="">Any</option>
-                    {f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </label>
-              ))}
-              <button className="btn-primary min-h-[42px]">Apply filters</button>
-              {active.length ? <Link href={url(Object.fromEntries(filters.map((f) => [f.name, null])))} className="text-center text-sm font-semibold">Clear filters</Link> : null}
-            </>
-          ) : (
-            <p className="text-sm leading-relaxed text-ink-muted">Pick a service above to filter by its own details, like a supplier&apos;s country or an expert&apos;s specialty.</p>
-          )}
-        </aside>
-
+      <div className="container-site py-6">
         {/* ── Results ── */}
         <section className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -115,6 +120,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
                   </Link>
                 </li>
               ))}
+              {active.length > 1 ? <li><Link href={url(Object.fromEntries(filters.map((f) => [f.name, null])))} className="inline-flex px-2 py-1 text-xs font-semibold">Clear all</Link></li> : null}
             </ul>
           ) : null}
 

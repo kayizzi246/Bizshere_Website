@@ -43,8 +43,8 @@ export async function getViewer(): Promise<Viewer> {
 
 export async function requireRole(roles: Role[]) {
   const session = await getSession();
-  if (!session?.user) redirect("/login");
-  if (!roles.includes(session.user.role)) redirect("/");
+  // Staff sign in at their private link (/staff/<ADMIN_LOGIN_KEY>); don't point anyone else to a login page.
+  if (!session?.user || !roles.includes(session.user.role)) redirect("/");
   return session.user;
 }
 

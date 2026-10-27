@@ -25,7 +25,7 @@ a {
   .btn-outline { @apply btn border border-line-strong bg-white text-ink hover:border-ink hover:text-ink; }
   .btn-danger { @apply btn border border-[#C9A39C] bg-white text-bad-fg; }
   .label { @apply flex flex-col gap-1.5 text-sm font-bold text-ink-soft; }
-  .input { @apply min-h-[46px] rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-normal text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/20; }
+  .input { @apply min-h-[46px] rounded-[10px] border border-line-strong bg-white px-3 text-[15px] font-normal text-ink outline-none focus:border-brand; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-brand; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-extrabold tracking-tight; }
@@ -47,6 +47,12 @@ a {
 
 @keyframes marquee {
   to { transform: translateX(-50%); }
+}
+
+/* Blinking dot for "LIVE" and the updates label */
+.live-dot { animation: live-dot 1.4s ease-in-out infinite; }
+@keyframes live-dot {
+  50% { opacity: 0.25; }
 }
 
 /* ── Motion ───────────────────────────────────────────────
@@ -97,8 +103,9 @@ a {
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
-  .marquee-viewport { overflow-x: auto; }
+  .marquee-viewport { overflow-x: auto; scrollbar-width: none; }
   .marquee-dup { display: none; }
+  .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
 }

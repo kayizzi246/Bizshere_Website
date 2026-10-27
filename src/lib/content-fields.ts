@@ -49,6 +49,7 @@ export const DIRECTORIES: Directory[] = [
     fields: [
       t("businessType", "Business type", MAIN, "e.g. Manufacturing, Retail, Service"), ta("keyRequirements", "Key requirements", MAIN),
       ta("successFactors", "Success factors", MAIN), ta("remarks", "Remarks", MAIN),
+      u("pictureUrl", "Picture (image URL)", MAIN), t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       ta("businessModel", "Business model", "Concept"), ta("productsOrServices", "Products or services", "Concept"),
       ta("customerProblem", "Customer problem", "Concept"), ta("valueProposition", "Value proposition", "Concept"),
       e("experienceLevel", "Experience level", ["BEGINNER", "INTERMEDIATE", "ADVANCED"], "Suitability"),
@@ -72,6 +73,7 @@ export const DIRECTORIES: Directory[] = [
       ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
       d("priceMin", "Price from", MAIN, MONEY_HELP), d("priceMax", "Price to", MAIN, "Same as the first box for a single price"), cur(MAIN),
       ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), u("pictureUrl", "Picture (image URL)", MAIN),
+      t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
       t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"),
       t("materialsProcessed", "Materials processed", "Applications"), t("productsProduced", "Products produced", "Applications"),

@@ -26,7 +26,7 @@ export type ContactInfo = { email?: string | null; phone?: string | null; websit
 const empty = (v: React.ReactNode) => v === null || v === undefined || v === "" || (Array.isArray(v) && v.length === 0);
 
 export async function RecordPage({
-  trail, eyebrow, title, brief, picture, rows, texts = [], links = [], contact, children, viewer, item, back,
+  trail, eyebrow, title, brief, picture, pictureCredit, rows, texts = [], links = [], contact, children, viewer, item, back,
 }: {
   trail: [string, string];
   eyebrow: string;
@@ -34,6 +34,8 @@ export async function RecordPage({
   brief?: string | null;
   /** Main photo URL, if the record has one. Placeholders are shown otherwise. */
   picture?: string | null;
+  /** Photographer and licence, shown under the photo. */
+  pictureCredit?: string | null;
   rows: DetailRow[];
   texts?: TextBlock[];
   links?: LinkItem[];
@@ -100,10 +102,16 @@ export async function RecordPage({
             ) : (
               <Placeholder icon={icon} label="Photo coming soon" className="aspect-[16/10] rounded-2xl" big />
             )}
+            {picture && pictureCredit ? <p className="text-xs text-ink-muted">{pictureCredit}</p> : null}
             <div className="grid grid-cols-4 gap-2">
               {[1, 2, 3, 4].map((n) => (
                 <div key={n} className={`relative overflow-hidden rounded-xl ${n === 1 ? "ring-2 ring-brand" : ""}`}>
-                  <Placeholder icon={icon} className="aspect-[4/3] rounded-xl" />
+                  {n === 1 && picture ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- same photo as above
+                    <img src={picture} alt="" className="block aspect-[4/3] w-full rounded-xl object-cover" />
+                  ) : (
+                    <Placeholder icon={icon} className="aspect-[4/3] rounded-xl" />
+                  )}
                   {n > 1 && locked && !viewer.isMember ? (
                     <span className="absolute inset-0 flex items-center justify-center gap-1 bg-ink/55 text-[11px] font-semibold text-white"><LockKeyhole aria-hidden className="h-3 w-3" /> Members</span>
                   ) : null}

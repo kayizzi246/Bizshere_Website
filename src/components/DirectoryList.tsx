@@ -2,9 +2,12 @@ import Link from "next/link";
 import type { ContentType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { date, itemHref } from "@/lib/format";
+import { DIRECTORIES } from "@/config/directories";
+import { Icon } from "./Icon";
+import { ServiceSearch } from "./ServiceSearch";
 
 /** Directory landing page: published items of the given types, with optional section tabs. */
-export async function DirectoryList({ types, title, intro, tabs, active, meta, variant = "cards" }: {
+export async function DirectoryList({ types, title, intro, tabs, active, meta, variant = "cards", images }: {
   types: ContentType[];
   title: string;
   intro: string;
@@ -14,6 +17,8 @@ export async function DirectoryList({ types, title, intro, tabs, active, meta, v
   meta?: (ids: string[]) => Promise<Record<string, string>>;
   /** "documents" shows a document library (cover tile per item); `meta` is used as the document type. */
   variant?: "cards" | "documents";
+  /** Photo per card (keyed by content item id). Turns the cards into photo cards. */
+  images?: (ids: string[]) => Promise<Record<string, string>>;
 }) {
   const items = await prisma.contentItem.findMany({
     where: { contentType: { in: types }, publicationStatus: "PUBLISHED" },
@@ -22,6 +27,8 @@ export async function DirectoryList({ types, title, intro, tabs, active, meta, v
     take: 60,
   });
   const extra = meta ? await meta(items.map((i) => i.id)) : {};
+  const pictures = images ? await images(items.map((i) => i.id)) : null;
+  const icon = DIRECTORIES.find((d) => d.type === types[0])?.icon ?? "link";
   return (
     <div className="container-site flex flex-col gap-6 py-8">
       {tabs ? (
@@ -36,8 +43,8 @@ export async function DirectoryList({ types, title, intro, tabs, active, meta, v
           <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
           <p className="text-ink-muted">{intro}</p>
         </div>
-        <Link href={`/search?in=${types[0]}`} className="btn-outline">Filter and search</Link>
       </div>
+      <ServiceSearch tab={types[0]} />
       {variant === "documents" ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {items.length === 0 ? <p className="card col-span-full p-6 text-sm text-ink-muted">Nothing published here yet.</p> : null}
@@ -54,6 +61,33 @@ export async function DirectoryList({ types, title, intro, tabs, active, meta, v
               <span className="flex flex-col gap-0.5">
                 <span className="line-clamp-2 font-display text-sm font-bold leading-snug group-hover:text-brand">{i.title}</span>
                 <span className="text-xs text-ink-muted">{i.primaryCategory?.name ?? "General"}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      ) : pictures ? (
+        // Photo cards: the record's picture, or a plain panel with the directory icon until one is added.
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {items.length === 0 ? <p className="card col-span-full p-6 text-sm text-ink-muted">Nothing published here yet.</p> : null}
+          {items.map((i) => (
+            <Link id={i.slug} key={i.id} href={itemHref(i)} data-reveal className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:border-ink hover:text-ink">
+              <span className="relative block overflow-hidden">
+                {pictures[i.id] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
+                  <img src={pictures[i.id]} alt={i.title} loading="lazy" className="block aspect-[16/10] w-full bg-page object-cover transition duration-500 group-hover:scale-[1.03]" />
+                ) : (
+                  <span className="flex aspect-[16/10] w-full items-center justify-center bg-brand-tint text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
+                )}
+                {i.primaryCategory ? <span className="absolute left-3 top-3 rounded-md bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-ink">{i.primaryCategory.name}</span> : null}
+              </span>
+              <span className="flex flex-1 flex-col gap-1.5 p-4">
+                <span className="font-sans text-base font-extrabold leading-snug tracking-tight">{i.title}</span>
+                {i.shortSummary ? <span className="line-clamp-2 text-[13px] leading-relaxed text-ink-soft">{i.shortSummary}</span> : null}
+                {extra[i.id] ? <span className="line-clamp-2 text-[13px] font-semibold text-ink-soft">{extra[i.id]}</span> : null}
+                <span className="mt-auto flex items-center justify-between border-t border-line pt-2.5 text-[13px]">
+                  <span className="text-ink-muted">Reviewed {date(i.lastReviewedAt)}</span>
+                  <span className="inline-flex items-center gap-1 font-bold group-hover:text-brand">View <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" /></span>
+                </span>
               </span>
             </Link>
           ))}

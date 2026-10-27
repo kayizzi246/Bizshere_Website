@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { date, isOlderThan, money } from "@/lib/format";
 import { Gate } from "@/components/Gate";
-import type { PriceType } from "@prisma/client";
+import { AutoSubmit } from "@/components/AutoSubmit";import type { PriceType } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Markets and prices" };
@@ -49,7 +49,8 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
                 <option value="WHOLESALE">Wholesale</option><option value="RETAIL">Retail</option><option value="FARM_GATE">Farm-gate</option>
               </select>
             </label>
-            <button className="btn-primary">Show prices</button>
+            <AutoSubmit />
+            <noscript><button className="btn-primary">Show prices</button></noscript>
           </form>
         </div>
       </section>
