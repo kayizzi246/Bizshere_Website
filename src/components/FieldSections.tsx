@@ -43,14 +43,14 @@ export function FieldSections({ type, record, gated, skip, back }: { type: Conte
 
   return (
     <section id="details" className="flex scroll-mt-36 flex-col gap-4">
-      <h2 className="text-base font-extrabold text-brand-deep">Full details</h2>
+      <h2 className="text-base font-extrabold text-heading">Full details</h2>
       {/* Groups pack two to a row; a group with long text takes the full width. */}
       <div className="grid gap-4 md:grid-cols-2">
         {groups.map(([group, fields]) => {
           const short = fields.filter((f) => f.kind !== "textarea" && f.kind !== "json");
           const long = fields.filter((f) => f.kind === "textarea" || f.kind === "json");
           return (
-            <div key={group} className={`flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 ${long.length ? "md:col-span-2" : ""}`}>
+            <div key={group} className={`flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 ${long.length ? "md:col-span-2" : ""}`}>
               <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-muted">{group}</h3>
               {short.length ? (
                 <dl className={`grid divide-y divide-line ${long.length ? "sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0" : ""}`}>

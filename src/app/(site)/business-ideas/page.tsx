@@ -29,13 +29,13 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   return (
     <>
       <ListingHeader icon="idea" title={d.title} intro={d.text} count={items.length} searching={search.active} unit={["plan", "plans"]} />
-      <div className="bg-page">
+      <div className="bg-white">
         <div className="container-site flex flex-col gap-6 py-6 sm:py-8">
           <ServiceSearch path="/business-ideas" label="business ideas" q={search.q} filters={search.filters} values={search.values} count={items.length} />
 
           {items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
-              <p className="text-sm font-semibold text-brand-deep">{search.active ? "Nothing matches this search. Try fewer filters." : "Nothing published here yet."}</p>
+              <p className="text-sm font-semibold text-heading">{search.active ? "Nothing matches this search. Try fewer filters." : "Nothing published here yet."}</p>
               {search.active ? <Link href="/business-ideas" className="text-[13px] font-semibold">Clear the search</Link> : null}
             </div>
           ) : null}
@@ -48,11 +48,11 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                   <Link href={`/business-ideas/${i.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition-colors hover:border-brand hover:text-ink">
                     <div className="relative overflow-hidden">
                       <IdeaPhoto src={b?.pictureUrl} alt={i.title} className="aspect-[4/3] transition duration-500 group-hover:scale-[1.04]" />
-                      {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-brand-deep backdrop-blur">{i.primaryCategory.name}</span> : null}
+                      {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-heading backdrop-blur">{i.primaryCategory.name}</span> : null}
                     </div>
                     <div className="flex flex-1 flex-col gap-2 p-5">
                       {b?.businessType ? <span className="text-xs font-semibold text-accent-dark">{b.businessType}</span> : null}
-                      <h2 className="font-sans text-[17px] font-black leading-snug tracking-tight text-brand-deep group-hover:text-brand">{i.title}</h2>
+                      <h2 className="font-sans text-[17px] font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</h2>
                       {i.shortSummary ? <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.shortSummary}</p> : null}
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {plans.length ? plans.map((l) => (
@@ -61,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                       </div>
                       <div className="mt-auto flex items-center justify-between pt-3 text-xs text-ink-muted">
                         <span>{b?._count.steps ? `${b._count.steps} steps to start` : "Steps coming"}</span>
-                        <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-brand-deep transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
+                        <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
                       </div>
                     </div>
                   </Link>

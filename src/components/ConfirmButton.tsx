@@ -34,7 +34,7 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
 
   const modal = open ? (
     <div className="fixed inset-0 z-[90] flex items-end justify-center p-4 sm:items-center" role="presentation">
-      <div aria-hidden className="absolute inset-0 bg-[#06294A]/55 backdrop-blur-sm" onClick={() => !pending && setOpen(false)} />
+      <div aria-hidden className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !pending && setOpen(false)} />
       <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text"
         className="onboard-pop relative w-full max-w-md overflow-hidden rounded-2xl border border-line bg-surface text-ink">
         <button type="button" onClick={() => setOpen(false)} disabled={pending} aria-label="Close"
@@ -55,11 +55,11 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
         </div>
         <div className="flex flex-col-reverse gap-2 border-t border-line bg-page/60 px-6 py-4 sm:flex-row sm:justify-end">
           <button ref={cancel} type="button" onClick={() => setOpen(false)} disabled={pending}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-line bg-surface px-5 text-sm font-semibold text-ink hover:border-brand hover:text-brand">
+            className="inline-flex h-11 items-center justify-center rounded-[10px] border border-line bg-surface px-5 text-sm font-semibold text-ink hover:border-brand hover:text-brand">
             Cancel
           </button>
           <button type="button" onClick={() => submit.current?.click()} disabled={pending}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#C7362B] px-5 text-sm font-semibold text-white hover:bg-[#A82C23] disabled:opacity-70">
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#C7362B] px-5 text-sm font-semibold text-white hover:bg-[#A82C23] disabled:opacity-70">
             {pending ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : <Trash2 aria-hidden className="h-4 w-4" />}
             {pending ? "Deleting…" : "Delete permanently"}
           </button>

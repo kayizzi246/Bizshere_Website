@@ -172,7 +172,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
                       <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand sm:flex"><Icon name={ICON[i.contentType] ?? "link"} className="h-5 w-5" /></span>
                       <span className="flex min-w-0 flex-1 flex-col gap-1">
                         <span className="text-xs font-semibold text-ink-muted">{contentTypeLabel[i.contentType]}{i.primaryCategory ? ` · ${i.primaryCategory.name}` : ""}</span>
-                        <span className="font-display text-base font-extrabold leading-snug group-hover:text-brand">{i.title}</span>
+                        <span className="font-display text-base font-extrabold leading-tight group-hover:text-brand">{i.title}</span>
                         {i.shortSummary ? <span className="line-clamp-2 text-sm text-ink-soft">{i.shortSummary}</span> : null}
                         <Facts item={i} />
                       </span>

@@ -20,7 +20,7 @@ function score(href: string, path: string, query: string) {
 const flatLinks = (items: NavItem[]): NavLink[] => items.flatMap((it) => ("href" in it ? [it] : "group" in it ? it.items : []));
 
 /**
- * Sidebar navigation. `dark` is the navy admin sidebar; the light variant is used on account pages
+ * Sidebar navigation. `dark` is the blue admin sidebar; the light variant is used on account pages
  * and in the phone menu. Only the best-matching link is highlighted.
  */
 export function SideNav({ items, dark = false }: { items: NavItem[]; dark?: boolean }) {
@@ -38,7 +38,7 @@ export function SideNav({ items, dark = false }: { items: NavItem[]; dark?: bool
       : active ? "bg-brand-tint font-semibold text-brand-dark hover:text-brand-dark" : "font-medium text-ink-soft hover:bg-page hover:text-heading";
     return (
       <Link key={it.href + it.label} href={it.href} aria-current={active ? "page" : undefined}
-        className={`group relative flex min-h-[38px] items-center gap-3 rounded-xl px-3 font-display text-[13px] transition-colors ${nested ? "ml-4 min-h-[34px] pl-4" : ""} ${cls}`}>
+        className={`group relative flex min-h-[40px] items-center gap-3 rounded-xl px-3 font-display text-[13px] transition-colors ${nested ? "ml-4 min-h-[34px] pl-4" : ""} ${cls}`}>
         {active && dark ? <span aria-hidden className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-accent" /> : null}
         {it.icon && !nested ? <Icon name={it.icon} className={`h-[17px] w-[17px] shrink-0 ${active ? (dark ? "text-accent" : "") : dark ? "text-white/50 group-hover:text-white/80" : "text-ink-muted group-hover:text-brand"}`} /> : null}
         <span className="min-w-0 flex-1 truncate">{it.label}</span>
@@ -57,7 +57,7 @@ export function SideNav({ items, dark = false }: { items: NavItem[]; dark?: bool
           const open = it.items.some((x) => x.href === best);
           return (
             <details key={i} open={open} className="group/g [&_summary::-webkit-details-marker]:hidden">
-              <summary className={`flex min-h-[38px] cursor-pointer list-none items-center gap-3 rounded-xl px-3 font-display text-[13px] font-medium transition-colors ${dark ? "text-white/70 hover:bg-white/[0.06] hover:text-white" : "text-ink-soft hover:bg-page hover:text-heading"}`}>
+              <summary className={`flex min-h-[40px] cursor-pointer list-none items-center gap-3 rounded-xl px-3 font-display text-[13px] font-medium transition-colors ${dark ? "text-white/70 hover:bg-white/[0.06] hover:text-white" : "text-ink-soft hover:bg-page hover:text-heading"}`}>
                 {it.icon ? <Icon name={it.icon} className={`h-[17px] w-[17px] shrink-0 ${dark ? "text-white/50" : "text-ink-muted"}`} /> : null}
                 <span className="flex-1">{it.group}</span>
                 <span aria-hidden className="text-xs transition group-open/g:rotate-90">›</span>

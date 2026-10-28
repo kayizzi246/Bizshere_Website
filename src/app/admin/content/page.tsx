@@ -51,8 +51,8 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       <form className="overflow-hidden rounded-xl border border-line bg-surface">
         <div className="flex flex-wrap items-center justify-end gap-2 border-b border-line p-3 text-sm">
           <span className="text-ink-muted">With selected:</span>
-          <button formAction={sendForReReview} className="btn-outline min-h-[38px] px-3">Send for re-review</button>
-          <button formAction={archiveContent} className="btn-outline min-h-[38px] px-3">Archive</button>
+          <button formAction={sendForReReview} className="btn-outline min-h-[44px] px-3">Send for re-review</button>
+          <button formAction={archiveContent} className="btn-outline min-h-[44px] px-3">Archive</button>
           {user.role === "ADMIN" ? <ConfirmButton action={deleteContentBulk} title="Delete the selected pages?" message="The ticked pages and everything attached to them will be removed from the database." className="h-[38px]">Delete</ConfirmButton> : null}
         </div>
         <div className="overflow-x-auto">

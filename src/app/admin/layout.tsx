@@ -14,7 +14,7 @@ import { prisma } from "@/lib/prisma";
 const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "opportunity" : "link");
 
 /**
- * Admin shell. Desktop: a navy sidebar (directories folded into one group) and a top bar with
+ * Admin shell. Desktop: a blue sidebar (directories folded into one group) and a top bar with
  * search and the light/dark switch. Phones and tablets: the sidebar becomes a menu button.
  * The theme is remembered in the `admin-theme` cookie.
  */
@@ -58,7 +58,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex h-16 items-center gap-2 px-5">
           <Logo href="/admin" light sub="Admin" />
         </div>
-        <Link href="/admin/content/new" className="mx-4 mb-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
+        <Link href="/admin/content/new" className="mx-4 mb-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
           <Icon name="plus" className="h-4 w-4" />Add content
         </Link>
         <div className="flex-1 overflow-y-auto px-3 pb-4">
@@ -66,7 +66,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <div className="flex flex-col gap-1 border-t border-white/10 p-3">
           <ThemeToggle initial={theme} withLabel />
-          <Link href="/" target="_blank" className="flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
+          <Link href="/" target="_blank" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
             <Icon name="external" className="h-4 w-4" />View website
           </Link>
           <div className="mt-1 rounded-xl bg-white/[0.06] p-2.5">{userCard}</div>
@@ -78,7 +78,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6 lg:h-16 lg:px-7">
           <Suspense fallback={null}><MobileNav items={items} footer={userCard} /></Suspense>
           <span className="lg:hidden"><Logo full href="/admin" /></span>
-          <form action="/admin/content" role="search" className="ml-auto hidden h-10 w-full max-w-md items-center gap-2 rounded-full border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface sm:flex lg:ml-0">
+          <form action="/admin/content" role="search" className="ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface sm:flex lg:ml-0">
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
             <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
           </form>

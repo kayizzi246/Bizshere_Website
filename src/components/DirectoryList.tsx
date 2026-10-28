@@ -41,14 +41,14 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   return (
     <>
       <ListingHeader icon={icon} title={title} intro={intro} tabs={tabs} active={active} count={items.length} searching={search.active} />
-      <div className="bg-page">
+      <div className="bg-white">
         <div className="container-site flex flex-col gap-6 py-6 sm:py-8">
           <ServiceSearch path={path} label={title} q={search.q} filters={search.filters} values={search.values} count={items.length} />
 
           {items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
-              <p className="text-sm font-semibold text-brand-deep">{empty}</p>
+              <p className="text-sm font-semibold text-heading">{empty}</p>
               {search.active ? <Link href={path} className="text-[13px] font-semibold">Clear the search</Link> : null}
             </div>
           ) : variant === "documents" ? (
@@ -65,7 +65,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
                     <span className="w-fit max-w-full truncate rounded-full bg-accent-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-dark">{extra[i.id] || "Document"}</span>
-                    <span className="line-clamp-2 font-sans text-sm font-black leading-snug tracking-tight text-brand-deep group-hover:text-brand">{i.title}</span>
+                    <span className="line-clamp-2 font-sans text-sm font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     <span className="mt-auto pt-1 text-[11px] text-ink-muted">{i.primaryCategory?.name ?? "General"}</span>
                   </span>
                 </Link>
@@ -83,7 +83,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                       ) : (
                         <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
                       )}
-                      {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-brand-deep backdrop-blur">{i.primaryCategory.name}</span> : null}
+                      {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-heading backdrop-blur">{i.primaryCategory.name}</span> : null}
                     </span>
                   ) : null}
                   <span className="flex flex-1 flex-col gap-2 p-5">
@@ -93,12 +93,12 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                         <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
                       </span>
                     ) : null}
-                    <span className="font-sans text-[17px] font-black leading-snug tracking-tight text-brand-deep group-hover:text-brand">{i.title}</span>
+                    <span className="font-sans text-[17px] font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     {i.shortSummary ? <span className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.shortSummary}</span> : null}
                     {extra[i.id] ? <span className="line-clamp-2 w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft">{extra[i.id]}</span> : null}
                     <span className="mt-auto flex items-center justify-between pt-3 text-xs text-ink-muted">
                       <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand" />Reviewed {date(i.lastReviewedAt)}</span>
-                      <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-brand-deep transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
+                      <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
                     </span>
                   </span>
                 </Link>
@@ -131,7 +131,7 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
             <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
               {tabs.map(([href, label]) => (
-                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-brand-deep ring-1 ring-line" : "font-medium text-ink-soft hover:text-brand-deep"}`}>{label}</Link>
+                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-heading ring-1 ring-line" : "font-medium text-ink-soft hover:text-heading"}`}>{label}</Link>
               ))}
             </div>
           </nav>
@@ -139,7 +139,7 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex max-w-2xl flex-col gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand text-white"><Icon name={icon} className="h-5 w-5" /></span>
-            <h1 className="font-sans text-[28px] font-black leading-[1.1] tracking-[-0.03em] text-brand-deep sm:text-[36px]">{title}</h1>
+            <h1 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[36px]">{title}</h1>
             <p className="text-[15px] leading-relaxed text-ink-muted">{intro}</p>
           </div>
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-[13px] text-ink-soft">

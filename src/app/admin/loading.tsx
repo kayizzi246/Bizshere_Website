@@ -9,7 +9,7 @@ export default function AdminLoading() {
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5">
+          <div key={i} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-6">
             <div className={`${bar} h-4 w-24`} />
             <div className={`${bar} h-8 w-20`} />
             <div className={`${bar} h-3 w-16`} />

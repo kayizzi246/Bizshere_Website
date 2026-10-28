@@ -23,7 +23,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
           {ADMIN_DIRECTORIES.map((d) => {
             const groups = new Set(d.fields.map((f) => f.group ?? "Details"));
             return (
-              <Link key={d.type} href={`?type=${d.type}`} className="group flex items-start gap-3.5 rounded-xl border border-line bg-surface p-5 text-ink hover:border-brand hover:text-ink">
+              <Link key={d.type} href={`?type=${d.type}`} className="group flex items-start gap-3.5 rounded-xl border border-line bg-surface p-6 text-ink hover:border-brand hover:text-ink">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand group-hover:bg-brand group-hover:text-white"><Icon name={iconOf(d.type)} className="h-5 w-5" /></span>
                 <span className="flex flex-col gap-1">
                   <span className="font-display text-sm font-bold text-heading">{d.label}</span>

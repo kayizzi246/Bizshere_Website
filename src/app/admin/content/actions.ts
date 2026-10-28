@@ -103,8 +103,16 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     const a = specialised[lo], z = specialised[hi];
     if (a instanceof Prisma.Decimal && z instanceof Prisma.Decimal && a.greaterThan(z)) errors[hi] = "Can't be lower than the first amount";
   }
-  // Enum fields that the database requires on create
-  for (const req of ["fundingType", "toolType"]) if (req in specialised && specialised[req] === null) errors[req] = "Required";
+  // Required columns left empty: drop them so the database default applies (or, when editing, the
+  // saved value stays); required columns without a default must be filled in. Read from the schema,
+  // so a column added later is covered too (e.g. currency, which defaults to UGX).
+  const modelName = DELEGATE[dir.model].charAt(0).toUpperCase() + DELEGATE[dir.model].slice(1);
+  const columns = Prisma.dmmf.datamodel.models.find((m) => m.name === modelName)?.fields ?? [];
+  for (const c of columns) {
+    if (!(c.name in specialised) || specialised[c.name] !== null || !c.isRequired) continue;
+    if (c.hasDefaultValue) delete specialised[c.name];
+    else errors[c.name] = "Required";
+  }
 
   const relationRows = lines(str(form.get("relations"))).map((r) => r.split(/\s+/));
   for (const [rel] of relationRows) if (!(RELATIONSHIP_TYPES as readonly string[]).includes(rel)) errors.relations = `Unknown relationship "${rel}"`;

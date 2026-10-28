@@ -13,7 +13,7 @@ const COLUMNS: { title: string; links: [string, string][] }[] = [
   { title: "Trust", links: [["/methodology", "How we check content"], ["/corrections", "Report a correction"], ["/terms", "Terms"], ["/privacy", "Privacy and data protection"]] },
 ];
 
-/** Footer: light panel under the navy call-to-action band, so the full-colour logo sits on it directly. */
+/** Footer: light panel under the blue call-to-action band, so the full-colour logo sits on it directly. */
 export function SiteFooter() {
   const c = site.contact;
   const contact = [
@@ -23,11 +23,11 @@ export function SiteFooter() {
   ].filter(Boolean) as { icon: string; text: string; href?: string }[];
 
   return (
-    <footer className="mt-auto border-t border-line bg-page">
+    <footer className="mt-auto border-t border-line bg-white">
       <div className="container-site grid grid-cols-2 gap-x-6 gap-y-10 py-12 sm:py-14 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
         <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-6">
           <Link href="/" aria-label="BizSphere-Ug home" className="w-fit">
-            <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={900} height={578} className="h-auto w-[150px]" />
+            <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-auto w-[160px]" />
           </Link>
           <p className="max-w-xs text-[13px] leading-relaxed text-ink-muted">{site.tagline}</p>
           {contact.length ? (
@@ -44,7 +44,7 @@ export function SiteFooter() {
 
         {COLUMNS.map((col) => (
           <nav key={col.title} aria-label={col.title} className="flex flex-col gap-3.5">
-            <span className="font-display text-[13px] font-bold text-brand-deep">{col.title}</span>
+            <span className="font-display text-[13px] font-bold text-heading">{col.title}</span>
             <ul className="flex flex-col gap-2.5">
               {col.links.map(([href, label]) => (
                 <li key={label}>

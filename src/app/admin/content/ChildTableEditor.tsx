@@ -92,7 +92,7 @@ function RowForm({ table, contentItemId, row, options }: { table: ChildTable; p:
       <div className="flex flex-wrap gap-3">
         {table.fields.map((f) => <Input key={f.name} f={f} value={row ? formValue(f, row[f.name]) : defaultValue(f)} options={options[f.name]} />)}
       </div>
-      <div className="flex justify-end"><button className="btn-primary min-h-[40px] px-5">{row ? "Save changes" : `Add ${table.item}`}</button></div>
+      <div className="flex justify-end"><button className="btn-primary min-h-[44px] px-5">{row ? "Save changes" : `Add ${table.item}`}</button></div>
     </form>
   );
 }
@@ -116,7 +116,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
     return (
       <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-2">
         <label className="label min-w-0 text-[13px]">{label}
-          <input name={name} defaultValue={value} type="text" className="input min-h-[42px] w-full min-w-0 text-sm" placeholder="Paste a link, or upload below" />
+          <input name={name} defaultValue={value} type="text" className="input min-h-[44px] w-full min-w-0 text-sm" placeholder="Paste a link, or upload below" />
         </label>
         <UploadButton target={name} kind={f.upload} />
       </div>
@@ -125,9 +125,9 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
   return (
     <label className="label min-w-0 flex-[1_1_200px] text-[13px]">{label}
       {choices ? (
-        <select name={name} defaultValue={value} className="input min-h-[42px] w-full min-w-0 text-sm">{choices.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
+        <select name={name} defaultValue={value} className="input min-h-[44px] w-full min-w-0 text-sm">{choices.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
       ) : (
-        <input name={name} defaultValue={value} type={f.kind === "date" ? "date" : "text"} inputMode={f.kind === "int" || f.kind === "decimal" ? "decimal" : undefined} className="input min-h-[42px] w-full min-w-0 text-sm" />
+        <input name={name} defaultValue={value} type={f.kind === "date" ? "date" : "text"} inputMode={f.kind === "int" || f.kind === "decimal" ? "decimal" : undefined} className="input min-h-[44px] w-full min-w-0 text-sm" />
       )}
       {help ?? (f.kind === "list" ? <span className="text-xs font-normal text-ink-muted">Comma-separated</span> : null)}
     </label>

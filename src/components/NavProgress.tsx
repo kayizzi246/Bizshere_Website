@@ -53,7 +53,7 @@ export function NavProgress() {
 
   return (
     <div aria-hidden className={`pointer-events-none fixed inset-x-0 top-0 z-[100] h-[3px] transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}>
-      <div className="h-full bg-gradient-to-r from-accent to-brand shadow-[0_0_8px_rgba(253,124,4,0.6)] transition-[width] duration-200 ease-out" style={{ width: `${width}%` }} />
+      <div className="h-full bg-gradient-to-r from-accent to-brand shadow-[0_0_8px_rgba(254,131,2,0.6)] transition-[width] duration-200 ease-out" style={{ width: `${width}%` }} />
     </div>
   );
 }

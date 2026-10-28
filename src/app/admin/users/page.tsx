@@ -68,7 +68,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
         <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
           {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${tab === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>)}
         </div></div>
-        <form className="flex w-full gap-2 sm:w-auto"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[40px] min-w-0 flex-1 sm:w-64 sm:flex-none" /><button className="btn-outline min-h-[42px]">Search</button></form>
+        <form className="flex w-full gap-2 sm:w-auto"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[44px] min-w-0 flex-1 sm:w-64 sm:flex-none" /><button className="btn-outline min-h-[44px]">Search</button></form>
       </div>
 
       <div className="flex flex-wrap items-start gap-5">
@@ -116,8 +116,8 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
             </div>
             <form action={changeRole} className="flex items-end gap-2">
               <input type="hidden" name="id" value={sel.id} />
-              <label className="label flex-1 text-xs">Role<select name="role" defaultValue={sel.role} className="input min-h-[42px]"><option value="USER">Member / visitor</option><option value="CONTRIBUTOR">Business owner</option><option value="EDITOR">Editor</option><option value="ADMIN">Admin</option></select></label>
-              <button className="btn-outline min-h-[42px]">Save</button>
+              <label className="label flex-1 text-xs">Role<select name="role" defaultValue={sel.role} className="input min-h-[44px]"><option value="USER">Member / visitor</option><option value="CONTRIBUTOR">Business owner</option><option value="EDITOR">Editor</option><option value="ADMIN">Admin</option></select></label>
+              <button className="btn-outline min-h-[44px]">Save</button>
             </form>
             <form action={setSuspended}>
               <input type="hidden" name="id" value={sel.id} /><input type="hidden" name="suspend" value={sel.isSuspended ? "0" : "1"} />

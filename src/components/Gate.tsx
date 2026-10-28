@@ -86,7 +86,7 @@ function Lock() {
 
 export function Check() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0172CE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0072CE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
       <path d="M5 12l4 4 10-10" />
     </svg>
   );

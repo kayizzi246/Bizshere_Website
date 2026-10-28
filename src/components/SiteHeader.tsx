@@ -6,16 +6,17 @@ import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { site } from "@/config/site";
 import { Logo } from "./Logo";
+import { HideOnHome } from "./HideOnHome";
 import { Icon } from "./Icon";
 
 // Shown as plain links next to the "Directories" menu on desktop.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
-const link = "whitespace-nowrap rounded-full px-3.5 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-white hover:text-brand-deep";
-const searchBtn = "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full border border-line px-3.5 font-display text-[12.5px] font-medium text-ink transition hover:border-brand hover:text-brand";
+const link = "whitespace-nowrap rounded-full px-3.5 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-white hover:text-heading";
+const searchBtn = "inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-[10px] border border-line px-3.5 font-display text-[12.5px] font-medium text-ink transition hover:border-brand hover:text-brand";
 
 /**
- * Header: a navy contact bar that scrolls away, then a light frosted bar that stays at the top:
+ * Header: a blue contact bar that scrolls away, then a light frosted bar that stays at the top:
  * small full logo, the main links grouped in one pill, search and the call to action on the right.
  * No sign-in or sign-out: people stay signed in on their device (see authOptions.session),
  * and staff sign in at their private link.
@@ -35,7 +36,7 @@ export async function SiteHeader() {
           <div className="flex items-center gap-0.5 rounded-full border border-line bg-page/80 p-1">
           {/* Directories menu: opens on hover or keyboard focus, no JavaScript needed */}
           <div className="group flex h-full items-center">
-            <button type="button" aria-haspopup="true" className={`${link} flex items-center gap-1 group-focus-within:bg-white group-focus-within:text-brand-deep group-hover:bg-white group-hover:text-brand-deep`}>
+            <button type="button" aria-haspopup="true" className={`${link} flex items-center gap-1 group-focus-within:bg-white group-focus-within:text-heading group-hover:bg-white group-hover:text-heading`}>
               Directories
               <ChevronDown aria-hidden className="h-4 w-4 transition group-hover:rotate-180 group-focus-within:rotate-180" />
             </button>
@@ -72,7 +73,7 @@ export async function SiteHeader() {
             <HeaderSearch className={searchBtn} />
           </Suspense>
 
-          <AccessButton viewer={viewer} />
+          <HideOnHome><AccessButton viewer={viewer} /></HideOnHome>
         </nav>
 
         {/* Mobile menu: works without JavaScript */}
@@ -94,7 +95,7 @@ export async function SiteHeader() {
             <div className="my-1 border-t border-line" />
             <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
             {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
-            <AccessButton viewer={viewer} mobile />
+            <HideOnHome><AccessButton viewer={viewer} mobile /></HideOnHome>
           </div>
         </details>
       </div>
@@ -103,7 +104,7 @@ export async function SiteHeader() {
   );
 }
 
-/** Thin navy bar above the header: contact details once they're set in src/config/site.ts, else the tagline. */
+/** Thin blue bar above the header: contact details once they're set in src/config/site.ts, else the tagline. */
 function TopBar() {
   const c = site.contact;
   const items = [

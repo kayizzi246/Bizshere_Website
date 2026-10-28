@@ -54,7 +54,7 @@ export function UploadButton({ target, kind }: { target: string; kind: UploadKin
       <div className="flex flex-wrap items-center gap-2">
         <input ref={ref} type="file" accept={accept} className="sr-only" tabIndex={-1} onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
         <button type="button" onClick={() => ref.current?.click()} disabled={state.busy}
-          className="inline-flex h-9 items-center gap-2 rounded-full border border-dashed border-brand/50 bg-brand-tint px-3.5 text-xs font-semibold text-brand-dark hover:border-brand disabled:opacity-60">
+          className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-dashed border-brand/50 bg-brand-tint px-3.5 text-xs font-semibold text-brand-dark hover:border-brand disabled:opacity-60">
           {state.busy ? <Loader2 aria-hidden className="h-3.5 w-3.5 animate-spin" /> : <Upload aria-hidden className="h-3.5 w-3.5" />}
           {state.busy ? "Uploading…" : kind === "image" ? "Upload image" : "Upload PDF or file"}
         </button>

@@ -13,21 +13,21 @@ const config: Config = {
         // Blue and orange sampled from the client logo (public/brand/logo-full.png), on white.
         // Blue is the main colour (buttons, links); orange is the accent.
         brand: {
-          DEFAULT: "#0172CE",
+          DEFAULT: "#0072CE",
           dark: v("brand-dark"), // hover and blue text; white text on it 7:1 in light mode
-          deep: "#06294A", // navy: top bar, hero, footer, dark buttons
-          admin: "#06294A",
+          deep: "#005BA6", // darker logo blue: top bar, dark buttons, admin sidebar
+          admin: "#005BA6",
           tint: v("brand-tint"),
-          mint: "#FD7C04", // orange accent on navy panels
+          mint: "#FE8302", // orange accent on blue panels
           sky: "#CFE5F7",
         },
         accent: {
-          DEFAULT: "#FD7C04", // fills, icons, large text; too light for small text on white
+          DEFAULT: "#FE8302", // fills, icons, large text; too light for small text on white
           dark: v("accent-dark"), // orange small text (5:1 on white)
           tint: v("accent-tint"),
         },
         surface: v("surface"), // cards and panels (white in light mode)
-        heading: v("heading"), // headings (navy in light mode)
+        heading: v("heading"), // headings (near-black in light mode)
         ink: { DEFAULT: v("ink"), soft: v("ink-soft"), muted: v("ink-muted") },
         line: { DEFAULT: v("line"), strong: v("line-strong") },
         page: v("page"), // light panels and hovers; the body itself is white (globals.css)
@@ -40,7 +40,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
-      maxWidth: { site: "1320px" },
+      maxWidth: { site: "1440px" }, // content width up to 1,360px inside 40px margins (wide screens use the room)
     },
   },
   plugins: [],

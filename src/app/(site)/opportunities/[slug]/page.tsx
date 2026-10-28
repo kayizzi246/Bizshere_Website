@@ -37,7 +37,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
         ["Deadline", o.deadline ? date(o.deadline) : "—"],
       ]} />
 
-      <div className="rounded-2xl border border-[#E8C979] bg-warn-bg p-5 text-sm text-warn-fg">
+      <div className="rounded-2xl border border-[#E8C979] bg-warn-bg p-6 text-sm text-warn-fg">
         <strong>Read before you invest.</strong> Figures on this page come from the promoter unless marked otherwise.
         Projected returns are claims, not established outcomes. BizSphere-Ug does not give investment advice. Get independent
         legal and financial advice before committing money.

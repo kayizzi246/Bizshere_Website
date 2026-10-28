@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Phones only: the top bar's search is hidden at this width */}
-      <form action="/admin/content" role="search" className="-mt-2 flex h-11 w-full items-center gap-2 rounded-full border border-line bg-surface px-4 sm:hidden">
+      <form action="/admin/content" role="search" className="-mt-2 flex h-11 w-full items-center gap-2 rounded-[10px] border border-line bg-surface px-4 sm:hidden">
         <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
         <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-sm text-ink outline-none" />
       </form>
@@ -168,7 +168,7 @@ export default async function AdminDashboard() {
 
 function Panel({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface p-6 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-extrabold text-heading">{title}</h2>
         {action}
@@ -180,7 +180,7 @@ function Panel({ title, action, children }: { title: string; action?: React.Reac
 
 function Kpi({ href, label, value, sub, warn = false, icon }: { href: string; label: string; value: number | string; sub: string; warn?: boolean; icon: string }) {
   return (
-    <Link href={href} className="group flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 text-ink transition-colors hover:border-brand hover:text-ink sm:p-5">
+    <Link href={href} className="group flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 text-ink transition-colors hover:border-brand hover:text-ink sm:p-6">
       <span className="flex items-center justify-between gap-2">
         <span className="text-[13px] text-ink-muted">{label}</span>
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-4 w-4" /></span>

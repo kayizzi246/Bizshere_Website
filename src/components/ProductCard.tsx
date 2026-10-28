@@ -47,16 +47,16 @@ export function ProductCard({ product, back, price }: { product: Product; back: 
 
   return (
     <section className="overflow-hidden rounded-2xl border border-line bg-white">
-      <div className="flex items-center gap-4 bg-gradient-to-br from-brand-deep to-[#01467F] p-5 text-white">
+      <div className="flex items-center gap-4 bg-gradient-to-br from-brand to-brand-deep p-5 text-white">
         {/* File tile with its type */}
-        <span className="relative flex h-16 w-[52px] shrink-0 flex-col items-center justify-end rounded-lg bg-white pb-1.5 text-brand-deep">
+        <span className="relative flex h-16 w-[52px] shrink-0 flex-col items-center justify-end rounded-lg bg-white pb-1.5 text-heading">
           <span aria-hidden className="absolute right-0 top-0 h-3.5 w-3.5 rounded-bl-md bg-brand-tint" />
           <FileText aria-hidden className="absolute top-2.5 h-5 w-5 text-brand" strokeWidth={1.75} />
           <span className="rounded bg-accent px-1 text-[9px] font-black tracking-wide text-ink">{format}</span>
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-white/60">Digital {product.kind.toLowerCase()}</span>
-          <span className="line-clamp-2 font-display text-sm font-bold leading-snug">{product.title}</span>
+          <span className="line-clamp-2 font-display text-sm font-bold leading-tight">{product.title}</span>
         </span>
       </div>
 
@@ -83,7 +83,7 @@ export function ProductCard({ product, back, price }: { product: Product; back: 
         </div>
 
         {product.secondary ? (
-          <Link href={product.secondary.href} className="inline-flex h-12 items-center justify-center rounded-full border border-line text-sm font-semibold text-brand-deep hover:border-brand hover:text-brand">
+          <Link href={product.secondary.href} className="inline-flex h-12 items-center justify-center rounded-[10px] border border-line text-sm font-semibold text-heading hover:border-brand hover:text-brand">
             {product.secondary.label} →
           </Link>
         ) : null}

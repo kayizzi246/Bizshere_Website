@@ -37,7 +37,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
         main={<>
           {n.whatChanged || n.whoAffected || n.nextAction ? (
             <section className="card flex flex-col gap-1 border-brand bg-brand-tint p-6">
-              <h2 className="text-lg font-extrabold text-brand-deep">What this means for your business</h2>
+              <h2 className="text-lg font-extrabold text-heading">What this means for your business</h2>
               <Rows rows={[
                 ["What changed", n.whatChanged],
                 ["Who is affected", n.whoAffected],

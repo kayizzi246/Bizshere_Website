@@ -116,7 +116,7 @@ export async function RecordPage({
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-brand"><Icon name={icon} className="h-3 w-3" /></span>
                 {eyebrow}
               </span>
-              <h1 className="font-sans text-[30px] font-black leading-[1.08] tracking-[-0.03em] text-brand-deep sm:text-[38px]">{title}</h1>
+              <h1 className="font-sans text-[30px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[38px]">{title}</h1>
               {brief ? <p className="max-w-2xl text-base leading-relaxed text-ink-soft">{brief}</p> : null}
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand" />Reviewed {date(item.lastReviewedAt)}</span>
@@ -140,20 +140,20 @@ export async function RecordPage({
         <div className="container-site overflow-x-auto py-2.5 [scrollbar-width:none]">
           <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
             {tabs.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:bg-white hover:text-brand-deep">{label}</a>
+              <a key={id} href={`#${id}`} className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:bg-white hover:text-heading">{label}</a>
             ))}
           </div>
         </div>
       </nav>
 
-      <div className="bg-page"><div className="container-site grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div className="bg-white"><div className="container-site grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <div className="flex min-w-0 flex-col gap-6">
           {/* ── 3. Practical detail ── */}
           {shownTexts.length || children ? (
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                  <h2 className="text-base font-extrabold text-brand-deep">{t.label}</h2>
+                  <h2 className="text-base font-extrabold text-heading">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -198,8 +198,8 @@ export async function RecordPage({
           ) : null}
 
           {contact !== undefined ? (
-            <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
-              <h2 className="font-display text-sm font-bold text-brand-deep">Contact</h2>
+            <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
+              <h2 className="font-display text-sm font-bold text-heading">Contact</h2>
               {contact === "locked" ? (
                 <div className="flex flex-col gap-2 text-sm text-ink-muted">
                   <span>Email and phone are shown to members.</span>
@@ -215,17 +215,17 @@ export async function RecordPage({
           ) : null}
 
           {shownLinks.length ? (
-            <section className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
-              <h2 className="mb-0.5 font-display text-sm font-bold text-brand-deep">Useful links</h2>
+            <section className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
+              <h2 className="mb-0.5 font-display text-sm font-bold text-heading">Useful links</h2>
               {/* Same pill buttons as the download card, full width and thumb-sized on phones */}
               {shownLinks.map((l) =>
                 l.locked ? (
-                  <Link key={l.label} href={back} data-onboard="" className="flex h-12 items-center justify-between gap-3 rounded-full border border-line pl-4 pr-3 text-sm font-semibold text-ink hover:border-brand hover:text-ink">
+                  <Link key={l.label} href={back} data-onboard="" className="flex h-12 items-center justify-between gap-3 rounded-[10px] border border-line pl-4 pr-3 text-sm font-semibold text-ink hover:border-brand hover:text-ink">
                     <span className="inline-flex items-center gap-2.5"><LockKeyhole aria-hidden className="h-4 w-4 text-ink-muted" />{l.label}</span>
                     <span className="rounded-full bg-brand-tint px-2.5 py-1 text-[11px] font-semibold text-brand-dark">Members</span>
                   </Link>
                 ) : (
-                  <a key={l.label} href={l.href!} target="_blank" rel="noopener noreferrer" className="group flex h-12 items-center justify-between gap-3 rounded-full border border-line pl-4 pr-2 text-sm font-semibold text-ink hover:border-brand hover:text-brand">
+                  <a key={l.label} href={l.href!} target="_blank" rel="noopener noreferrer" className="group flex h-12 items-center justify-between gap-3 rounded-[10px] border border-line pl-4 pr-2 text-sm font-semibold text-ink hover:border-brand hover:text-brand">
                     <span className="inline-flex min-w-0 items-center gap-2.5"><Icon name={l.icon ?? "link"} className="h-4 w-4 shrink-0 text-brand" /><span className="truncate">{l.label}</span></span>
                     <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-page text-ink-muted transition group-hover:bg-brand group-hover:text-white">↗</span>
                   </a>
@@ -249,7 +249,7 @@ export async function RecordPage({
             <div className="flex items-center gap-3">
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{productFormat(product)} · {product.kind}</span>
-                <span className="truncate text-[13px] font-semibold text-brand-deep">{product.title}</span>
+                <span className="truncate text-[13px] font-semibold text-heading">{product.title}</span>
               </span>
               <span className="w-44 shrink-0"><ProductAction product={product} back={back} className="h-11" /></span>
             </div>
@@ -263,7 +263,7 @@ export async function RecordPage({
 /** "At a glance": the client's main fields as label/value rows. */
 function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, cls?: string) => React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-line bg-white/80 p-5 backdrop-blur">
+    <div className="flex flex-col rounded-2xl border border-line bg-white/80 p-6 backdrop-blur">
       <span className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ink-muted">At a glance</span>
       <dl className="flex flex-col divide-y divide-line">
         {rows.map((r) => (

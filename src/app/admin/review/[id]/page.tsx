@@ -85,8 +85,8 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
-                  <label className="label flex-[3_1_260px] text-xs text-ink-muted">Evidence note<input name={`evidence_${c.type}`} placeholder={c.ph} className="input min-h-[42px] text-sm" /></label>
-                  <label className="label flex-[1_1_150px] text-xs text-ink-muted">Next check due<input type="date" name={`due_${c.type}`} className="input min-h-[42px] text-sm" /></label>
+                  <label className="label flex-[3_1_260px] text-xs text-ink-muted">Evidence note<input name={`evidence_${c.type}`} placeholder={c.ph} className="input min-h-[44px] text-sm" /></label>
+                  <label className="label flex-[1_1_150px] text-xs text-ink-muted">Next check due<input type="date" name={`due_${c.type}`} className="input min-h-[44px] text-sm" /></label>
                 </div>
               </fieldset>
             ))}

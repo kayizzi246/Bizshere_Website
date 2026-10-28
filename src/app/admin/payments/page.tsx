@@ -40,7 +40,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
           <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Payments</h1>
           <p className="text-sm text-ink-muted">Membership payments made on the website, newest first.</p>
         </div>
-        <a href={exportHref} className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">
+        <a href={exportHref} className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-line bg-surface px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">
           <Icon name="download" className="h-4 w-4" />Download CSV
         </a>
       </div>
@@ -54,17 +54,17 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
 
       <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-line bg-page px-4 focus-within:border-brand">
+          <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand">
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
             <span className="sr-only">Search payments</span>
             <input name="q" type="search" defaultValue={searchParams.q} placeholder="Name, email, phone or reference" className="w-full min-w-0 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
           </label>
           {searchParams.status ? <input type="hidden" name="status" value={searchParams.status} /> : null}
-          <select name="method" defaultValue={searchParams.method ?? ""} aria-label="Payment method" className="h-10 rounded-full border border-line bg-surface px-4 text-[13px] text-ink">
+          <select name="method" defaultValue={searchParams.method ?? ""} aria-label="Payment method" className="h-11 rounded-[10px] border border-line bg-surface px-4 text-[13px] text-ink">
             <option value="">All methods</option>
             {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{METHOD_LABEL[m]}</option>)}
           </select>
-          <button className="btn-primary min-h-[40px] rounded-full px-5">Filter</button>
+          <button className="btn-primary min-h-[44px] rounded-[10px] px-5">Filter</button>
         </form>
 
         <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
@@ -143,6 +143,6 @@ function Stat({ label, value, sub, icon, href, warn = false }: { label: string; 
       <span className={`text-xs ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
     </>
   );
-  const cls = "flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5";
+  const cls = "flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-6";
   return href ? <Link href={href} className={`${cls} text-ink transition-colors hover:border-brand hover:text-ink`}>{body}</Link> : <div className={cls}>{body}</div>;
 }

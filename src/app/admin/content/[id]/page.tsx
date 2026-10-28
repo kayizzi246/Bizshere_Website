@@ -79,7 +79,7 @@ export default async function EditContentPage({ params, searchParams }: { params
         ))}
       </section>
       {user.role === "ADMIN" ? (
-        <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-6 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-extrabold text-bad-fg">Delete permanently</h2>
             <p className="max-w-xl text-[13px] text-ink-muted">Removes this page and everything attached to it from the database: its details, offers, rounds, fees, budgets, versions, media, sources, checks, revisions and saved copies. This cannot be undone. To hide it but keep it, set the status to Archived instead.</p>

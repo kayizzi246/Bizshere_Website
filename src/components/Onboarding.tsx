@@ -178,7 +178,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
         <p className="text-[15px] leading-relaxed text-ink-muted">Full plans and budgets, supplier and expert contacts, funding terms, price history and downloads.</p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-brand/30 bg-brand-tint/60 p-5">
+      <div className="flex flex-col gap-3 rounded-2xl border border-brand/30 bg-brand-tint/60 p-6">
         <div className="flex items-center justify-between gap-3">
           <span className="font-display text-lg font-bold">{plan.name}</span>
           <div role="group" aria-label="Billing period" className="flex rounded-lg bg-white p-0.5 text-sm font-semibold">

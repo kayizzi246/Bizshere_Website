@@ -68,8 +68,8 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
                 {u.startsAt ? <span className="text-xs text-ink-muted">from {date(u.startsAt)}</span> : null}
                 {u.endsAt ? <span className="text-xs text-ink-muted">until {date(u.endsAt)}</span> : null}
                 <span className="ml-auto flex gap-1.5">
-                  <button formAction={moveUpdate.bind(null, "up")} formNoValidate disabled={i === 0} aria-label="Move up" className="btn-outline min-h-[36px] px-3 disabled:opacity-40">↑</button>
-                  <button formAction={moveUpdate.bind(null, "down")} formNoValidate disabled={i === updates.length - 1} aria-label="Move down" className="btn-outline min-h-[36px] px-3 disabled:opacity-40">↓</button>
+                  <button formAction={moveUpdate.bind(null, "up")} formNoValidate disabled={i === 0} aria-label="Move up" className="btn-outline min-h-[44px] px-3 disabled:opacity-40">↑</button>
+                  <button formAction={moveUpdate.bind(null, "down")} formNoValidate disabled={i === updates.length - 1} aria-label="Move down" className="btn-outline min-h-[44px] px-3 disabled:opacity-40">↓</button>
                 </span>
               </div>
               <label className="label">Message<input name="message" required maxLength={200} defaultValue={u.message} className="input" /></label>

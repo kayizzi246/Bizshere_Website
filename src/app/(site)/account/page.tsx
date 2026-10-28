@@ -43,7 +43,7 @@ export default async function AccountPage() {
       <section className="card flex flex-col gap-3 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-extrabold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
-          {unread ? <form action={markAlertsRead}><button className="btn-outline min-h-[36px] px-3">Mark all read</button></form> : null}
+          {unread ? <form action={markAlertsRead}><button className="btn-outline min-h-[44px] px-3">Mark all read</button></form> : null}
         </div>
         {alerts.length === 0 ? <p className="text-sm text-ink-muted">No alerts yet. Save funding programmes or searches to get deadline and update alerts.</p> : alerts.map((a) => (
           <div key={a.id} className={`flex flex-wrap justify-between gap-2 border-t border-line pt-3 ${a.readAt ? "text-ink-muted" : ""}`}>
@@ -66,11 +66,11 @@ export default async function AccountPage() {
                 {collections.length ? (
                   <form action={addToCollection} className="flex gap-1.5">
                     <input type="hidden" name="contentItemId" value={s.contentItemId} />
-                    <select name="collectionId" aria-label="Collection" className="input min-h-[36px] text-sm">{collections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-                    <button className="btn-outline min-h-[36px] px-3">Add</button>
+                    <select name="collectionId" aria-label="Collection" className="input min-h-[44px] text-sm">{collections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+                    <button className="btn-outline min-h-[44px] px-3">Add</button>
                   </form>
                 ) : null}
-                <form action={toggleSave}><input type="hidden" name="contentItemId" value={s.contentItemId} /><input type="hidden" name="back" value="/account" /><button className="btn-outline min-h-[36px] px-3">Remove</button></form>
+                <form action={toggleSave}><input type="hidden" name="contentItemId" value={s.contentItemId} /><input type="hidden" name="back" value="/account" /><button className="btn-outline min-h-[44px] px-3">Remove</button></form>
               </span>
             </div>
           ))}
@@ -80,8 +80,8 @@ export default async function AccountPage() {
           <h2 className="text-lg font-extrabold">Collections</h2>
           <p className="text-sm text-ink-muted">Group what you need for one plan, e.g. &ldquo;Bakery in Mukono&rdquo;.</p>
           <form action={createCollection} className="flex gap-2">
-            <input name="name" required maxLength={80} placeholder="New collection name" aria-label="New collection name" className="input min-h-[40px] flex-1" />
-            <button className="btn-primary min-h-[40px]">Create</button>
+            <input name="name" required maxLength={80} placeholder="New collection name" aria-label="New collection name" className="input min-h-[44px] flex-1" />
+            <button className="btn-primary min-h-[44px]">Create</button>
           </form>
           {collections.map((c) => (
             <details key={c.id} className="rounded-xl border border-line p-3">

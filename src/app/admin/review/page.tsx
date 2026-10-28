@@ -42,7 +42,7 @@ export default async function ReviewQueue({ searchParams }: { searchParams: { ty
                     {s.supplierOffer ? `${s.supplierOffer.supplier.organization.legalName} · ${s.supplierOffer.condition.toLowerCase()}` : null}
                   </td>
                   <td className="text-ink-muted">{date(s.createdAt)} · {s.submittedBy?.name ?? "—"}</td>
-                  <td className="text-right"><Link href={`/admin/review/${s.id}`} className="btn-primary min-h-[36px] px-3">Review</Link></td>
+                  <td className="text-right"><Link href={`/admin/review/${s.id}`} className="btn-primary min-h-[44px] px-3">Review</Link></td>
                 </tr>
               ))}
               {items.length === 0 ? <tr><td colSpan={5} className="text-ink-muted">Nothing waiting for review.</td></tr> : null}

@@ -33,7 +33,7 @@ export function ChildSections({ sections, gated, back }: { sections: Awaited<Ret
     <>
       {sections.map(({ table, rows }) => (
         <section key={table.key} id={`c-${table.key}`} className="flex scroll-mt-36 flex-col gap-3">
-          <h2 className="text-base font-extrabold text-brand-deep">{table.label}</h2>
+          <h2 className="text-base font-extrabold text-heading">{table.label}</h2>
           {table.layout === "steps" ? <Steps table={table} rows={rows} />
             : table.layout === "gallery" ? <Gallery rows={rows} gated={gated} back={back} />
             : (
@@ -59,10 +59,10 @@ function Card({ table, row, gated, back }: { table: ChildTable; row: Row; gated:
   const currency = typeof row.currency === "string" ? row.currency : "UGX";
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
       {title ? (
-        link?.href ? <Link href={link.href} className="font-display text-[15px] font-bold leading-snug text-brand-deep hover:text-brand">{title}</Link>
-          : <span className={`font-display text-[15px] font-bold leading-snug ${table.key === "reviews" ? "text-accent" : "text-brand-deep"}`}>{title}</span>
+        link?.href ? <Link href={link.href} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand">{title}</Link>
+          : <span className={`font-display text-[15px] font-bold leading-tight ${table.key === "reviews" ? "text-accent" : "text-heading"}`}>{title}</span>
       ) : null}
       {table.key === "reviews" && row.confirmedEngagement ? <span className="-mt-1 text-xs font-semibold text-brand">Confirmed engagement</span> : null}
       {short.length ? (
@@ -120,7 +120,7 @@ function Gallery({ rows, gated, back }: { rows: Row[]; gated: boolean; back: str
                 <img src={String(row.fileLocation)} alt={(row.altText as string) || caption} loading="lazy" className="aspect-[4/3] w-full rounded-lg border border-line bg-white object-cover" />
               </a>
             ) : (
-              <a href={String(row.fileLocation)} target="_blank" rel="noopener noreferrer" className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-lg border border-line bg-white text-sm font-semibold text-brand-deep hover:border-brand">
+              <a href={String(row.fileLocation)} target="_blank" rel="noopener noreferrer" className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-lg border border-line bg-white text-sm font-semibold text-heading hover:border-brand">
                 <Icon name={row.mediaType === "video" ? "video" : "download"} className="h-6 w-6 text-brand" />
                 {row.mediaType === "video" ? "Watch" : "Open"}
               </a>

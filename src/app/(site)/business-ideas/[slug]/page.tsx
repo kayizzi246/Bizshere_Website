@@ -102,7 +102,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             </div>
 
             {/* What's inside: real counts from this plan */}
-            <div className="rounded-2xl border border-line bg-white p-5">
+            <div className="rounded-2xl border border-line bg-white p-6">
               <h2 className="mb-3 text-sm font-bold">What&apos;s inside this plan</h2>
               <ul className="grid gap-x-5 gap-y-2.5 text-sm sm:grid-cols-2">
                 {([
@@ -285,7 +285,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
           {/* ── Sidebar ── */}
           <aside className="flex flex-col gap-5 lg:sticky lg:top-24">
-            <section className="rounded-2xl border border-line bg-white p-5">
+            <section className="rounded-2xl border border-line bg-white p-6">
               <h2 className="mb-3 text-sm font-bold">At a glance</h2>
               <dl className="flex flex-col text-sm">
                 {([
