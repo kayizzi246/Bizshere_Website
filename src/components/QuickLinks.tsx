@@ -77,3 +77,50 @@ export function QuickLinks({ services }: { services: Service[] }) {
     </div>
   );
 }
+
+const STEP = 50; // button height (44px) + gap (6px)
+
+/**
+ * Desktop quick links to every service (URSB-style), floating in the bottom-left corner.
+ * On arrival they sit stacked as a small deck of cards (Search on top, two cards peeking behind);
+ * once the visitor scrolls (or hovers the deck) they unfold upward into a line, bottom first.
+ * Back at the top of the page they stack again.
+ */
+export function ServiceRail({ services }: { services: Service[] }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [hover, setHover] = useState(false);
+  const open = scrolled || hover;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const items = [{ href: "/search", nav: "Search everything", search: true }, ...services.map((s) => ({ href: s.href, nav: s.nav, search: false }))];
+  const n = items.length;
+  // White outline so the buttons stay distinct over the blue hero and over white sections alike.
+  const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
+
+  return (
+    <nav aria-label="Quick links to services" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      className="fixed bottom-5 left-5 z-30 hidden w-[260px] lg:block" style={{ height: open ? n * STEP - 6 : 56 }}>
+      {items.map((it, i) => {
+        const fromBottom = n - 1 - i; // 0 for the last button
+        const depth = i; // 0 = front card of the deck
+        const style: React.CSSProperties = open
+          // In line: each button in its own row, unfolding from the bottom up.
+          ? { bottom: fromBottom * STEP, transform: "none", opacity: 1, zIndex: n - i, transitionDelay: `${fromBottom * 35}ms` }
+          // Deck: all at the bottom, the front card in full and two peeking above it, smaller.
+          : { bottom: 0, transform: `translateY(${-Math.min(depth, 2) * 6}px) scale(${1 - Math.min(depth, 2) * 0.05})`, opacity: depth > 2 ? 0 : 1, zIndex: n - i, transitionDelay: "0ms", pointerEvents: depth === 0 ? "auto" : "none" };
+        return (
+          <Link key={it.href} href={it.href} style={style} tabIndex={open || depth === 0 ? 0 : -1}
+            className={`${button} ${it.search ? "bg-accent text-ink hover:bg-brand-deep hover:text-white" : "bg-brand text-white hover:bg-accent hover:text-ink"}`}>
+            {it.nav}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}

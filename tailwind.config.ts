@@ -40,7 +40,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
-      maxWidth: { site: "1440px" }, // content width up to 1,360px inside 40px margins (wide screens use the room)
+      maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
     },
   },
   plugins: [],

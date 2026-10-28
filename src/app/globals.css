@@ -58,7 +58,7 @@
 }
 
 @layer components {
-  .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-10; }
+  .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-16; } /* 64px on desktop leaves room for the left service rail */
   .card { @apply rounded-2xl border border-line bg-surface; }
   .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-semibold transition-colors; }
   .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark hover:text-white; }

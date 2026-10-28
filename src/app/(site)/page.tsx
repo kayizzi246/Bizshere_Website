@@ -271,15 +271,17 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          {/* Each question is a card like the rest of the site: blue number tile, bold title,
+              orange toggle when open, light blue tint on the open card. */}
+          <div className="flex flex-col gap-3">
             {FAQ.map(([q, a], n) => (
-              <details key={q} open={n === 0} className="group rounded-2xl border border-transparent px-5 transition-colors open:border-line open:bg-page hover:bg-page [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
-                  <span className="w-7 shrink-0 font-mono text-xs font-semibold text-ink-muted group-open:text-brand">{String(n + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-display text-[15px] font-bold leading-snug text-heading">{q}</span>
-                  <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-white text-lg leading-none text-heading transition group-open:rotate-45 group-open:border-brand group-open:bg-brand group-open:text-white">+</span>
+              <details key={q} open={n === 0} className="group rounded-2xl border border-line bg-white px-5 transition-colors hover:border-brand/50 open:border-brand open:bg-brand-tint/50 sm:px-6 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-4 py-4 sm:py-5">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint font-sans text-[13px] font-black text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 font-sans text-base font-black leading-tight tracking-[-0.01em] text-heading">{q}</span>
+                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-brand/25 text-xl font-semibold leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
                 </summary>
-                <p className="pb-5 pl-11 pr-12 text-[15px] leading-relaxed text-ink-muted">{a}</p>
+                <p className="pb-5 pl-[52px] pr-2 text-[15px] leading-relaxed text-ink-soft sm:pr-12">{a}</p>
               </details>
             ))}
           </div>
