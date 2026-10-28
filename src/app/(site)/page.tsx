@@ -199,7 +199,8 @@ export default async function HomePage() {
 
 
       {/* ── Recently reviewed: bento. The newest guide as a large blue card, four more around it. ── */}
-      {lead ? (
+      {/* Members only: visitors and signed-in non-payers don't see this section at all */}
+      {lead && viewer.isMember ? (
         <section className="bg-white">
           <div className="container-site flex flex-col gap-8 py-16">
             <div className="flex flex-wrap items-end justify-between gap-4">
