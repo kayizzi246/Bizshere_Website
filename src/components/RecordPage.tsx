@@ -245,7 +245,7 @@ export async function RecordPage({
       {product && (product.href || product.locked) ? (
         <>
           <div aria-hidden className="h-20 lg:hidden" />
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
+          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
             <div className="flex items-center gap-3">
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{productFormat(product)} · {product.kind}</span>

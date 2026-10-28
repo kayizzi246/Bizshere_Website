@@ -100,12 +100,6 @@ export default async function HomePage() {
               Business ideas with start-up budgets, the machines to buy, where to buy them, who lends, and who can advise you. Written and checked for Uganda.
             </p>
 
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-              <Link href="/signup" className="btn min-h-[48px] bg-white px-7 text-[15px] text-heading hover:bg-accent hover:text-ink">Create a free account</Link>
-              <Link href="/business-ideas" className="btn min-h-[48px] border border-white/40 px-7 text-[15px] text-white hover:border-white hover:bg-white/10 hover:text-white">
-                Browse business ideas <Icon name="arrow" className="h-4 w-4" />
-              </Link>
-            </div>
 
             <form action="/search" role="search" className="flex w-full max-w-xl items-center gap-2 rounded-xl bg-white p-1.5 pl-4 text-ink-muted ring-4 ring-white/15">
               <Icon name="search" className="h-5 w-5 shrink-0" />
@@ -208,80 +202,93 @@ export default async function HomePage() {
       </section>
 
 
-      {/* ── Recently reviewed: lead story on blue, the rest as a 2×2 grid ── */}
+      {/* ── Recently reviewed: bento. The newest guide as a large blue card, four more around it. ── */}
       {lead ? (
         <section className="bg-white">
           <div className="container-site flex flex-col gap-8 py-16">
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <Heading title="Recently reviewed" text="Guides, tools and news our editors have checked lately. Each page shows the date." />
-              <Link href="/guides" className="inline-flex h-11 items-center rounded-[10px] border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand">All guides →</Link>
+              <div className="flex max-w-2xl flex-col gap-3">
+                <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
+                <h2 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[34px]">Recently reviewed</h2>
+                <p className="text-[15px] leading-relaxed text-ink-muted">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
+              </div>
+              <Link href="/guides" className="btn-outline min-h-[44px]">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
             </div>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Link href={itemHref(lead)} className="group relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-2xl bg-brand-deep p-7 text-white hover:text-white">
-                <span className="flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">{contentTypeLabel[lead.contentType]}</span>
-                  <span className="text-xs text-white/60">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
+
+            <div className="grid gap-4 lg:grid-cols-4 lg:grid-rows-2">
+              {/* Newest */}
+              <Link href={itemHref(lead)} className="group relative isolate flex min-h-[320px] flex-col justify-between overflow-hidden rounded-3xl bg-brand p-7 text-white hover:text-white lg:col-span-2 lg:row-span-2 lg:p-9">
+                <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_0%,rgba(255,255,255,0.25),transparent_70%),linear-gradient(to_bottom,transparent_40%,#005BA6)]" />
+                <Icon name={TYPE_ICON[lead.contentType] ?? "guide"} className="absolute -bottom-10 -right-8 -z-10 h-56 w-56 text-white/10" strokeWidth={1.25} />
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-heading">{contentTypeLabel[lead.contentType]}</span>
+                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
                 </span>
-                <Icon name={TYPE_ICON[lead.contentType] ?? "guide"} className="absolute -bottom-6 -right-6 h-40 w-40 text-white/[0.06]" strokeWidth={1.25} />
-                <span className="relative flex flex-col gap-3">
-                  <span className="font-display text-lg font-extrabold leading-tight sm:text-xl">{lead.title}</span>
-                  {lead.shortSummary ? <span className="line-clamp-2 max-w-md text-[13px] leading-relaxed text-white/70">{lead.shortSummary}</span> : null}
-                  <span className="text-[13px] font-semibold text-accent group-hover:underline group-hover:underline-offset-4">Read the guide →</span>
+                <span className="flex max-w-lg flex-col gap-4">
+                  <span className="font-sans text-[26px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[32px]">{lead.title}</span>
+                  {lead.shortSummary ? <span className="line-clamp-3 text-[15px] leading-relaxed text-white/90">{lead.shortSummary}</span> : null}
+                  <span className="inline-flex w-fit items-center gap-2 rounded-[10px] bg-white px-4 py-2.5 text-sm font-semibold text-heading transition group-hover:bg-accent group-hover:text-ink">
+                    Read the guide <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  </span>
                 </span>
               </Link>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {more.slice(0, 4).map((g) => (
-                  <Link key={g.id} href={itemHref(g)} className="group flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-ink hover:border-brand hover:text-ink">
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={TYPE_ICON[g.contentType] ?? "guide"} className="h-4 w-4" /></span>
-                      <span className="text-[11px] text-ink-muted">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
-                    </span>
-                    <span className="flex flex-1 flex-col gap-1">
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-accent-dark">{contentTypeLabel[g.contentType]}</span>
-                      <span className="font-display text-sm font-bold leading-tight text-heading group-hover:text-brand">{g.title}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
+
+              {/* Four more */}
+              {more.slice(0, 4).map((g) => (
+                <Link key={g.id} href={itemHref(g)} className="group flex flex-col gap-4 rounded-3xl border border-line bg-white p-6 text-ink transition-colors hover:border-brand hover:text-ink">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={TYPE_ICON[g.contentType] ?? "guide"} className="h-5 w-5" /></span>
+                    <span className="rounded-full bg-page px-2.5 py-1 text-[11px] font-medium text-ink-muted">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
+                  </span>
+                  <span className="flex flex-1 flex-col gap-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">{contentTypeLabel[g.contentType]}</span>
+                    <span className="font-sans text-[17px] font-black leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
+                  </span>
+                  <span className="flex items-center justify-between border-t border-line pt-3 text-[13px] font-semibold text-brand">
+                    Read
+                    <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
       ) : null}
 
-      {/* ── FAQ: centred heading, questions in two columns, then a contact strip ── */}
+      {/* ── FAQ: sticky intro with a contact card on the left; a numbered list that opens on the right ── */}
       <section className="border-t border-line bg-white">
-        <div className="container-site flex flex-col gap-10 py-16">
-          <div className="mx-auto flex max-w-xl flex-col items-center gap-2 text-center">
-            <h2 className="text-lg font-extrabold tracking-tight text-heading sm:text-xl">Questions people ask</h2>
-            <p className="text-[13px] text-ink-muted">Short answers about access, sources and payment.</p>
-          </div>
-          <div className="grid gap-2.5 lg:grid-cols-2 lg:items-start">
-            {[FAQ.slice(0, Math.ceil(FAQ.length / 2)), FAQ.slice(Math.ceil(FAQ.length / 2))].map((col, c) => (
-              <div key={c} className="flex flex-col gap-2.5">
-                {col.map(([q, a], n) => (
-                  <details key={q} open={c === 0 && n === 0} className="group rounded-xl border border-line bg-white px-4 open:border-brand/40 [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-3 font-display text-[13px] font-semibold text-heading">
-                      {q}
-                      <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-page text-base font-normal leading-none text-heading transition group-open:rotate-45 group-open:bg-brand group-open:text-white">+</span>
-                    </summary>
-                    <p className="pb-4 pr-8 text-[13px] leading-relaxed text-ink-muted">{a}</p>
-                  </details>
-                ))}
+        <div className="container-site grid gap-10 py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] lg:gap-16">
+          <div className="flex flex-col gap-5 lg:sticky lg:top-28 lg:self-start">
+            <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
+            <h2 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[34px]">Questions, answered</h2>
+            <p className="text-[15px] leading-relaxed text-ink-muted">Short answers about access, sources, prices and payment.</p>
+            <div className="mt-2 flex flex-col gap-4 rounded-3xl border border-line bg-page p-6">
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
+                <span className="flex flex-col">
+                  <span className="font-sans text-[17px] font-black text-heading">Still have a question?</span>
+                  <span className="text-[13px] text-ink-muted">Our team replies to every message.</span>
+                </span>
               </div>
-            ))}
-          </div>
-          <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 rounded-2xl border border-line bg-white p-6 text-center sm:flex-row sm:text-left">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-16 w-auto shrink-0 mix-blend-multiply" />
-            <div className="flex flex-1 flex-col gap-0.5">
-              <span className="font-display text-sm font-bold text-heading">Still have a question?</span>
-              <span className="text-[13px] text-ink-muted">Send it from the contact page and our team will reply.</span>
+              <Link href="/contact" className="btn-primary min-h-[44px]">Contact us <Icon name="arrow" className="h-4 w-4" /></Link>
             </div>
-            <Link href="/contact" className="inline-flex h-11 shrink-0 items-center rounded-[10px] bg-brand-deep px-5 text-[13px] font-semibold text-white hover:bg-brand hover:text-white">Contact us</Link>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {FAQ.map(([q, a], n) => (
+              <details key={q} open={n === 0} className="group rounded-2xl border border-transparent px-5 transition-colors open:border-line open:bg-page hover:bg-page [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
+                  <span className="w-7 shrink-0 font-mono text-xs font-semibold text-ink-muted group-open:text-brand">{String(n + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 font-display text-[15px] font-bold leading-snug text-heading">{q}</span>
+                  <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-white text-lg leading-none text-heading transition group-open:rotate-45 group-open:border-brand group-open:bg-brand group-open:text-white">+</span>
+                </summary>
+                <p className="pb-5 pl-11 pr-12 text-[15px] leading-relaxed text-ink-muted">{a}</p>
+              </details>
+            ))}
           </div>
         </div>
       </section>
-
     </>
   );
 }
