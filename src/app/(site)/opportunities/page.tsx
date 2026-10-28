@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { FUNDING_TABS, date, money } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,6 @@ async function meta(ids: string[]) {
   ].filter(Boolean).join(" · ")]));
 }
 
-export default function Page() {
-  return <DirectoryList types={["INVESTMENT_OPPORTUNITY"]} tabs={FUNDING_TABS} active="/opportunities" meta={meta} title="Investment opportunities" intro="Projects seeking investors. Return figures are the promoter's claims, not established outcomes." />;
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
+  return <DirectoryList path="/opportunities" searchParams={searchParams} types={["INVESTMENT_OPPORTUNITY"]} tabs={FUNDING_TABS} active="/opportunities" meta={meta} title="Investment opportunities" intro="Projects seeking investors. Return figures are the promoter's claims, not established outcomes." />;
 }

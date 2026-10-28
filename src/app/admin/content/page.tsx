@@ -2,16 +2,19 @@ import Link from "next/link";
 import type { ContentType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { contentTypeLabel, date } from "@/lib/format";
-import { archiveContent, sendForReReview } from "../actions";
+import { archiveContent, deleteContentBulk, sendForReReview } from "../actions";
+import { requireStaff } from "@/lib/access";
+import { ConfirmButton } from "@/components/ConfirmButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Content" };
 
-const DIRS: ["" | ContentType, string][] = [["", "All"], ["BUSINESS_IDEA", "Business ideas"], ["MACHINE", "Machines"], ["SUPPLIER", "Suppliers"], ["FUNDING_PROGRAMME", "Funding"], ["INVESTMENT_OPPORTUNITY", "Opportunities"], ["GUIDE", "Guides"], ["CONSULTANT", "Experts"], ["RECIPE", "Recipes"], ["TOOL", "Tools"], ["WEBSITE", "Websites"], ["NEWS", "News"]];
+const DIRS: ["" | ContentType, string][] = [["", "All"], ["BUSINESS_IDEA", "Business ideas"], ["MACHINE", "Machines"], ["SUPPLIER", "Suppliers"], ["FUNDING_PROGRAMME", "Funding"], ["INVESTMENT_OPPORTUNITY", "Opportunities"], ["GUIDE", "Guides"], ["CONSULTANT", "Experts"], ["TOOL", "Tools"], ["WEBSITE", "Websites"], ["NEWS", "News"]];
 const FRESH: [string, string][] = [["any", "Any freshness"], ["due", "Review due in 30 days"], ["over", "Overdue"], ["ok", "Fresh"]];
 const STATUS_BADGE: Record<string, string> = { PUBLISHED: "badge-ok", IN_REVIEW: "badge-info", DRAFT: "badge-muted", ARCHIVED: "badge-muted" };
 
-export default async function ContentPage({ searchParams }: { searchParams: { type?: string; fresh?: string; q?: string } }) {
+export default async function ContentPage({ searchParams }: { searchParams: { type?: string; fresh?: string; q?: string; deleted?: string } }) {
+  const user = await requireStaff();
   const type = DIRS.some(([t]) => t === searchParams.type) ? (searchParams.type as ContentType | "") : "";
   const fresh = FRESH.some(([f]) => f === searchParams.fresh) ? searchParams.fresh! : "any";
   const now = new Date();
@@ -29,25 +32,28 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="text-3xl font-extrabold tracking-tight">Content</h1><p className="text-sm text-ink-muted">Every directory, with publishing status, access level and freshness</p></div>
+        <div><h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Content</h1><p className="text-sm text-ink-muted">Every directory, with publishing status, access level and freshness</p></div>
         <Link href={`/admin/content/new${type ? `?type=${type}` : ""}`} className="btn-primary">Add {type ? contentTypeLabel[type].toLowerCase() : "content"}</Link>
       </div>
 
-      <div role="tablist" className="flex flex-wrap gap-1.5 border-b border-[#D6D3CF]">
+      {searchParams.deleted ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-semibold text-brand-dark">Deleted {searchParams.deleted}. It has been removed from the database.</p> : null}
+
+      <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
         {DIRS.map(([t, l]) => (
-          <Link key={t} role="tab" aria-selected={type === t} href={"?" + new URLSearchParams({ ...(t ? { type: t } : {}), fresh }).toString()} className={`-mb-px border-b-[3px] px-3.5 py-3 text-sm ${type === t ? "border-brand font-extrabold text-brand-dark" : "border-transparent font-semibold text-ink-soft"}`}>{l}</Link>
+          <Link key={t} role="tab" aria-selected={type === t} href={"?" + new URLSearchParams({ ...(t ? { type: t } : {}), fresh }).toString()} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${type === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>
         ))}
+      </div></div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {FRESH.map(([f, l]) => <Link key={f} href={href({ fresh: f })} className={`rounded-full px-3 py-1 text-xs font-semibold ${fresh === f ? "bg-brand-tint text-brand-dark ring-1 ring-brand/20 hover:text-brand-dark" : "border border-line bg-surface text-ink-soft"}`}>{l}</Link>)}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {FRESH.map(([f, l]) => <Link key={f} href={href({ fresh: f })} className={`rounded-full px-3.5 py-2 text-sm font-bold ${fresh === f ? "bg-ink text-white hover:text-white" : "border border-line-strong bg-white text-ink-soft"}`}>{l}</Link>)}
-      </div>
-
-      <form className="card overflow-hidden">
+      <form className="overflow-hidden rounded-xl border border-line bg-surface">
         <div className="flex flex-wrap items-center justify-end gap-2 border-b border-line p-3 text-sm">
           <span className="text-ink-muted">With selected:</span>
           <button formAction={sendForReReview} className="btn-outline min-h-[38px] px-3">Send for re-review</button>
           <button formAction={archiveContent} className="btn-outline min-h-[38px] px-3">Archive</button>
+          {user.role === "ADMIN" ? <ConfirmButton action={deleteContentBulk} title="Delete the selected pages?" message="The ticked pages and everything attached to them will be removed from the database." className="h-[38px]">Delete</ConfirmButton> : null}
         </div>
         <div className="overflow-x-auto">
           <table className="table-base min-w-[880px]">

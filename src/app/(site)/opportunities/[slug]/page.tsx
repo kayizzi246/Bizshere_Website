@@ -5,6 +5,7 @@ import { date, money } from "@/lib/format";
 import { Gate } from "@/components/Gate";
 import { CheckBadges } from "@/components/Checks";
 import { Card, Connected, Crumbs, Evidence, Facts, FakeRows, Identity, Prose, Rows, TwoColumn, trackView } from "@/components/DetailParts";
+import { ChildSections, loadChildSections } from "@/components/ChildSections";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const path = `/opportunities/${item.slug}`;
   await trackView(viewer, item.id, path);
+  const media = await loadChildSections("INVESTMENT_OPPORTUNITY", { record: o!.id, item: item.id, org: null });
 
   return (
     <div className="container-site flex flex-col gap-7 py-6">
@@ -86,6 +88,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
               </>
             )}
           </Card>
+          <ChildSections sections={media} gated={gated} back={path} />
           <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />
           <Connected contentItemId={item.id} />
         </>}

@@ -9,7 +9,8 @@ import type { ContentType } from "@prisma/client";
  * `name` must match the Prisma field on the specialised model exactly.
  */
 export type FieldKind = "text" | "textarea" | "int" | "decimal" | "bool" | "date" | "list" | "enum" | "url" | "json";
-export type Field = { name: string; label: string; kind: FieldKind; options?: string[]; help?: string; required?: boolean; group?: string };
+/** `upload` adds an "Upload" button that stores the file and fills in its address. */
+export type Field = { name: string; label: string; kind: FieldKind; options?: string[]; help?: string; required?: boolean; group?: string; upload?: "image" | "file" };
 
 /** Child rows edited as one line each in a textarea. */
 export type ChildList = { key: "ideaSteps" | "guideSteps" | "recipeSteps" | "recipeIngredients" | "guideDocuments"; label: string; help: string };
@@ -49,7 +50,7 @@ export const DIRECTORIES: Directory[] = [
     fields: [
       t("businessType", "Business type", MAIN, "e.g. Manufacturing, Retail, Service"), ta("keyRequirements", "Key requirements", MAIN),
       ta("successFactors", "Success factors", MAIN), ta("remarks", "Remarks", MAIN),
-      u("pictureUrl", "Picture (image URL)", MAIN), t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
+      { ...u("pictureUrl", "Picture", MAIN), upload: "image" }, t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       ta("businessModel", "Business model", "Concept"), ta("productsOrServices", "Products or services", "Concept"),
       ta("customerProblem", "Customer problem", "Concept"), ta("valueProposition", "Value proposition", "Concept"),
       e("experienceLevel", "Experience level", ["BEGINNER", "INTERMEDIATE", "ADVANCED"], "Suitability"),
@@ -72,7 +73,7 @@ export const DIRECTORIES: Directory[] = [
     fields: [
       ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
       d("priceMin", "Price from", MAIN, MONEY_HELP), d("priceMax", "Price to", MAIN, "Same as the first box for a single price"), cur(MAIN),
-      ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), u("pictureUrl", "Picture (image URL)", MAIN),
+      ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), { ...u("pictureUrl", "Picture", MAIN), upload: "image" },
       t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
       t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"),
@@ -139,7 +140,7 @@ export const DIRECTORIES: Directory[] = [
     labels: { title: "Title", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
       t("resourceType", "Doc type", MAIN, "e.g. Guideline, Book, Video, Website, Investment opportunity, Form"),
-      u("downloadUrl", "Download link", MAIN),
+      { ...u("downloadUrl", "Download file", MAIN), upload: "file" },
       t("jurisdiction", "Jurisdiction", "Identity"), t("responsibleAuthority", "Responsible authority", "Identity"),
       ta("purpose", "Purpose", "Procedure"), ta("prerequisites", "Prerequisites", "Procedure"), t("submissionChannel", "Submission channel", "Procedure"), ta("expectedOutcome", "Expected outcome", "Procedure"),
       t("issuingBody", "Issuing body", "Authority and dates"), dt("publicationDate", "Publication date", "Authority and dates"), dt("effectiveDate", "Effective date", "Authority and dates"),
@@ -159,7 +160,7 @@ export const DIRECTORIES: Directory[] = [
       { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, l("specialties", "Specialty", MAIN),
       t("country", "Country", MAIN), t("district", "District", MAIN),
       t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
-      t("professionalTitle", "Professional title", "Identity"), u("photoUrl", "Photo URL", "Identity"),
+      t("professionalTitle", "Professional title", "Identity"), { ...u("photoUrl", "Photo", "Identity"), upload: "image" },
       l("languages", "Languages", "Expertise"), l("deliveryModes", "Delivery modes", "Expertise"), ta("experience", "Experience", "Experience"),
       d("feeMin", "Fee from", "Fees", MONEY_HELP), d("feeMax", "Fee to", "Fees", MONEY_HELP), cur("Fees"), t("pricingBasis", "Pricing basis", "Fees", "per hour, per day, per project"),
       i("consultationMins", "Consultation length (min)", "Fees"), b("quotationRequired", "Quotation required", "Fees"),
@@ -187,7 +188,7 @@ export const DIRECTORIES: Directory[] = [
     type: "TOOL", label: "Tool / template", model: "tool",
     labels: { title: "Tool name", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
-      e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), u("downloadUrl", "Download link", MAIN),
+      e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), { ...u("downloadUrl", "Download file", MAIN), upload: "file" },
       ta("purpose", "Purpose", "Identity"), t("intendedUser", "Intended user", "Identity"),
       ta("requiredInputs", "Required inputs", "Instructions"), ta("usageSteps", "Usage steps", "Instructions"), ta("workedExample", "Worked example", "Instructions"), ta("limitations", "Limitations", "Instructions"),
       t("fileFormat", "File format", "Compatibility"), t("supportedSoftware", "Supported software", "Compatibility"), b("editable", "Editable", "Compatibility"), b("hasMacros", "Contains macros", "Compatibility"),
@@ -225,3 +226,29 @@ export const directoryFor = (type: string) => DIRECTORIES.find((x) => x.type ===
 export const RELATIONSHIP_TYPES = [
   "needs_machine", "needs_supplier", "fits_funding", "uses_guide", "uses_tool", "uses_recipe", "expert_help", "hosted_on_website", "related_news", "related",
 ] as const;
+
+/** Directories the admin can add and list. Recipes stay out at the client's request (existing ones still open by link). */
+export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
+
+/**
+ * Member detail on a gated page (access level not PUBLIC, viewer not a member):
+ * contacts, prices, funding amounts and terms, fees and downloads. The public page
+ * checks this on the server and never sends these values to a visitor.
+ */
+export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
+  MACHINE: { fields: ["priceMin", "priceMax", "sources"] },
+  SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
+  FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
+  INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },
+  CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl"] },
+  GUIDE: { fields: ["downloadUrl"] },
+  TOOL: { fields: ["downloadUrl", "calculatorRoute"] },
+};
+
+export const isMemberOnly = (type: ContentType, f: Field) => {
+  const m = MEMBER_ONLY[type];
+  return Boolean(m && (m.fields?.includes(f.name) || (f.group && m.groups?.includes(f.group))));
+};
+
+/** Amount fields shown with the record's currency. */
+export const MONEY_FIELDS = new Set(["priceMin", "priceMax", "amountMin", "amountMax", "minAnnualTurnover", "capitalSought", "minimumParticipation", "feeMin", "feeMax"]);

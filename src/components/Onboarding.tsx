@@ -89,7 +89,7 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
           {step === "account" ? (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-2 pr-10">
-                <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">Get full access</h2>
+                <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">Get full access</h2>
                 <p className="text-[15px] leading-relaxed text-ink-muted">Enter your phone number to unlock full plans, contacts, prices and downloads. Already subscribed? Use the same number and you&apos;re straight back in.</p>
               </div>
               <PhoneSignIn onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
@@ -114,7 +114,7 @@ function DoneStep({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4 py-6 text-center">
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-8 w-8" /></span>
-      <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">You have full access</h2>
+      <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">You have full access</h2>
       <p className="text-[15px] text-ink-muted">Taking you there now…</p>
       <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[56px] w-full text-lg">Continue</button>
     </div>
@@ -174,7 +174,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-5" noValidate>
       <div className="flex flex-col gap-2 pr-10">
-        <h2 id="onboard-title" className="text-2xl font-extrabold sm:text-3xl">Unlock full access</h2>
+        <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">Unlock full access</h2>
         <p className="text-[15px] leading-relaxed text-ink-muted">Full plans and budgets, supplier and expert contacts, funding terms, price history and downloads.</p>
       </div>
 
@@ -187,7 +187,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
             ))}
           </div>
         </div>
-        <span className="font-display text-3xl font-extrabold">{price ?? <span className="text-lg font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-base font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</span>
+        <span className="font-display text-2xl font-extrabold">{price ?? <span className="text-lg font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-base font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</span>
       </div>
 
       <fieldset className="flex flex-col gap-2">

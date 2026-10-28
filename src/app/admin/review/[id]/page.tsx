@@ -35,7 +35,7 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
     <>
       <div className="flex flex-col gap-1.5">
         <span className="text-sm text-ink-muted"><Link href="/admin/review">Review queue</Link> / {s.type.replace("_", " ").toLowerCase()}</span>
-        <h1 className="text-3xl font-extrabold tracking-tight">{org?.legalName ?? s.supplierOffer?.machine.contentItem.title ?? s.contentItem?.title ?? "Submission"}</h1>
+        <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">{org?.legalName ?? s.supplierOffer?.machine.contentItem.title ?? s.contentItem?.title ?? "Submission"}</h1>
         <span className="text-sm text-ink-muted">Submitted {date(s.createdAt)} by {s.submittedBy?.name ?? "—"} · status {s.status.toLowerCase()}</span>
       </div>
 

@@ -48,7 +48,7 @@ export default async function SearchPage({ searchParams }: { searchParams: SP })
       {/* ── Advanced search bar: "Search in" + keywords, then that service's own fields ── */}
       <section className="border-b border-line bg-white">
         <div className="container-site flex flex-col gap-5 pt-6">
-          <h1 className="text-2xl font-extrabold">{tab === "ALL" ? "Search" : `Search ${tabLabel.toLowerCase()}`}</h1>
+          <h1 className="text-xl font-extrabold">{tab === "ALL" ? "Search" : `Search ${tabLabel.toLowerCase()}`}</h1>
           <div className="flex flex-col gap-3 rounded-2xl border border-line-strong bg-page p-3 sm:p-4">
             <div className="flex flex-wrap items-end gap-2.5">
               <label className="label flex-[1_1_180px] text-[13px]">

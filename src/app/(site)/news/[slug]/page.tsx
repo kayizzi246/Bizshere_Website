@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { date } from "@/lib/format";
 import { Card, Connected, Crumbs, Evidence, Prose, Rows, TwoColumn, trackView } from "@/components/DetailParts";
+import { ChildSections, loadChildSections } from "@/components/ChildSections";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +17,14 @@ export default async function NewsPage({ params }: { params: { slug: string } })
   const n = item.news;
   const path = `/news/${item.slug}`;
   await trackView(viewer, item.id, path);
+  const media = await loadChildSections("NEWS", { record: n!.id, item: item.id, org: null });
 
   return (
     <div className="container-site flex flex-col gap-7 py-6">
       <Crumbs trail={[["/guides", "Guides and tools"], ["/news", "Business news"]]} title={item.title} />
       <article className="flex flex-col gap-3">
         <span className="eyebrow">{n.articleType.toLowerCase()} · {item.primaryCategory?.name ?? "Business"}</span>
-        <h1 className="max-w-4xl text-3xl font-extrabold tracking-tight">{item.title}</h1>
+        <h1 className="max-w-4xl text-2xl font-extrabold tracking-tight">{item.title}</h1>
         {n.standfirst ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{n.standfirst}</p> : null}
         <span className="text-sm text-ink-muted">
           {[n.author, n.publisher].filter(Boolean).join(", ") || "BizSphere-Ug"} · Published {date(item.publishedAt)}
@@ -55,6 +57,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
             {n.imageCredit ? <span className="text-ink-muted">Image: {n.imageCredit}</span> : null}
             {n.organizations.length ? <span className="text-ink-muted">Concerns: {n.organizations.map((o) => o.organization.tradingName ?? o.organization.legalName).join(", ")}</span> : null}
           </Card>
+          <ChildSections sections={media} gated={false} back={path} />
           <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />
           <Connected contentItemId={item.id} title="Related funding, guides and markets" />
         </>}

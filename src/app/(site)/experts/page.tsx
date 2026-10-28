@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { directory } from "@/config/directories";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ async function meta(ids: string[]) {
   return Object.fromEntries(rows.map((c) => [c.contentItemId, [c.specialties.join(", "), [c.district, c.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ")]));
 }
 
-export default function Page() {
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/experts");
-  return <DirectoryList types={["CONSULTANT"]} meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/experts" searchParams={searchParams} types={["CONSULTANT"]} meta={meta} title={d.title} intro={d.text} />;
 }

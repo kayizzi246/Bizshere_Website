@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Cooking recipes" };
@@ -9,6 +10,6 @@ async function meta(ids: string[]) {
   return Object.fromEntries(rows.map((r) => [r.contentItemId, [`${r._count.ingredients} ingredients`, `${r._count.steps} steps`, r.videoUrl ? "video" : null].filter(Boolean).join(" · ")]));
 }
 
-export default function Page() {
-  return <DirectoryList types={["RECIPE"]} meta={meta} title="Cooking recipes" intro="Common recipes with full video and text instructions." />;
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
+  return <DirectoryList path="/recipes" searchParams={searchParams} types={["RECIPE"]} meta={meta} title="Cooking recipes" intro="Common recipes with full video and text instructions." />;
 }

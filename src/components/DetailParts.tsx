@@ -11,10 +11,10 @@ import { toggleSave } from "@/app/actions/member";
 
 export function Crumbs({ trail, title }: { trail: [string, string][]; title: string }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-ink-muted">
-      <Link href="/">Home</Link>
-      {trail.map(([href, label]) => <span key={href}> / <Link href={href}>{label}</Link></span>)}
-      {" / "}<span className="text-ink">{title}</span>
+    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted">
+      <Link href="/" className="text-ink-muted hover:text-brand">Home</Link>
+      {trail.map(([href, label]) => <span key={href} className="flex items-center gap-1.5"><span aria-hidden className="text-line-strong">/</span><Link href={href} className="text-ink-muted hover:text-brand">{label}</Link></span>)}
+      <span aria-hidden className="text-line-strong">/</span><span className="max-w-[40ch] truncate text-ink">{title}</span>
     </nav>
   );
 }
@@ -23,7 +23,7 @@ export function Identity({ eyebrow, title, summary, children }: { eyebrow: strin
   return (
     <section className="flex flex-col gap-3">
       <span className="eyebrow">{eyebrow}</span>
-      <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
       {summary ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{summary}</p> : null}
       {children}
     </section>
@@ -95,9 +95,17 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
     viewer.userId ? prisma.savedItem.findUnique({ where: { userId_contentItemId: { userId: viewer.userId, contentItemId } } }) : null,
   ]);
   return (
-    <section className="card flex flex-col gap-2.5 p-6 text-sm text-ink-muted">
-      <h2 className="text-base font-extrabold text-ink">Evidence and freshness</h2>
-      <span>Last reviewed {date(lastReviewedAt)} · next review due {date(nextReviewDueAt)}</span>
+    <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-sm text-ink-muted">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-base font-extrabold text-brand-deep">Sources and checks</h2>
+        {nextReviewDueAt && nextReviewDueAt < new Date()
+          ? <span className="rounded-full bg-warn-bg px-2.5 py-1 text-xs font-semibold text-warn-fg">Review overdue</span>
+          : <span className="rounded-full bg-brand-tint px-2.5 py-1 text-xs font-semibold text-brand-dark">Up to date</span>}
+      </div>
+      <dl className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-page p-3"><dt className="text-[11px] text-ink-muted">Last reviewed</dt><dd className="text-sm font-semibold text-ink">{date(lastReviewedAt)}</dd></div>
+        <div className="rounded-xl bg-page p-3"><dt className="text-[11px] text-ink-muted">Next review due</dt><dd className="text-sm font-semibold text-ink">{date(nextReviewDueAt)}</dd></div>
+      </dl>
       {extra}
       {sources.length ? (
         <ul className="flex flex-col gap-1.5">
@@ -111,13 +119,13 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
           ))}
         </ul>
       ) : null}
-      <div className="flex flex-wrap items-center gap-3 pt-1">
+      <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
         <form action={toggleSave}>
           <input type="hidden" name="contentItemId" value={contentItemId} />
           <input type="hidden" name="back" value={back} />
-          <button className="btn-outline min-h-[38px] px-3">{saved ? "★ Saved" : "☆ Save"}</button>
+          <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">{saved ? "★ Saved" : "☆ Save"}</button>
         </form>
-        <Link href={`/corrections?item=${contentItemId}`} className="font-bold">Report a correction</Link>
+        <Link href={`/corrections?item=${contentItemId}`} className="inline-flex h-9 items-center rounded-full px-3 text-[13px] font-semibold text-ink-soft hover:text-brand">Report a correction</Link>
       </div>
     </section>
   );
@@ -138,13 +146,13 @@ export async function Connected({ contentItemId, title = "Connected resources" }
   ]);
   const items = [...from.map((r) => r.toItem), ...to.map((r) => r.fromItem)].filter((v, i, a) => a.findIndex((x) => x.id === v.id) === i);
   return (
-    <section className="card flex flex-col p-6">
-      <h2 className="mb-2 text-lg font-extrabold">{title}</h2>
-      {items.length === 0 ? <p className="text-sm text-ink-muted">Linked resources coming soon.</p> : null}
+    <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-5">
+      <h2 className="mb-1 font-display text-sm font-bold text-brand-deep">{title}</h2>
+      {items.length === 0 ? <p className="text-[13px] text-ink-muted">Linked resources coming soon.</p> : null}
       {items.map((i) => (
-        <Link key={i.id} href={itemHref(i)} className="flex min-h-[56px] items-center justify-between gap-3 border-t border-line text-ink hover:text-brand">
-          <span className="flex flex-col"><span className="font-bold">{i.title}</span><span className="text-xs text-ink-muted">{contentTypeLabel[i.contentType]}</span></span>
-          <span aria-hidden className="text-brand">→</span>
+        <Link key={i.id} href={itemHref(i)} className="group -mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-ink hover:bg-page hover:text-ink">
+          <span className="flex min-w-0 flex-col"><span className="truncate text-[13px] font-semibold group-hover:text-brand">{i.title}</span><span className="text-[11px] text-ink-muted">{contentTypeLabel[i.contentType]}</span></span>
+          <span aria-hidden className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand">→</span>
         </Link>
       ))}
     </section>

@@ -43,6 +43,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
         ...(item.overview ? [{ label: "Description", text: item.overview }] : []),
       ]}
       links={[{ label: "Source link", href: f.officialTermsUrl }]}
+      details={{ type: "FUNDING_PROGRAMME", record: f as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}

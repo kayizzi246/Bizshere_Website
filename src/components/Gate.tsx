@@ -55,7 +55,7 @@ export function SubscribeModal({ title, onClose }: { title: string; onClose: () 
       <div className="w-full max-w-[540px] overflow-hidden rounded-[20px] bg-white" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between bg-ink px-7 py-5">
           <span className="flex items-center gap-2.5 text-sm font-bold text-brand-mint"><Lock /> Members only</span>
-          <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-2xl text-white">×</button>
+          <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-xl text-white">×</button>
         </div>
         <div className="flex flex-col gap-4 p-7">
           <h2 id="gate-title" className="text-[26px] font-extrabold tracking-tight">{title}</h2>
@@ -86,7 +86,7 @@ function Lock() {
 
 export function Check() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E05A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0172CE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
       <path d="M5 12l4 4 10-10" />
     </svg>
   );

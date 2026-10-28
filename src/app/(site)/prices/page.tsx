@@ -36,7 +36,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
     <>
       <section className="border-b border-line bg-white">
         <div className="container-site flex flex-col gap-4 py-8">
-          <h1 className="text-3xl font-extrabold tracking-tight">Markets and prices</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Markets and prices</h1>
           <p className="text-ink-muted">Dated price observations from markets across Uganda. Every price shows when it was observed.</p>
           <form className="flex flex-wrap items-end gap-3">
             <label className="label flex-[1_1_220px]">Product

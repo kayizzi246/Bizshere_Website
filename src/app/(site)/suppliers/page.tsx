@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { directory } from "@/config/directories";
 import { MACHINE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -15,7 +16,7 @@ async function meta(ids: string[]) {
   ].filter(Boolean).join(" · ")]));
 }
 
-export default function Page() {
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/suppliers");
-  return <DirectoryList types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} title={d.title} intro={d.text} />;
 }

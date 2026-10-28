@@ -32,7 +32,16 @@ export default async function ToolPage({ params }: { params: { slug: string } })
         { label: "Tool type", value: titleCase(t.toolType) },
       ]}
       texts={[{ label: "Description", text: item.overview }]}
-      links={t.downloadUrl ? [gated ? { label: "Download", locked: true } : { label: "Download", href: t.downloadUrl, icon: "download" }] : []}
+      product={t.downloadUrl || t.calculatorRoute ? {
+        kind: titleCase(t.toolType) ?? "Tool",
+        title: item.title,
+        href: gated ? null : t.downloadUrl,
+        locked: gated && Boolean(t.downloadUrl),
+        format: t.fileFormat,
+        facts: [["Format", t.fileFormat], ["Works with", t.supportedSoftware], ["Editable", t.editable === null ? null : t.editable ? "Yes" : "No"], ["Contains macros", t.hasMacros === null ? null : t.hasMacros ? "Yes" : "No"], ["Licence", t.licence]],
+        secondary: t.calculatorRoute && !gated ? { label: "Open the calculator", href: t.calculatorRoute } : null,
+      } : undefined}
+      details={{ type: "TOOL", record: t as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}

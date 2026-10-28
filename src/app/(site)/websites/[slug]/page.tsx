@@ -32,6 +32,7 @@ export default async function WebsitePage({ params }: { params: { slug: string }
       ]}
       texts={[{ label: "Remark", text: w.remarks }, ...(item.overview ? [{ label: "Description", text: item.overview }] : [])]}
       links={[{ label: "Visit the website", href: w.canonicalUrl }]}
+      details={{ type: "WEBSITE", record: w as unknown as Record<string, unknown>, gated: false }}
       viewer={viewer}
       item={item}
       back={path}

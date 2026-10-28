@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, LockKeyhole } from "lucide-react";
+import { BadgeCheck, Check, Crown, LockKeyhole } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -9,8 +9,11 @@ import { date, money } from "@/lib/format";
 import { budgetTotal } from "@/lib/costing";
 import { Connected, Crumbs, Evidence, trackView } from "@/components/DetailParts";
 import { Icon } from "@/components/Icon";
+import { FieldSections } from "@/components/FieldSections";
+import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaPhoto, PLAN_LABEL, PLAN_ORDER } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
+import { PrintButton } from "@/components/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +44,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const idea = item.businessIdea;
   const path = `/business-ideas/${item.slug}`;
   await trackView(viewer, item.id, path);
+  const media = await loadChildSections("BUSINESS_IDEA", { record: idea.id, item: item.id, org: null });
 
   const scenarios = PLAN_ORDER.map((l) => idea.scenarios.find((s) => s.level === l)).filter((s): s is NonNullable<typeof s> => Boolean(s));
   const wanted = PLAN_ORDER.find((l) => l === searchParams.scenario) as ScenarioLevel | undefined;
@@ -77,22 +81,81 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
       <article className="container-site flex flex-col gap-8 py-6">
         <Crumbs trail={[["/business-ideas", "Business ideas and plans"]]} title={item.title} />
 
-        {/* ── Title and photo ── */}
-        <header className="flex flex-col gap-6">
-          <div className="flex max-w-3xl flex-col gap-3">
-            <p className="text-sm font-semibold text-brand">{[...new Set([item.primaryCategory?.name, idea.businessType].filter(Boolean))].join(" · ") || "Business idea"}</p>
-            <h1 className="font-sans text-3xl font-black leading-tight tracking-tight sm:text-[42px]">{item.title}</h1>
-            {item.shortSummary ? <p className="text-lg leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
-            <p className="text-sm text-ink-muted">
-              {scenarios.length} budget {scenarios.length === 1 ? "plan" : "plans"} · {idea.steps.length} steps · Reviewed {date(item.lastReviewedAt)}
-            </p>
-          </div>
+        {/* ── Product header: photo on the left, what you get and how to unlock it on the right ── */}
+        <header className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
           <figure className="flex flex-col gap-2">
-            <div className="overflow-hidden rounded-2xl border border-line">
-              <IdeaPhoto src={idea.pictureUrl} alt={item.title} className="aspect-[16/9] sm:aspect-[21/9]" />
+            <div className="relative overflow-hidden rounded-2xl border border-line">
+              <IdeaPhoto src={idea.pictureUrl} alt={item.title} className="aspect-[4/3]" />
+              <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-ink px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                <Crown aria-hidden className="h-3.5 w-3.5 text-brand-mint" /> Premium plan
+              </span>
             </div>
             {idea.pictureCredit ? <figcaption className="text-xs text-ink-muted">{idea.pictureCredit}</figcaption> : null}
           </figure>
+
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2.5">
+              <p className="text-sm font-semibold text-brand">{[...new Set([item.primaryCategory?.name, idea.businessType].filter(Boolean))].join(" · ") || "Business idea"}</p>
+              <h1 className="font-sans text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{item.title}</h1>
+              {item.shortSummary ? <p className="text-[17px] leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
+              <p className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"} · Reviewed {date(item.lastReviewedAt)}</p>
+            </div>
+
+            {/* What's inside: real counts from this plan */}
+            <div className="rounded-2xl border border-line bg-white p-5">
+              <h2 className="mb-3 text-sm font-bold">What&apos;s inside this plan</h2>
+              <ul className="grid gap-x-5 gap-y-2.5 text-sm sm:grid-cols-2">
+                {([
+                  [`${scenarios.length} budget ${scenarios.length === 1 ? "plan" : "plans"}`, scenarios.map((s) => PLAN_LABEL[s.level]).join(", ")],
+                  [`${scenario?.lines.length ?? 0} costed items`, scenario?.estimateDate ? `Prices as of ${date(scenario.estimateDate)}` : "With the total"],
+                  [`${idea.steps.length} steps to start`, "In order, from day one"],
+                  ...(idea.keyRequirements || idea.successFactors ? [["Requirements and success factors", "What you need before you start"]] : []),
+                ] as [string, string][]).map(([k, v]) => (
+                  <li key={k} className="flex gap-2.5">
+                    <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${viewer.isMember ? "bg-brand text-white" : "bg-brand-tint text-brand"}`}><Check aria-hidden className="h-3 w-3" strokeWidth={3} /></span>
+                    <span className="flex flex-col"><span className="font-semibold">{k}</span><span className="text-xs text-ink-muted">{v}</span></span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {viewer.isMember ? (
+              // Paid state: the plan is theirs.
+              <div className="flex flex-col gap-3 rounded-2xl border-2 border-brand bg-brand-tint p-5">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-white"><BadgeCheck aria-hidden className="h-6 w-6" /></span>
+                  <span className="flex flex-col">
+                    <span className="font-sans text-lg font-extrabold">Unlocked: this plan is yours</span>
+                    <span className="text-sm text-ink-soft">Full budget, every step and all details, with your membership.</span>
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a href="#budget" className="inline-flex h-11 items-center gap-2 rounded-lg bg-ink px-5 text-sm font-bold text-white hover:bg-ink-soft hover:text-white">Open the full budget <Icon name="arrow" className="h-4 w-4" /></a>
+                  <PrintButton />
+                </div>
+              </div>
+            ) : (
+              // Not paid yet: price and one button.
+              <div className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-5 text-white">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <span className="flex flex-col">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-white/55">Full plan</span>
+                    <span className="font-sans text-xl font-extrabold">{plan.monthly ?? "Membership"}{plan.monthly ? <span className="text-sm font-medium text-white/60"> / month</span> : null}</span>
+                  </span>
+                  <span className="text-xs text-white/60">Includes every plan on BizSphere-Ug</span>
+                </div>
+                <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand font-sans text-base font-bold text-white hover:bg-brand-dark hover:text-white">
+                  <LockKeyhole aria-hidden className="h-4 w-4" /> Unlock this plan
+                </Link>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
+                  <span className="flex gap-1.5">
+                    {["MTN MoMo", "Airtel Money", "Card"].map((m) => <span key={m} className="rounded border border-white/20 px-1.5 py-0.5 text-white/80">{m}</span>)}
+                  </span>
+                  <span>Cancel any time</span>
+                </div>
+              </div>
+            )}
+          </div>
         </header>
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
@@ -213,6 +276,10 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               <Section n={num("remarks")} id="remarks" title="Remarks"><p className="whitespace-pre-line leading-relaxed text-ink-soft">{idea.remarks}</p></Section>
             ) : null}
 
+            <ChildSections sections={media} gated={gated} back={path} />
+
+            <FieldSections type="BUSINESS_IDEA" record={idea as unknown as Record<string, unknown>} gated={gated} back={path} />
+
             <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />
           </div>
 
@@ -244,7 +311,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             </nav>
 
             {!viewer.isMember ? (
-              <section className="flex flex-col gap-3 rounded-2xl bg-ink p-5 text-white">
+              <section className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-5 text-white">
                 <span className="font-sans text-lg font-extrabold">Get the full plan</span>
                 <ul className="flex flex-col gap-1.5 text-sm text-white/80">
                   {["Every cost line and the total", "All the steps", "Every plan on the site"].map((t) => (
@@ -269,7 +336,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 function Section({ n, id, title, children }: { n: string; id: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} data-reveal className="scroll-mt-24 border-t border-ink pt-5">
-      <h2 className="mb-5 flex items-baseline gap-3 font-sans text-2xl font-extrabold tracking-tight">
+      <h2 className="mb-5 flex items-baseline gap-3 font-sans text-xl font-extrabold tracking-tight">
         <span className="font-mono text-sm font-semibold text-brand">{n}</span>{title}
       </h2>
       {children}

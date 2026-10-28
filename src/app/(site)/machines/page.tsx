@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { directory } from "@/config/directories";
 import { MACHINE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +17,7 @@ async function images(ids: string[]) {
   return Object.fromEntries(rows.map((m) => [m.contentItemId, m.pictureUrl!]));
 }
 
-export default function Page() {
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/machines");
-  return <DirectoryList types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} images={images} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/machines" searchParams={searchParams} types={["MACHINE"]} tabs={MACHINE_TABS} active="/machines" meta={meta} images={images} title={d.title} intro={d.text} />;
 }

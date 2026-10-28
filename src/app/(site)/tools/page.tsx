@@ -1,4 +1,5 @@
 import { DirectoryList } from "@/components/DirectoryList";
+import type { SearchParams } from "@/lib/directory-search";
 import { directory } from "@/config/directories";
 import { GUIDE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +11,7 @@ async function meta(ids: string[]) {
   return Object.fromEntries(rows.map((t) => [t.contentItemId, [t.toolType.charAt(0) + t.toolType.slice(1).toLowerCase(), t.downloadUrl ? "download available" : null].filter(Boolean).join(" · ")]));
 }
 
-export default function Page() {
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/tools");
-  return <DirectoryList types={["TOOL"]} tabs={GUIDE_TABS} active="/tools" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/tools" searchParams={searchParams} types={["TOOL"]} tabs={GUIDE_TABS} active="/tools" meta={meta} title={d.title} intro={d.text} />;
 }

@@ -197,3 +197,14 @@ export async function searchPrices(q: string, f: Params) {
   for (const r of rows) if (!latest.has(`${r.marketId}:${r.productId}`)) latest.set(`${r.marketId}:${r.productId}`, r);
   return [...latest.values()].sort((a, b) => a.product.name.localeCompare(b.product.name) || a.market.name.localeCompare(b.market.name));
 }
+
+export type SearchParams = Record<string, string | string[] | undefined>;
+const first = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
+
+/** Keywords, this tab's filters, and the values picked in the URL (unknown keys ignored). */
+export async function readSearch(tab: Tab, sp: SearchParams) {
+  const filters = await filtersFor(tab);
+  const q = first(sp.q);
+  const values: Params = Object.fromEntries(filters.map((f) => [f.name, first(sp[f.name])]).filter(([, v]) => v));
+  return { q, filters, values, active: Boolean(q || Object.keys(values).length) };
+}

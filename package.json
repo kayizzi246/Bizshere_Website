@@ -24,17 +24,21 @@
     "db:studio": "prisma studio",
     "jobs": "tsx scripts/jobs.ts",
     "docs:db": "tsx scripts/data-dictionary.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "theme:prime": "node scripts/prime-theme.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
+    "@vercel/blob": "0.27.3",
     "bcryptjs": "2.4.3",
     "lucide-react": "0.454.0",
     "next": "14.2.35",
     "next-auth": "4.24.10",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.9.9",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "zod": "3.23.8"

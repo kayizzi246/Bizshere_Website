@@ -35,7 +35,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="text-3xl font-extrabold tracking-tight">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
+        <div><h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
         <Link href={qs({ create: "1" })} className="btn-primary">+ Create account</Link>
       </div>
 
@@ -43,7 +43,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
 
       {searchParams.create ? (
         <form action={createAccount} className="card flex flex-col gap-4 border-2 border-brand p-6">
-          <div className="flex items-center justify-between"><div><h2 className="text-xl font-extrabold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or for a new staff member.</p></div><Link href={qs({})} aria-label="Close" className="text-2xl text-ink">×</Link></div>
+          <div className="flex items-center justify-between"><div><h2 className="text-xl font-extrabold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or for a new staff member.</p></div><Link href={qs({})} aria-label="Close" className="text-xl text-ink">×</Link></div>
           {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{searchParams.error === "exists" ? "An account with that email already exists." : "Check the fields and try again."}</p> : null}
           <div className="flex flex-wrap gap-3.5">
             <label className="label flex-[1_1_220px]">Account type
@@ -65,10 +65,10 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" className="flex flex-wrap gap-1 rounded-[10px] bg-[#E9E7E4] p-1">
-          {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`rounded-lg px-3.5 py-2 text-sm ${tab === t ? "bg-white font-extrabold text-brand-dark" : "font-semibold text-ink-soft"}`}>{l}</Link>)}
-        </div>
-        <form className="flex gap-2"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[42px]" /><button className="btn-outline min-h-[42px]">Search</button></form>
+        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
+          {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${tab === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>)}
+        </div></div>
+        <form className="flex w-full gap-2 sm:w-auto"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[40px] min-w-0 flex-1 sm:w-64 sm:flex-none" /><button className="btn-outline min-h-[42px]">Search</button></form>
       </div>
 
       <div className="flex flex-wrap items-start gap-5">
@@ -82,7 +82,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
                   const plan = org?.subscriptions[0]?.plan.name ?? u.subscriptions[0]?.plan.name ?? "Free";
                   const status = u.isSuspended ? ["badge-bad", "Suspended"] : org?.status === "PENDING" ? ["badge-warn", "Pending verification"] : ["badge-ok", "Active"];
                   return (
-                    <tr key={u.id} className={u.id === selectedId ? "bg-[#FFF3EA]" : ""}>
+                    <tr key={u.id} className={u.id === selectedId ? "bg-brand-tint" : ""}>
                       <td><Link href={qs({ user: u.id })} className="flex flex-col text-ink"><span className="font-bold">{org?.legalName ?? u.name}</span><span className="text-xs text-ink-muted">{u.email ?? u.phone}</span></Link></td>
                       <td className="capitalize">{org ? org.accountType.toLowerCase().replace("_", " ") : u.role.toLowerCase()}</td>
                       <td>{plan}</td>

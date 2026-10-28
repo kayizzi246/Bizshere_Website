@@ -39,7 +39,7 @@ export function PhoneAuthCard({ title, googleEnabled, redirectTo, allowEmail = f
 
   return (
     <div className="card mx-auto flex w-full max-w-md flex-col gap-5 p-8">
-      <h1 className="text-2xl font-extrabold">{title}</h1>
+      <h1 className="text-xl font-extrabold">{title}</h1>
       {email ? (
         <form onSubmit={emailSignIn} className="flex flex-col gap-4" noValidate>
           <label className="label">Email<input name="email" type="email" autoComplete="email" className="input" /></label>

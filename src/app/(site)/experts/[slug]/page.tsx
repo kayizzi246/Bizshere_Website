@@ -37,6 +37,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
       ]}
       texts={[{ label: "Profile", text: item.overview }]}
       contact={gated ? "locked" : { email: c.email, phone: c.phone }}
+      details={{ type: "CONSULTANT", record: c as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}

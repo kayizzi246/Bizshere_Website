@@ -28,7 +28,7 @@ export default async function AccountPage() {
     <div className="container-site flex flex-col gap-6 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">My account</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">My account</h1>
           <p className="text-ink-muted">{user.name} · {user.email ?? user.phone}</p>
         </div>
         <div className="card flex items-center gap-4 px-5 py-3">

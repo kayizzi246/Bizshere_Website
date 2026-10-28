@@ -221,3 +221,48 @@ export async function archiveContent(form: FormData) {
   }
   revalidatePath("/admin/content");
 }
+
+/**
+ * Permanently deletes content items and everything that belongs to them. Admins only.
+ *
+ * Deleting the content item cascades in the database to its directory record and child rows
+ * (offers, rounds, fees, budgets, versions, media entries, categories, sources, checks,
+ * revisions, saved items, collections, corrections, alerts, related links). Two things are
+ * removed by hand first: tool calculations (their version link is RESTRICT, which would block
+ * the delete) and page-view analytics (stored by id, without a foreign key). Submissions and
+ * enquiries keep their history with the link cleared (SET NULL). Organizations are kept: they
+ * can be a supplier, funder and consultancy at once.
+ */
+async function removeContent(ids: string[]) {
+  const items = await prisma.contentItem.findMany({ where: { id: { in: ids } }, select: { id: true, title: true, contentType: true, slug: true } });
+  if (!items.length) return [];
+  const found = items.map((i) => i.id);
+  await prisma.$transaction([
+    prisma.toolCalculation.deleteMany({ where: { toolVersion: { tool: { contentItemId: { in: found } } } } }),
+    prisma.usageEvent.deleteMany({ where: { contentItemId: { in: found } } }),
+    prisma.contentItem.deleteMany({ where: { id: { in: found } } }),
+  ]);
+  return items;
+}
+
+export async function deleteContent(form: FormData) {
+  const admin = await requireAdmin();
+  const id = String(form.get("id") ?? "");
+  const [item] = await removeContent([id]);
+  if (!item) redirect("/admin/content?error=Not+found");
+  await audit(admin.id, "content.deleted", "content_item", item.id, { title: item.title, type: item.contentType, slug: item.slug });
+  revalidatePath("/admin/content");
+  revalidatePath("/");
+  redirect(`/admin/content?type=${item.contentType}&deleted=${encodeURIComponent(item.title)}`);
+}
+
+export async function deleteContentBulk(form: FormData) {
+  const admin = await requireAdmin();
+  const ids = form.getAll("ids").map(String);
+  if (!ids.length) return;
+  const items = await removeContent(ids);
+  await audit(admin.id, "content.deleted", "content_item", undefined, { items: items.map((i) => ({ id: i.id, title: i.title, type: i.contentType })) });
+  revalidatePath("/admin/content");
+  revalidatePath("/");
+  redirect(`/admin/content?deleted=${items.length}+item${items.length === 1 ? "" : "s"}`);
+}

@@ -32,7 +32,17 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         { label: "Category", value: item.primaryCategory?.name },
       ]}
       texts={[{ label: "Description", text: item.overview }]}
-      links={g.downloadUrl ? [gated ? { label: "Download", locked: true } : { label: "Download", href: g.downloadUrl, icon: "download" }] : []}
+      links={[g.officialUrl ? { label: "Official page", href: g.officialUrl } : null, g.videoUrl ? { label: "Watch video", href: g.videoUrl, icon: "video" } : null].filter((l): l is { label: string; href: string; icon?: string } => Boolean(l))}
+      product={g.downloadUrl ? {
+        kind: g.resourceType ?? "Document",
+        title: item.title,
+        href: gated ? null : g.downloadUrl,
+        // File type from the address, worked out here so visitors see it without the address itself.
+        format: g.downloadUrl.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i)?.[1] ?? null,
+        locked: gated,
+        facts: [["Type", g.resourceType], ["Language", g.language], ["Version", g.version], ["Issued by", g.issuingBody ?? g.responsibleAuthority]],
+      } : undefined}
+      details={{ type: "GUIDE", record: g as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}

@@ -19,7 +19,7 @@ export default async function MembershipPage({ searchParams }: { searchParams: {
     <div className="container-site flex flex-col items-center gap-8 py-16">
       <div className="flex max-w-3xl flex-col items-center gap-4 text-center">
         <span className="eyebrow">Membership</span>
-        <h1 className="text-4xl font-extrabold tracking-tight">Everything you need to start, in one membership</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">Everything you need to start, in one membership</h1>
         <p className="text-lg text-ink-soft">Browse previews for free. Subscribe to unlock full plans, contacts, funding terms, price history and downloads.</p>
         <div className="flex gap-1 rounded-xl bg-[#E9E7E4] p-1">
           <Link href="?period=monthly" className={`rounded-lg px-5 py-2.5 text-[15px] ${!yearly ? "bg-white font-extrabold text-brand-deep" : "text-ink-soft"}`}>Monthly</Link>
@@ -33,7 +33,7 @@ export default async function MembershipPage({ searchParams }: { searchParams: {
           return (
             <div key={p.id} className={`flex flex-[1_1_320px] max-w-md flex-col gap-4 rounded-[20px] p-8 ${featured ? "bg-ink text-white" : "card"}`}>
               <span className="text-lg font-extrabold">{p.name}</span>
-              <span className="text-4xl font-extrabold">{money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{yearly ? "per year" : "per month"}</span> : null}</span>
+              <span className="text-3xl font-extrabold">{money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{yearly ? "per year" : "per month"}</span> : null}</span>
               <Link href={p.code === "free" ? "/signup" :`/membership/checkout?plan=${p.code}&period=${yearly ? "yearly" : "monthly"}`} className={featured ? "btn min-h-[50px] bg-white font-extrabold text-brand-deep hover:text-brand-deep" : "btn-outline min-h-[50px]"}>
                 {p.code === "free" ? "Create free account" : "Subscribe"}
               </Link>

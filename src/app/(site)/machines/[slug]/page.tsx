@@ -45,6 +45,7 @@ export default async function MachinePage({ params }: { params: { slug: string }
         { label: "Remarks", text: m.remarks },
       ]}
       links={videos}
+      details={{ type: "MACHINE", record: m as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}

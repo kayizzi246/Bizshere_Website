@@ -1,29 +1,39 @@
 import type { Config } from "tailwindcss";
 
-// Brand tokens from the approved UI designs. Replace once the client sends
-// final brand colours and fonts (see the client information request, items A1-A5).
+// Neutral and tint colours read CSS variables (defined in globals.css), so the admin's
+// dark mode can switch them in one place: `.theme-dark` redefines the variables.
+// The public site never sets that class, so it always uses the light values.
+const v = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Orange, black and white. Token names are kept from the original theme.
-        // brand.DEFAULT is the brightest orange that still gives white text 4.5:1 contrast.
+        // Blue and orange sampled from the client logo (public/brand/logo-full.png), on white.
+        // Blue is the main colour (buttons, links); orange is the accent.
         brand: {
-          DEFAULT: "#E05A00",
-          dark: "#B84A00",
-          deep: "#0A0A0A", // black: dark buttons, hero panel
-          admin: "#0A0A0A",
-          tint: "#FFF3EA",
-          mint: "#FFC9A3", // light orange accent, used on black or orange
-          sky: "#FFE4D1",
+          DEFAULT: "#0172CE",
+          dark: v("brand-dark"), // hover and blue text; white text on it 7:1 in light mode
+          deep: "#06294A", // navy: top bar, hero, footer, dark buttons
+          admin: "#06294A",
+          tint: v("brand-tint"),
+          mint: "#FD7C04", // orange accent on navy panels
+          sky: "#CFE5F7",
         },
-        ink: { DEFAULT: "#0A0A0A", soft: "#2B2B2B", muted: "#6B6B6B" },
-        line: { DEFAULT: "#E9E7E4", strong: "#D6D3CF" },
-        page: "#FAF9F7",
-        warn: { bg: "#FFF1D6", fg: "#7A4E00" },
-        bad: { bg: "#FBE7E4", fg: "#8A2A1C" },
-        info: { bg: "#F2F1EF", fg: "#2B2B2B" },
+        accent: {
+          DEFAULT: "#FD7C04", // fills, icons, large text; too light for small text on white
+          dark: v("accent-dark"), // orange small text (5:1 on white)
+          tint: v("accent-tint"),
+        },
+        surface: v("surface"), // cards and panels (white in light mode)
+        heading: v("heading"), // headings (navy in light mode)
+        ink: { DEFAULT: v("ink"), soft: v("ink-soft"), muted: v("ink-muted") },
+        line: { DEFAULT: v("line"), strong: v("line-strong") },
+        page: v("page"), // light panels and hovers; the body itself is white (globals.css)
+        warn: { bg: v("warn-bg"), fg: v("warn-fg") },
+        bad: { bg: v("bad-bg"), fg: v("bad-fg") },
+        info: { bg: v("info-bg"), fg: v("info-fg") },
       },
       fontFamily: {
         // Inter for body copy and UI controls; Manrope (`font-display`) for headings and titles.

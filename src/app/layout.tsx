@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
+import "primeicons/primeicons.css";
+import "../styles/primereact-theme.css";
 import "./globals.css";
 import { Providers } from "./providers";
 

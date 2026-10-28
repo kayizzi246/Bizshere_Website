@@ -38,6 +38,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
       ]}
       texts={item.overview ? [{ label: "About", text: item.overview }] : []}
       contact={gated ? "locked" : { email: s.email, phone: s.phone }}
+      details={{ type: "SUPPLIER", record: s as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}
       back={path}
