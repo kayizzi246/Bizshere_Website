@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { BadgeCheck, Check, Crown, LockKeyhole } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { cachedMemberPlan } from "@/lib/cached";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { date, money } from "@/lib/format";
@@ -38,7 +39,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
         },
       },
     }),
-    prisma.membershipPlan.findUnique({ where: { code: "member" } }),
+    cachedMemberPlan(),
   ]);
   if (!item || !item.businessIdea) notFound();
   const idea = item.businessIdea;

@@ -1,4 +1,5 @@
 import type { Role } from "@prisma/client";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "./auth";
 import { prisma } from "./prisma";
@@ -20,7 +21,8 @@ export type Viewer = {
 
 type Entitlements = { fullDetail?: boolean; contacts?: boolean };
 
-export async function getViewer(): Promise<Viewer> {
+/** Once per request: the header, the page and its components all call this. */
+export const getViewer = cache(async function getViewer(): Promise<Viewer> {
   const session = await getSession();
   if (!session?.user?.id) return { userId: null, name: null, role: null, isMember: false, isStaff: false };
 
@@ -39,7 +41,7 @@ export async function getViewer(): Promise<Viewer> {
   });
   const isMember = subs.some((s) => (s.plan.entitlements as Entitlements)?.fullDetail === true);
   return { userId: id, name: name ?? null, role, isMember, isStaff };
-}
+});
 
 export async function requireRole(roles: Role[]) {
   const session = await getSession();

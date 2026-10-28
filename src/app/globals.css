@@ -95,13 +95,28 @@
 .word-in { animation: word-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes word-in { from { opacity: 0; transform: translateY(0.4em); filter: blur(8px); } }
 
-/* Particles: soft dots drifting upward (src/components/Particles.tsx) */
+/* Particles: rings, plus signs and squares drifting up on a diagonal, turning and
+   twinkling (src/components/Particles.tsx). No blur or shadow. */
 .particle { opacity: 0; animation: particle linear infinite; }
 @keyframes particle {
-  10% { opacity: 0.55; }
-  90% { opacity: 0.35; }
-  to { opacity: 0; transform: translate(18px, -120px); }
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  12% { opacity: 0.7; }
+  35% { opacity: 0.35; }
+  55% { opacity: 0.75; }
+  80% { opacity: 0.3; }
+  100% { opacity: 0; transform: translate(40px, -150px) rotate(180deg); }
 }
+
+/* Floating Services button: an orange border that keeps travelling round the edge.
+   A rotating conic gradient behind a 3px inset; no glow or shadow. */
+/* No position here: the element sets its own (the Services button is `fixed`), which also anchors ::before. */
+.spin-border { isolation: isolate; overflow: hidden; }
+.spin-border::before {
+  content: ""; position: absolute; inset: -60%; z-index: -1;
+  background: conic-gradient(from 0deg, #FE8302, #FFD9AE, #FE8302 30%, #C45F00 50%, #FE8302 70%, #FFD9AE 85%, #FE8302);
+  animation: spin-border 3.2s linear infinite;
+}
+@keyframes spin-border { to { transform: rotate(360deg); } }
 
 /* Dropdowns: iPhone Safari ignores height and padding on native selects, so draw our own
    (same height and padding as inputs everywhere) with a chevron that reads in light and dark. */
@@ -180,5 +195,6 @@ select {
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
   .particle { animation: none; opacity: 0.3; }
+  .spin-border::before { animation: none; }
   .word-in { animation: none; }
 }

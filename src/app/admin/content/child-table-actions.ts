@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireStaff } from "@/lib/access";
@@ -57,6 +58,7 @@ export async function saveChildRow(form: FormData) {
   }
   await audit(editor.id, rowId ? "child.updated" : "child.created", table.model, contentItemId, { table: table.key });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
   back(contentItemId, table.key, "saved=child");
 }
 
@@ -72,5 +74,6 @@ export async function deleteChildRow(form: FormData) {
   await delegate(prisma, table.model).deleteMany({ where: { id: rowId, ...scope } });
   await audit(editor.id, "child.deleted", table.model, contentItemId, { table: table.key });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
   back(contentItemId, table.key, "saved=child");
 }

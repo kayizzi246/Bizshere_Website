@@ -1,4 +1,5 @@
 import { $Enums, type ContentType, type FundingType, type Prisma, type SupplierType, type ToolType } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 
 /**
@@ -202,8 +203,11 @@ export type SearchParams = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
 
 /** Keywords, this tab's filters, and the values picked in the URL (unknown keys ignored). */
+/** filtersFor, cached between requests; admin saves clear it (tag "site-data", see src/lib/cached.ts). */
+export const cachedFilters = unstable_cache((tab: Tab) => filtersFor(tab), ["filters"], { tags: ["site-data"], revalidate: 300 });
+
 export async function readSearch(tab: Tab, sp: SearchParams) {
-  const filters = await filtersFor(tab);
+  const filters = await cachedFilters(tab);
   const q = first(sp.q);
   const values: Params = Object.fromEntries(filters.map((f) => [f.name, first(sp[f.name])]).filter(([, v]) => v));
   return { q, filters, values, active: Boolean(q || Object.keys(values).length) };

@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import { cache } from "react";
 import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -108,6 +109,5 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export function getSession() {
-  return getServerSession(authOptions);
-}
+/** Once per request (React cache): many components ask for the session. */
+export const getSession = cache(() => getServerSession(authOptions));

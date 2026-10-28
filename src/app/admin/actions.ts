@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
@@ -89,7 +90,9 @@ export async function decideSubmission(form: FormData) {
 
   await audit(editor.id, `submission.${decision.toLowerCase()}`, "submission", id, { type: sub.type });
   revalidatePath("/admin");
+  revalidateTag(SITE_DATA);
   revalidatePath("/admin/review");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/review?done=${decision}`);
 }
 
@@ -143,6 +146,7 @@ export async function createAccount(form: FormData) {
   await audit(admin.id, "user.created", "user", user.id, { kind: d.kind });
   // TODO: send invite email with a password-set link instead of a temporary password.
   revalidatePath("/admin/users");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/users?created=${user.id}`);
 }
 
@@ -154,6 +158,7 @@ export async function setSuspended(form: FormData) {
   await prisma.user.update({ where: { id }, data: { isSuspended: suspend } });
   await audit(admin.id, suspend ? "user.suspended" : "user.restored", "user", id);
   revalidatePath("/admin/users");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/users?user=${id}`);
 }
 
@@ -164,6 +169,7 @@ export async function changeRole(form: FormData) {
   await prisma.user.update({ where: { id }, data: { role } });
   await audit(admin.id, "user.role_changed", "user", id, { role });
   revalidatePath("/admin/users");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/users?user=${id}`);
 }
 
@@ -175,6 +181,7 @@ export async function sendForReReview(form: FormData) {
     await audit(editor.id, "content.sent_for_review", "content_item", undefined, { ids });
   }
   revalidatePath("/admin/content");
+  revalidateTag(SITE_DATA);
 }
 
 /** Records one verification check directly from the content editor. */
@@ -193,6 +200,7 @@ export async function recordCheck(form: FormData) {
   });
   await audit(editor.id, "check.recorded", "content_item", contentItemId, { checkType, result });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
 }
 
 /** Accept or reject a reader's correction report. Accepting marks the page for re-review. */
@@ -210,6 +218,7 @@ export async function decideCorrection(form: FormData) {
   ]);
   await audit(editor.id, `correction.${decision.toLowerCase()}`, "correction_report", id);
   revalidatePath("/admin/corrections");
+  revalidateTag(SITE_DATA);
 }
 
 export async function archiveContent(form: FormData) {
@@ -220,6 +229,7 @@ export async function archiveContent(form: FormData) {
     await audit(editor.id, "content.archived", "content_item", undefined, { ids });
   }
   revalidatePath("/admin/content");
+  revalidateTag(SITE_DATA);
 }
 
 /**
@@ -252,7 +262,9 @@ export async function deleteContent(form: FormData) {
   if (!item) redirect("/admin/content?error=Not+found");
   await audit(admin.id, "content.deleted", "content_item", item.id, { title: item.title, type: item.contentType, slug: item.slug });
   revalidatePath("/admin/content");
+  revalidateTag(SITE_DATA);
   revalidatePath("/");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/content?type=${item.contentType}&deleted=${encodeURIComponent(item.title)}`);
 }
 
@@ -263,6 +275,8 @@ export async function deleteContentBulk(form: FormData) {
   const items = await removeContent(ids);
   await audit(admin.id, "content.deleted", "content_item", undefined, { items: items.map((i) => ({ id: i.id, title: i.title, type: i.contentType })) });
   revalidatePath("/admin/content");
+  revalidateTag(SITE_DATA);
   revalidatePath("/");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/content?deleted=${items.length}+item${items.length === 1 ? "" : "s"}`);
 }

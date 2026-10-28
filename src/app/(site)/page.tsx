@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { cachedMemberPlan, cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
 import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
 import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
-import { liveSiteUpdates } from "@/lib/site-updates";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { OnboardingGate } from "@/components/Onboarding";
@@ -41,13 +41,9 @@ const FAQ: [string, string][] = [
 export default async function HomePage() {
   const [viewer, memberPlan, guides, updates, yt] = await Promise.all([
     getViewer(),
-    prisma.membershipPlan.findUnique({ where: { code: "member" } }),
-    prisma.contentItem.findMany({
-      where: { contentType: { in: ["GUIDE", "TOOL", "RECIPE", "NEWS"] }, publicationStatus: "PUBLISHED" },
-      orderBy: [{ lastReviewedAt: { sort: "desc", nulls: "last" } }, { publishedAt: "desc" }],
-      take: 6,
-    }),
-    liveSiteUpdates(),
+    cachedMemberPlan(),
+    cachedRecentGuides(),
+    cachedSiteUpdates(),
     homeVideo(),
   ]);
   // Directory cards open the onboarding pop-up (sign up → pay) for anyone without full access.

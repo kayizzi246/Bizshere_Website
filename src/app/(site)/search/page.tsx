@@ -3,7 +3,7 @@ import { LockKeyhole } from "lucide-react";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { contentTypeLabel, contentTypePath, date, money } from "@/lib/format";
-import { filtersFor, parseTab, searchListings, searchPrices, TABS, type Tab } from "@/lib/directory-search";
+import { cachedFilters, parseTab, searchListings, searchPrices, TABS, type Tab } from "@/lib/directory-search";
 import { saveSearch } from "@/app/actions/member";
 import { Gate } from "@/components/Gate";
 import { Icon } from "@/components/Icon";
@@ -20,7 +20,7 @@ const cap = (s?: string | null) => (s ? s.charAt(0) + s.slice(1).toLowerCase().r
 export default async function SearchPage({ searchParams }: { searchParams: SP }) {
   const tab = parseTab(one(searchParams.in) || legacyTab(searchParams));
   const q = one(searchParams.q);
-  const filters = await filtersFor(tab);
+  const filters = await cachedFilters(tab);
   const values: Record<string, string> = Object.fromEntries(filters.map((f) => [f.name, one(searchParams[f.name])]).filter(([, v]) => v));
   const viewer = await getViewer();
 

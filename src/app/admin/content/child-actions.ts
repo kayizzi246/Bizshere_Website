@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type ClaimType, type RoundStatus, type ScenarioLevel } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -57,6 +58,7 @@ export async function saveBudgetScenario(form: FormData) {
   });
   await audit(editor.id, "budget.saved", "content_item", contentItemId, { level, lines: lines.length });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
   back(contentItemId, "saved=budget");
 }
 
@@ -90,6 +92,7 @@ export async function saveRound(form: FormData) {
   else await prisma.applicationRound.create({ data: { ...data, programmeId: s(form, "programmeId") } });
   await audit(editor.id, id ? "round.updated" : "round.created", "content_item", contentItemId, { status });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
   back(contentItemId, "saved=round");
 }
 
@@ -124,6 +127,7 @@ export async function addEvidence(form: FormData) {
   await prisma.evidenceLink.create({ data: { contentItemId, sourceId: source.id, claimSupported: s(form, "claimSupported"), claimType, evidenceNotes: s(form, "evidenceNotes") || null } });
   await audit(editor.id, "evidence.added", "content_item", contentItemId, { sourceId: source.id });
   revalidatePath(`/admin/content/${contentItemId}`);
+  revalidateTag(SITE_DATA);
   back(contentItemId, "saved=evidence");
 }
 

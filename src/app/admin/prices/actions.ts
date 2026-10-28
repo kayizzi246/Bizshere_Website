@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -50,7 +51,9 @@ export async function addObservation(form: FormData) {
   if (!publish) await prisma.submission.create({ data: { type: "PRICE_OBSERVATION", priceObservationId: obs.id, submittedById: editor.id } });
   await audit(editor.id, "price.added", "price_observation", obs.id, { publish });
   revalidatePath("/admin/prices");
+  revalidateTag(SITE_DATA);
   revalidatePath("/prices");
+  revalidateTag(SITE_DATA);
   redirect("/admin/prices?added=1");
 }
 
@@ -61,6 +64,7 @@ export async function addMarket(form: FormData) {
   const m = await prisma.market.create({ data: { name, marketType: String(form.get("marketType") ?? "") || null, locationId: String(form.get("locationId") ?? "") || null, town: String(form.get("town") ?? "") || null } });
   await audit(editor.id, "market.created", "market", m.id);
   revalidatePath("/admin/prices");
+  revalidateTag(SITE_DATA);
 }
 
 export async function addProduct(form: FormData) {
@@ -71,4 +75,5 @@ export async function addProduct(form: FormData) {
   const p = await prisma.product.create({ data: { name, variety: s("variety"), grade: s("grade"), standardUnit: s("standardUnit"), localNames: (s("localNames") ?? "").split(",").map((x) => x.trim()).filter(Boolean) } });
   await audit(editor.id, "product.created", "product", p.id);
   revalidatePath("/admin/prices");
+  revalidateTag(SITE_DATA);
 }

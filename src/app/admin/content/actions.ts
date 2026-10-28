@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type AccessLevel, type BusinessStage, type ContentType, type PublicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -183,5 +184,6 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
 
   await audit(editor.id, id ? "content.updated" : "content.created", "content_item", itemId, { type, status });
   revalidatePath("/admin/content");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/content/${itemId}?saved=1`);
 }

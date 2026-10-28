@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireStaff } from "@/lib/access";
@@ -30,5 +31,6 @@ export async function saveVideoSettings(form: FormData) {
   clearVideoCache();
   await audit(editor.id, "site_setting.video", "site_setting", SETTING.channel, { channel, featured });
   revalidatePath("/");
+  revalidateTag(SITE_DATA);
   redirect("/admin/video?saved=1");
 }

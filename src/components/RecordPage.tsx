@@ -4,6 +4,7 @@ import type { ContentType } from "@prisma/client";
 import type { Viewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { cachedMemberPlan } from "@/lib/cached";
 import { date, money } from "@/lib/format";
 import { DIRECTORIES } from "@/config/directories";
 import { Connected, Crumbs, Evidence } from "./DetailParts";
@@ -56,7 +57,7 @@ export async function RecordPage({
   /** Kept for older callers. */
   gateTitle?: string;
 }) {
-  const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
+  const plan = await cachedMemberPlan();
   const planInfo = {
     name: plan?.name ?? "Member",
     monthly: plan?.priceMonthly != null ? money(plan.priceMonthly, plan.currency) : null,

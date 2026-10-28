@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -35,7 +36,9 @@ function parse(form: FormData) {
 
 function done(flag: string) {
   revalidatePath("/admin/updates");
+  revalidateTag(SITE_DATA);
   revalidatePath("/");
+  revalidateTag(SITE_DATA);
   redirect(`/admin/updates?${flag}=1`);
 }
 
