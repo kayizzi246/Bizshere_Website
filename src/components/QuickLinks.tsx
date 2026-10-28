@@ -89,6 +89,7 @@ const STEP = 50; // button height (44px) + gap (6px)
 export function ServiceRail({ services }: { services: Service[] }) {
   const [scrolled, setScrolled] = useState(false);
   const [hover, setHover] = useState(false);
+  const path = usePathname();
   const open = scrolled || hover;
 
   useEffect(() => {
@@ -100,6 +101,8 @@ export function ServiceRail({ services }: { services: Service[] }) {
 
   const items = [{ href: "/search", nav: "Search everything", search: true }, ...services.map((s) => ({ href: s.href, nav: s.nav, search: false }))];
   const n = items.length;
+  // Search has its own filter column in that corner.
+  if (path.startsWith("/search")) return null;
   // White outline so the buttons stay distinct over the blue hero and over white sections alike.
   const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 

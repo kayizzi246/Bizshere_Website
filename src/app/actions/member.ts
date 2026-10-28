@@ -66,10 +66,13 @@ export async function removeFromCollection(form: FormData) {
 }
 
 export async function saveSearch(form: FormData) {
-  const query = String(form.get("query") ?? "").trim();
-  const user = await requireUser(`/search?q=${encodeURIComponent(query)}`);
-  const types = form.getAll("types").map(String);
-  await prisma.savedSearch.create({ data: { userId: user.id, query, filters: { types }, alert: form.get("alert") === "on" } });
+  // The search form submits all its fields; keep them as a query string to reopen the same search.
+  const params = new URLSearchParams();
+  for (const [k, v] of form.entries()) if (typeof v === "string" && v && !k.startsWith("$ACTION") && k !== "page") params.append(k, v);
+  const query = String(form.get("q") ?? form.get("query") ?? "").trim();
+  const user = await requireUser(`/search?${params}`);
+  const types = form.getAll("show").map(String);
+  await prisma.savedSearch.create({ data: { userId: user.id, query, filters: { types, params: params.toString() }, alert: form.get("alert") === "on" } });
   revalidatePath("/account");
   redirect("/account?saved=search");
 }

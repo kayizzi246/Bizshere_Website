@@ -105,7 +105,7 @@ export default async function AccountPage() {
           <h2 className="text-lg font-extrabold">Saved searches</h2>
           {searches.length === 0 ? <p className="text-sm text-ink-muted">Run a search and choose &ldquo;Save this search&rdquo;.</p> : searches.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 border-t border-line pt-3">
-              <Link href={`/search?q=${encodeURIComponent(s.query)}`} className="font-bold">{s.query || "All content"}</Link>
+              <Link href={savedSearchHref(s.query, s.filters)} className="font-bold">{s.query || "All content"}</Link>
               <span className="flex items-center gap-2 text-xs text-ink-muted">{s.alert ? <span className="badge-info">Alerts on</span> : null}<form action={deleteSavedSearch}><input type="hidden" name="id" value={s.id} /><button className="font-bold text-bad-fg">Delete</button></form></span>
             </div>
           ))}
@@ -122,4 +122,10 @@ export default async function AccountPage() {
       </div>
     </div>
   );
+}
+
+/** Saved searches keep the whole query string (filters.params); older ones only the words. */
+function savedSearchHref(query: string, filters: unknown) {
+  const params = filters && typeof filters === "object" && "params" in filters ? String((filters as { params: unknown }).params ?? "") : "";
+  return params ? `/search?${params}` : `/search?q=${encodeURIComponent(query)}`;
 }

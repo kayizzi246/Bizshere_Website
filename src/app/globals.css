@@ -95,6 +95,13 @@
 .word-in { animation: word-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes word-in { from { opacity: 0; transform: translateY(0.4em); filter: blur(8px); } }
 
+/* Hero rotating word (src/components/RotatingWord.tsx): letters flip up out of a blur one by one,
+   the outgoing word's letters lift away and fade. */
+.letter-in { transform-origin: 50% 100%; animation: letter-in 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes letter-in { from { opacity: 0; transform: translateY(0.5em) rotateX(-90deg); filter: blur(6px); } }
+.letter-out { animation: letter-out 0.4s cubic-bezier(0.6, 0, 0.8, 0.4) both; }
+@keyframes letter-out { to { opacity: 0; transform: translateY(-0.4em) rotateX(60deg); filter: blur(6px); } }
+
 /* Particles: rings, plus signs and squares drifting up on a diagonal, turning and
    twinkling (src/components/Particles.tsx). No blur or shadow. */
 .particle { opacity: 0; animation: particle linear infinite; }
@@ -196,5 +203,6 @@ select {
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
   .particle { animation: none; opacity: 0.3; }
   .spin-border::before { animation: none; }
-  .word-in { animation: none; }
+  .word-in, .letter-in { animation: none; }
+  .letter-out { display: none; }
 }

@@ -253,17 +253,17 @@ export default async function HomePage() {
 
       {/* ── FAQ: sticky intro with a contact card on the left; a numbered list that opens on the right ── */}
       <section className="border-t border-line bg-white">
-        <div className="container-site grid gap-10 py-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)] lg:gap-16">
-          <div className="flex flex-col gap-5 lg:sticky lg:top-28 lg:self-start">
+        <div className="container-site grid gap-8 py-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-12 lg:py-14">
+          <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
             <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
-            <h2 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[34px]">Questions, answered</h2>
-            <p className="text-[15px] leading-relaxed text-ink-muted">Short answers about access, sources, prices and payment.</p>
-            <div className="mt-2 flex flex-col gap-4 rounded-3xl border border-line bg-page p-6">
+            <h2 className="font-sans text-[26px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[30px]">Questions, answered</h2>
+            <p className="text-[14px] leading-relaxed text-ink-muted">Short answers about access, sources, prices and payment.</p>
+            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-page p-5">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
                 <span className="flex flex-col">
-                  <span className="font-sans text-[17px] font-black text-heading">Still have a question?</span>
+                  <span className="font-sans text-[16px] font-bold text-heading">Still have a question?</span>
                   <span className="text-[13px] text-ink-muted">Our team replies to every message.</span>
                 </span>
               </div>
@@ -273,15 +273,15 @@ export default async function HomePage() {
 
           {/* Each question is a card like the rest of the site: blue number tile, bold title,
               orange toggle when open, light blue tint on the open card. */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {FAQ.map(([q, a], n) => (
-              <details key={q} open={n === 0} className="group rounded-2xl border border-line bg-white px-5 transition-colors hover:border-brand/50 open:border-brand open:bg-brand-tint/50 sm:px-6 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center gap-4 py-4 sm:py-5">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint font-sans text-[13px] font-black text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-sans text-base font-black leading-tight tracking-[-0.01em] text-heading">{q}</span>
-                  <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-brand/25 text-xl font-semibold leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
+              <details key={q} open={n === 0} className="group rounded-xl border border-line bg-white px-4 transition-colors hover:border-brand/50 open:border-brand open:bg-brand-tint/50 sm:px-5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-3.5 py-3.5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-sans text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 font-sans text-[15px] font-semibold leading-snug text-heading">{q}</span>
+                  <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/30 text-lg font-medium leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
                 </summary>
-                <p className="pb-5 pl-[52px] pr-2 text-[15px] leading-relaxed text-ink-soft sm:pr-12">{a}</p>
+                <p className="pb-4 pl-[46px] pr-2 text-[14px] leading-relaxed text-ink-soft sm:pr-12">{a}</p>
               </details>
             ))}
           </div>
