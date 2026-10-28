@@ -250,7 +250,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
             </div>
           ) : null}
 
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
             {rows.map((r) => <li key={r.id}><ResultCard r={r} member={viewer.isMember} saved={savedIds.has(r.id)} back={url([], p.page > 1 ? { page: String(p.page) } : {})} /></li>)}
           </ul>
 

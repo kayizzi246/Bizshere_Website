@@ -81,18 +81,22 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   }, [next, onClose, router, setStep]);
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-ink/60 px-4 py-8 sm:items-center" onClick={onClose}>
-      <div ref={panel} className="onboard-pop relative w-full max-w-[560px] overflow-hidden rounded-3xl bg-white" onClick={(e) => e.stopPropagation()}>
-        <div aria-hidden className="h-1.5 bg-brand" />
-        <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-5 flex h-10 w-10 items-center justify-center rounded-xl text-ink-muted hover:bg-page hover:text-ink"><X className="h-5 w-5" /></button>
-        <div className="p-7 sm:p-10">
+    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/50 backdrop-blur-[2px] sm:items-center sm:px-4 sm:py-8" onClick={onClose}>
+      {/* A sheet from the bottom on phones, a centred card on larger screens */}
+      <div ref={panel} className="onboard-pop relative w-full max-w-[440px] overflow-hidden rounded-t-2xl bg-white sm:rounded-2xl sm:border sm:border-line" onClick={(e) => e.stopPropagation()}>
+        <span aria-hidden className="mx-auto mt-2.5 block h-1 w-9 rounded-full bg-line-strong sm:hidden" />
+        <div className="flex items-center justify-between gap-3 px-5 pt-4 sm:px-6 sm:pt-5">
+          {step !== "done" ? <Steps step={step} /> : <span />}
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-page hover:text-ink"><X className="h-[18px] w-[18px]" /></button>
+        </div>
+        <div className="px-5 pb-6 pt-3 sm:px-6">
           {step === "account" ? (
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2 pr-10">
-                <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">Get full access</h2>
-                <p className="text-[15px] leading-relaxed text-ink-muted">Enter your phone number to unlock full plans, contacts, prices and downloads. Already subscribed? Use the same number and you&apos;re straight back in.</p>
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-1.5">
+                <h2 id="onboard-title" className="text-lg font-bold text-heading">Create your account</h2>
+                <p className="text-[13px] leading-relaxed text-ink-muted">Sign up or sign in with your phone number. Already a member? Use the same number to get straight back in.</p>
               </div>
-              <PhoneSignIn onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
+              <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : null}
           {step === "pay" ? <PayStep plan={plan} onDone={() => { router.refresh(); setStep("done"); }} /> : null}
@@ -100,6 +104,23 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
         </div>
       </div>
     </div>
+  );
+}
+
+/** "1 Account — 2 Payment" at the top of the pop-up. */
+function Steps({ step }: { step: Step }) {
+  const items: [Step, string][] = [["account", "Account"], ["pay", "Payment"]];
+  const at = items.findIndex(([k]) => k === step);
+  return (
+    <ol className="flex items-center gap-2 text-[12px] font-semibold">
+      {items.map(([k, label], n) => (
+        <li key={k} className="flex items-center gap-2" aria-current={n === at ? "step" : undefined}>
+          {n ? <span aria-hidden className={`h-px w-6 ${n <= at ? "bg-brand" : "bg-line-strong"}`} /> : null}
+          <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${n <= at ? "bg-brand text-white" : "bg-page text-ink-muted"}`}>{n < at ? <Check className="h-3 w-3" /> : n + 1}</span>
+          <span className={n === at ? "text-heading" : "text-ink-muted"}>{label}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -112,20 +133,22 @@ function DoneStep({ onContinue }: { onContinue: () => void }) {
     return () => clearTimeout(t);
   }, []);
   return (
-    <div className="flex flex-col items-center gap-4 py-6 text-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-8 w-8" /></span>
-      <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">You have full access</h2>
-      <p className="text-[15px] text-ink-muted">Taking you there now…</p>
-      <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[56px] w-full text-lg">Continue</button>
+    <div className="flex flex-col items-center gap-3 py-4 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-6 w-6" /></span>
+      <h2 id="onboard-title" className="text-lg font-bold text-heading">You have full access</h2>
+      <p className="text-[13px] text-ink-muted">Taking you there now…</p>
+      <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[48px] w-full">Continue</button>
     </div>
   );
 }
 
 const METHODS = [
-  { id: "MTN_MOMO", label: "MTN MoMo", icon: Smartphone },
-  { id: "AIRTEL_MONEY", label: "Airtel Money", icon: Smartphone },
-  { id: "CARD", label: "Card", icon: CreditCard },
+  { id: "MTN_MOMO", label: "MTN MoMo", icon: Smartphone, tone: "bg-[#FFCB05] text-ink" },
+  { id: "AIRTEL_MONEY", label: "Airtel Money", icon: Smartphone, tone: "bg-[#E40000] text-white" },
+  { id: "CARD", label: "Card", icon: CreditCard, tone: "bg-heading text-white" },
 ] as const;
+
+const PERKS = ["Full plans and start-up budgets", "Supplier and expert contacts", "Funding terms, prices and downloads"];
 
 /** +256772123456 → "0772 123 456"; anything else is shown as stored. */
 function localPhone(p: string) {
@@ -172,51 +195,55 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={pay} className="flex flex-col gap-5" noValidate>
-      <div className="flex flex-col gap-2 pr-10">
-        <h2 id="onboard-title" className="text-xl font-extrabold sm:text-2xl">Unlock full access</h2>
-        <p className="text-[15px] leading-relaxed text-ink-muted">Full plans and budgets, supplier and expert contacts, funding terms, price history and downloads.</p>
+    <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
+      <div className="flex flex-col gap-1.5">
+        <h2 id="onboard-title" className="text-lg font-bold text-heading">Unlock full access</h2>
+        <p className="text-[13px] leading-relaxed text-ink-muted">One membership opens every directory.</p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-brand/30 bg-brand-tint/60 p-6">
+      <div className="rounded-xl border border-line bg-page p-4">
         <div className="flex items-center justify-between gap-3">
-          <span className="font-display text-lg font-bold">{plan.name}</span>
-          <div role="group" aria-label="Billing period" className="flex rounded-lg bg-white p-0.5 text-sm font-semibold">
+          <span className="text-[13px] font-semibold text-ink-soft">{plan.name}</span>
+          <div role="group" aria-label="Billing period" className="flex rounded-lg border border-line bg-white p-0.5 text-[12px] font-semibold">
             {(["MONTHLY", "YEARLY"] as const).map((p) => (
-              <button key={p} type="button" onClick={() => setPeriod(p)} aria-pressed={period === p} className={`rounded-md px-3.5 py-1.5 ${period === p ? "bg-brand text-white" : "text-ink-muted"}`}>{p === "MONTHLY" ? "Monthly" : "Yearly"}</button>
+              <button key={p} type="button" onClick={() => setPeriod(p)} aria-pressed={period === p} className={`rounded-md px-3 py-1 transition-colors ${period === p ? "bg-brand text-white" : "text-ink-muted hover:text-ink"}`}>{p === "MONTHLY" ? "Monthly" : "Yearly"}</button>
             ))}
           </div>
         </div>
-        <span className="font-display text-2xl font-extrabold">{price ?? <span className="text-lg font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-base font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</span>
+        <p className="mt-2 font-display text-[22px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</p>
+        <ul className="mt-3 flex flex-col gap-1.5 border-t border-line pt-3">
+          {PERKS.map((t) => <li key={t} className="flex items-center gap-2 text-[13px] text-ink-soft"><Check aria-hidden className="h-3.5 w-3.5 shrink-0 text-brand" />{t}</li>)}
+        </ul>
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-sm font-semibold text-ink-soft">Pay with</legend>
-        <div className="grid grid-cols-3 gap-2.5">
+        <legend className="mb-2 text-[13px] font-semibold text-ink-soft">Pay with</legend>
+        <div className="grid grid-cols-3 gap-2">
           {METHODS.map((m) => (
-            <label key={m.id} className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-4 text-center text-sm font-semibold transition ${method === m.id ? "border-brand bg-brand-tint text-brand" : "border-line text-ink-soft hover:border-line-strong"}`}>
+            <label key={m.id} className={`flex min-h-[48px] cursor-pointer items-center gap-2 rounded-[10px] border px-2.5 text-[12px] font-semibold transition-colors ${method === m.id ? "border-brand bg-brand-tint/60 text-heading ring-1 ring-brand" : "border-line text-ink-soft hover:border-line-strong"}`}>
               <input type="radio" name="method" value={m.id} checked={method === m.id} onChange={() => setMethod(m.id)} className="sr-only" />
-              <m.icon className="h-6 w-6" />{m.label}
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${m.tone}`}><m.icon className="h-3.5 w-3.5" /></span>
+              <span className="leading-tight">{m.label}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
       {method !== "CARD" ? (
-        <label className="label">
+        <label className="label text-[13px]">
           Mobile money number
           <input name="payPhone" type="tel" inputMode="tel" placeholder="0772 123 456" autoComplete="tel" value={payPhone}
             onChange={(e) => { setPayPhone(e.target.value); const net = networkOf(`+256${e.target.value.replace(/\D/g, "").replace(/^(256|0)/, "")}`); if (net) setMethod(net); }}
-            className="input min-h-[56px] text-lg" />
-          <span className="text-xs font-normal text-ink-muted">You&apos;ll get a prompt on this phone to approve the payment.</span>
+            className="input min-h-[48px] text-[15px]" />
+          <span className="text-[12px] font-normal text-ink-muted">You&apos;ll get a prompt on this phone to approve the payment.</span>
         </label>
       ) : null}
 
-      {result?.status === "error" ? <p role="alert" className="rounded-lg bg-warn-bg px-3 py-2 text-sm font-medium text-warn-fg">{result.message}</p> : null}
-      {result?.status === "prompt_sent" ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-sm font-medium text-brand-dark">Check your phone and approve the payment. Your access opens as soon as it goes through.</p> : null}
+      {result?.status === "error" ? <p role="alert" className="rounded-lg bg-warn-bg px-3 py-2 text-[13px] font-medium text-warn-fg">{result.message}</p> : null}
+      {result?.status === "prompt_sent" ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-[13px] font-medium text-brand-dark">Check your phone and approve the payment. Your access opens as soon as it goes through.</p> : null}
 
-      <button disabled={busy} className="btn-primary min-h-[56px] w-full text-lg"><LockKeyhole className="h-5 w-5" />{busy ? "Starting payment…" : "Pay and unlock"}</button>
-      <p className="text-center text-xs text-ink-muted">Cancel any time from your account.</p>
+      <button disabled={busy} className="btn-primary min-h-[48px] w-full text-[15px]"><LockKeyhole className="h-4 w-4" />{busy ? "Starting payment…" : price ? `Pay ${price}` : "Pay and unlock"}</button>
+      <p className="flex items-center justify-center gap-1.5 text-[12px] text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />Secure payment · Cancel any time from your account</p>
     </form>
   );
 }

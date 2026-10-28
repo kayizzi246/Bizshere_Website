@@ -20,7 +20,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const codeInput = useRef<HTMLInputElement>(null);
-  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-base";
+  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[15px]";
 
   useEffect(() => { if (phone) codeInput.current?.focus(); }, [phone]);
 
@@ -48,8 +48,8 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   if (phone) {
     return (
       <form onSubmit={(e) => { e.preventDefault(); verify(String(new FormData(e.currentTarget).get("code") ?? "")); }} className="flex flex-col gap-4" noValidate>
-        <p className="text-[15px] text-ink-soft">Enter the code we sent to <strong className="whitespace-nowrap text-ink">{phone}</strong>.</p>
-        <label className="label">
+        <p className={size === "lg" ? "text-[15px] text-ink-soft" : "text-[13px] text-ink-soft"}>Enter the code we sent to <strong className="whitespace-nowrap text-ink">{phone}</strong>.</p>
+        <label className={`label ${size === "lg" ? "" : "text-[13px]"}`}>
           Code
           {/* Checks itself as soon as the last digit is typed (or pasted, or filled from the SMS) */}
           <input ref={codeInput} name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={length} placeholder={"•".repeat(length)}
@@ -69,7 +69,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   return (
     <div className="flex flex-col gap-4">
       <form onSubmit={(e) => { e.preventDefault(); send(String(new FormData(e.currentTarget).get("phone") ?? "")); }} className="flex flex-col gap-4" noValidate>
-        <label className="label">
+        <label className={`label ${size === "lg" ? "" : "text-[13px]"}`}>
           Phone number
           <span className="relative">
             <Smartphone aria-hidden className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" />
@@ -84,7 +84,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
       <div className="flex items-center gap-3 text-xs text-ink-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
 
       <button type="button" disabled={!googleEnabled} onClick={() => signIn("google", { callbackUrl: googleCallbackUrl })}
-        className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-50 ${size === "lg" ? "min-h-[52px]" : "min-h-[46px]"}`}>
+        className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-50 ${size === "lg" ? "min-h-[52px]" : "min-h-[48px] text-[14px]"}`}>
         <GoogleMark /> Continue with Google
       </button>
       {!googleEnabled ? <p className="-mt-2 text-center text-xs text-ink-muted">Google sign-in is being set up.</p> : null}
