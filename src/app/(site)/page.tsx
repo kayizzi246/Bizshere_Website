@@ -88,9 +88,9 @@ export default async function HomePage() {
               ))}
             </ul>
 
-            <div className="mt-1 flex flex-wrap gap-4">
-              <Link href="/signup" className="inline-flex min-h-[52px] items-center rounded-md bg-white px-6 text-base font-bold text-ink transition-colors hover:bg-accent hover:text-ink">Get started now</Link>
-              <Link href="/search" className="inline-flex min-h-[52px] items-center rounded-md border border-white px-6 text-base font-bold text-white transition-colors hover:bg-white/10 hover:text-white">Search directories</Link>
+            <div className="mt-1 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+              <Link href="/signup" className="inline-flex min-h-[52px] items-center justify-center rounded-md bg-white px-6 text-base font-bold text-ink transition-colors hover:bg-accent hover:text-ink">Get started now</Link>
+              <Link href="/search" className="inline-flex min-h-[52px] items-center justify-center rounded-md border border-white px-6 text-base font-bold text-white transition-colors hover:bg-white/10 hover:text-white">Search directories</Link>
             </div>
           </div>
 
@@ -138,7 +138,7 @@ export default async function HomePage() {
 
       {/* ── Directories ─────────────────────────────────── */}
       <section className="bg-white">
-        <div className="container-site flex flex-col gap-10 py-20 lg:py-24">
+        <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <Heading title="What you'll find here" />
             <p className="max-w-md text-base leading-relaxed text-ink-muted sm:text-lg lg:text-right">
@@ -146,17 +146,17 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
-              <Link key={d.href} href={d.href} className="group flex flex-col rounded-2xl border border-line bg-white p-7 text-ink transition-colors hover:border-brand hover:text-ink">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} className="h-6 w-6" strokeWidth={1.75} /></span>
-                <h3 className="mt-5 font-sans text-[24px] font-black leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
-                <p className="mb-5 mt-2.5 line-clamp-3 text-[15px] leading-relaxed text-ink-muted">{d.text}</p>
-                <span className="mt-auto text-[15px] font-semibold text-brand group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
+              <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-7">
+                <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
+                <h3 className="font-sans text-[19px] font-black sm:mt-5 sm:text-[24px] leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
+                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-[15px]">{d.text}</p>
+                <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
               </Link>
             ))}
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
-            <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-8 text-white sm:col-span-2">
+            <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-6 text-white sm:col-span-2 sm:p-8">
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[24px] font-black tracking-[-0.02em]">Looking for something specific?</span>
                 <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
@@ -177,7 +177,7 @@ export default async function HomePage() {
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
         <section className="bg-white">
-          <div className="container-site flex flex-col gap-10 py-20 lg:py-24">
+          <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
                 <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
@@ -229,7 +229,7 @@ export default async function HomePage() {
 
       {/* ── FAQ: sticky intro with a contact card on the left; a numbered list that opens on the right ── */}
       <section className="border-t border-line bg-white">
-        <div className="container-site grid gap-10 py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
+        <div className="container-site grid gap-8 py-14 sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
             <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
             <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">Questions, answered</h2>

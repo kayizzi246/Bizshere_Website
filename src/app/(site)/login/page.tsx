@@ -9,7 +9,8 @@ export const metadata = { title: "Sign in" };
 // subscriber on a new phone or computer. Opening /admin while signed out lands here
 // with callbackUrl=/admin…, and then it shows the staff email and password sign-in.
 export default function LoginPage({ searchParams }: { searchParams: { callbackUrl?: string } }) {
-  const back = searchParams.callbackUrl?.startsWith("/") && !searchParams.callbackUrl.startsWith("//") ? searchParams.callbackUrl : "/";
+  // Only paths on this site: "//evil.com" and "/\evil.com" would leave it.
+  const back = /^\/(?![/\\])/.test(searchParams.callbackUrl ?? "") ? searchParams.callbackUrl! : "/";
   if (back === "/admin" || back.startsWith("/admin/") || back.startsWith("/admin?")) {
     return (
       <div className="container-site flex justify-center py-16">

@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { MobileNav, SideNav, type NavItem } from "@/components/SideNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavProgress } from "@/components/NavProgress";
+import { SignOutButton } from "@/components/SignOutButton";
 import { requireStaff } from "@/lib/access";
 import { ADMIN_DIRECTORIES } from "@/lib/content-fields";
 import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
@@ -70,13 +71,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Icon name="external" className="h-4 w-4" />View website
           </Link>
           <div className="mt-1 rounded-xl bg-white/[0.06] p-2.5">{userCard}</div>
+          <SignOutButton className="text-white/70 hover:bg-white/[0.06] hover:text-white" />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Solid, not frosted: a backdrop filter would trap the phone menu panel inside this bar */}
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6 lg:h-16 lg:px-7">
-          <Suspense fallback={null}><MobileNav items={items} footer={userCard} /></Suspense>
+          <Suspense fallback={null}><MobileNav items={items} footer={<>{userCard}<SignOutButton className="mt-3 text-white/70 hover:bg-white/[0.06] hover:text-white" /></>} /></Suspense>
           <span className="lg:hidden"><Logo full href="/admin" /></span>
           <form action="/admin/content" role="search" className="ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface sm:flex lg:ml-0">
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />

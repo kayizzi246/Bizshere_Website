@@ -22,9 +22,26 @@ const credentialsSchema = z.object({
 /** Google sign-in is offered only once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set. */
 export const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
+// ── Security settings ──
+/** Wrong passwords allowed per email or phone before sign-in is paused. */
+const MAX_FAILED_LOGINS = 5;
+const LOCKOUT_MINUTES = 15;
+/** Staff sessions last a working day; members stay signed in (see session.maxAge). */
+export const STAFF_SESSION_HOURS = 12;
+/** How often a session re-reads its role and suspension from the database. */
+const RECHECK_MINUTES = 5;
+
+const isStaffRole = (r?: Role | null) => r === "ADMIN" || r === "EDITOR";
+
+/** Failed password sign-ins for this email or phone in the lockout window. */
+function recentFailures(key: string) {
+  return prisma.auditLog.count({ where: { action: "auth.login_failed", entityId: key, createdAt: { gte: new Date(Date.now() - LOCKOUT_MINUTES * 60_000) } } });
+}
+
 export const authOptions: NextAuthOptions = {
-  // No sign-out in the site: a person stays signed in on their device for a year, so a
-  // subscriber keeps their access. On a new device they enter their number again.
+  // Members stay signed in on their device for a year, so a subscriber keeps their access;
+  // on a new device they enter their number again. Staff sessions end after STAFF_SESSION_HOURS,
+  // and every session re-reads its role every few minutes (see the jwt callback).
   session: { strategy: "jwt", maxAge: 365 * 24 * 60 * 60 },
   pages: { signIn: "/login" },
   providers: [
@@ -40,12 +57,21 @@ export const authOptions: NextAuthOptions = {
         const id = parsed.data.identifier ?? parsed.data.email;
         if (!id) return null;
         const phone = id.includes("@") ? null : normalizePhone(id);
+        const key = (phone ?? id).toLowerCase();
+        // Too many wrong passwords recently: refuse without checking, so guessing is slow.
+        if ((await recentFailures(key)) >= MAX_FAILED_LOGINS) {
+          await audit(null, "auth.login_blocked", "login", key);
+          return null;
+        }
         const user = id.includes("@")
           ? await prisma.user.findUnique({ where: { email: id.toLowerCase() } })
           : phone ? await prisma.user.findUnique({ where: { phone } }) : null;
-        if (!user || !user.passwordHash || user.isSuspended) return null;
-        const ok = await bcrypt.compare(parsed.data.password, user.passwordHash);
-        if (!ok) return null;
+        const ok = Boolean(user?.passwordHash && !user.isSuspended && (await bcrypt.compare(parsed.data.password, user.passwordHash)));
+        if (!user || !ok) {
+          await audit(user?.id ?? null, "auth.login_failed", "login", key);
+          return null;
+        }
+        if (isStaffRole(user.role)) await audit(user.id, "auth.staff_login", "user", user.id);
         await prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } });
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
@@ -96,6 +122,25 @@ export const authOptions: NextAuthOptions = {
       } else if (user) {
         token.id = user.id;
         token.role = (user as unknown as { role: Role }).role;
+      }
+      const now = Date.now();
+      if (user) {
+        // Fresh sign-in: start the clocks.
+        token.checkedAt = now;
+        token.staffUntil = isStaffRole(token.role) ? now + STAFF_SESSION_HOURS * 3_600_000 : undefined;
+        return token;
+      }
+      if (!token.id) return token;
+      // A staff session past its working day is ended.
+      if (isStaffRole(token.role) && (!token.staffUntil || token.staffUntil < now)) return {};
+      // Every few minutes, re-read the account: a suspended or deleted account is signed out,
+      // and a role change (for example an admin made an editor) takes effect.
+      if (!token.checkedAt || now - token.checkedAt > RECHECK_MINUTES * 60_000) {
+        const u = await prisma.user.findUnique({ where: { id: token.id }, select: { role: true, isSuspended: true } });
+        if (!u || u.isSuspended) return {};
+        if (isStaffRole(u.role) && !isStaffRole(token.role)) return {}; // promoted to staff: sign in again at /login
+        token.role = u.role;
+        token.checkedAt = now;
       }
       return token;
     },

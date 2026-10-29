@@ -14,6 +14,7 @@ import { sendSms } from "./sms";
 const CODE_MINUTES = 10;
 const MAX_ATTEMPTS = 5;
 const RESEND_SECONDS = 30;
+const MAX_CODES_PER_HOUR = 5;
 
 const digits = (s: string) => s.replace(/\D/g, "");
 const testPhone = () => digits(process.env.OTP_TEST_PHONE ?? "");
@@ -41,9 +42,15 @@ export async function sendCode(raw: string): Promise<SendResult> {
   if (last && Date.now() - last.createdAt.getTime() < RESEND_SECONDS * 1000) {
     return { ok: false, error: "A code was just sent. Wait a few seconds before asking for another." };
   }
+  // At most MAX_CODES_PER_HOUR texts to one number, so the form can't be used to flood a phone.
+  const sentLastHour = await prisma.auditLog.count({ where: { action: "auth.code_sent", entityId: phone, createdAt: { gte: new Date(Date.now() - 3_600_000) } } });
+  if (sentLastHour >= MAX_CODES_PER_HOUR) {
+    return { ok: false, error: "Too many codes were requested for this number. Please try again in an hour." };
+  }
   const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
   const sent = await sendSms(phone, `Your BizSphere-Ug code is ${code}. It expires in ${CODE_MINUTES} minutes.`);
   if (!sent) return { ok: false, error: "We can't send text messages yet. Please try again later." };
+  await prisma.auditLog.create({ data: { action: "auth.code_sent", entityType: "phone", entityId: phone } });
   await prisma.phoneCode.deleteMany({ where: { phone } });
   await prisma.phoneCode.create({ data: { phone, codeHash: await bcrypt.hash(code, 10), expiresAt: new Date(Date.now() + CODE_MINUTES * 60_000) } });
   return { ok: true, phone, length: CODE_LENGTH };

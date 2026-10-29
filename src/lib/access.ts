@@ -45,9 +45,11 @@ export const getViewer = cache(async function getViewer(): Promise<Viewer> {
 
 export async function requireRole(roles: Role[]) {
   const session = await getSession();
-  // Staff sign in at their private link (/staff/<ADMIN_LOGIN_KEY>); don't point anyone else to a login page.
-  if (!session?.user || !roles.includes(session.user.role)) redirect("/");
-  return session.user;
+  // Not staff (signed out or a member): the staff sign-in at /login. Staff without this role: back to the admin home.
+  const role = session?.user?.role;
+  if (role !== "ADMIN" && role !== "EDITOR") redirect("/login?callbackUrl=%2Fadmin");
+  if (!roles.includes(role)) redirect("/admin");
+  return session!.user;
 }
 
 export const requireStaff = () => requireRole(["EDITOR", "ADMIN"]);

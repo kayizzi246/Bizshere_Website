@@ -4,6 +4,7 @@ import { ScrollEffects } from "@/components/ScrollEffects";
 import { NavProgress } from "@/components/NavProgress";
 import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { OnboardingGate } from "@/components/Onboarding";
+import { CookieNotice } from "@/components/CookieNotice";
 import { DIRECTORIES, PAID_PATHS } from "@/config/directories";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -32,6 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SiteFooter />
         <QuickLinks services={SERVICES} />
         <ServiceRail services={SERVICES} />
+        <CookieNotice />
       </div>
     </OnboardingGate>
   );
