@@ -29,7 +29,7 @@ export async function SiteHeader() {
     <>
     <TopBar />
     <header className="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-xl">
-      <div className="container-site relative flex h-[68px] items-center gap-4">
+      <div className="container-site relative flex h-[78px] items-center gap-4">
         <Logo full />
 
         <nav aria-label="Main" className="ml-auto hidden h-full items-center gap-3 lg:flex">

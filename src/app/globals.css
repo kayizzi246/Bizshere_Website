@@ -102,18 +102,6 @@
 .letter-out { animation: letter-out 0.4s cubic-bezier(0.6, 0, 0.8, 0.4) both; }
 @keyframes letter-out { to { opacity: 0; transform: translateY(-0.4em) rotateX(60deg); filter: blur(6px); } }
 
-/* Particles: rings, plus signs and squares drifting up on a diagonal, turning and
-   twinkling (src/components/Particles.tsx). No blur or shadow. */
-.particle { opacity: 0; animation: particle linear infinite; }
-@keyframes particle {
-  0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
-  12% { opacity: 0.7; }
-  35% { opacity: 0.35; }
-  55% { opacity: 0.75; }
-  80% { opacity: 0.3; }
-  100% { opacity: 0; transform: translate(40px, -150px) rotate(180deg); }
-}
-
 /* Floating Services button: an orange border that keeps travelling round the edge.
    A rotating conic gradient behind a 3px inset; no glow or shadow. */
 /* No position here: the element sets its own (the Services button is `fixed`), which also anchors ::before. */
@@ -201,7 +189,6 @@ select {
   .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
-  .particle { animation: none; opacity: 0.3; }
   .spin-border::before { animation: none; }
   .word-in, .letter-in { animation: none; }
   .letter-out { display: none; }

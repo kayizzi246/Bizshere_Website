@@ -10,7 +10,6 @@ import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { OnboardingGate } from "@/components/Onboarding";
-import { Particles } from "@/components/Particles";
 import { RotatingWord } from "@/components/RotatingWord";
 
 export const dynamic = "force-dynamic";
@@ -57,25 +56,16 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: the logo's blue. Headline, actions and search on the left; the video on the right
-          in a window frame (desktop only), with two small facts floating on its corners. ── */}
-      <section className="relative isolate overflow-hidden bg-brand text-white">
-        {/* Light from the top right, warm glow bottom left, deeper blue at the foot, drifting particles */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_85%_0%,rgba(255,255,255,0.26),transparent_70%),linear-gradient(to_bottom,transparent_50%,#005BA6)]" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 -z-10 h-80 w-80 rounded-full bg-accent/25 blur-[110px]" />
-        <Particles />
+      {/* ── Hero: deep navy with brand blue glowing up from the bottom-right corner. Big headline,
+          two actions on the left; one clean white card (video or example) on the right, desktop only. ── */}
+      <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_75%_at_100%_100%,#22B8DF_0%,#0072CE_38%,transparent_75%)]" />
 
-        <div className="container-site relative grid items-center gap-10 py-10 sm:py-12 lg:grid-cols-[1.15fr_1fr] lg:gap-12 lg:py-14">
-          <div className="hero-rise flex flex-col items-start gap-5">
-            {/* Announcement pill */}
-            <Link href="/search" className="group inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 py-1 pl-1 pr-3.5 text-xs font-medium text-white backdrop-blur hover:bg-white/15 hover:text-white">
-              <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-ink">New</span>
-              Search every directory with its own filters
-              <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
-            </Link>
-
+        {/* Full-screen on desktop: fills the viewport below the header (~120px) */}
+        <div className="container-site relative grid items-center gap-12 py-16 sm:py-20 lg:min-h-[calc(100svh-120px)] lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-24">
+          <div className="hero-rise flex flex-col items-start gap-7">
             {/* Inter Black (900): Manrope stops at 800. Words blur in one by one, then the verb keeps cycling. */}
-            <h1 className="font-sans text-[38px] font-black leading-[1.12] tracking-[-0.02em] text-white sm:text-[44px] lg:text-[40px] xl:text-[46px]">
+            <h1 className="font-sans text-[44px] font-black leading-[1.05] tracking-[-0.03em] text-white sm:text-[60px] lg:text-[64px] xl:text-[76px]">
               {["Plan,", "equip", "and"].map((w, n) => (
                 <span key={w} className="word-in inline-block" style={{ animationDelay: `${n * 110}ms` }}>{w}&nbsp;</span>
               ))}
@@ -83,57 +73,42 @@ export default async function HomePage() {
               <span className="word-in inline-block" style={{ animationDelay: "330ms" }}>
                 <span className="relative inline-block">
                   <RotatingWord words={["fund", "start", "grow", "launch"]} className="text-white" />
-                  {/* Orange on this blue is too faint for text, so the word is white with an orange underline */}
-                  <span aria-hidden className="absolute inset-x-0 -bottom-[0.04em] h-[0.12em] rounded-full bg-accent" />
+                  <span aria-hidden className="absolute inset-x-0 -bottom-[0.04em] h-[0.1em] rounded-full bg-accent" />
                 </span>&nbsp;
               </span>
-              {["your", "business"].map((w, n) => (
+              {["your", "business."].map((w, n) => (
                 <span key={w} className="word-in inline-block" style={{ animationDelay: `${440 + n * 110}ms` }}>{w}{n === 0 ? "\u00a0" : ""}</span>
               ))}
             </h1>
 
-            <p className="max-w-xl text-[15px] leading-relaxed text-white/90 sm:text-base">
+            <p className="max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
               Business ideas with start-up budgets, the machines to buy, where to buy them, who lends, and who can advise you. Written and checked for Uganda.
             </p>
 
-
-            <form action="/search" role="search" className="flex w-full max-w-xl items-center gap-2 rounded-xl bg-white p-1.5 pl-4 text-ink-muted ring-4 ring-white/15">
-              <Icon name="search" className="h-5 w-5 shrink-0" />
-              <label className="sr-only" htmlFor="hero-q">Search all directories</label>
-              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “maize mill” or “bakery”" className="min-h-[44px] w-full min-w-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-muted" />
-              <button className="btn-primary min-h-[44px] shrink-0 px-5">Search</button>
-            </form>
-
-            {/* Every directory as a small dotted chip */}
-            <ul aria-label="Directories" className="flex max-w-xl flex-wrap gap-2">
-              {DIRECTORIES.map((d) => (
-                <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex items-center gap-1.5 rounded-full border border-dotted border-white/60 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink">
-                    <Icon name={d.icon} className="h-3.5 w-3.5 text-white group-hover:text-ink" />
-                    {d.nav}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
+            <div className="flex flex-wrap gap-4">
+              <Link href="/signup" className="inline-flex min-h-[52px] items-center rounded-md bg-white px-6 text-base font-bold text-ink transition-colors hover:bg-accent hover:text-ink">Get started now</Link>
+              <Link href="/search" className="inline-flex min-h-[52px] items-center rounded-md border border-white px-6 text-base font-bold text-white transition-colors hover:bg-white/10 hover:text-white">Search directories</Link>
+            </div>
           </div>
 
           {/* Watch us: the live stream while we're live on YouTube, otherwise the latest video (set at /admin/video).
               Desktop only: on phones it pushed the directories below the fold. */}
-          <div id="watch" className="rise-late relative hidden scroll-mt-28 lg:block">
-            <div className="overflow-hidden rounded-2xl border border-white/25 bg-white/10 p-2 backdrop-blur">
-              {/* Window bar */}
-              <div className="flex items-center gap-3 px-3 pb-2.5 pt-1.5">
-                <span aria-hidden className="flex gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-white/40" /><span className="h-2.5 w-2.5 rounded-full bg-white/40" /><span className="h-2.5 w-2.5 rounded-full bg-white/40" /></span>
-                <span className="flex min-w-0 flex-1 items-center justify-center gap-2 text-xs font-medium text-white/85">
-                  {yt.video?.live ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-extrabold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
-                  ) : null}
-                  <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How BizSphere-Ug works")}</span>
+          <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center gap-6 lg:flex">
+            <div className="w-full max-w-xl rounded-2xl bg-white p-4 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center gap-3 pb-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
+                <span className="flex min-w-0 flex-1 flex-col leading-tight">
+                  <span className="flex items-center gap-2 text-sm font-bold text-heading">
+                    {yt.video?.live ? (
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-extrabold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
+                    ) : null}
+                    <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How BizSphere-Ug works")}</span>
+                  </span>
+                  <span className="text-xs text-ink-muted">BizSphere-Ug</span>
                 </span>
                 {yt.channelId ? (
-                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md bg-white px-2.5 py-1 text-[11px] font-semibold text-ink hover:bg-accent hover:text-ink">Subscribe</a>
-                ) : <span aria-hidden className="w-12" />}
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-md bg-heading px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand hover:text-white">Subscribe</a>
+                ) : null}
               </div>
               <div className={`relative aspect-video overflow-hidden rounded-xl ${yt.video ? "bg-black" : "bg-gradient-to-br from-[#EAF4FF] via-white to-[#FFF4EA]"}`}>
                 {yt.video ? (
@@ -144,14 +119,13 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Two true facts floating on the frame's corners */}
-            <div className="float absolute -bottom-12 -left-8 flex items-center gap-3 rounded-2xl border border-white/60 bg-white px-4 py-3 text-left text-ink">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name="files" className="h-5 w-5" /></span>
-              <span className="flex flex-col leading-tight"><strong className="font-sans text-lg font-black text-heading">{DIRECTORIES.length} directories</strong><span className="text-xs text-ink-muted">linked to each other</span></span>
+            {/* Status pill under the card */}
+            <div className="flex w-full max-w-md items-center gap-3 rounded-xl border border-white/50 bg-white/15 px-6 py-4 text-sm italic text-white backdrop-blur">
+              <span aria-hidden className="flex gap-1">
+                {[0, 200, 400].map((d) => <span key={d} className="live-dot h-1.5 w-1.5 rounded-full bg-white" style={{ animationDelay: `${d}ms` }} />)}
+              </span>
+              Linking the plan to machines, suppliers and funding…
             </div>
-            <span className="float-slow absolute -right-4 -top-6 rotate-[6deg] rounded-xl bg-accent px-3.5 py-2 text-center font-sans text-[13px] font-black leading-tight text-ink ring-4 ring-white/90">
-              Everything to start,<br />in one place
-            </span>
           </div>
         </div>
       </section>
@@ -161,10 +135,10 @@ export default async function HomePage() {
 
       {/* ── Directories ─────────────────────────────────── */}
       <section className="bg-white">
-        <div className="container-site flex flex-col gap-8 py-16">
+        <div className="container-site flex flex-col gap-10 py-20 lg:py-24">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <Heading title="What you'll find here" />
-            <p className="max-w-md text-sm leading-relaxed text-ink-muted lg:text-right">
+            <p className="max-w-md text-base leading-relaxed text-ink-muted sm:text-lg lg:text-right">
               The directories link to each other. Look up “bakery” and you get the plan, the oven, who sells flour and who lends.
             </p>
           </div>
@@ -172,23 +146,23 @@ export default async function HomePage() {
           <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
-              <Link key={d.href} href={d.href} data-onboard={onboard} className="group flex flex-col rounded-2xl border border-line bg-white p-6 text-ink transition-colors hover:border-brand hover:text-ink">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} className="h-5 w-5" strokeWidth={1.75} /></span>
-                <h3 className="mt-4 font-sans text-[22px] font-black leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
-                <p className="mb-4 mt-2 line-clamp-3 text-sm leading-relaxed text-ink-muted">{d.text}</p>
-                <span className="mt-auto text-[13px] font-semibold text-brand group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
+              <Link key={d.href} href={d.href} data-onboard={onboard} className="group flex flex-col rounded-2xl border border-line bg-white p-7 text-ink transition-colors hover:border-brand hover:text-ink">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} className="h-6 w-6" strokeWidth={1.75} /></span>
+                <h3 className="mt-5 font-sans text-[24px] font-black leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
+                <p className="mb-5 mt-2.5 line-clamp-3 text-[15px] leading-relaxed text-ink-muted">{d.text}</p>
+                <span className="mt-auto text-[15px] font-semibold text-brand group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
               </Link>
             ))}
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
             <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-8 text-white sm:col-span-2">
               <div className="flex flex-col gap-1">
-                <span className="font-display text-base font-extrabold">Looking for something specific?</span>
-                <span className="text-[13px] leading-relaxed text-white/70">Search by business, product or town.</span>
+                <span className="font-sans text-[24px] font-black tracking-[-0.02em]">Looking for something specific?</span>
+                <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
               </div>
               <label className="flex items-center gap-2 rounded-lg bg-white p-1.5 pl-3 text-ink-muted">
                 <Icon name="search" className="h-4 w-4 shrink-0" />
                 <span className="sr-only">Search all directories</span>
-                <input name="q" type="search" placeholder="e.g. maize mill" className="min-h-[44px] w-full min-w-0 bg-transparent text-sm text-ink outline-none placeholder:text-ink-muted" />
+                <input name="q" type="search" placeholder="e.g. maize mill" className="min-h-[48px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
                 <button className="btn min-h-[44px] shrink-0 bg-accent px-4 text-ink hover:bg-accent/90 hover:text-ink">Search</button>
               </label>
             </form>
@@ -202,12 +176,12 @@ export default async function HomePage() {
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
         <section className="bg-white">
-          <div className="container-site flex flex-col gap-8 py-16">
+          <div className="container-site flex flex-col gap-10 py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
                 <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
-                <h2 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[34px]">Recently reviewed</h2>
-                <p className="text-[15px] leading-relaxed text-ink-muted">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
+                <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">Recently reviewed</h2>
+                <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
               </div>
               <Link href="/guides" className="btn-outline min-h-[44px]">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
             </div>
@@ -222,8 +196,8 @@ export default async function HomePage() {
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
                 </span>
                 <span className="flex max-w-lg flex-col gap-4">
-                  <span className="font-sans text-[26px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[32px]">{lead.title}</span>
-                  {lead.shortSummary ? <span className="line-clamp-3 text-[15px] leading-relaxed text-white/90">{lead.shortSummary}</span> : null}
+                  <span className="font-sans text-[28px] font-black leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
+                  {lead.shortSummary ? <span className="line-clamp-3 text-base leading-relaxed text-white/90 sm:text-lg">{lead.shortSummary}</span> : null}
                   <span className="inline-flex w-fit items-center gap-2 rounded-[10px] bg-white px-4 py-2.5 text-sm font-semibold text-heading transition group-hover:bg-accent group-hover:text-ink">
                     Read the guide <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </span>
@@ -239,9 +213,9 @@ export default async function HomePage() {
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">{contentTypeLabel[g.contentType]}</span>
-                    <span className="font-sans text-[17px] font-black leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
+                    <span className="font-sans text-[19px] font-black leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
                   </span>
-                  <span className="flex items-center justify-between border-t border-line pt-3 text-[13px] font-semibold text-brand">
+                  <span className="flex items-center justify-between border-t border-line pt-3 text-[15px] font-semibold text-brand">
                     Read
                     <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
                   </span>
@@ -254,18 +228,18 @@ export default async function HomePage() {
 
       {/* ── FAQ: sticky intro with a contact card on the left; a numbered list that opens on the right ── */}
       <section className="border-t border-line bg-white">
-        <div className="container-site grid gap-8 py-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-12 lg:py-14">
+        <div className="container-site grid gap-10 py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
             <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
-            <h2 className="font-sans text-[26px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[30px]">Questions, answered</h2>
-            <p className="text-[14px] leading-relaxed text-ink-muted">Short answers about access, sources, prices and payment.</p>
+            <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">Questions, answered</h2>
+            <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Short answers about access, sources, prices and payment.</p>
             <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-page p-5">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
                 <span className="flex flex-col">
-                  <span className="font-sans text-[16px] font-bold text-heading">Still have a question?</span>
-                  <span className="text-[13px] text-ink-muted">Our team replies to every message.</span>
+                  <span className="font-sans text-[18px] font-bold text-heading">Still have a question?</span>
+                  <span className="text-[15px] text-ink-muted">Our team replies to every message.</span>
                 </span>
               </div>
               <Link href="/contact" className="btn-primary min-h-[44px]">Contact us <Icon name="arrow" className="h-4 w-4" /></Link>
@@ -277,12 +251,12 @@ export default async function HomePage() {
           <div className="flex flex-col gap-2">
             {FAQ.map(([q, a], n) => (
               <details key={q} open={n === 0} className="group rounded-xl border border-line bg-white px-4 transition-colors hover:border-brand/50 open:border-brand open:bg-brand-tint/50 sm:px-5 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center gap-3.5 py-3.5">
+                <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-sans text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-sans text-[15px] font-semibold leading-snug text-heading">{q}</span>
+                  <span className="flex-1 font-sans text-[17px] font-semibold leading-snug text-heading">{q}</span>
                   <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/30 text-lg font-medium leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
                 </summary>
-                <p className="pb-4 pl-[46px] pr-2 text-[14px] leading-relaxed text-ink-soft sm:pr-12">{a}</p>
+                <p className="pb-5 pl-[48px] pr-2 text-base leading-relaxed text-ink-soft sm:pr-12">{a}</p>
               </details>
             ))}
           </div>
@@ -296,8 +270,8 @@ export default async function HomePage() {
 function Heading({ title, text }: { title: string; text?: string }) {
   return (
     <div className="flex max-w-2xl flex-col gap-2">
-      <h2 className="text-lg font-extrabold tracking-tight text-heading sm:text-xl">{title}</h2>
-      {text ? <p className="text-[13px] leading-relaxed text-ink-muted">{text}</p> : null}
+      <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">{title}</h2>
+      {text ? <p className="text-base leading-relaxed text-ink-muted">{text}</p> : null}
     </div>
   );
 }

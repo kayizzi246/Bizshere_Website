@@ -137,7 +137,7 @@ export async function RecordPage({
       </div>
 
       {/* Section tabs: one pill bar that stays under the header */}
-      <nav aria-label="On this page" className="sticky top-[68px] z-30 border-b border-line bg-white/80 backdrop-blur-xl">
+      <nav aria-label="On this page" className="sticky top-[78px] z-30 border-b border-line bg-white/80 backdrop-blur-xl">
         <div className="container-site overflow-x-auto py-2.5 [scrollbar-width:none]">
           <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
             {tabs.map(([id, label]) => (
