@@ -52,20 +52,19 @@ export default async function HomePage() {
 
         <div className="container-site relative grid items-center gap-12 py-12 sm:py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
           <div className="hero-rise flex flex-col items-start gap-7">
-            {/* Inter Black (900): Manrope stops at 800. Words blur in one by one, then the verb keeps cycling. */}
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
-                "start" carries the orange underline. */}
-            <h1 className="font-sans text-[42px] font-black leading-[1.05] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[60px] xl:text-[68px]">
+                SaaS-style: bold (not black) with tight tracking, and "start" in an orange gradient. */}
+            <h1 className="font-sans text-[34px] font-bold leading-[1.08] tracking-[-0.035em] text-white sm:text-[44px] lg:text-[48px] xl:text-[54px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
                   {w === "start," ? (
-                    <span className="relative inline-block">start<span aria-hidden className="absolute inset-x-0 -bottom-[0.04em] h-[0.1em] rounded-full bg-accent" /></span>
+                    <span className="bg-gradient-to-r from-[#FFB45C] via-accent to-[#FF6A00] bg-clip-text text-transparent">start</span>
                   ) : w}{w === "start," ? "," : ""}{n < 8 ? " " : ""}
                 </span>
               ))}
             </h1>
 
-            <p className="max-w-xl text-[15px] leading-relaxed text-white/80 sm:text-base">
+            <p className="max-w-xl text-base leading-relaxed text-white/70 sm:text-[17px]">
               Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
