@@ -97,7 +97,8 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
       {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right */}
       <div ref={panel} className="onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full max-w-[960px] overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:grid-cols-[1fr_1.05fr] md:overflow-hidden md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
-        <div className="sticky top-0 z-10 col-span-full h-0 md:static md:col-auto">
+        {/* Desktop: positioned absolutely, so it is not a grid cell and the two panels keep their columns */}
+        <div className="sticky top-0 z-10 col-span-full h-0 md:absolute md:inset-x-0 md:top-0">
           <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink shadow-[0_4px_14px_rgba(7,26,51,0.25)] hover:bg-page md:shadow-none"><X className="h-5 w-5" /></button>
         </div>
 
@@ -109,7 +110,7 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
               <div className="flex flex-col gap-2">
                 <span className="hidden w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark sm:inline">Takes less than a minute</span>
                 <h2 id="onboard-title" className="font-sans text-[24px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[28px]">Create your account</h2>
-                <p className="text-sm leading-relaxed text-ink-muted sm:text-[15px]">Takes less than a minute: just your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
+                <p className="text-sm leading-relaxed text-ink-muted sm:text-[15px]"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
               </div>
               <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
