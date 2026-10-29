@@ -45,9 +45,9 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: brand blue gradient, lighter at the top left. Big headline, search, chips and
+      {/* ── Hero: solid deep navy. Big headline, search, chips and
           actions on the left; one clean white card (video or example) on the right, desktop only. ── */}
-      <section className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#0A74D0_0%,#0063B8_55%,#0057A6_100%)] text-white">
+      <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
 
         {/* Nearly full-screen on desktop: most of the viewport below the header (~120px) */}
         <div className="container-site relative grid items-center gap-12 py-12 sm:py-16 lg:min-h-[calc(88svh-120px)] lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
