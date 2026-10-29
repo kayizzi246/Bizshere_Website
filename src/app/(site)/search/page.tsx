@@ -262,7 +262,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
             </div>
           ) : null}
 
-          <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 xl:grid-cols-4">
             {rows.map((r) => <li key={r.id}><ResultCard r={r} member={viewer.isMember} saved={savedIds.has(r.id)} back={url([], p.page > 1 ? { page: String(p.page) } : {})} /></li>)}
           </ul>
 
@@ -351,9 +351,9 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
   ] as (string | null | undefined)[]).filter((f): f is string => Boolean(f));
 
   return (
-    <article className="card group flex h-full flex-col overflow-hidden transition-colors hover:border-brand/40">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface transition-colors sm:border sm:border-line sm:hover:border-brand/40">
       {/* Every card has a picture area, so the grid lines up: photo, expert portrait, or the directory icon */}
-      <Link href={href} tabIndex={-1} aria-hidden className="relative block overflow-hidden border-b border-line">
+      <Link href={href} tabIndex={-1} aria-hidden className="relative block overflow-hidden sm:border-b sm:border-line">
         {photo ? (
           <span className="flex aspect-[16/10] items-center justify-center bg-accent-tint">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -366,7 +366,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
         )}
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2.5 sm:gap-1 sm:p-3">
         <span className={`font-display text-[10px] font-extrabold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
         <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
         {check && (r.supplier || r.consultant) ? <span className="badge-ok self-start whitespace-normal"><Icon name="check" className="h-3 w-3 shrink-0" />Contact checked {date(check.checkedAt)}</span> : null}
@@ -381,7 +381,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
         {r.supplier ? <Contact label="Phone" value={member ? r.supplier.phone : null} fake="+256 7•• ••• •••" href={href} /> : null}
         {r.consultant ? <Contact label="Email" value={member ? r.consultant.email : null} fake="name@example.co.ug" href={href} /> : null}
 
-        <div className="mt-auto flex items-center gap-2 pt-1.5">
+        <div className="mt-auto flex items-center gap-1.5 pt-2 sm:gap-2">
           <Link href={href} className="btn-primary min-h-[38px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
           <SaveButton id={r.id} back={back} saved={saved} action={toggleSave} />
         </div>

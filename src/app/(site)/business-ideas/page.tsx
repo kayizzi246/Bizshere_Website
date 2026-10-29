@@ -28,10 +28,11 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
   return (
     <>
-      <ListingHeader icon="idea" title={d.title} intro={d.text} count={items.length} searching={search.active} unit={["plan", "plans"]} />
-      <div className="bg-white">
-        <div className="container-site flex flex-col gap-6 py-6 sm:py-8">
-          <ServiceSearch path="/business-ideas" label="business ideas" q={search.q} filters={search.filters} values={search.values} count={items.length} />
+      <ListingHeader icon="idea" title={d.title} intro={d.text} count={items.length} searching={search.active} unit={["plan", "plans"]}>
+        <ServiceSearch path="/business-ideas" label="business ideas" q={search.q} filters={search.filters} values={search.values} count={items.length} />
+      </ListingHeader>
+      <div className="bg-page">
+        <div className="container-site flex flex-col gap-6 py-8 sm:py-10">
 
           {items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">

@@ -33,7 +33,7 @@ export function ChildSections({ sections, gated, back }: { sections: Awaited<Ret
     <>
       {sections.map(({ table, rows }) => (
         <section key={table.key} id={`c-${table.key}`} className="flex scroll-mt-36 flex-col gap-3">
-          <h2 className="text-base font-extrabold text-heading">{table.label}</h2>
+          <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">{table.label}</h2>
           {table.layout === "steps" ? <Steps table={table} rows={rows} />
             : table.layout === "gallery" ? <Gallery rows={rows} gated={gated} back={back} />
             : (
@@ -70,7 +70,7 @@ function Card({ table, row, gated, back }: { table: ChildTable; row: Row; gated:
           {short.map((f) => (
             <div key={f.name} className="flex min-w-0 flex-col">
               <dt className="text-[11px] text-ink-muted">{f.label}</dt>
-              <dd className="break-words text-[13px] font-semibold text-ink">{gated && f.member ? <Locked back={back} /> : <Value f={f} v={row[f.name]} currency={currency} />}</dd>
+              <dd className="break-words text-[13px] font-semibold text-ink">{gated && f.member ? <Locked back={back} /> : <Value f={f} v={row[f.name]} row={row} currency={currency} />}</dd>
             </div>
           ))}
         </dl>
@@ -137,11 +137,16 @@ function Gallery({ rows, gated, back }: { rows: Row[]; gated: boolean; back: str
 
 const filled = (v: unknown) => v !== null && v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0);
 
-function Value({ f, v, currency }: { f: ChildField; v: unknown; currency: string }) {
+function Value({ f, v, row, currency }: { f: ChildField; v: unknown; row: Row; currency: string }) {
   if (typeof v === "boolean") return <>{v ? "Yes" : "No"}</>;
   if (v instanceof Date) return <>{date(v)}</>;
   if (Array.isArray(v)) return <>{v.join(", ")}</>;
-  if (f.kind === "ref") return <>{String(v)}</>;
+  if (f.kind === "ref") {
+    // A linked record (district, machine, supplier...): show its name, never the raw id.
+    const l = refLabel(f, row);
+    if (!l?.label) return <span className="font-normal text-ink-muted">Not added yet</span>;
+    return l.href ? <Link href={l.href}>{l.label}</Link> : <>{l.label}</>;
+  }
   if (f.kind === "url") {
     const href = String(v);
     return <a href={href} target="_blank" rel="noopener noreferrer" className="break-all">{f.name === "applicationUrl" ? "Apply ↗" : f.name === "quotationUrl" ? "View quotation ↗" : href.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>;

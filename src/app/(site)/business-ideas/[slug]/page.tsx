@@ -89,7 +89,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
       <article className="bg-page pb-6">
         {/* ── Header band: deep navy like the homepage hero. Title, summary and the unlock box on the left; photo on the right ── */}
         <header className="bg-[#071A33] text-white">
-          <div className="container-site grid gap-10 pb-20 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:pb-24 lg:pt-10">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] gap-10 pb-20 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:pb-24 lg:pt-10">
             <div className="flex flex-col gap-6">
               <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/60">
                 <Link href="/" className="text-white/60 hover:text-white">Home</Link>
@@ -185,7 +185,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </div>
         </nav>
 
-        <div className="container-site grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-10">
+        <div className="container-site grid grid-cols-[minmax(0,1fr)] gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-10">
           <div className="flex min-w-0 flex-col gap-6">
             {item.overview ? (
               <Section n={num("overview")} id="overview" title="Overview">

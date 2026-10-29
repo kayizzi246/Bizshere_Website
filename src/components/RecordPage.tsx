@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, LockKeyhole } from "lucide-react";
+import { BadgeCheck, Globe, LockKeyhole, Mail, Phone } from "lucide-react";
 import type { ContentType } from "@prisma/client";
 import type { Viewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { cachedMemberPlan } from "@/lib/cached";
 import { date, money } from "@/lib/format";
 import { DIRECTORIES } from "@/config/directories";
-import { Connected, Crumbs, Evidence } from "./DetailParts";
+import { Connected, Evidence } from "./DetailParts";
 import { FieldSections, visibleGroups } from "./FieldSections";
 import { ChildSections, loadChildSections } from "./ChildSections";
 import { Icon } from "./Icon";
@@ -96,65 +96,70 @@ export async function RecordPage({
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
-      {/* ── 1–2. Identity and key facts ── */}
-      <div className="relative overflow-hidden border-b border-line bg-white">
-        {/* Soft brand glow, top right */}
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[420px] w-[420px] rounded-full bg-brand-tint blur-3xl" />
-        <div className="container-site relative flex flex-col gap-7 py-8 lg:py-12">
-          <Crumbs trail={[trail]} title={title} />
-          <header className={`grid gap-8 lg:items-start ${picture ? "lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]" : "lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"}`}>
+      {/* ── 1–2. Identity and key facts: a deep navy band like the homepage hero. Title and
+          access on the left; the photo (or, without one, the key facts) on the right. ── */}
+      <header className="bg-[#071A33] text-white">
+        <div className="container-site flex flex-col gap-7 py-8 lg:py-12">
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/60">
+            <Link href="/" className="text-white/60 hover:text-white">Home</Link>
+            <span aria-hidden>/</span>
+            <Link href={trail[0]} className="text-white/60 hover:text-white">{trail[1]}</Link>
+            <span aria-hidden>/</span>
+            <span className="max-w-[32ch] truncate text-white/90">{title}</span>
+          </nav>
+
+          <div className={`grid grid-cols-[minmax(0,1fr)] gap-8 lg:items-center lg:gap-12 ${picture ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]"}`}>
+            <div className="flex min-w-0 flex-col gap-5">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
+                {eyebrow}
+              </span>
+              <h1 className="font-sans text-[32px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[44px]">{title}</h1>
+              {brief ? <p className="max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg">{brief}</p> : null}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
+                <span className="rounded-full border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white/60">{ref}</span>
+                {viewer.isMember ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 font-bold text-ink"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span>
+                ) : null}
+              </div>
+              {locked ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center gap-2 rounded-lg bg-white px-6 text-sm font-bold text-ink hover:bg-accent hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock full details</Link>
+                  <span className="text-xs text-white/60">{planInfo.monthly ? `${planInfo.monthly} a month · ` : ""}MoMo, Airtel Money or card</span>
+                </div>
+              ) : null}
+            </div>
+
             {picture ? (
               <figure className="flex flex-col gap-2">
                 {/* External image URLs entered by editors; no Next image domain list to maintain. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={picture} alt={title} className="aspect-[4/3] w-full rounded-2xl border border-line bg-page object-cover" />
-                {pictureCredit ? <figcaption className="text-xs text-ink-muted">{pictureCredit}</figcaption> : null}
+                <img src={picture} alt={title} className="aspect-[4/3] w-full rounded-3xl border border-white/10 bg-white/5 object-cover shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]" />
+                {pictureCredit ? <figcaption className="text-xs text-white/50">{pictureCredit}</figcaption> : null}
               </figure>
-            ) : null}
-
-            <div className="flex min-w-0 flex-col gap-5">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-brand/15 bg-brand-tint py-1 pl-1.5 pr-3 text-xs font-semibold text-brand-dark">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-brand"><Icon name={icon} className="h-3 w-3" /></span>
-                {eyebrow}
-              </span>
-              <h1 className="font-sans text-[30px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[38px]">{title}</h1>
-              {brief ? <p className="max-w-2xl text-base leading-relaxed text-ink-soft">{brief}</p> : null}
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand" />Reviewed {date(item.lastReviewedAt)}</span>
-                <span className="rounded-full border border-line bg-white px-2.5 py-1 font-mono text-[11px] text-ink-muted">{ref}</span>
-                {viewer.isMember ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand px-2.5 py-1 font-semibold text-white"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span>
-                ) : locked ? (
-                  <Link href={back} data-onboard="" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 font-semibold text-ink hover:bg-brand-deep hover:text-white"><LockKeyhole aria-hidden className="h-3 w-3" />Unlock full details</Link>
-                ) : null}
-              </div>
-              {picture && rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
-            </div>
-
-            {!picture && rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
-          </header>
-        </div>
-      </div>
-
-      {/* Section tabs: one pill bar that stays under the header */}
-      <nav aria-label="On this page" className="sticky top-[78px] z-30 border-b border-line bg-white/80 backdrop-blur-xl">
-        <div className="container-site overflow-x-auto py-2.5 [scrollbar-width:none]">
-          <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
-            {tabs.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium text-ink-soft transition-colors hover:bg-white hover:text-heading">{label}</a>
-            ))}
+            ) : rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
           </div>
+        </div>
+      </header>
+
+      {/* Section tabs: stay under the site header while reading */}
+      <nav aria-label="On this page" className="sticky top-[78px] z-30 border-b border-line bg-white/90 backdrop-blur-xl">
+        <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
+          {tabs.map(([id, label]) => (
+            <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
+          ))}
         </div>
       </nav>
 
-      <div className="bg-white"><div className="container-site grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div className="bg-page"><div className="container-site grid grid-cols-[minmax(0,1fr)] gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8 lg:py-10">
         <div className="flex min-w-0 flex-col gap-6">
           {/* ── 3. Practical detail ── */}
           {shownTexts.length || children ? (
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                  <h2 className="text-base font-extrabold text-heading">{t.label}</h2>
+                  <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -185,6 +190,7 @@ export async function RecordPage({
             header, and connected resources stay at the end. */}
         <aside className="contents lg:sticky lg:top-36 lg:flex lg:flex-col lg:gap-4 lg:self-start">
           <div className="order-first flex flex-col gap-4 lg:order-none">
+          {picture && rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
           {product ? <ProductCard product={product} back={back} price={planInfo.monthly} /> : null}
 
           {locked && !product ? (
@@ -199,18 +205,31 @@ export async function RecordPage({
           ) : null}
 
           {contact !== undefined ? (
-            <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
-              <h2 className="font-display text-sm font-bold text-heading">Contact</h2>
+            <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-sans text-lg font-black text-heading">Contact</h2>
+                {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
+              </div>
               {contact === "locked" ? (
-                <div className="flex flex-col gap-2 text-sm text-ink-muted">
-                  <span>Email and phone are shown to members.</span>
-                  {unlock("Unlock contact details", "text-sm")}
-                </div>
+                <>
+                  {/* Placeholder rows, blurred: no real contact detail is sent to visitors */}
+                  <div aria-hidden className="flex flex-col gap-2">
+                    <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value="name@example.co.ug" blurred />
+                    <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value="+256 7•• ••• •••" blurred />
+                  </div>
+                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock contact details</Link>
+                </>
+              ) : contact.email || contact.phone || contact.website ? (
+                <>
+                  <div className="flex flex-col gap-2">
+                    {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
+                    {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
+                    {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
+                  </div>
+                  <p className="text-xs leading-relaxed text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
+                </>
               ) : (
-                <div className="flex flex-col gap-2 text-sm">
-                  <ContactLine label="Email" value={contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : null} />
-                  <ContactLine label="Phone" value={contact.phone ? <a href={`tel:${contact.phone.replace(/\s/g, "")}`}>{contact.phone}</a> : null} />
-                </div>
+                <p className="text-sm text-ink-muted">Contact details not added yet.</p>
               )}
             </section>
           ) : null}
@@ -256,6 +275,27 @@ export async function RecordPage({
             </div>
           </div>
         </>
+      ) : contact !== undefined && (contact === "locked" || contact.phone || contact.email) ? (
+        // Phones: getting in touch stays one tap away at the bottom of the screen.
+        <>
+          <div aria-hidden className="h-24 lg:hidden" />
+          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_-20px_rgba(7,26,51,0.35)] backdrop-blur-xl lg:hidden">
+            <div className="flex items-center gap-3">
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Contact</span>
+                <span className="truncate text-[13px] font-semibold text-heading">{title}</span>
+              </span>
+              {contact === "locked" ? (
+                <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock contact</Link>
+              ) : (
+                <span className="flex shrink-0 gap-2">
+                  {contact.phone ? <a href={`tel:${contact.phone.replace(/\s/g, "")}`} className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Call</a> : null}
+                  {contact.email ? <a href={`mailto:${contact.email}`} aria-label="Email" className={`inline-flex h-11 items-center gap-2 rounded-xl border border-line-strong text-sm font-bold text-heading hover:border-brand hover:text-brand ${contact.phone ? "w-11 justify-center" : "px-4"}`}><Mail aria-hidden className="h-4 w-4" />{contact.phone ? null : "Email"}</a> : null}
+                </span>
+              )}
+            </div>
+          </div>
+        </>
       ) : null}
     </OnboardingGate>
   );
@@ -264,8 +304,8 @@ export async function RecordPage({
 /** "At a glance": the client's main fields as label/value rows. */
 function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, cls?: string) => React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-line bg-white/80 p-6 backdrop-blur">
-      <span className="mb-2 text-[11px] font-bold uppercase tracking-widest text-ink-muted">At a glance</span>
+    <div className="flex flex-col rounded-2xl border border-line bg-white p-6 text-ink shadow-[0_20px_50px_-24px_rgba(7,26,51,0.45)]">
+      <span className="mb-2 font-sans text-base font-black text-heading">At a glance</span>
       <dl className="flex flex-col divide-y divide-line">
         {rows.map((r) => (
           <div key={r.label} className="flex items-start justify-between gap-6 py-3">
@@ -280,13 +320,22 @@ function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, c
   );
 }
 
-function ContactLine({ label, value }: { label: string; value?: React.ReactNode }) {
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5">
-      <span className="text-ink-muted">{label}</span>
-      {value ? <span className="font-semibold">{value}</span> : <span className="text-ink-muted">Not added yet</span>}
-    </div>
+/** One way to get in touch: icon tile, label and value; the whole row is the link. */
+function ContactRow({ icon, label, value, href, external, blurred }: { icon: React.ReactNode; label: string; value: string; href?: string; external?: boolean; blurred?: boolean }) {
+  const body = (
+    <>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white">{icon}</span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="text-[11px] font-medium text-ink-muted">{label}</span>
+        <span className={`truncate text-sm font-semibold text-heading ${blurred ? "select-none blur-[5px]" : ""}`}>{value}</span>
+      </span>
+      {href ? <span aria-hidden className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand">→</span> : null}
+    </>
   );
+  const cls = "group flex items-center gap-3 rounded-xl border border-line p-3 text-ink";
+  return href ? (
+    <a href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={`${cls} hover:border-brand hover:text-ink`}>{body}</a>
+  ) : <div className={cls}>{body}</div>;
 }
 
 /** Small helpers pages use to format field values. */

@@ -40,10 +40,11 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
 
   return (
     <>
-      <ListingHeader icon={icon} title={title} intro={intro} tabs={tabs} active={active} count={items.length} searching={search.active} />
-      <div className="bg-white">
-        <div className="container-site flex flex-col gap-6 py-6 sm:py-8">
-          <ServiceSearch path={path} label={title} q={search.q} filters={search.filters} values={search.values} count={items.length} />
+      <ListingHeader icon={icon} title={title} intro={intro} tabs={tabs} active={active} count={items.length} searching={search.active}>
+        <ServiceSearch path={path} label={title} q={search.q} filters={search.filters} values={search.values} count={items.length} />
+      </ListingHeader>
+      <div className="bg-page">
+        <div className="container-site flex flex-col gap-6 py-8 sm:py-10">
 
           {items.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
@@ -111,8 +112,11 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   );
 }
 
-/** Page header for a directory: section tabs, icon, title, intro and the number of listings. */
-export function ListingHeader({ icon, title, intro, tabs, active, count, searching = false, unit }: {
+/**
+ * Page header for a directory: a deep navy band (like the homepage hero and the Experts page)
+ * with section tabs, the number of listings, title, intro and, as `children`, the search.
+ */
+export function ListingHeader({ icon, title, intro, tabs, active, count, searching = false, unit, children }: {
   icon: string;
   title: string;
   intro: string;
@@ -121,33 +125,32 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
   count: number;
   searching?: boolean;
   unit?: [string, string];
+  /** The directory's search form, shown in the band. */
+  children?: React.ReactNode;
 }) {
   const [one, many] = unit ?? ["listing", "listings"];
   return (
-    <div className="relative overflow-hidden border-b border-line bg-white">
-      <div aria-hidden className="pointer-events-none absolute -right-40 -top-48 h-[420px] w-[420px] rounded-full bg-brand-tint blur-3xl" />
-      <div className="container-site relative flex flex-col gap-5 py-7 sm:py-10">
+    <header className="bg-[#071A33] text-white">
+      <div className="container-site flex flex-col gap-6 py-9 sm:py-12">
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
-            <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
+            <div className="inline-flex gap-0.5 rounded-full border border-white/15 bg-white/[0.06] p-1">
               {tabs.map(([href, label]) => (
-                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-heading ring-1 ring-line" : "font-medium text-ink-soft hover:text-heading"}`}>{label}</Link>
+                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{label}</Link>
               ))}
             </div>
           </nav>
         ) : null}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex max-w-2xl flex-col gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand text-white"><Icon name={icon} className="h-5 w-5" /></span>
-            <h1 className="font-sans text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-heading sm:text-[36px]">{title}</h1>
-            <p className="text-[15px] leading-relaxed text-ink-muted">{intro}</p>
-          </div>
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-[13px] text-ink-soft">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <strong className="font-semibold text-ink">{count}</strong> {count === 1 ? one : many}{searching ? " found" : ""}
+        <div className="flex max-w-3xl flex-col gap-3">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
+            {count} {count === 1 ? one : many}{searching ? " found" : ""}
           </span>
+          <h1 className="font-sans text-[32px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[46px]">{title}</h1>
+          <p className="text-base leading-relaxed text-white/75 sm:text-lg">{intro}</p>
         </div>
+        {children ? <div className="max-w-4xl">{children}</div> : null}
       </div>
-    </div>
+    </header>
   );
 }

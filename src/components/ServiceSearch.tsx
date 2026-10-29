@@ -31,7 +31,7 @@ export function ServiceSearch({ path, label, q, filters, values, count }: {
   const toggle = `filters-${path.replace(/\W/g, "")}`;
 
   return (
-    <form action={path} role="search" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-3 sm:p-4">
+    <form action={path} role="search" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-3 text-ink shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] sm:p-4">
       <AutoSubmit />
       <div className="flex items-center gap-2">
         <label className="flex min-h-[46px] min-w-0 flex-1 items-center gap-2.5 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-white">

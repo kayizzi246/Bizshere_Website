@@ -95,18 +95,21 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8" onClick={onClose}>
       {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right */}
-      <div ref={panel} className="onboard-pop relative grid w-full max-w-[960px] overflow-hidden rounded-t-3xl bg-white md:grid-cols-[1fr_1.05fr] md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
-        <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink-muted hover:bg-page hover:text-ink"><X className="h-5 w-5" /></button>
+      <div ref={panel} className="onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full max-w-[960px] overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:grid-cols-[1fr_1.05fr] md:overflow-hidden md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
+        <div className="sticky top-0 z-10 col-span-full h-0 md:static md:col-auto">
+          <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink shadow-[0_4px_14px_rgba(7,26,51,0.25)] hover:bg-page md:shadow-none"><X className="h-5 w-5" /></button>
+        </div>
 
         <WhyPanel plan={plan} />
 
-        <div className="flex flex-col justify-center px-6 pb-8 pt-7 sm:px-10 md:py-12">
+        <div className="flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-10 sm:pb-8 sm:pt-7 md:py-12">
           {step === "account" ? (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5 sm:gap-6">
               <div className="flex flex-col gap-2">
-                <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark">Takes less than a minute</span>
-                <h2 id="onboard-title" className="font-sans text-[28px] font-black leading-[1.1] tracking-[-0.02em] text-heading">Create your account</h2>
-                <p className="text-[15px] leading-relaxed text-ink-muted">Just your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
+                <span className="hidden w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark sm:inline">Takes less than a minute</span>
+                <h2 id="onboard-title" className="font-sans text-[24px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[28px]">Create your account</h2>
+                <p className="text-sm leading-relaxed text-ink-muted sm:text-[15px]">Takes less than a minute: just your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
               </div>
               <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
@@ -129,10 +132,10 @@ const WHY = [
 /** Left panel: why an account and membership are worth it. Navy like the hero; trimmed on phones. */
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
-    <div className="relative isolate overflow-hidden bg-[#071A33] px-6 pb-6 pt-8 text-white sm:px-10 md:py-12">
+    <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-10 sm:pb-6 sm:pt-8 md:py-12 md:pr-10">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_100%,#22B8DF_0%,#0072CE_40%,transparent_80%)] opacity-80" />
       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold"><Sparkles aria-hidden className="h-3.5 w-3.5 text-accent" />Full access</span>
-      <p className="mt-4 font-sans text-[26px] font-black leading-[1.1] tracking-[-0.02em] md:text-[34px]">Start your business with the full picture</p>
+      <p className="mt-3 font-sans text-[20px] font-black leading-[1.15] tracking-[-0.02em] sm:mt-4 sm:text-[26px] md:text-[34px]">Start your business with the full picture</p>
       <p className="mt-3 hidden text-[15px] leading-relaxed text-white/80 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
       <ul className="mt-6 hidden flex-col gap-4 sm:flex">
         {WHY.map((w) => (
@@ -145,8 +148,8 @@ function WhyPanel({ plan }: { plan: Plan }) {
           </li>
         ))}
       </ul>
-      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/15 pt-5 text-[13px] text-white/80">
-        {plan.monthly ? <span><strong className="text-lg font-black text-white">{plan.monthly}</strong> / month</span> : null}
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-white/80 sm:mt-6 sm:border-t sm:border-white/15 sm:pt-5 sm:text-[13px]">
+        {plan.monthly ? <span><strong className="text-base font-black text-white sm:text-lg">{plan.monthly}</strong> / month</span> : null}
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />Cancel any time</span>
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />MoMo, Airtel or card</span>
       </div>
@@ -226,7 +229,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <h2 id="onboard-title" className="font-sans text-[28px] font-black leading-[1.1] tracking-[-0.02em] text-heading">Unlock full access</h2>
+        <h2 id="onboard-title" className="font-sans text-[24px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[28px]">Unlock full access</h2>
         <p className="text-[15px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
       </div>
 

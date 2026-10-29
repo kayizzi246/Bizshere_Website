@@ -97,7 +97,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-sm text-ink-muted">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-extrabold text-heading">Sources and checks</h2>
+        <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">Sources and checks</h2>
         {nextReviewDueAt && nextReviewDueAt < new Date()
           ? <span className="rounded-full bg-warn-bg px-2.5 py-1 text-xs font-semibold text-warn-fg">Review overdue</span>
           : <span className="rounded-full bg-brand-tint px-2.5 py-1 text-xs font-semibold text-brand-dark">Up to date</span>}
