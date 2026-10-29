@@ -13,16 +13,21 @@ import { PhoneSignIn } from "./PhoneSignIn";
  * Wrap any content with <OnboardingGate>. Links inside it marked `data-onboard`
  * open the pop-up instead of navigating, unless the viewer already has full access.
  * The link still works normally without JavaScript or when opened in a new tab.
+ *
+ * With `paths` (the site-wide gate in the (site) layout), it instead catches every link into
+ * those paths, wherever it sits: header, footer, chips, cards, search results. Links marked
+ * `data-onboard` are left to the page's own gate so only one pop-up opens.
  */
 type Plan = { name: string; monthly: string | null; yearly: string | null };
 type Step = "account" | "pay" | "done";
 
-export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan }: {
+export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan, paths }: {
   children: React.ReactNode;
   signedIn: boolean;
   isMember: boolean;
   googleEnabled: boolean;
   plan: Plan;
+  paths?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("account");
@@ -30,23 +35,30 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
 
   const onClickCapture = (e: React.MouseEvent) => {
     if (isMember || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    const a = (e.target as Element).closest<HTMLAnchorElement>("a[data-onboard]");
-    if (!a) return;
+    const a = (e.target as Element).closest<HTMLAnchorElement>("a[href]");
+    if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+    if (paths) {
+      if (a.hasAttribute("data-onboard")) return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || !paths.some((p) => url.pathname === p || url.pathname.startsWith(`${p}/`))) return;
+    } else if (!a.hasAttribute("data-onboard")) return;
     e.preventDefault();
     setNext(a.getAttribute("href") ?? "/");
     setStep(signedIn ? "pay" : "account");
     setOpen(true);
   };
 
-  // Coming back from Google sign-in: carry on at the payment step.
+  // Coming back from Google sign-in: carry on at the payment step. Only the site-wide gate
+  // does this, so pages with their own gate don't open a second pop-up.
   useEffect(() => {
+    if (!paths) return;
     const q = new URLSearchParams(window.location.search);
     if (q.get("onboard") !== "pay") return;
     const target = q.get("next");
     setNext(target && target.startsWith("/") ? target : "/");
     window.history.replaceState(null, "", window.location.pathname);
     if (!isMember) { setStep("pay"); setOpen(true); }
-  }, [isMember]);
+  }, [isMember, paths]);
 
   return (
     <div onClickCapture={onClickCapture}>

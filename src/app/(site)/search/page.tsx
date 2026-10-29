@@ -250,7 +250,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
             </div>
           ) : null}
 
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
             {rows.map((r) => <li key={r.id}><ResultCard r={r} member={viewer.isMember} saved={savedIds.has(r.id)} back={url([], p.page > 1 ? { page: String(p.page) } : {})} /></li>)}
           </ul>
 
@@ -343,18 +343,18 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
       {/* Every card has a picture area, so the grid lines up: photo, expert portrait, or the directory icon */}
       <Link href={href} tabIndex={-1} aria-hidden className="relative block overflow-hidden border-b border-line">
         {photo ? (
-          <span className="flex aspect-[4/3] items-center justify-center bg-accent-tint">
+          <span className="flex aspect-[16/10] items-center justify-center bg-accent-tint">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo} alt="" loading="lazy" className="h-[56%] w-auto rounded-full border-4 border-white object-cover" style={{ aspectRatio: "1" }} />
           </span>
         ) : picture || r.businessIdea || m ? (
-          <IdeaPhoto src={picture} alt="" className="aspect-[4/3] transition duration-500 group-hover:scale-[1.03]" />
+          <IdeaPhoto src={picture} alt="" className="aspect-[16/10] transition duration-500 group-hover:scale-[1.03]" />
         ) : (
-          <span className={`flex aspect-[4/3] items-center justify-center ${LABEL_TONE[r.contentType] ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><Icon name={ICON[r.contentType] ?? "link"} className="h-9 w-9 sm:h-11 sm:w-11" strokeWidth={1.5} /></span>
+          <span className={`flex aspect-[16/10] items-center justify-center ${LABEL_TONE[r.contentType] ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><Icon name={ICON[r.contentType] ?? "link"} className="h-9 w-9 sm:h-11 sm:w-11" strokeWidth={1.5} /></span>
         )}
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3 sm:p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3">
         <span className={`font-display text-[10px] font-extrabold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
         <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
         {check && (r.supplier || r.consultant) ? <span className="badge-ok self-start whitespace-normal"><Icon name="check" className="h-3 w-3 shrink-0" />Contact checked {date(check.checkedAt)}</span> : null}
@@ -369,8 +369,8 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
         {r.supplier ? <Contact label="Phone" value={member ? r.supplier.phone : null} fake="+256 7•• ••• •••" href={href} /> : null}
         {r.consultant ? <Contact label="Email" value={member ? r.consultant.email : null} fake="name@example.co.ug" href={href} /> : null}
 
-        <div className="mt-auto flex items-center gap-2 pt-2">
-          <Link href={href} className="btn-primary min-h-[40px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
+        <div className="mt-auto flex items-center gap-2 pt-1.5">
+          <Link href={href} className="btn-primary min-h-[38px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
           <SaveButton id={r.id} back={back} saved={saved} action={toggleSave} />
         </div>
       </div>

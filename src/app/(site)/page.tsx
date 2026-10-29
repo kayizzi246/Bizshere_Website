@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { cachedMemberPlan, cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
+import { cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
-import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
+import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { getViewer } from "@/lib/access";
-import { googleEnabled } from "@/lib/auth";
-import { OnboardingGate } from "@/components/Onboarding";
 import { RotatingWord } from "@/components/RotatingWord";
 
 export const dynamic = "force-dynamic";
@@ -38,20 +36,12 @@ const FAQ: [string, string][] = [
 ];
 
 export default async function HomePage() {
-  const [viewer, memberPlan, guides, updates, yt] = await Promise.all([
+  const [viewer, guides, updates, yt] = await Promise.all([
     getViewer(),
-    cachedMemberPlan(),
     cachedRecentGuides(),
     cachedSiteUpdates(),
     homeVideo(),
   ]);
-  // Directory cards open the onboarding pop-up (sign up → pay) for anyone without full access.
-  const onboard = viewer.isMember ? undefined : "";
-  const plan = {
-    name: memberPlan?.name ?? "Member",
-    monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
-    yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
-  };
   const [lead, ...more] = guides;
 
   return (
@@ -85,7 +75,26 @@ export default async function HomePage() {
               Business ideas with start-up budgets, the machines to buy, where to buy them, who lends, and who can advise you. Written and checked for Uganda.
             </p>
 
-            <div className="flex flex-wrap gap-4">
+            <form action="/search" role="search" className="flex w-full max-w-2xl items-center gap-2 rounded-xl bg-white p-2 pl-5 text-ink-muted ring-4 ring-white/10">
+              <Icon name="search" className="h-5 w-5 shrink-0" />
+              <label className="sr-only" htmlFor="hero-q">Search all directories</label>
+              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “maize mill” or “bakery”" className="min-h-[52px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
+              <button className="btn-primary min-h-[52px] shrink-0 px-7 text-base">Search</button>
+            </form>
+
+            {/* Every directory as a dotted chip */}
+            <ul aria-label="Directories" className="-mt-1 flex max-w-2xl flex-wrap gap-2">
+              {DIRECTORIES.map((d) => (
+                <li key={d.href}>
+                  <Link href={d.href} className="group inline-flex items-center gap-1.5 rounded-full border border-dotted border-white/60 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink">
+                    <Icon name={d.icon} className="h-4 w-4 text-white group-hover:text-ink" />
+                    {d.nav}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-1 flex flex-wrap gap-4">
               <Link href="/signup" className="inline-flex min-h-[52px] items-center rounded-md bg-white px-6 text-base font-bold text-ink transition-colors hover:bg-accent hover:text-ink">Get started now</Link>
               <Link href="/search" className="inline-flex min-h-[52px] items-center rounded-md border border-white px-6 text-base font-bold text-white transition-colors hover:bg-white/10 hover:text-white">Search directories</Link>
             </div>
@@ -143,10 +152,9 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
-              <Link key={d.href} href={d.href} data-onboard={onboard} className="group flex flex-col rounded-2xl border border-line bg-white p-7 text-ink transition-colors hover:border-brand hover:text-ink">
+              <Link key={d.href} href={d.href} className="group flex flex-col rounded-2xl border border-line bg-white p-7 text-ink transition-colors hover:border-brand hover:text-ink">
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} className="h-6 w-6" strokeWidth={1.75} /></span>
                 <h3 className="mt-5 font-sans text-[24px] font-black leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
                 <p className="mb-5 mt-2.5 line-clamp-3 text-[15px] leading-relaxed text-ink-muted">{d.text}</p>
@@ -167,7 +175,6 @@ export default async function HomePage() {
               </label>
             </form>
           </div>
-          </OnboardingGate>
         </div>
       </section>
 
