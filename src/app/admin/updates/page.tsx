@@ -26,12 +26,12 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
 
   return (
     <>
-      <div><h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Homepage updates</h1><p className="text-sm text-ink-muted">Short messages that scroll across the homepage under the main banner. Changes show on the site straight away.</p></div>
+      <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Homepage updates</h1><p className="text-sm text-ink-muted">Short messages that scroll across the homepage under the main banner. Changes show on the site straight away.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {notice ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{notice}</p> : null}
 
       <section className="card flex flex-col gap-3 overflow-hidden p-6">
-        <h2 className="text-lg font-extrabold">Preview</h2>
+        <h2 className="text-lg font-bold">Preview</h2>
         {live.length ? (
           <div className="-mx-6 -my-3 bg-page"><UpdatesMarquee updates={live} /></div>
         ) : (
@@ -40,7 +40,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
       </section>
 
       <form action={createUpdate} className="card flex flex-col gap-4 p-6">
-        <h2 className="text-lg font-extrabold">Add an update</h2>
+        <h2 className="text-lg font-bold">Add an update</h2>
         <label className="label">Message<input name="message" required maxLength={200} placeholder="e.g. New equipment loan round opens 1 November" className="input" /></label>
         <div className="flex flex-wrap gap-3.5">
           <label className="label flex-[2_1_260px]">Link (optional)<input name="href" placeholder="/funding or https://…" className="input" /></label>
@@ -54,7 +54,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
       </form>
 
       <section className="card overflow-hidden">
-        <h2 className="p-5 text-lg font-extrabold">All updates <span className="font-semibold text-ink-muted">({updates.length})</span></h2>
+        <h2 className="p-5 text-lg font-bold">All updates <span className="font-semibold text-ink-muted">({updates.length})</span></h2>
         <p className="-mt-3 px-5 pb-4 text-sm text-ink-muted">They scroll in this order. Use the arrows to reorder.</p>
         {updates.length === 0 ? <p className="border-t border-line p-5 text-sm text-ink-muted">No updates yet.</p> : null}
         {updates.map((u, i) => {
@@ -63,7 +63,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
             <form key={u.id} action={saveUpdate} className="flex flex-col gap-3 border-t border-line p-5">
               <input type="hidden" name="id" value={u.id} />
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-extrabold text-ink-muted">#{i + 1}</span>
+                <span className="text-sm font-bold text-ink-muted">#{i + 1}</span>
                 <span className={badge}>{label}</span>
                 {u.startsAt ? <span className="text-xs text-ink-muted">from {date(u.startsAt)}</span> : null}
                 {u.endsAt ? <span className="text-xs text-ink-muted">until {date(u.endsAt)}</span> : null}

@@ -51,7 +51,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
             className="onboard-pop relative max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-8 pt-3">
             <span aria-hidden className="mx-auto mb-4 block h-1.5 w-10 rounded-full bg-line-strong" />
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 id="quick-links-title" className="font-sans text-lg font-black text-heading">All services</h2>
+              <h2 id="quick-links-title" className="font-sans text-lg font-bold text-heading">All services</h2>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-heading">
                 <Icon name="close" className="h-4 w-4" />

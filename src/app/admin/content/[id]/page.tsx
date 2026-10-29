@@ -29,7 +29,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <Link href={`/admin/content?type=${item.contentType}`} className="text-sm">← {contentTypeLabel[item.contentType]} list</Link>
-          <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">{item.title}</h1>
+          <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">{item.title}</h1>
           <p className="text-sm text-ink-muted">{contentTypeLabel[item.contentType]} · {item.publicationStatus.replace("_", " ").toLowerCase()} · updated {date(item.updatedAt)}</p>
         </div>
         <div className="flex gap-2">
@@ -47,7 +47,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} /> : null}
 
       <section className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6">
-        <h2 className="text-lg font-extrabold">Verification checks</h2>
+        <h2 className="text-lg font-bold">Verification checks</h2>
         <p className="text-sm text-ink-muted">Each check is recorded separately with its scope, date and evidence. Pages show only passed checks.</p>
         {checks.map((c) => (
           <div key={c.id} className="flex flex-wrap justify-between gap-2 border-t border-line pt-2 text-sm">
@@ -70,7 +70,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       </section>
 
       <section className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-6">
-        <h2 className="text-lg font-extrabold">Revision history</h2>
+        <h2 className="text-lg font-bold">Revision history</h2>
         {item.revisions.length === 0 ? <p className="text-sm text-ink-muted">No revisions yet.</p> : item.revisions.map((r) => (
           <div key={r.id} className="flex justify-between gap-2 border-t border-line pt-2 text-sm">
             <span>{r.note ?? "Saved"}</span>
@@ -81,7 +81,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       {user.role === "ADMIN" ? (
         <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-6 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex flex-col gap-1">
-            <h2 className="text-base font-extrabold text-bad-fg">Delete permanently</h2>
+            <h2 className="text-base font-bold text-bad-fg">Delete permanently</h2>
             <p className="max-w-xl text-[13px] text-ink-muted">Removes this page and everything attached to it from the database: its details, offers, rounds, fees, budgets, versions, media, sources, checks, revisions and saved copies. This cannot be undone. To hide it but keep it, set the status to Archived instead.</p>
           </div>
           <form className="shrink-0">

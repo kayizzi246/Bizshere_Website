@@ -35,7 +35,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
+        <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
         <Link href={qs({ create: "1" })} className="btn-primary">+ Create account</Link>
       </div>
 
@@ -43,7 +43,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
 
       {searchParams.create ? (
         <form action={createAccount} className="card flex flex-col gap-4 border-2 border-brand p-6">
-          <div className="flex items-center justify-between"><div><h2 className="text-xl font-extrabold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or for a new staff member.</p></div><Link href={qs({})} aria-label="Close" className="text-xl text-ink">×</Link></div>
+          <div className="flex items-center justify-between"><div><h2 className="text-xl font-bold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or for a new staff member.</p></div><Link href={qs({})} aria-label="Close" className="text-xl text-ink">×</Link></div>
           {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{searchParams.error === "exists" ? "An account with that email already exists." : "Check the fields and try again."}</p> : null}
           <div className="flex flex-wrap gap-3.5">
             <label className="label flex-[1_1_220px]">Account type
@@ -99,7 +99,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
 
         {sel ? (
           <aside className="card flex flex-[1_1_320px] flex-col gap-4 p-5">
-            <div className="flex flex-col"><span className="text-lg font-extrabold">{sel.name}</span><span className="text-sm text-ink-muted">{sel.email ?? sel.phone} · joined {date(sel.createdAt)}</span></div>
+            <div className="flex flex-col"><span className="text-lg font-bold">{sel.name}</span><span className="text-sm text-ink-muted">{sel.email ?? sel.phone} · joined {date(sel.createdAt)}</span></div>
             <div className="flex flex-col gap-2 text-sm">
               <Row k="Phone" v={sel.phone ?? "—"} />
               <Row k="Business" v={sel.orgMemberships[0]?.organization.legalName ?? "—"} />
@@ -108,7 +108,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
               <Row k="Last active" v={date(sel.lastActiveAt)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-extrabold">Recent payments</span>
+              <span className="text-sm font-bold">Recent payments</span>
               {sel.subscriptions.flatMap((s) => s.payments).map((p) => (
                 <div key={p.id} className="flex justify-between border-t border-line py-2 text-sm"><span>{date(p.paidAt ?? p.createdAt)} · {p.method.replace("_", " ")}</span><span className="font-bold">{money(p.amount, p.currency)}</span></div>
               ))}

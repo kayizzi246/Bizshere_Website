@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
                     </div>
                     <div className="flex flex-1 flex-col gap-2 p-5">
                       {b?.businessType ? <span className="text-xs font-semibold text-accent-dark">{b.businessType}</span> : null}
-                      <h2 className="font-sans text-[17px] font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</h2>
+                      <h2 className="font-sans text-[17px] font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</h2>
                       {i.shortSummary ? <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.shortSummary}</p> : null}
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {plans.length ? plans.map((l) => (

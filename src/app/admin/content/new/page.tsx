@@ -16,7 +16,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
     return (
       <>
         <div>
-          <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Add content</h1>
+          <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Add content</h1>
           <p className="text-sm text-ink-muted">Choose the directory. Machine offers, funding rounds and market prices have their own forms.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -41,7 +41,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
     <>
       <div>
         <Link href="/admin/content/new" className="text-sm">← Choose another directory</Link>
-        <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">New {dir.label.toLowerCase()}</h1>
+        <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">New {dir.label.toLowerCase()}</h1>
         <p className="text-sm text-ink-muted">Leave unknown values empty. Unknown is not zero. Every filled field appears on the public page.</p>
       </div>
       <ContentForm type={dir.type} options={options} />

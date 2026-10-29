@@ -42,13 +42,13 @@ export default async function RecipePage({ params }: { params: { slug: string } 
     >
       {item.overview ? (
         <section className="card flex flex-col gap-3 p-7">
-          <h2 className="text-lg font-extrabold">About this recipe</h2>
+          <h2 className="text-lg font-bold">About this recipe</h2>
           <p className="whitespace-pre-line leading-relaxed text-ink-soft">{item.overview}</p>
         </section>
       ) : null}
 
       <section className="card flex flex-col gap-3 p-7">
-        <h2 className="text-lg font-extrabold">Ingredients</h2>
+        <h2 className="text-lg font-bold">Ingredients</h2>
         {r.ingredients.length === 0 ? <p className="text-sm text-ink-muted">Not added yet.</p> : (
           <ul className="flex flex-col">
             {r.ingredients.map((i) => (
@@ -62,12 +62,12 @@ export default async function RecipePage({ params }: { params: { slug: string } 
       </section>
 
       <section className="card flex flex-col gap-3.5 p-7">
-        <h2 className="text-lg font-extrabold">Steps</h2>
+        <h2 className="text-lg font-bold">Steps</h2>
         {r.steps.length === 0 ? <p className="text-sm text-ink-muted">Not added yet.</p> : null}
         <ol className="flex flex-col gap-3.5">
           {steps.map((s) => (
             <li key={s.id} className="flex gap-3.5">
-              <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-brand text-sm font-extrabold text-white">{s.stepNumber}</span>
+              <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">{s.stepNumber}</span>
               <span>{s.instruction}{s.durationMinutes || s.temperatureC ? <span className="block text-sm text-ink-muted">{[s.durationMinutes && minutes(s.durationMinutes), s.temperatureC && `${s.temperatureC} °C`].filter(Boolean).join(" · ")}</span> : null}</span>
             </li>
           ))}
@@ -76,7 +76,7 @@ export default async function RecipePage({ params }: { params: { slug: string } 
       </section>
 
       <section className="card flex flex-col gap-3 p-7">
-        <h2 className="text-lg font-extrabold">Remark</h2>
+        <h2 className="text-lg font-bold">Remark</h2>
         {r.remarks ? <p className="whitespace-pre-line leading-relaxed text-ink-soft">{r.remarks}</p> : <p className="text-sm text-ink-muted">Not added yet.</p>}
       </section>
     </RecordPage>

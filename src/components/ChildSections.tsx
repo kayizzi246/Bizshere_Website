@@ -33,7 +33,7 @@ export function ChildSections({ sections, gated, back }: { sections: Awaited<Ret
     <>
       {sections.map(({ table, rows }) => (
         <section key={table.key} id={`c-${table.key}`} className="flex scroll-mt-36 flex-col gap-3">
-          <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">{table.label}</h2>
+          <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">{table.label}</h2>
           {table.layout === "steps" ? <Steps table={table} rows={rows} />
             : table.layout === "gallery" ? <Gallery rows={rows} gated={gated} back={back} />
             : (

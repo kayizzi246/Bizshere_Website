@@ -17,7 +17,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
     <div id="children" className="flex flex-col gap-5">
       {ideaId ? (
         <section className="card flex flex-col gap-4 p-6">
-          <h2 className="text-lg font-extrabold">Startup budget scenarios</h2>
+          <h2 className="text-lg font-bold">Startup budget scenarios</h2>
           <p className="text-sm text-ink-muted">Show low, standard and higher scenarios where evidence allows. Totals are calculated from the lines and shown only when every line has a sourced cost.</p>
           {(["LOW", "STANDARD", "HIGHER"] as const).map((level) => {
             const sc = scenarios.find((x) => x.level === level);
@@ -57,7 +57,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
 
       {programmeId ? (
         <section className="card flex flex-col gap-4 p-6">
-          <h2 className="text-lg font-extrabold">Application rounds</h2>
+          <h2 className="text-lg font-bold">Application rounds</h2>
           <p className="text-sm text-ink-muted">Times are East Africa Time. The daily job opens and closes rounds by date automatically.</p>
           {[...rounds, null].map((r) => (
             <details key={r?.id ?? "new"} open={!r && rounds.length === 0} className="rounded-xl border border-line p-4">
@@ -85,7 +85,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
       ) : null}
 
       <section className="card flex flex-col gap-4 p-6">
-        <h2 className="text-lg font-extrabold">Sources and evidence</h2>
+        <h2 className="text-lg font-bold">Sources and evidence</h2>
         <p className="text-sm text-ink-muted">Shown on the page under &ldquo;Evidence and freshness&rdquo;, labelled by kind so readers can tell facts from estimates and promoter claims.</p>
         {evidence.map((e) => (
           <div key={e.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-line pt-3 text-sm">

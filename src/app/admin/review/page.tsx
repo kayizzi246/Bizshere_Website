@@ -20,7 +20,7 @@ export default async function ReviewQueue({ searchParams }: { searchParams: { ty
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Review queue</h1>
+        <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Review queue</h1>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map(([v, l]) => (
             <Link key={v} href={v ? `/admin/review?type=${v}` : "/admin/review"} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${type === v ? "bg-brand-deep text-white hover:text-white" : "border border-line bg-surface text-ink-soft"}`}>{l}</Link>

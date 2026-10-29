@@ -73,7 +73,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name="prices" className="h-3 w-3" /></span>
               {products.length} {products.length === 1 ? "product" : "products"} tracked
             </span>
-            <h1 className="font-sans text-[32px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[46px]">Markets and prices</h1>
+            <h1 className="text-page-title">Markets and prices</h1>
             <p className="text-base leading-relaxed text-white/75 sm:text-lg">Dated price observations from markets across Uganda. Every price shows when it was observed.</p>
           </div>
 
@@ -104,7 +104,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
       <div className="bg-page">
         <div className="container-site flex flex-col gap-6 py-8 sm:py-10">
           <div className="flex flex-col gap-1">
-            <h2 className="font-sans text-[22px] font-black tracking-[-0.02em] text-heading sm:text-[28px]">{productName || "No products yet"}</h2>
+            <h2 className="text-block-title text-heading">{productName || "No products yet"}</h2>
             <p className="inline-flex items-start gap-1.5 text-sm text-ink-muted"><Info aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />{TYPES.find(([k]) => k === priceType)?.[1]} prices. Only markets with the same grade and unit{unit ? ` (${unit})` : ""} are compared.</p>
           </div>
 
@@ -115,7 +115,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
                 <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand sm:flex">{icon}</span>
                 <span className="flex min-w-0 flex-col">
                   <span className="text-xs text-ink-muted">{label}</span>
-                  <span className="truncate font-sans text-[15px] font-black text-heading sm:text-lg">{value}</span>
+                  <span className="truncate font-sans text-[15px] font-bold text-heading sm:text-lg">{value}</span>
                   {note ? <span className="truncate text-[11px] text-ink-muted">{note}</span> : null}
                 </span>
               </li>
@@ -135,7 +135,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
                   <tr key={o.id} className="border-b border-line last:border-0 hover:bg-page/60">
                     <td className="px-5 py-4 font-bold text-heading">{o.market.name}</td>
                     <td className="px-5 py-4 text-ink-soft">{place(o)}</td>
-                    <td className="whitespace-nowrap px-5 py-4 font-sans font-black text-heading">{range(o)}</td>
+                    <td className="whitespace-nowrap px-5 py-4 font-sans font-bold text-heading">{range(o)}</td>
                     <td className="max-w-[260px] px-5 py-4 text-sm text-ink-muted">{o.notes ?? "—"}</td>
                     <td className="whitespace-nowrap px-5 py-4 text-sm">{date(o.observedAt)}{isOlderThan(o.observedAt, STALE_DAYS) ? <span className="badge-warn ml-2">May be out of date</span> : null}</td>
                   </tr>
@@ -153,7 +153,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
                       <span className="inline-flex items-center gap-1 text-[13px] text-ink-muted"><MapPin aria-hidden className="h-3.5 w-3.5" />{place(o)}</span>
                     </span>
                     <span className="shrink-0 text-right">
-                      <span className="block font-sans text-base font-black text-heading">{range(o)}</span>
+                      <span className="block font-sans text-base font-bold text-heading">{range(o)}</span>
                       <span className="text-[11px] text-ink-muted">per {o.quotedUnit}</span>
                     </span>
                   </div>

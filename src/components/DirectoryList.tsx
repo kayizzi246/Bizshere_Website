@@ -66,7 +66,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
                     <span className="w-fit max-w-full truncate rounded-full bg-accent-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-dark">{extra[i.id] || "Document"}</span>
-                    <span className="line-clamp-2 font-sans text-sm font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
+                    <span className="line-clamp-2 font-sans text-sm font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     <span className="mt-auto pt-1 text-[11px] text-ink-muted">{i.primaryCategory?.name ?? "General"}</span>
                   </span>
                 </Link>
@@ -94,7 +94,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                         <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
                       </span>
                     ) : null}
-                    <span className="font-sans text-[17px] font-black leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
+                    <span className="font-sans text-[17px] font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     {i.shortSummary ? <span className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.shortSummary}</span> : null}
                     {extra[i.id] ? <span className="line-clamp-2 w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft">{extra[i.id]}</span> : null}
                     <span className="mt-auto flex items-center justify-between pt-3 text-xs text-ink-muted">
@@ -146,7 +146,7 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
             {count} {count === 1 ? one : many}{searching ? " found" : ""}
           </span>
-          <h1 className="font-sans text-[32px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[46px]">{title}</h1>
+          <h1 className="text-page-title">{title}</h1>
           <p className="text-base leading-relaxed text-white/75 sm:text-lg">{intro}</p>
         </div>
         {children ? <div className="max-w-4xl">{children}</div> : null}

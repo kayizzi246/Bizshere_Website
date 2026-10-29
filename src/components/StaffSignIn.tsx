@@ -24,7 +24,7 @@ export function StaffSignIn({ next = "/admin" }: { next?: string }) {
 
   return (
     <form onSubmit={submit} className="card mx-auto flex w-full max-w-sm flex-col gap-4 p-8" noValidate>
-      <h1 className="text-xl font-extrabold">Staff sign in</h1>
+      <h1 className="text-xl font-bold">Staff sign in</h1>
       <label className="label">Email<input name="email" type="email" autoComplete="username" autoFocus className="input" /></label>
       <label className="label">Password<input name="password" type="password" autoComplete="current-password" className="input" /></label>
       {error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{error}</p> : null}

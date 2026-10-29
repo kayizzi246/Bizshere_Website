@@ -104,7 +104,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-ink"><Crown aria-hidden className="h-3.5 w-3.5" />Premium plan</span>
                   <span className="rounded-full border border-white/25 px-3 py-1 text-xs font-semibold text-white/85">{[...new Set([item.primaryCategory?.name, idea.businessType].filter(Boolean))].join(" · ") || "Business idea"}</span>
                 </span>
-                <h1 className="font-sans text-[36px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[48px]">{item.title}</h1>
+                <h1 className="text-page-title">{item.title}</h1>
                 {item.shortSummary ? <p className="max-w-xl text-lg leading-relaxed text-white/80">{item.shortSummary}</p> : null}
                 <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
                   <span>Costed for {scenario?.location?.name ?? "Uganda"}</span>
@@ -118,7 +118,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   <div className="flex items-center gap-3">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><BadgeCheck aria-hidden className="h-6 w-6" /></span>
                     <span className="flex flex-col">
-                      <span className="font-sans text-lg font-extrabold">Unlocked: this plan is yours</span>
+                      <span className="font-sans text-lg font-bold">Unlocked: this plan is yours</span>
                       <span className="text-sm text-white/70">Full budget, every step and all details, with your membership.</span>
                     </span>
                   </div>
@@ -133,7 +133,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   <div className="flex flex-wrap items-end justify-between gap-2">
                     <span className="flex flex-col">
                       <span className="text-xs font-semibold uppercase tracking-wider text-white/55">Full plan</span>
-                      <span className="font-sans text-2xl font-black">{plan.monthly ?? "Membership"}{plan.monthly ? <span className="text-sm font-medium text-white/60"> / month</span> : null}</span>
+                      <span className="font-sans text-2xl font-bold">{plan.monthly ?? "Membership"}{plan.monthly ? <span className="text-sm font-medium text-white/60"> / month</span> : null}</span>
                     </span>
                     <span className="text-xs text-white/60">Includes every plan on BizSphere-Ug</span>
                   </div>
@@ -166,7 +166,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               <li key={k} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_12px_30px_-18px_rgba(7,26,51,0.35)] sm:p-5">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-sans text-[15px] font-black text-heading sm:text-base">{k}</span>
+                  <span className="truncate font-sans text-[15px] font-bold text-heading sm:text-base">{k}</span>
                   <span className="truncate text-xs text-ink-muted">{v}</span>
                 </span>
               </li>
@@ -209,7 +209,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                             {on ? <Check aria-hidden className="h-4 w-4 text-brand" /> : null}
                           </span>
                           <span className="text-xs text-ink-muted">{s.operatingScale ?? `${s.lines.length} cost lines`}</span>
-                          <span className="mt-2 font-sans text-lg font-extrabold">
+                          <span className="mt-2 font-sans text-lg font-bold">
                             {gated ? <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Total for members</span>
                               : total === null ? <span className="text-sm font-semibold text-ink-muted">Some costs pending</span> : money(total, s.currency)}
                           </span>
@@ -251,8 +251,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                       {!gated ? (
                         <tfoot>
                           <tr className="border-t-2 border-ink">
-                            <td className="px-4 py-3 font-extrabold">Total</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-right text-lg font-extrabold">{(() => { const t = budgetTotal(scenario!.lines); return t === null ? "Some costs pending" : money(t, scenario!.currency); })()}</td>
+                            <td className="px-4 py-3 font-bold">Total</td>
+                            <td className="whitespace-nowrap px-4 py-3 text-right text-lg font-bold">{(() => { const t = budgetTotal(scenario!.lines); return t === null ? "Some costs pending" : money(t, scenario!.currency); })()}</td>
                           </tr>
                         </tfoot>
                       ) : null}
@@ -271,7 +271,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   {steps.map((s, n) => (
                     <li key={s.id} className="flex gap-4">
                       <span className="flex flex-col items-center">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ink text-sm font-extrabold">{s.stepNumber}</span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-ink text-sm font-bold">{s.stepNumber}</span>
                         {n < steps.length - 1 || hiddenSteps > 0 ? <span aria-hidden className="w-0.5 flex-1 bg-line" /> : null}
                       </span>
                       <span className="flex flex-col gap-1 pb-6">
@@ -313,7 +313,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           {/* ── Sidebar ── */}
           <aside className="flex flex-col gap-5 lg:sticky lg:top-[150px]">
             <section className="rounded-2xl border border-line bg-white p-6">
-              <h2 className="mb-3 font-sans text-base font-black text-heading">At a glance</h2>
+              <h2 className="mb-3 font-sans text-base font-bold text-heading">At a glance</h2>
               <dl className="flex flex-col text-sm">
                 {([
                   ["Business type", idea.businessType],
@@ -332,7 +332,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
             {!viewer.isMember ? (
               <section className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-5 text-white">
-                <span className="font-sans text-lg font-extrabold">Get the full plan</span>
+                <span className="font-sans text-lg font-bold">Get the full plan</span>
                 <ul className="flex flex-col gap-1.5 text-sm text-white/80">
                   {["Every cost line and the total", "All the steps", "Every plan on the site"].map((t) => (
                     <li key={t} className="flex gap-2"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-brand-mint" />{t}</li>
@@ -356,7 +356,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 function Section({ n, id, title, children }: { n: string; id: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} className="scroll-mt-[150px] rounded-2xl border border-line bg-white p-6 sm:p-8">
-      <h2 className="mb-6 flex items-center gap-3 font-sans text-[22px] font-black tracking-[-0.02em] text-heading sm:text-[26px]">
+      <h2 className="text-block-title mb-6 flex items-center gap-3 text-heading">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint font-mono text-sm font-bold text-brand">{n}</span>{title}
       </h2>
       {children}

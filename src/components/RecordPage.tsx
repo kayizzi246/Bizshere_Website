@@ -114,7 +114,7 @@ export async function RecordPage({
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
                 {eyebrow}
               </span>
-              <h1 className="font-sans text-[32px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[44px]">{title}</h1>
+              <h1 className="text-page-title">{title}</h1>
               {brief ? <p className="max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg">{brief}</p> : null}
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
@@ -159,7 +159,7 @@ export async function RecordPage({
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                  <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">{t.label}</h2>
+                  <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -195,7 +195,7 @@ export async function RecordPage({
 
           {locked && !product ? (
             <section className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-6 text-white">
-              <span className="font-display text-base font-extrabold">See the full listing</span>
+              <span className="font-display text-base font-bold">See the full listing</span>
               <p className="text-[13px] leading-relaxed text-white/75">
                 {lockedLabels.length ? `Members see ${lockedLabels.join(", ").toLowerCase()} and every other detail.` : "Members see prices, contacts, terms and downloads."}
               </p>
@@ -207,7 +207,7 @@ export async function RecordPage({
           {contact !== undefined ? (
             <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-sans text-lg font-black text-heading">Contact</h2>
+                <h2 className="font-sans text-lg font-bold text-heading">Contact</h2>
                 {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
               </div>
               {contact === "locked" ? (
@@ -305,7 +305,7 @@ export async function RecordPage({
 function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, cls?: string) => React.ReactNode }) {
   return (
     <div className="flex flex-col rounded-2xl border border-line bg-white p-6 text-ink shadow-[0_20px_50px_-24px_rgba(7,26,51,0.45)]">
-      <span className="mb-2 font-sans text-base font-black text-heading">At a glance</span>
+      <span className="mb-2 font-sans text-base font-bold text-heading">At a glance</span>
       <dl className="flex flex-col divide-y divide-line">
         {rows.map((r) => (
           <div key={r.label} className="flex items-start justify-between gap-6 py-3">

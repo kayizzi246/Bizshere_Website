@@ -85,7 +85,7 @@ export async function SiteHeader() {
             <Icon name="menu" />
           </summary>
           <div className="absolute right-0 top-12 flex max-h-[calc(100vh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3">
-            <span className="px-3 pb-1 pt-1 text-[11px] font-extrabold uppercase tracking-widest text-ink-muted">Directories</span>
+            <span className="px-3 pb-1 pt-1 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Directories</span>
             {DIRECTORIES.map((d) => (
               <Link key={d.href} href={d.href} className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-ink hover:bg-page">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-tint text-brand"><Icon name={d.icon} className="h-4 w-4" /></span>

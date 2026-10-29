@@ -14,7 +14,7 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
     );
   }
   return (
-    <Link href={href} className={`flex items-center gap-2 font-display text-[17px] font-extrabold tracking-tight ${light ? "text-white hover:text-white" : "text-brand hover:text-brand"}`}>
+    <Link href={href} className={`flex items-center gap-2 font-display text-[17px] font-bold tracking-tight ${light ? "text-white hover:text-white" : "text-brand hover:text-brand"}`}>
       <Image src="/brand/mark.png" alt="" width={32} height={32} priority className="h-8 w-8" />
       <span className="flex flex-col leading-tight">
         <span>

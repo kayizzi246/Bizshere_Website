@@ -10,7 +10,7 @@ import { Gate } from "./Gate";
 export function ContactCard({ viewer, contacts, name }: { viewer: Viewer; contacts: Contact[]; name: string }) {
   return (
     <section className="card flex flex-col gap-3 p-6">
-      <h2 className="text-lg font-extrabold">Contact {name}</h2>
+      <h2 className="text-lg font-bold">Contact {name}</h2>
       {!viewer.isMember ? (
         <Gate title="Subscribe to see contact details" text="Phone, email and WhatsApp are available to members." button="Show contact" modalTitle="Subscribe to see contact details" />
       ) : contacts.length === 0 ? (

@@ -23,7 +23,7 @@ export function Identity({ eyebrow, title, summary, children }: { eyebrow: strin
   return (
     <section className="flex flex-col gap-3">
       <span className="eyebrow">{eyebrow}</span>
-      <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-page-title">{title}</h1>
       {summary ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{summary}</p> : null}
       {children}
     </section>
@@ -36,7 +36,7 @@ export function Facts({ items }: { items: [string, React.ReactNode][] }) {
       {items.map(([label, value]) => (
         <div key={label} className="card flex flex-[1_1_200px] flex-col gap-1.5 px-5 py-4">
           <span className="text-sm text-ink-muted">{label}</span>
-          <span className="text-lg font-extrabold">{value}</span>
+          <span className="text-lg font-bold">{value}</span>
         </div>
       ))}
     </section>
@@ -46,7 +46,7 @@ export function Facts({ items }: { items: [string, React.ReactNode][] }) {
 export function Card({ title, children, className = "" }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`card flex flex-col gap-3 p-7 ${className}`}>
-      {title ? <h2 className="text-lg font-extrabold">{title}</h2> : null}
+      {title ? <h2 className="text-lg font-bold">{title}</h2> : null}
       {children}
     </section>
   );
@@ -97,7 +97,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-sm text-ink-muted">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-sans text-xl font-black tracking-[-0.01em] text-heading">Sources and checks</h2>
+        <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">Sources and checks</h2>
         {nextReviewDueAt && nextReviewDueAt < new Date()
           ? <span className="rounded-full bg-warn-bg px-2.5 py-1 text-xs font-semibold text-warn-fg">Review overdue</span>
           : <span className="rounded-full bg-brand-tint px-2.5 py-1 text-xs font-semibold text-brand-dark">Up to date</span>}

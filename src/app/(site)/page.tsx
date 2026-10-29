@@ -50,7 +50,7 @@ export default async function HomePage() {
       <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
 
-        <div className="container-site relative grid items-center gap-12 py-12 sm:py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
+        <div className="container-site relative grid items-center gap-12 py-14 sm:py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-24">
           <div className="hero-rise flex flex-col items-start gap-7">
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
                 SaaS-style: bold (not black) with tight tracking, and "start" in an orange gradient. */}
@@ -102,7 +102,7 @@ export default async function HomePage() {
                 <span className="flex min-w-0 flex-1 flex-col leading-tight">
                   <span className="flex items-center gap-2 text-sm font-bold text-heading">
                     {yt.video?.live ? (
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-extrabold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-bold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
                     ) : null}
                     <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How BizSphere-Ug works")}</span>
                   </span>
@@ -149,7 +149,7 @@ export default async function HomePage() {
             {DIRECTORIES.map((d) => (
               <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-7">
                 <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
-                <h3 className="font-sans text-[19px] font-black sm:mt-5 sm:text-[24px] leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
+                <h3 className="font-sans text-[18px] font-bold sm:mt-5 sm:text-[20px] leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-[15px]">{d.text}</p>
                 <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
               </Link>
@@ -157,7 +157,7 @@ export default async function HomePage() {
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
             <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-6 text-white sm:col-span-2 sm:p-8">
               <div className="flex flex-col gap-1">
-                <span className="font-sans text-[24px] font-black tracking-[-0.02em]">Looking for something specific?</span>
+                <span className="font-sans text-[24px] font-bold tracking-[-0.02em]">Looking for something specific?</span>
                 <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
               </div>
               <label className="flex items-center gap-2 rounded-lg bg-white p-1.5 pl-3 text-ink-muted">
@@ -180,7 +180,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
                 <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
-                <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">Recently reviewed</h2>
+                <h2 className="text-section-title text-heading">Recently reviewed</h2>
                 <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
               </div>
               <Link href="/guides" className="btn-outline min-h-[44px]">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
@@ -196,7 +196,7 @@ export default async function HomePage() {
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
                 </span>
                 <span className="flex max-w-lg flex-col gap-4">
-                  <span className="font-sans text-[28px] font-black leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
+                  <span className="font-sans text-[28px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
                   {lead.shortSummary ? <span className="line-clamp-3 text-base leading-relaxed text-white/90 sm:text-lg">{lead.shortSummary}</span> : null}
                   <span className="inline-flex w-fit items-center gap-2 rounded-[10px] bg-white px-4 py-2.5 text-sm font-semibold text-heading transition group-hover:bg-accent group-hover:text-ink">
                     Read the guide <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -213,7 +213,7 @@ export default async function HomePage() {
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">{contentTypeLabel[g.contentType]}</span>
-                    <span className="font-sans text-[19px] font-black leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
+                    <span className="font-sans text-[19px] font-bold leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
                   </span>
                   <span className="flex items-center justify-between border-t border-line pt-3 text-[15px] font-semibold text-brand">
                     Read
@@ -231,7 +231,7 @@ export default async function HomePage() {
         <div className="container-site grid gap-8 py-14 sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
             <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
-            <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">Questions, answered</h2>
+            <h2 className="text-section-title text-heading">Questions, answered</h2>
             <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Short answers about access, sources, prices and payment.</p>
             <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-page p-5">
               <div className="flex items-center gap-3">
@@ -270,7 +270,7 @@ export default async function HomePage() {
 function Heading({ title, text }: { title: string; text?: string }) {
   return (
     <div className="flex max-w-2xl flex-col gap-2">
-      <h2 className="font-sans text-[32px] font-black leading-[1.1] tracking-[-0.02em] text-heading sm:text-[40px]">{title}</h2>
+      <h2 className="text-section-title text-heading">{title}</h2>
       {text ? <p className="text-base leading-relaxed text-ink-muted">{text}</p> : null}
     </div>
   );
@@ -296,7 +296,7 @@ function Showcase() {
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-white"><Icon name="idea" className="h-4 w-4" /></span>
             <span className={`${tag} bg-brand-tint text-brand-dark`}>Business plan</span>
           </span>
-          <span className="font-sans text-base font-black leading-tight text-heading">Bakery business</span>
+          <span className="font-sans text-base font-bold leading-tight text-heading">Bakery business</span>
           <span className="text-[11px] leading-snug text-ink-muted">Budget, steps, staff and risks.</span>
           <span className="flex flex-wrap gap-1">
             {["Low", "Standard", "Higher"].map((l) => <span key={l} className="rounded-md bg-page px-1.5 py-0.5 text-[10px] font-semibold text-ink-soft">{l}</span>)}

@@ -41,7 +41,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   return (
     <form action={action} className="grid gap-6 lg:grid-cols-[190px_minmax(0,1fr)] lg:items-start">
       <nav aria-label="Form sections" className="hidden flex-col gap-0.5 lg:sticky lg:top-6 lg:flex">
-        <span className="mb-1 px-2 text-[11px] font-extrabold uppercase tracking-widest text-ink-muted">Sections</span>
+        <span className="mb-1 px-2 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Sections</span>
         {nav.map(([id, label]) => <a key={id} href={`#${id}`} className="rounded-md px-2 py-1.5 text-[13px] text-ink-soft hover:bg-surface hover:text-brand">{label}</a>)}
       </nav>
       <div className="flex min-w-0 flex-col gap-5">
@@ -140,7 +140,7 @@ function FieldInput({ f: raw, value, error, member }: { f: Field; value: string;
 function Section({ id, title, note, children }: { id: string; title: string; note?: string; children: React.ReactNode }) {
   return (
     <section id={id} className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-      <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">{title}</h2>{note ? <p className="text-[13px] text-ink-muted">{note}</p> : null}</div>
+      <div className="flex flex-col gap-0.5"><h2 className="text-base font-bold text-heading">{title}</h2>{note ? <p className="text-[13px] text-ink-muted">{note}</p> : null}</div>
       {children}
     </section>
   );

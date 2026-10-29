@@ -52,7 +52,7 @@ export function ProductCard({ product, back, price }: { product: Product; back: 
         <span className="relative flex h-16 w-[52px] shrink-0 flex-col items-center justify-end rounded-lg bg-white pb-1.5 text-heading">
           <span aria-hidden className="absolute right-0 top-0 h-3.5 w-3.5 rounded-bl-md bg-brand-tint" />
           <FileText aria-hidden className="absolute top-2.5 h-5 w-5 text-brand" strokeWidth={1.75} />
-          <span className="rounded bg-accent px-1 text-[9px] font-black tracking-wide text-ink">{format}</span>
+          <span className="rounded bg-accent px-1 text-[9px] font-bold tracking-wide text-ink">{format}</span>
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-white/60">Digital {product.kind.toLowerCase()}</span>

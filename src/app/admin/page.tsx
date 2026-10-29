@@ -70,7 +70,7 @@ export default async function AdminDashboard() {
     <>
       {/* Greeting */}
       <div className="flex flex-col gap-1">
-        <h1 className="font-sans text-[24px] font-black tracking-tight text-heading sm:text-[28px]">{greeting}, {user.name?.split(" ")[0] ?? "there"}</h1>
+        <h1 className="font-sans text-[24px] font-bold tracking-tight text-heading sm:text-[28px]">{greeting}, {user.name?.split(" ")[0] ?? "there"}</h1>
         <p className="text-sm text-ink-muted">Here is what is happening on BizSphere-Ug today, {date(now)}.</p>
       </div>
 
@@ -170,7 +170,7 @@ function Panel({ title, action, children }: { title: string; action?: React.Reac
   return (
     <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface p-6 sm:p-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-extrabold text-heading">{title}</h2>
+        <h2 className="text-base font-bold text-heading">{title}</h2>
         {action}
       </div>
       {children}
@@ -185,7 +185,7 @@ function Kpi({ href, label, value, sub, warn = false, icon }: { href: string; la
         <span className="text-[13px] text-ink-muted">{label}</span>
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-4 w-4" /></span>
       </span>
-      <span className="truncate font-sans text-[26px] font-black leading-none tracking-tight text-heading sm:text-[30px]">{value}</span>
+      <span className="truncate font-sans text-[26px] font-bold leading-none tracking-tight text-heading sm:text-[30px]">{value}</span>
       <span className={`text-xs ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
     </Link>
   );

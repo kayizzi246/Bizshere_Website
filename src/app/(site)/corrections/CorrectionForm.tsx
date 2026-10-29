@@ -8,7 +8,7 @@ export function CorrectionForm({ item, signedIn }: { item: { id: string; title: 
   if (state.ok) {
     return (
       <div role="status" className="card flex flex-col gap-2 p-7">
-        <h2 className="text-lg font-extrabold">Thank you</h2>
+        <h2 className="text-lg font-bold">Thank you</h2>
         <p className="text-ink-soft">An editor will check your report against the source. If we change the page, the review date on it will update.</p>
       </div>
     );

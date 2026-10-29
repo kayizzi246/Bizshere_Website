@@ -96,7 +96,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       {/* ── Search bar and advanced panel ── */}
       <section className="border-b border-line bg-white">
         <div className="container-site flex flex-col gap-4 py-6 lg:py-8">
-          <h1 className="text-2xl font-black text-heading lg:text-[28px]">Search BizSphere-Ug</h1>
+          <h1 className="text-page-title text-heading">Search BizSphere-Ug</h1>
           {/* A plain checkbox (no name, so it isn't sent) opens and closes the panel without JavaScript */}
           <div className="group/adv flex flex-col">
             <input id="adv-toggle" type="checkbox" defaultChecked={advancedOpen} className="peer sr-only" />
@@ -135,7 +135,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
             <div data-manual="" className="mt-4 hidden rounded-2xl border border-line bg-white group-has-[#adv-toggle:checked]/adv:block">
               <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4 sm:px-6">
-                <h2 className="text-base font-extrabold text-heading">Advanced search</h2>
+                <h2 className="text-base font-bold text-heading">Advanced search</h2>
                 <p className="text-[13px] text-ink-muted">Combine words, directories and filters</p>
               </div>
               <div className="flex flex-col gap-4 p-5 sm:p-6">
@@ -233,7 +233,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <section className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-black text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
+              <h2 className="text-xl font-bold text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
               <p className="mt-0.5 text-sm text-ink-muted">{count.toLocaleString()} {count === 1 ? "result" : "results"}{pages > 1 ? ` · page ${p.page} of ${pages}` : ""}</p>
             </div>
             {!pricesOnly ? (
@@ -270,7 +270,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
           {count === 0 ? (
             <div className="card flex flex-col items-center gap-3 px-6 py-12 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name="search" className="h-6 w-6" /></span>
-              <p className="mt-1 font-display text-lg font-extrabold text-heading">We couldn&apos;t find that yet</p>
+              <p className="mt-1 font-display text-lg font-bold text-heading">We couldn&apos;t find that yet</p>
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search, check the spelling, or remove a filter. You can also try one of these:</p>
               <ul className="flex max-w-xl flex-wrap justify-center gap-2">
                 {["register a business", "file tax returns", "EFRIS", "maize mill", "SME loan", "poultry"].map((t) => (
@@ -333,7 +333,7 @@ function Check({ name, value = "1", checked, auto, children }: { name: string; v
 function Group({ title, last, children }: { title: string; last?: boolean; children: React.ReactNode }) {
   return (
     <fieldset className={`flex flex-col gap-1.5 ${last ? "" : "mb-4 border-b border-line pb-4"}`}>
-      <legend className="mb-2 font-display text-[13px] font-extrabold text-heading">{title}</legend>
+      <legend className="mb-2 font-display text-[13px] font-bold text-heading">{title}</legend>
       {children}
     </fieldset>
   );
@@ -386,8 +386,8 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
       </Link>
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2.5 sm:gap-1 sm:p-3">
-        <span className={`font-display text-[10px] font-extrabold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
-        <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
+        <span className={`font-display text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
+        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
         {check && (r.supplier || r.consultant) ? <span className="badge-ok self-start whitespace-normal"><Icon name="check" className="h-3 w-3 shrink-0" />Contact checked {date(check.checkedAt)}</span> : null}
         {round ? <span className="badge self-start whitespace-normal bg-accent-tint text-accent-dark"><span className="live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />Open{round.isRolling ? " · rolling" : round.closesAt ? ` · closes ${date(round.closesAt)}` : ""}</span> : null}
         {r.investmentOpportunity?.deadline ? <span className="badge-warn self-start">Deadline {date(r.investmentOpportunity.deadline)}</span> : null}
@@ -426,7 +426,7 @@ function PriceTable({ prices, member, more }: { prices: Price[]; member: boolean
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-        <h3 className="font-display text-sm font-extrabold text-heading">Market prices</h3>
+        <h3 className="font-display text-sm font-bold text-heading">Market prices</h3>
         {more ? <Link href={more} className="text-[13px] font-semibold">See all prices</Link> : null}
       </div>
       <div className="overflow-x-auto">

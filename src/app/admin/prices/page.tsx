@@ -16,12 +16,12 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <div><h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Add dated observations. Old observations are kept as history and never overwritten.</p></div>
+      <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Add dated observations. Old observations are kept as history and never overwritten.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {searchParams.added ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">Observation added.</p> : null}
 
       <form action={addObservation} className="card flex flex-col gap-4 p-6">
-        <h2 className="text-lg font-extrabold">Add an observation</h2>
+        <h2 className="text-lg font-bold">Add an observation</h2>
         <div className="flex flex-wrap gap-3.5">
           <label className="label flex-[1_1_220px]">Market<select name="marketId" required className="input">{markets.map((m) => <option key={m.id} value={m.id}>{m.name}{m.location ? `, ${m.location.name}` : ""}</option>)}</select></label>
           <label className="label flex-[1_1_220px]">Product<select name="productId" required className="input">{products.map((p) => <option key={p.id} value={p.id}>{p.name}{p.grade ? `, ${p.grade}` : ""}{p.standardUnit ? ` (${p.standardUnit})` : ""}</option>)}</select></label>
@@ -51,7 +51,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
 
       <div className="flex flex-wrap gap-5">
         <form action={addMarket} className="card flex flex-[1_1_380px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-extrabold">Add a market</h2>
+          <h2 className="text-lg font-bold">Add a market</h2>
           <input name="name" required placeholder="Market name" aria-label="Market name" className="input" />
           <input name="marketType" placeholder="Type (wholesale, retail, livestock…)" aria-label="Market type" className="input" />
           <select name="locationId" aria-label="District" className="input"><option value="">District…</option>{districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
@@ -59,7 +59,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
           <button className="btn-outline self-end">Add market</button>
         </form>
         <form action={addProduct} className="card flex flex-[1_1_380px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-extrabold">Add a product</h2>
+          <h2 className="text-lg font-bold">Add a product</h2>
           <input name="name" required placeholder="Product name" aria-label="Product name" className="input" />
           <input name="variety" placeholder="Variety" aria-label="Variety" className="input" />
           <input name="grade" placeholder="Grade" aria-label="Grade" className="input" />
@@ -70,7 +70,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
       </div>
 
       <section className="card overflow-hidden">
-        <h2 className="p-5 text-lg font-extrabold">Recent observations</h2>
+        <h2 className="p-5 text-lg font-bold">Recent observations</h2>
         <div className="overflow-x-auto">
           <table className="table-base min-w-[860px]">
             <thead><tr><th>Product</th><th>Market</th><th>Min – max price</th><th>Unit</th><th>Observed</th><th>Status</th><th>By</th></tr></thead>

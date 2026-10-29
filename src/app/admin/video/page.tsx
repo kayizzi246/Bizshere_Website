@@ -21,14 +21,14 @@ export default async function AdminVideoPage({ searchParams }: { searchParams: {
   return (
     <>
       <div>
-        <h1 className="font-sans text-[22px] font-black tracking-tight text-heading">Homepage video</h1>
+        <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Homepage video</h1>
         <p className="text-sm text-ink-muted">The video in the homepage banner. When you go live on YouTube, your live stream replaces it automatically (checked every minute) and a LIVE item leads the updates bar.</p>
       </div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {searchParams.saved ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">Saved. The homepage is updated.</p> : null}
 
       <form action={saveVideoSettings} className="card flex flex-col gap-4 p-6">
-        <h2 className="text-lg font-extrabold">YouTube</h2>
+        <h2 className="text-lg font-bold">YouTube</h2>
         <label className="label">
           YouTube channel
           <input name="channel" defaultValue={channel} placeholder="https://www.youtube.com/@yourchannel" className="input" />
@@ -43,7 +43,7 @@ export default async function AdminVideoPage({ searchParams }: { searchParams: {
       </form>
 
       <section className="card flex flex-col gap-3 p-6">
-        <h2 className="text-lg font-extrabold">Showing now</h2>
+        <h2 className="text-lg font-bold">Showing now</h2>
         <p className="text-sm text-ink-soft">{showing}</p>
         {yt.video ? (
           <div className="relative aspect-video max-w-xl overflow-hidden rounded-xl bg-black">

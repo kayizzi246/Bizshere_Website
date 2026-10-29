@@ -32,7 +32,7 @@ export async function ChildTableEditor({ contentItemId, type }: { contentItemId:
         <section key={table.key} id={`t-${table.key}`} className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="flex flex-col gap-0.5">
-              <h2 className="text-base font-extrabold text-heading">{table.label}</h2>
+              <h2 className="text-base font-bold text-heading">{table.label}</h2>
               <p className="text-[13px] text-ink-muted">{table.intro ?? (table.adminOnly ? "Not shown on the public page." : "Shown on the public page.")}</p>
             </div>
             {rows ? <span className="text-xs text-ink-muted">{rows.length} {rows.length === 1 ? table.item : `${table.item}s`}</span> : null}
