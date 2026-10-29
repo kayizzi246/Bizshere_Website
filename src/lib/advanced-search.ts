@@ -1,5 +1,6 @@
 import type { BusinessStage, ContentType, FundingType, MachineCondition, Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
+import { searchTerms, termScore, termWhere } from "./search-terms";
 
 /**
  * Advanced search across directories (the /search page): words, exact phrase, words to leave
@@ -73,13 +74,13 @@ const onlyFor = (types: ContentType[], where: Prisma.ContentItemWhereInput): Pri
 
 export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
   const types = GROUPS.filter((g) => p.show.includes(g.id)).flatMap((g) => g.types);
-  if (!types.length) return { total: 0, rows: [] as Awaited<ReturnType<typeof loadRows>> };
+  if (!types.length) return { total: 0, rows: [] as Awaited<ReturnType<typeof loadRows>>, loose: false };
   const since = p.updated ? new Date(Date.now() - Number(p.updated) * 86_400_000) : null;
   const districtName = p.district ? (await prisma.location.findUnique({ where: { id: p.district }, select: { name: true } }))?.name : null;
   const budget = opts.member && (p.budgetMin !== null || p.budgetMax !== null);
 
+  const terms = searchTerms(`${p.q} ${p.all}`);
   const and: Prisma.ContentItemWhereInput[] = [
-    ...words(`${p.q} ${p.all}`).map(text),
     ...(p.phrase ? [text(p.phrase)] : []),
     ...words(p.none).map((w) => ({ NOT: text(w) })),
     ...(p.category ? [{ OR: [{ primaryCategoryId: p.category }, { categories: { some: { categoryId: p.category } } }] }] : []),
@@ -98,23 +99,33 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
       ],
     })] : []),
   ];
-  const where: Prisma.ContentItemWhereInput = { publicationStatus: "PUBLISHED", contentType: { in: types }, AND: and };
+  const base: Prisma.ContentItemWhereInput = { publicationStatus: "PUBLISHED", contentType: { in: types }, AND: and };
+  const select = { id: true, title: true, shortSummary: true, publishedAt: true, lastReviewedAt: true } as const;
+  const orderBy: Prisma.ContentItemOrderByWithRelationInput = p.sort === "az" ? { title: "asc" } : p.sort === "newest" ? { publishedAt: { sort: "desc", nulls: "last" } } : { lastReviewedAt: { sort: "desc", nulls: "last" } };
 
-  // Relevance: title hits weigh most, then summary, then text. Rank ids, then load one page.
-  const candidates = await prisma.contentItem.findMany({
-    where, take: 1000,
-    select: { id: true, title: true, shortSummary: true, publishedAt: true, lastReviewedAt: true },
-    orderBy: p.sort === "az" ? { title: "asc" } : p.sort === "newest" ? { publishedAt: { sort: "desc", nulls: "last" } } : { lastReviewedAt: { sort: "desc", nulls: "last" } },
-  });
+  // Every word must match (each through any of its variants).
+  let candidates = await prisma.contentItem.findMany({ where: { AND: [base, ...terms.map(termWhere)] }, take: 1000, select, orderBy });
+  const hits = new Map<string, number>();
+
+  // Nothing matches every word: show pages that match most of them, best first, and say so.
+  const loose = candidates.length === 0 && terms.length > 1;
+  if (loose) {
+    const perTerm = await Promise.all(terms.map((t) => prisma.contentItem.findMany({ where: { AND: [base, termWhere(t)] }, take: 1000, select })));
+    const byId = new Map<string, (typeof candidates)[number]>();
+    for (const list of perTerm) for (const c of list) { byId.set(c.id, c); hits.set(c.id, (hits.get(c.id) ?? 0) + 1); }
+    candidates = [...byId.values()];
+  }
+
+  // Relevance: words matched first (loose results), then title hits, then summary hits.
   let ordered = candidates;
-  if (p.sort === "relevance") {
-    const terms = words(`${p.q} ${p.all} ${p.phrase}`).map((w) => w.toLowerCase());
-    const score = (c: (typeof candidates)[number]) => terms.reduce((s, w) => s + (c.title.toLowerCase().includes(w) ? 3 : 0) + ((c.shortSummary ?? "").toLowerCase().includes(w) ? 1 : 0), 0);
-    ordered = terms.length ? [...candidates].sort((a, b) => score(b) - score(a)) : candidates;
+  if (p.sort === "relevance" || loose) {
+    const scored = searchTerms(`${p.q} ${p.all} ${p.phrase}`);
+    const rank = (c: (typeof candidates)[number]) => (hits.get(c.id) ?? 0) * 100 + termScore(scored, c.title, c.shortSummary);
+    ordered = scored.length ? [...candidates].sort((a, b) => rank(b) - rank(a)) : candidates;
   }
   const pageIds = ordered.slice((p.page - 1) * PAGE_SIZE, p.page * PAGE_SIZE).map((c) => c.id);
   const rows = await loadRows(pageIds, opts.member);
-  return { total: candidates.length, rows: pageIds.map((id) => rows.find((r) => r.id === id)!).filter(Boolean) };
+  return { total: candidates.length, rows: pageIds.map((id) => rows.find((r) => r.id === id)!).filter(Boolean), loose };
 }
 
 /** The fields a result card shows. Contacts are loaded for members only. */

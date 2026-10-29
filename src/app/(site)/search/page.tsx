@@ -34,8 +34,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const pricesOnly = p.show.length === 1 && p.show[0] === PRICES_GROUP.id;
   const withPrices = p.show.includes(PRICES_GROUP.id) && (pricesOnly || p.q);
 
-  const [{ total, rows }, prices, choices, memberPlan, savedIds] = await Promise.all([
-    pricesOnly ? Promise.resolve({ total: 0, rows: [] as ResultRow[] }) : advancedSearch(p, { member: viewer.isMember }),
+  const [{ total, rows, loose }, prices, choices, memberPlan, savedIds] = await Promise.all([
+    pricesOnly ? Promise.resolve({ total: 0, rows: [] as ResultRow[], loose: false }) : advancedSearch(p, { member: viewer.isMember }),
     withPrices ? searchPrices(p.q, {}) : Promise.resolve([]),
     searchChoices(),
     cachedMemberPlan(),
@@ -242,11 +242,23 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
           {prices.length ? <PriceTable prices={pricesOnly ? prices.slice(0, 60) : prices.slice(0, 5)} member={viewer.isMember} more={pricesOnly ? null : url([["show"], ["dir"]], { show: PRICES_GROUP.id })} /> : null}
 
+          {loose && count > 0 ? (
+            <p role="status" className="rounded-xl border border-accent/40 bg-accent-tint px-4 py-3 text-sm text-ink-soft">
+              <strong className="font-semibold text-heading">No page matches all of your words.</strong> These are the closest matches, best first.
+            </p>
+          ) : null}
+
           {count === 0 ? (
-            <div className="card flex flex-col items-center gap-2 px-6 py-14 text-center">
+            <div className="card flex flex-col items-center gap-3 px-6 py-12 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name="search" className="h-6 w-6" /></span>
-              <p className="mt-1 font-display font-extrabold text-heading">Nothing matches yet</p>
-              <p className="text-sm text-ink-muted">Try fewer words, or remove a filter.</p>
+              <p className="mt-1 font-display text-lg font-extrabold text-heading">We couldn&apos;t find that yet</p>
+              <p className="max-w-md text-sm text-ink-muted">Try a shorter search, check the spelling, or remove a filter. You can also try one of these:</p>
+              <ul className="flex max-w-xl flex-wrap justify-center gap-2">
+                {["register a business", "file tax returns", "EFRIS", "maize mill", "SME loan", "poultry"].map((t) => (
+                  <li key={t}><Link href={`/search?q=${encodeURIComponent(t)}`} className="inline-flex rounded-full border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-brand hover:text-brand">{t}</Link></li>
+                ))}
+              </ul>
+              <p className="mt-2 text-sm text-ink-muted">Still can&apos;t find it? <Link href="/contact" className="font-semibold">Tell our team what you need</Link> and we&apos;ll point you to it or add it.</p>
             </div>
           ) : null}
 

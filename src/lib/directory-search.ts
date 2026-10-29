@@ -1,6 +1,7 @@
 import { $Enums, type ContentType, type FundingType, type Prisma, type SupplierType, type ToolType } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { searchTerms, termWhere } from "./search-terms";
 
 /**
  * Search with filters per service, following the client's field list.
@@ -148,7 +149,6 @@ function recordWhere(tab: Tab, f: Params): Prisma.ContentItemWhereInput {
   }
 }
 
-const words = (q: string) => q.split(/\s+/).map((w) => w.trim()).filter(Boolean).slice(0, 8);
 
 /** Listings for a content tab (or every tab). Every word must appear in the title, brief or description. */
 export async function searchListings(tab: Tab, q: string, f: Params) {
@@ -159,7 +159,7 @@ export async function searchListings(tab: Tab, q: string, f: Params) {
       contentType: { in: types },
       ...(f.category && tab !== "ALL" ? { primaryCategoryId: f.category } : {}),
       AND: [
-        ...words(q).map((w) => ({ OR: [{ title: { contains: w, mode: "insensitive" as const } }, { shortSummary: { contains: w, mode: "insensitive" as const } }, { overview: { contains: w, mode: "insensitive" as const } }] })),
+        ...searchTerms(q).map(termWhere),
         recordWhere(tab, f),
       ],
     },
