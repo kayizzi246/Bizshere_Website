@@ -8,7 +8,7 @@ import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { date, money } from "@/lib/format";
 import { budgetTotal } from "@/lib/costing";
-import { Connected, Crumbs, Evidence, trackView } from "@/components/DetailParts";
+import { Connected, Evidence, trackView } from "@/components/DetailParts";
 import { Icon } from "@/components/Icon";
 import { FieldSections } from "@/components/FieldSections";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
@@ -77,90 +77,116 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     <Link href={path} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}</Link>
   );
 
+  const facts: [string, string, string][] = [
+    ["files", `${scenarios.length} budget ${scenarios.length === 1 ? "plan" : "plans"}`, scenarios.map((s) => PLAN_LABEL[s.level]).join(", ") || "Being prepared"],
+    ["tool", `${scenario?.lines.length ?? 0} costed items`, scenario?.estimateDate ? `Prices as of ${date(scenario.estimateDate)}` : "With the total"],
+    ["check", `${idea.steps.length} steps to start`, "In order, from day one"],
+    ["guide", "Requirements", idea.keyRequirements || idea.successFactors ? "And what makes it work" : "Being prepared"],
+  ];
+
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      <article className="container-site flex flex-col gap-8 py-6">
-        <Crumbs trail={[["/business-ideas", "Business ideas and plans"]]} title={item.title} />
+      <article className="bg-page pb-6">
+        {/* ── Header band: deep navy like the homepage hero. Title, summary and the unlock box on the left; photo on the right ── */}
+        <header className="bg-[#071A33] text-white">
+          <div className="container-site grid gap-10 pb-20 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-14 lg:pb-24 lg:pt-10">
+            <div className="flex flex-col gap-6">
+              <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/60">
+                <Link href="/" className="text-white/60 hover:text-white">Home</Link>
+                <span aria-hidden>/</span>
+                <Link href="/business-ideas" className="text-white/60 hover:text-white">Business ideas and plans</Link>
+                <span aria-hidden>/</span>
+                <span className="max-w-[32ch] truncate text-white/90">{item.title}</span>
+              </nav>
 
-        {/* ── Product header: photo on the left, what you get and how to unlock it on the right ── */}
-        <header className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
-          <figure className="flex flex-col gap-2">
-            <div className="relative overflow-hidden rounded-2xl border border-line">
-              <IdeaPhoto src={idea.pictureUrl} alt={item.title} className="aspect-[4/3]" />
-              <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-ink px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                <Crown aria-hidden className="h-3.5 w-3.5 text-brand-mint" /> Premium plan
-              </span>
-            </div>
-            {idea.pictureCredit ? <figcaption className="text-xs text-ink-muted">{idea.pictureCredit}</figcaption> : null}
-          </figure>
-
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2.5">
-              <p className="text-sm font-semibold text-brand">{[...new Set([item.primaryCategory?.name, idea.businessType].filter(Boolean))].join(" · ") || "Business idea"}</p>
-              <h1 className="font-sans text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{item.title}</h1>
-              {item.shortSummary ? <p className="text-[17px] leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
-              <p className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"} · Reviewed {date(item.lastReviewedAt)}</p>
-            </div>
-
-            {/* What's inside: real counts from this plan */}
-            <div className="rounded-2xl border border-line bg-white p-6">
-              <h2 className="mb-3 text-sm font-bold">What&apos;s inside this plan</h2>
-              <ul className="grid gap-x-5 gap-y-2.5 text-sm sm:grid-cols-2">
-                {([
-                  [`${scenarios.length} budget ${scenarios.length === 1 ? "plan" : "plans"}`, scenarios.map((s) => PLAN_LABEL[s.level]).join(", ")],
-                  [`${scenario?.lines.length ?? 0} costed items`, scenario?.estimateDate ? `Prices as of ${date(scenario.estimateDate)}` : "With the total"],
-                  [`${idea.steps.length} steps to start`, "In order, from day one"],
-                  ...(idea.keyRequirements || idea.successFactors ? [["Requirements and success factors", "What you need before you start"]] : []),
-                ] as [string, string][]).map(([k, v]) => (
-                  <li key={k} className="flex gap-2.5">
-                    <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${viewer.isMember ? "bg-brand text-white" : "bg-brand-tint text-brand"}`}><Check aria-hidden className="h-3 w-3" strokeWidth={3} /></span>
-                    <span className="flex flex-col"><span className="font-semibold">{k}</span><span className="text-xs text-ink-muted">{v}</span></span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {viewer.isMember ? (
-              // Paid state: the plan is theirs.
-              <div className="flex flex-col gap-3 rounded-2xl border-2 border-brand bg-brand-tint p-5">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-white"><BadgeCheck aria-hidden className="h-6 w-6" /></span>
-                  <span className="flex flex-col">
-                    <span className="font-sans text-lg font-extrabold">Unlocked: this plan is yours</span>
-                    <span className="text-sm text-ink-soft">Full budget, every step and all details, with your membership.</span>
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a href="#budget" className="inline-flex h-11 items-center gap-2 rounded-lg bg-ink px-5 text-sm font-bold text-white hover:bg-ink-soft hover:text-white">Open the full budget <Icon name="arrow" className="h-4 w-4" /></a>
-                  <PrintButton />
-                </div>
+              <div className="flex flex-col gap-4">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-ink"><Crown aria-hidden className="h-3.5 w-3.5" />Premium plan</span>
+                  <span className="rounded-full border border-white/25 px-3 py-1 text-xs font-semibold text-white/85">{[...new Set([item.primaryCategory?.name, idea.businessType].filter(Boolean))].join(" · ") || "Business idea"}</span>
+                </span>
+                <h1 className="font-sans text-[36px] font-black leading-[1.08] tracking-[-0.02em] sm:text-[48px]">{item.title}</h1>
+                {item.shortSummary ? <p className="max-w-xl text-lg leading-relaxed text-white/80">{item.shortSummary}</p> : null}
+                <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
+                  <span>Costed for {scenario?.location?.name ?? "Uganda"}</span>
+                  <span>Reviewed {date(item.lastReviewedAt)}</span>
+                </p>
               </div>
-            ) : (
-              // Not paid yet: price and one button.
-              <div className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-5 text-white">
-                <div className="flex flex-wrap items-end justify-between gap-2">
-                  <span className="flex flex-col">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-white/55">Full plan</span>
-                    <span className="font-sans text-xl font-extrabold">{plan.monthly ?? "Membership"}{plan.monthly ? <span className="text-sm font-medium text-white/60"> / month</span> : null}</span>
-                  </span>
-                  <span className="text-xs text-white/60">Includes every plan on BizSphere-Ug</span>
+
+              {viewer.isMember ? (
+                // Paid state: the plan is theirs.
+                <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/[0.06] p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><BadgeCheck aria-hidden className="h-6 w-6" /></span>
+                    <span className="flex flex-col">
+                      <span className="font-sans text-lg font-extrabold">Unlocked: this plan is yours</span>
+                      <span className="text-sm text-white/70">Full budget, every step and all details, with your membership.</span>
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <a href="#budget" className="inline-flex h-11 items-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-ink hover:bg-accent hover:text-ink">Open the full budget <Icon name="arrow" className="h-4 w-4" /></a>
+                    <PrintButton />
+                  </div>
                 </div>
-                <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand font-sans text-base font-bold text-white hover:bg-brand-dark hover:text-white">
-                  <LockKeyhole aria-hidden className="h-4 w-4" /> Unlock this plan
-                </Link>
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
-                  <span className="flex gap-1.5">
-                    {["MTN MoMo", "Airtel Money", "Card"].map((m) => <span key={m} className="rounded border border-white/20 px-1.5 py-0.5 text-white/80">{m}</span>)}
-                  </span>
-                  <span>Cancel any time</span>
+              ) : (
+                // Not paid yet: price and one button.
+                <div className="flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/[0.06] p-5">
+                  <div className="flex flex-wrap items-end justify-between gap-2">
+                    <span className="flex flex-col">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-white/55">Full plan</span>
+                      <span className="font-sans text-2xl font-black">{plan.monthly ?? "Membership"}{plan.monthly ? <span className="text-sm font-medium text-white/60"> / month</span> : null}</span>
+                    </span>
+                    <span className="text-xs text-white/60">Includes every plan on BizSphere-Ug</span>
+                  </div>
+                  <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-white font-sans text-base font-bold text-ink hover:bg-accent hover:text-ink">
+                    <LockKeyhole aria-hidden className="h-4 w-4" /> Unlock this plan
+                  </Link>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
+                    <span className="flex gap-1.5">
+                      {["MTN MoMo", "Airtel Money", "Card"].map((m) => <span key={m} className="rounded border border-white/20 px-1.5 py-0.5 text-white/80">{m}</span>)}
+                    </span>
+                    <span>Cancel any time</span>
+                  </div>
                 </div>
+              )}
+            </div>
+
+            <figure className="flex flex-col gap-2">
+              <div className="overflow-hidden rounded-3xl border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]">
+                <IdeaPhoto src={idea.pictureUrl} alt={item.title} className="aspect-[4/3]" />
               </div>
-            )}
+              {idea.pictureCredit ? <figcaption className="text-xs text-white/50">{idea.pictureCredit}</figcaption> : null}
+            </figure>
           </div>
         </header>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-          <div className="flex min-w-0 flex-col gap-10">
+        {/* ── What's inside: real counts from this plan, overlapping the band ── */}
+        <div className="container-site relative -mt-12">
+          <ul aria-label="What's inside this plan" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {facts.map(([icon, k, v]) => (
+              <li key={k} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_12px_30px_-18px_rgba(7,26,51,0.35)] sm:p-5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-sans text-[15px] font-black text-heading sm:text-base">{k}</span>
+                  <span className="truncate text-xs text-ink-muted">{v}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ── In-page tabs, stuck under the header while reading ── */}
+        <nav aria-label="On this page" className="sticky top-[78px] z-20 mt-8 border-y border-line bg-white/90 backdrop-blur-xl">
+          <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
+            {sections.map((s) => (
+              <a key={s.id} href={`#${s.id}`} className="flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft hover:bg-page hover:text-ink">
+                <span className="font-mono text-xs text-brand">{s.n}</span>{s.title}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <div className="container-site grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-10">
+          <div className="flex min-w-0 flex-col gap-6">
             {item.overview ? (
               <Section n={num("overview")} id="overview" title="Overview">
                 <p className="whitespace-pre-line text-[17px] leading-relaxed text-ink-soft">{item.overview}</p>
@@ -285,9 +311,9 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </div>
 
           {/* ── Sidebar ── */}
-          <aside className="flex flex-col gap-5 lg:sticky lg:top-24">
+          <aside className="flex flex-col gap-5 lg:sticky lg:top-[150px]">
             <section className="rounded-2xl border border-line bg-white p-6">
-              <h2 className="mb-3 text-sm font-bold">At a glance</h2>
+              <h2 className="mb-3 font-sans text-base font-black text-heading">At a glance</h2>
               <dl className="flex flex-col text-sm">
                 {([
                   ["Business type", idea.businessType],
@@ -303,13 +329,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 ))}
               </dl>
             </section>
-
-            <nav aria-label="On this page" className="hidden flex-col gap-1 text-sm lg:flex">
-              <span className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-muted">On this page</span>
-              {sections.map((s) => (
-                <a key={s.id} href={`#${s.id}`} className="flex gap-2.5 rounded-md py-1 text-ink-soft hover:text-ink"><span className="font-mono text-xs leading-5 text-ink-muted">{s.n}</span>{s.title}</a>
-              ))}
-            </nav>
 
             {!viewer.isMember ? (
               <section className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-5 text-white">
@@ -336,9 +355,9 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
 function Section({ n, id, title, children }: { n: string; id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} data-reveal className="scroll-mt-24 border-t border-ink pt-5">
-      <h2 className="mb-5 flex items-baseline gap-3 font-sans text-xl font-extrabold tracking-tight">
-        <span className="font-mono text-sm font-semibold text-brand">{n}</span>{title}
+    <section id={id} className="scroll-mt-[150px] rounded-2xl border border-line bg-white p-6 sm:p-8">
+      <h2 className="mb-6 flex items-center gap-3 font-sans text-[22px] font-black tracking-[-0.02em] text-heading sm:text-[26px]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint font-mono text-sm font-bold text-brand">{n}</span>{title}
       </h2>
       {children}
     </section>
