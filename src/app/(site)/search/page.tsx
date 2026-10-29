@@ -8,7 +8,7 @@ import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
 import { searchPrices } from "@/lib/directory-search";
 import {
   advancedSearch, CONDITIONS, FUNDING_TYPES, GROUPS, hasAdvanced, PAGE_SIZE, parseSearch, PRICES_GROUP,
-  searchChoices, SORTS, STAGES, UPDATED, type ResultRow, type SearchParams,
+  searchChoices, SORTS, STAGES, TOPICS, UPDATED, type ResultRow, type SearchParams,
 } from "@/lib/advanced-search";
 import { saveSearch, toggleSave } from "@/app/actions/member";
 import { AutoSubmit } from "@/components/AutoSubmit";
@@ -62,6 +62,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const allShown = p.show.length >= GROUPS.length && !p.show.includes(PRICES_GROUP.id) || p.show.length === GROUPS.length + 1;
   const chips: { label: string; href: string }[] = [
     ...(p.q ? [{ label: `“${p.q}”`, href: url([["q"]]) }] : []),
+    ...(p.topic ? [{ label: `Topic: ${TOPICS.find((t) => t.id === p.topic)!.label}`, href: url([["topic"]]) }] : []),
     ...(p.all ? [{ label: `All of: ${p.all}`, href: url([["all"]]) }] : []),
     ...(p.phrase ? [{ label: `Phrase: “${p.phrase}”`, href: url([["phrase"]]) }] : []),
     ...(p.none ? [{ label: `Without: ${p.none}`, href: url([["none"]]) }] : []),
@@ -112,6 +113,24 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                   <span className="hidden group-has-[#adv-toggle:checked]/adv:inline">Hide advanced search</span>
                 </label>
               </div>
+            </div>
+
+            {/* What people come to do: one tap shows every page about that task, across all directories */}
+            <div className="mt-4 flex flex-col gap-2">
+              <span className="text-[13px] font-semibold text-ink-soft">What do you need to do?</span>
+              <ul aria-label="Topics" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible">
+                {TOPICS.map((t) => {
+                  const on = p.topic === t.id;
+                  return (
+                    <li key={t.id} className="shrink-0">
+                      <Link href={url([["topic"], ["page"]], on ? {} : { topic: t.id })} aria-current={on ? "true" : undefined}
+                        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink-soft hover:border-brand hover:text-brand"}`}>
+                        {t.label}{on ? <span aria-hidden>×</span> : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
             <div data-manual="" className="mt-4 hidden rounded-2xl border border-line bg-white group-has-[#adv-toggle:checked]/adv:block">
@@ -214,7 +233,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <section className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-black text-heading">{p.q ? <>Results for “{p.q}”</> : "All results"}</h2>
+              <h2 className="text-xl font-black text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
               <p className="mt-0.5 text-sm text-ink-muted">{count.toLocaleString()} {count === 1 ? "result" : "results"}{pages > 1 ? ` · page ${p.page} of ${pages}` : ""}</p>
             </div>
             {!pricesOnly ? (

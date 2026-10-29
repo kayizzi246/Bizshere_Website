@@ -57,6 +57,16 @@ function stem(w: string) {
 }
 
 /** Words of a query, each with its variants. Duplicates and filler words are removed. */
+/**
+ * Short abbreviations hide inside ordinary words ("ura" in insurance, "vat" in private, "tin" in
+ * printing), and matching is by substring. So they only count as whole words: followed by a space
+ * or punctuation, or in brackets. (A page whose text ends on the abbreviation is the one miss.)
+ */
+const WHOLE_WORD = new Set(["ura", "ursb", "nssf", "unbs", "uia", "kcca", "tin", "vat", "paye", "lc", "sme", "smes"]);
+export function asWords(variants: string[]): string[] {
+  return [...new Set(variants.flatMap((v) => (WHOLE_WORD.has(v) ? [`${v} `, ` ${v},`, ` ${v}.`, ` ${v})`, `(${v}`, ` ${v}:`, ` ${v};`, ` ${v}'`] : [v])))];
+}
+
 export function searchTerms(q: string): string[][] {
   const raw = q.toLowerCase().replace(/[“”"'’]/g, " ").split(/[^a-z0-9-]+/).filter(Boolean);
   const kept = raw.filter((w) => !STOP.has(w));
@@ -71,7 +81,7 @@ export function searchTerms(q: string): string[][] {
     for (const g of GROUPS) {
       if (g.some((x) => x === w || x === base || stem(x) === base)) g.forEach((x) => variants.add(x));
     }
-    out.push([...variants]);
+    out.push(asWords([...variants]));
   }
   return out;
 }

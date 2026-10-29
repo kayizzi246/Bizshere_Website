@@ -1,6 +1,6 @@
 import type { BusinessStage, ContentType, FundingType, MachineCondition, Prisma } from "@prisma/client";
 import { prisma } from "./prisma";
-import { searchTerms, termScore, termWhere } from "./search-terms";
+import { asWords, searchTerms, termScore, termWhere } from "./search-terms";
 
 /**
  * Advanced search across directories (the /search page): words, exact phrase, words to leave
@@ -32,6 +32,27 @@ export const UPDATED: [string, string][] = [["", "Any time"], ["30", "Last 30 da
 export const SORTS: [string, string][] = [["relevance", "Most relevant"], ["reviewed", "Recently reviewed"], ["newest", "Newest"], ["az", "A to Z"]];
 export const PAGE_SIZE = 12;
 
+/**
+ * Tasks people come to do. Picking one shows every page that mentions any of its words, across
+ * all directories: guides, tools, experts who do it, funding, news. Words are matched the same
+ * forgiving way as the search box (abbreviations as whole words only).
+ */
+export const TOPICS: { id: string; label: string; words: string[] }[] = [
+  { id: "tax-returns", label: "Tax returns", words: ["tax return", "income tax", "file returns", "filing returns", "return filing", "self-assessment", "ura", "uganda revenue authority", "tax compliance"] },
+  { id: "audit", label: "Audit", words: ["audit", "auditor", "auditing", "financial statement", "statements of account", "books of account", "assurance"] },
+  { id: "bookkeeping", label: "Bookkeeping and accounts", words: ["bookkeeping", "book-keeping", "keep books", "accounting", "accountant", "cash flow", "ledger"] },
+  { id: "register", label: "Register a business", words: ["register a business", "business registration", "company registration", "register your business", "ursb", "incorporat", "business name"] },
+  { id: "efris", label: "EFRIS and e-invoicing", words: ["efris", "e-invoic", "electronic invoic", "fiscal receipt"] },
+  { id: "vat", label: "VAT", words: ["vat", "value added tax"] },
+  { id: "paye", label: "PAYE and payroll", words: ["paye", "pay as you earn", "payroll"] },
+  { id: "nssf", label: "NSSF", words: ["nssf", "social security"] },
+  { id: "licences", label: "Licences and permits", words: ["licence", "license", "permit", "kcca", "trading licence"] },
+  { id: "standards", label: "Standards and certification", words: ["unbs", "standards", "certification", "q-mark"] },
+  { id: "trade", label: "Export and import", words: ["export", "import", "customs", "clearing", "shipping"] },
+  { id: "finance", label: "Loans and grants", words: ["loan", "credit", "grant", "financing", "equity", "investor"] },
+  { id: "plan", label: "Business plan", words: ["business plan", "feasibility", "start-up budget", "startup budget", "loan application"] },
+];
+
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
 const many = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []).map((x) => x.trim()).filter(Boolean);
 const words = (s: string) => s.split(/\s+/).map((w) => w.trim()).filter(Boolean).slice(0, 10);
@@ -55,6 +76,7 @@ export function parseSearch(sp: SearchParams) {
   const page = Math.max(1, Math.min(500, Number(one(sp.page)) || 1));
   return {
     q: one(sp.q), all: one(sp.all), phrase: one(sp.phrase), none: one(sp.none),
+    topic: TOPICS.find((t) => t.id === one(sp.topic))?.id ?? "",
     show, cond, ftype, stage, updated, sort, page,
     category: one(sp.category), district: one(sp.district),
     budgetMin: num(one(sp.budgetMin)), budgetMax: num(one(sp.budgetMax)),
@@ -80,7 +102,9 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
   const budget = opts.member && (p.budgetMin !== null || p.budgetMax !== null);
 
   const terms = searchTerms(`${p.q} ${p.all}`);
+  const topic = TOPICS.find((t) => t.id === p.topic);
   const and: Prisma.ContentItemWhereInput[] = [
+    ...(topic ? [termWhere(asWords(topic.words))] : []),
     ...(p.phrase ? [text(p.phrase)] : []),
     ...words(p.none).map((w) => ({ NOT: text(w) })),
     ...(p.category ? [{ OR: [{ primaryCategoryId: p.category }, { categories: { some: { categoryId: p.category } } }] }] : []),
@@ -119,7 +143,7 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
   // Relevance: words matched first (loose results), then title hits, then summary hits.
   let ordered = candidates;
   if (p.sort === "relevance" || loose) {
-    const scored = searchTerms(`${p.q} ${p.all} ${p.phrase}`);
+    const scored = [...searchTerms(`${p.q} ${p.all} ${p.phrase}`), ...(topic ? [asWords(topic.words)] : [])];
     const rank = (c: (typeof candidates)[number]) => (hits.get(c.id) ?? 0) * 100 + termScore(scored, c.title, c.shortSummary);
     ordered = scored.length ? [...candidates].sort((a, b) => rank(b) - rank(a)) : candidates;
   }
