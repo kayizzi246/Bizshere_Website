@@ -45,12 +45,12 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: solid deep navy. Big headline, search, chips and
+      {/* ── Hero: deep navy with a teal-to-blue glow from the bottom-right corner. Big headline, search, chips and
           actions on the left; one clean white card (video or example) on the right, desktop only. ── */}
       <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
 
-        {/* Nearly full-screen on desktop: most of the viewport below the header (~120px) */}
-        <div className="container-site relative grid items-center gap-12 py-12 sm:py-16 lg:min-h-[calc(88svh-120px)] lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
+        <div className="container-site relative grid items-center gap-12 py-12 sm:py-14 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
           <div className="hero-rise flex flex-col items-start gap-7">
             {/* Inter Black (900): Manrope stops at 800. Words blur in one by one, then the verb keeps cycling. */}
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
@@ -65,15 +65,15 @@ export default async function HomePage() {
               ))}
             </h1>
 
-            <p className="max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="max-w-xl text-[15px] leading-relaxed text-white/80 sm:text-base">
               Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
-            <form action="/search" role="search" className="flex w-full max-w-2xl items-center gap-2 rounded-xl bg-white p-2 pl-5 text-ink-muted ring-4 ring-white/10">
-              <Icon name="search" className="h-5 w-5 shrink-0" />
+            <form action="/search" role="search" className="flex w-full max-w-2xl items-center gap-2 rounded-xl bg-white p-1.5 pl-3.5 text-ink-muted ring-4 ring-white/10 sm:p-2 sm:pl-5">
+              <Icon name="search" className="h-[18px] w-[18px] shrink-0 sm:h-5 sm:w-5" />
               <label className="sr-only" htmlFor="hero-q">Search all directories</label>
-              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “start a bakery” or “maize mill”" className="min-h-[52px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
-              <button className="btn-primary min-h-[52px] shrink-0 px-7 text-base">Search</button>
+              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “start a bakery”" className="min-h-[44px] w-full min-w-0 bg-transparent text-base sm:min-h-[52px] text-ink outline-none placeholder:text-ink-muted" />
+              <button className="btn-primary min-h-[44px] shrink-0 px-4 text-sm sm:min-h-[52px] sm:px-7 sm:text-base">Search</button>
             </form>
 
             {/* Every directory as a dotted chip */}
