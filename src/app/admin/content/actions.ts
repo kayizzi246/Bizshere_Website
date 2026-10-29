@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type AccessLevel, type BusinessStage, type ContentType, type PublicationStatus } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, type Tx } from "@/lib/prisma";
 import { requireStaff } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { directoryFor, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
@@ -34,7 +34,7 @@ const optDate = (v: string) => (v ? new Date(v) : null);
 const lines = (raw: string) => raw.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
 const cells = (line: string) => line.split("|").map((x) => x.trim());
 
-async function saveChildren(tx: Prisma.TransactionClient, key: ChildList["key"], parentId: string, raw: string, errors: Record<string, string>) {
+async function saveChildren(tx: Tx, key: ChildList["key"], parentId: string, raw: string, errors: Record<string, string>) {
   const rows = lines(raw);
   switch (key) {
     case "ideaSteps":
