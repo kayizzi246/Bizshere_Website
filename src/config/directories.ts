@@ -72,8 +72,11 @@ export const DIRECTORIES: Directory[] = [
   },
 ];
 
-/** Directories only members can open; links into them show the sign-up and payment pop-up. Markets and prices is free. */
-export const PAID_PATHS = DIRECTORIES.filter((d) => d.href !== "/prices").map((d) => d.href);
+/**
+ * Paths only members can open; links into them show the sign-up and payment pop-up. Markets and prices is free.
+ * Investment opportunities (listed under Guidelines) and recipes aren't directories of their own, but their pages are paid too.
+ */
+export const PAID_PATHS = [...DIRECTORIES.filter((d) => d.href !== "/prices").map((d) => d.href), "/opportunities", "/recipes"];
 
 /** Title and description for a directory's list page. */
 export const directory = (href: string) => DIRECTORIES.find((d) => d.href === href)!;

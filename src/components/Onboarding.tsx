@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, CreditCard, LockKeyhole, Smartphone, X } from "lucide-react";
+import { Check, CreditCard, Download, Landmark, LockKeyhole, Phone, Smartphone, Sparkles, Wallet, X } from "lucide-react";
 import { accessState, startMembership, type CheckoutOutcome } from "@/app/actions/onboarding";
 import { PhoneSignIn } from "./PhoneSignIn";
 
@@ -93,22 +93,22 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   }, [next, onClose, router, setStep]);
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/50 backdrop-blur-[2px] sm:items-center sm:px-4 sm:py-8" onClick={onClose}>
-      {/* A sheet from the bottom on phones, a centred card on larger screens */}
-      <div ref={panel} className="onboard-pop relative w-full max-w-[440px] overflow-hidden rounded-t-2xl bg-white sm:rounded-2xl sm:border sm:border-line" onClick={(e) => e.stopPropagation()}>
-        <span aria-hidden className="mx-auto mt-2.5 block h-1 w-9 rounded-full bg-line-strong sm:hidden" />
-        <div className="flex items-center justify-between gap-3 px-5 pt-4 sm:px-6 sm:pt-5">
-          {step !== "done" ? <Steps step={step} /> : <span />}
-          <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-page hover:text-ink"><X className="h-[18px] w-[18px]" /></button>
-        </div>
-        <div className="px-5 pb-6 pt-3 sm:px-6">
+    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8" onClick={onClose}>
+      {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right */}
+      <div ref={panel} className="onboard-pop relative grid w-full max-w-[960px] overflow-hidden rounded-t-3xl bg-white md:grid-cols-[1fr_1.05fr] md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink-muted hover:bg-page hover:text-ink"><X className="h-5 w-5" /></button>
+
+        <WhyPanel plan={plan} />
+
+        <div className="flex flex-col justify-center px-6 pb-8 pt-7 sm:px-10 md:py-12">
           {step === "account" ? (
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-1.5">
-                <h2 id="onboard-title" className="text-lg font-bold text-heading">Create your account</h2>
-                <p className="text-[13px] leading-relaxed text-ink-muted">Sign up or sign in with your phone number. Already a member? Use the same number to get straight back in.</p>
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark">Takes less than a minute</span>
+                <h2 id="onboard-title" className="font-sans text-[28px] font-black leading-[1.1] tracking-[-0.02em] text-heading">Create your account</h2>
+                <p className="text-[15px] leading-relaxed text-ink-muted">Just your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
               </div>
-              <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
+              <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : null}
           {step === "pay" ? <PayStep plan={plan} onDone={() => { router.refresh(); setStep("done"); }} /> : null}
@@ -119,20 +119,38 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   );
 }
 
-/** "1 Account — 2 Payment" at the top of the pop-up. */
-function Steps({ step }: { step: Step }) {
-  const items: [Step, string][] = [["account", "Account"], ["pay", "Payment"]];
-  const at = items.findIndex(([k]) => k === step);
+const WHY = [
+  { icon: Wallet, title: "Know the real cost first", text: "Full start-up budgets and every step of each business plan, line by line." },
+  { icon: Phone, title: "Call the right people", text: "Supplier and expert contacts, each marked with the date we checked it." },
+  { icon: Landmark, title: "Find money that fits", text: "Funding amounts, terms and criteria, and machine prices to compare." },
+  { icon: Download, title: "Keep everything", text: "Price history, downloadable tools and templates, and pages you save." },
+];
+
+/** Left panel: why an account and membership are worth it. Navy like the hero; trimmed on phones. */
+function WhyPanel({ plan }: { plan: Plan }) {
   return (
-    <ol className="flex items-center gap-2 text-[12px] font-semibold">
-      {items.map(([k, label], n) => (
-        <li key={k} className="flex items-center gap-2" aria-current={n === at ? "step" : undefined}>
-          {n ? <span aria-hidden className={`h-px w-6 ${n <= at ? "bg-brand" : "bg-line-strong"}`} /> : null}
-          <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${n <= at ? "bg-brand text-white" : "bg-page text-ink-muted"}`}>{n < at ? <Check className="h-3 w-3" /> : n + 1}</span>
-          <span className={n === at ? "text-heading" : "text-ink-muted"}>{label}</span>
-        </li>
-      ))}
-    </ol>
+    <div className="relative isolate overflow-hidden bg-[#071A33] px-6 pb-6 pt-8 text-white sm:px-10 md:py-12">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_100%,#22B8DF_0%,#0072CE_40%,transparent_80%)] opacity-80" />
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold"><Sparkles aria-hidden className="h-3.5 w-3.5 text-accent" />Full access</span>
+      <p className="mt-4 font-sans text-[26px] font-black leading-[1.1] tracking-[-0.02em] md:text-[34px]">Start your business with the full picture</p>
+      <p className="mt-3 hidden text-[15px] leading-relaxed text-white/80 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
+      <ul className="mt-6 hidden flex-col gap-4 sm:flex">
+        {WHY.map((w) => (
+          <li key={w.title} className="flex gap-3.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent"><w.icon aria-hidden className="h-5 w-5" /></span>
+            <span className="flex flex-col gap-0.5">
+              <span className="text-[15px] font-bold">{w.title}</span>
+              <span className="text-[13px] leading-relaxed text-white/75">{w.text}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/15 pt-5 text-[13px] text-white/80">
+        {plan.monthly ? <span><strong className="text-lg font-black text-white">{plan.monthly}</strong> / month</span> : null}
+        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />Cancel any time</span>
+        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />MoMo, Airtel or card</span>
+      </div>
+    </div>
   );
 }
 
@@ -160,7 +178,6 @@ const METHODS = [
   { id: "CARD", label: "Card", icon: CreditCard, tone: "bg-heading text-white" },
 ] as const;
 
-const PERKS = ["Full plans and start-up budgets", "Supplier and expert contacts", "Funding terms, prices and downloads"];
 
 /** +256772123456 → "0772 123 456"; anything else is shown as stored. */
 function localPhone(p: string) {
@@ -209,8 +226,8 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <h2 id="onboard-title" className="text-lg font-bold text-heading">Unlock full access</h2>
-        <p className="text-[13px] leading-relaxed text-ink-muted">One membership opens every directory.</p>
+        <h2 id="onboard-title" className="font-sans text-[28px] font-black leading-[1.1] tracking-[-0.02em] text-heading">Unlock full access</h2>
+        <p className="text-[15px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
       </div>
 
       <div className="rounded-xl border border-line bg-page p-4">
@@ -223,9 +240,6 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
           </div>
         </div>
         <p className="mt-2 font-display text-[22px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</p>
-        <ul className="mt-3 flex flex-col gap-1.5 border-t border-line pt-3">
-          {PERKS.map((t) => <li key={t} className="flex items-center gap-2 text-[13px] text-ink-soft"><Check aria-hidden className="h-3.5 w-3.5 shrink-0 text-brand" />{t}</li>)}
-        </ul>
       </div>
 
       <fieldset className="flex flex-col gap-2">
@@ -254,7 +268,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
       {result?.status === "error" ? <p role="alert" className="rounded-lg bg-warn-bg px-3 py-2 text-[13px] font-medium text-warn-fg">{result.message}</p> : null}
       {result?.status === "prompt_sent" ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-[13px] font-medium text-brand-dark">Check your phone and approve the payment. Your access opens as soon as it goes through.</p> : null}
 
-      <button disabled={busy} className="btn-primary min-h-[48px] w-full text-[15px]"><LockKeyhole className="h-4 w-4" />{busy ? "Starting payment…" : price ? `Pay ${price}` : "Pay and unlock"}</button>
+      <button disabled={busy} className="btn-primary min-h-[52px] w-full text-base"><LockKeyhole className="h-4 w-4" />{busy ? "Starting payment…" : price ? `Pay ${price}` : "Pay and unlock"}</button>
       <p className="flex items-center justify-center gap-1.5 text-[12px] text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />Secure payment · Cancel any time from your account</p>
     </form>
   );
