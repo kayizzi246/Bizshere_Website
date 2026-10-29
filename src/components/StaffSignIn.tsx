@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
-/** Email and password sign-in for staff, shown only at the private /staff/<key> link. */
-export function StaffSignIn() {
+/** Email and password sign-in for staff: at /login when coming from the admin, and at the private /staff/<key> link. */
+export function StaffSignIn({ next = "/admin" }: { next?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +19,7 @@ export function StaffSignIn() {
     const res = await signIn("credentials", { identifier, password, redirect: false });
     setBusy(false);
     if (!res || res.error) return setError("Email or password is not correct.");
-    window.location.href = "/admin";
+    window.location.href = next.startsWith("/admin") ? next : "/admin";
   }
 
   return (

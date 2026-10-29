@@ -8,7 +8,6 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { getViewer } from "@/lib/access";
-import { RotatingWord } from "@/components/RotatingWord";
 
 export const dynamic = "force-dynamic";
 
@@ -46,39 +45,34 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: deep navy with brand blue glowing up from the bottom-right corner. Big headline,
-          two actions on the left; one clean white card (video or example) on the right, desktop only. ── */}
-      <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_75%_at_100%_100%,#22B8DF_0%,#0072CE_38%,transparent_75%)]" />
+      {/* ── Hero: brand blue gradient, lighter at the top left. Big headline, search, chips and
+          actions on the left; one clean white card (video or example) on the right, desktop only. ── */}
+      <section className="relative isolate overflow-hidden bg-[linear-gradient(135deg,#0A74D0_0%,#0063B8_55%,#0057A6_100%)] text-white">
 
-        {/* Full-screen on desktop: fills the viewport below the header (~120px) */}
-        <div className="container-site relative grid items-center gap-12 py-16 sm:py-20 lg:min-h-[calc(100svh-120px)] lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-24">
+        {/* Nearly full-screen on desktop: most of the viewport below the header (~120px) */}
+        <div className="container-site relative grid items-center gap-12 py-12 sm:py-16 lg:min-h-[calc(88svh-120px)] lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-16">
           <div className="hero-rise flex flex-col items-start gap-7">
             {/* Inter Black (900): Manrope stops at 800. Words blur in one by one, then the verb keeps cycling. */}
-            <h1 className="font-sans text-[44px] font-black leading-[1.05] tracking-[-0.03em] text-white sm:text-[60px] lg:text-[64px] xl:text-[76px]">
-              {["Plan,", "equip", "and"].map((w, n) => (
-                <span key={w} className="word-in inline-block" style={{ animationDelay: `${n * 110}ms` }}>{w}&nbsp;</span>
-              ))}
-              <br />
-              <span className="word-in inline-block" style={{ animationDelay: "330ms" }}>
-                <span className="relative inline-block">
-                  <RotatingWord words={["fund", "start", "grow", "launch"]} className="text-white" />
-                  <span aria-hidden className="absolute inset-x-0 -bottom-[0.04em] h-[0.1em] rounded-full bg-accent" />
-                </span>&nbsp;
-              </span>
-              {["your", "business."].map((w, n) => (
-                <span key={w} className="word-in inline-block" style={{ animationDelay: `${440 + n * 110}ms` }}>{w}{n === 0 ? "\u00a0" : ""}</span>
+            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
+                "start" carries the orange underline. */}
+            <h1 className="font-sans text-[42px] font-black leading-[1.05] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[60px] xl:text-[68px]">
+              {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
+                <span key={w} className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
+                  {w === "start," ? (
+                    <span className="relative inline-block">start<span aria-hidden className="absolute inset-x-0 -bottom-[0.04em] h-[0.1em] rounded-full bg-accent" /></span>
+                  ) : w}{w === "start," ? "," : ""}{n < 8 ? " " : ""}
+                </span>
               ))}
             </h1>
 
             <p className="max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
-              Business ideas with start-up budgets, the machines to buy, where to buy them, who lends, and who can advise you. Written and checked for Uganda.
+              Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
             <form action="/search" role="search" className="flex w-full max-w-2xl items-center gap-2 rounded-xl bg-white p-2 pl-5 text-ink-muted ring-4 ring-white/10">
               <Icon name="search" className="h-5 w-5 shrink-0" />
               <label className="sr-only" htmlFor="hero-q">Search all directories</label>
-              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “maize mill” or “bakery”" className="min-h-[52px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
+              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “start a bakery” or “maize mill”" className="min-h-[52px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
               <button className="btn-primary min-h-[52px] shrink-0 px-7 text-base">Search</button>
             </form>
 
