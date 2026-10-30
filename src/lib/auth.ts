@@ -9,7 +9,7 @@ import type { Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { audit } from "./audit";
 import { normalizePhone } from "./phone";
-import { phoneKey, verifyCode } from "./phone-codes";
+import { isTestPhone, phoneKey, verifyCode } from "./phone-codes";
 
 // `identifier` is an email address or a phone number. `email` is still accepted
 // for older forms that post it under that name.
@@ -90,6 +90,9 @@ export const authOptions: NextAuthOptions = {
           await audit(user.id, "user.signed_up", "user", user.id, { via: "phone" });
         }
         if (user.isSuspended) return null;
+        // Demo account (OTP_TEST_PHONE): give it active member access so the owner can preview
+        // paid pages on the live site. Only ever reached when the test env vars are set.
+        if (isTestPhone(phone)) await ensureDemoMembership(user.id);
         await prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } });
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
@@ -156,3 +159,15 @@ export const authOptions: NextAuthOptions = {
 
 /** Once per request (React cache): many components ask for the session. */
 export const getSession = cache(() => getServerSession(authOptions));
+
+/**
+ * Gives the demo account an active subscription to the paid "member" plan, so the owner can see
+ * full detail on the live site. No-op if the plan is missing or the demo is already subscribed.
+ */
+async function ensureDemoMembership(userId: string) {
+  const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" }, select: { id: true } });
+  if (!plan) return;
+  const active = await prisma.subscription.findFirst({ where: { userId, planId: plan.id, status: "ACTIVE" } });
+  if (active) return;
+  await prisma.subscription.create({ data: { userId, planId: plan.id, status: "ACTIVE", currentPeriodEnd: null } });
+}

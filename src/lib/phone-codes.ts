@@ -28,6 +28,9 @@ export function phoneKey(raw: string): string | null {
 
 const isTest = (phone: string) => Boolean(testPhone() && testCode() && phone === `+${testPhone()}`);
 
+/** True for the configured test/demo number (OTP_TEST_PHONE). Used to grant the demo its member access. */
+export const isTestPhone = isTest;
+
 const CODE_LENGTH = 6;
 
 /** `length` lets the code box submit by itself once enough digits are typed. */

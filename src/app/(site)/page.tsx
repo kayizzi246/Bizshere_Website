@@ -46,13 +46,12 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: deep navy with a dotted corner, curved blue light from the right and a teal glow bottom-right.
+      {/* ── Hero: deep navy with a curved blue light from the right and a teal glow bottom-right.
           Headline (64px / 800 on wide screens), paragraph, search, directory chips and actions on the left; the
           "How it works" card on the right (wide screens). ── */}
       <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
         <div aria-hidden className="pointer-events-none absolute -right-[20%] -top-[30%] -z-10 h-[120%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(30,127,219,0.35),transparent)]" />
-        <div aria-hidden className="pointer-events-none absolute left-4 top-6 -z-10 hidden h-28 w-40 bg-[radial-gradient(rgba(255,255,255,0.22)_1.5px,transparent_1.5px)] [background-size:16px_16px] lg:block" />
 
         <div className="container-site relative grid items-center gap-12 pb-10 pt-10 sm:pt-14 lg:pb-10 lg:pt-14 xl:grid-cols-[1.1fr_1fr] xl:gap-12 2xl:gap-16">
           <div className="hero-rise flex flex-col items-start gap-6">
@@ -101,17 +100,17 @@ export default async function HomePage() {
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
           <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center gap-6 xl:flex">
-            <div className="w-full max-w-[700px] rounded-[22px] bg-white p-5 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] xl:p-6">
-              <div className="flex items-center gap-4 pb-5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-6 w-6" /></span>
+            <div className="w-full max-w-[680px] rounded-[22px] bg-white p-4 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] xl:p-5">
+              <div className="flex items-center gap-3 pb-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-5 w-5" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center gap-2 font-display text-[20px] font-bold leading-tight tracking-[-0.01em] text-heading xl:text-[22px]">
+                  <span className="flex items-center gap-2 font-display text-[18px] font-bold leading-tight tracking-[-0.01em] text-heading xl:text-[20px]">
                     {yt.video?.live ? (
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-bold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
                     ) : null}
                     <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How Bizsphere-Ug works")}</span>
                   </span>
-                  <span className="text-[15px] text-ink-muted">See how we help you from idea to action.</span>
+                  <span className="text-[14px] text-ink-muted">See how we help you from idea to action.</span>
                 </span>
                 {yt.channelId ? (
                   <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-brand-tint px-4 py-2.5 text-[15px] font-semibold text-brand hover:bg-brand hover:text-white">
@@ -295,30 +294,30 @@ function Showcase() {
     ["/funding", "funding", "SME loan", "Funding source", "Round open", "bg-[#EFEBFF] text-[#6B4EE6]"],
   ];
   return (
-    <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-br from-[#EEF5FD] via-[#F7FAFE] to-[#FFF6EE] p-4 xl:p-5">
+    <div className="flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-[#EEF5FD] via-[#F7FAFE] to-[#FFF6EE] p-3 xl:p-4">
       <div className="flex items-center justify-between gap-3">
         <span className="rounded-full bg-white px-3.5 py-1.5 text-[14px] font-semibold text-heading shadow-[0_1px_2px_rgba(7,26,51,0.08)]">Example: starting a bakery</span>
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] text-ink-muted 2xl:text-[14px]"><BarChart3 aria-hidden className="h-4 w-4 text-brand" />Live sessions coming soon</span>
       </div>
-      <div className="grid grid-cols-[1.1fr_1fr] gap-3 2xl:gap-3.5">
+      <div className="grid grid-cols-[1.1fr_1fr] gap-2.5 2xl:gap-3">
         {/* The plan */}
-        <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-[0_1px_3px_rgba(7,26,51,0.06)] xl:p-5">
+        <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-3.5 shadow-[0_1px_3px_rgba(7,26,51,0.06)] xl:p-4">
           <span className="flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-white"><Icon name="idea" className="h-5 w-5" /></span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white"><Icon name="idea" className="h-[18px] w-[18px]" /></span>
             <span className="whitespace-nowrap rounded-md bg-brand-tint px-2 py-1 text-[13px] font-semibold uppercase text-brand-dark 2xl:text-[14px]">Business plan</span>
             <ChevronRight aria-hidden className="ml-auto h-5 w-5 text-ink-muted" />
           </span>
-          <span className="font-display text-[20px] font-semibold leading-tight tracking-[-0.01em] text-heading 2xl:text-[24px]">Bakery business</span>
+          <span className="font-display text-[19px] font-semibold leading-tight tracking-[-0.01em] text-heading 2xl:text-[22px]">Bakery business</span>
           <span className="flex-1 text-[14px] leading-relaxed text-ink-muted">Budget, steps, staff and risks.</span>
           <span className="flex flex-wrap gap-1.5">
             {["Small", "Medium", "Large"].map((l) => <span key={l} className="rounded-md bg-page px-2.5 py-1 text-[14px] font-medium text-ink-soft">{l}</span>)}
           </span>
         </div>
         {/* What it links to */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
           {linked.map(([href, icon, name, kind, note, tone]) => (
-            <Link key={kind} href={href} className="group flex flex-1 items-center gap-3 rounded-2xl bg-white px-4 py-3 text-ink shadow-[0_1px_3px_rgba(7,26,51,0.06)] hover:text-ink hover:shadow-[0_8px_20px_-10px_rgba(7,26,51,0.3)]">
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl 2xl:h-12 2xl:w-12 ${tone}`}><Icon name={icon} className="h-5 w-5 2xl:h-6 2xl:w-6" /></span>
+            <Link key={kind} href={href} className="group flex flex-1 items-center gap-3 rounded-2xl bg-white px-3.5 py-2.5 text-ink shadow-[0_1px_3px_rgba(7,26,51,0.06)] hover:text-ink hover:shadow-[0_8px_20px_-10px_rgba(7,26,51,0.3)]">
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone}`}><Icon name={icon} className="h-5 w-5" /></span>
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="truncate font-display text-[16px] font-bold leading-tight text-heading 2xl:text-[17px]">{name}</span>
                 <span className="flex flex-wrap items-center gap-1.5">
