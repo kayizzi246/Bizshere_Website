@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { date, money } from "@/lib/format";
 import { budgetTotal } from "@/lib/costing";
 import { addEvidence, deleteBudgetScenario, deleteEvidence, deleteRound, saveBudgetScenario, saveRound } from "./child-actions";
+import { BudgetLinesEditor, type BudgetRow } from "./BudgetLinesEditor";
 
 /** Budget scenarios, application rounds and evidence for the admin edit page. */
 export async function ChildEditors({ contentItemId, ideaId, programmeId }: { contentItemId: string; ideaId?: string; programmeId?: string }) {
@@ -17,12 +18,15 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
     <div id="children" className="flex flex-col gap-5">
       {ideaId ? (
         <section className="card flex flex-col gap-4 p-6">
-          <h2 className="text-lg font-bold">Startup budget scenarios</h2>
-          <p className="text-sm text-ink-muted">Show low, standard and higher scenarios where evidence allows. Totals are calculated from the lines and shown only when every line has a sourced cost.</p>
+          <h2 className="text-lg font-bold">Start-up budget (template row 14)</h2>
+          <p className="text-sm text-ink-muted">One budget per business size: low = small, standard = medium, higher = large. Fill in at least the standard one. Totals are calculated from the rows and shown only when every row has a price.</p>
           {(["LOW", "STANDARD", "HIGHER"] as const).map((level) => {
             const sc = scenarios.find((x) => x.level === level);
             const total = sc ? budgetTotal(sc.lines) : null;
-            const linesText = sc?.lines.map((l) => [l.costCategory, l.description, String(l.quantity), l.unit ?? "", l.unitCost === null ? "" : String(l.unitCost), l.unknownReason ?? "", l.isRecurring ? "yes" : "no", l.isOptional ? "yes" : "no", l.details ?? ""].join(" | ")).join("\n") ?? "";
+            const rows: BudgetRow[] = sc?.lines.map((l) => ({
+              category: l.costCategory, item: l.description, qty: String(Number(l.quantity)), unit: l.unit ?? "", price: l.unitCost === null ? "" : String(Number(l.unitCost)),
+              reason: l.unitCost === null ? l.unknownReason ?? "" : "", recurring: l.isRecurring, optional: l.isOptional, details: l.details ?? "",
+            })) ?? [];
             return (
               <details key={level} open={level === "STANDARD"} className="rounded-xl border border-line p-4">
                 <summary className="cursor-pointer font-bold capitalize">{level.toLowerCase()} scenario {sc ? <span className="font-normal text-ink-muted">· {sc.lines.length} lines · {total === null ? "total incomplete" : money(total, sc.currency)}{sc.estimateDate ? ` · estimated ${date(sc.estimateDate)}` : " · no estimate date"}</span> : <span className="font-normal text-ink-muted">· not created</span>}</summary>
@@ -40,10 +44,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
                     <label className="label flex-[2_1_300px]">Assumptions<input name="assumptions" defaultValue={sc?.assumptions ?? ""} className="input" /></label>
                     <label className="label flex-[1_1_200px]">Operating scale<input name="operatingScale" defaultValue={sc?.operatingScale ?? ""} className="input" /></label>
                   </div>
-                  <label className="label">Lines
-                    <textarea name="lines" rows={7} defaultValue={linesText} className="input py-2 font-mono text-sm" />
-                    <span className="text-xs font-normal text-ink-muted">One per line: category | description | quantity | unit | unit cost | reason if cost unknown | recurring (yes/no) | optional (yes/no; essential if left out) | details (what it is and why it is needed). Leave unit cost empty if not sourced and give the reason.</span>
-                  </label>
+                  <BudgetLinesEditor initial={rows} currency={sc?.currency ?? "UGX"} />
                   <div className="flex justify-end gap-2">
                     <button className="btn-primary">Save {level.toLowerCase()} scenario</button>
                   </div>

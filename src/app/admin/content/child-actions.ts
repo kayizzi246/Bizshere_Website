@@ -7,6 +7,7 @@ import { Prisma, type ClaimType, type RoundStatus, type ScenarioLevel } from "@p
 import { prisma } from "@/lib/prisma";
 import { requireStaff } from "@/lib/access";
 import { audit } from "@/lib/audit";
+import type { BudgetRow } from "./BudgetLinesEditor";
 
 /** Editors for child records that the main content form doesn't cover: budgets, rounds, evidence. */
 
@@ -14,8 +15,9 @@ const s = (form: FormData, k: string) => String(form.get(k) ?? "").trim();
 const back = (contentItemId: string, msg: string) => redirect(`/admin/content/${contentItemId}?${msg}#children`);
 
 /**
- * Saves one budget scenario and replaces its lines (blueprint §04).
- * Line format: category | description | quantity | unit | unit cost | reason if unknown | recurring (yes/no) | optional (yes/no) | details
+ * Saves one budget scenario and replaces its lines (blueprint §04). The lines come from the
+ * budget grid (BudgetLinesEditor) as JSON: item, category, qty, unit, price, reason, recurring,
+ * optional, details. Empty price = not yet sourced (never zero).
  */
 export async function saveBudgetScenario(form: FormData) {
   const editor = await requireStaff();
@@ -26,20 +28,21 @@ export async function saveBudgetScenario(form: FormData) {
   const currency = s(form, "currency") || "UGX";
   if (!/^[A-Z]{3}$/.test(currency)) back(contentItemId, "error=Currency+must+be+an+ISO+code+like+UGX");
 
+  let rows: Partial<BudgetRow>[] = [];
+  try { rows = JSON.parse(s(form, "lines") || "[]"); } catch { back(contentItemId, "error=The+budget+rows+could+not+be+read.+Reload+and+try+again"); }
   const lines: Prisma.BudgetLineCreateManyScenarioInput[] = [];
-  const rows = s(form, "lines").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  for (const [n, row] of rows.entries()) {
-    const [costCategory, description, qty, unit, cost, reason, recurring, optional, details] = row.split("|").map((c) => c.trim());
-    const quantity = qty ? Number(qty.replace(/,/g, "")) : 1;
-    const unitCost = cost ? Number(cost.replace(/[,\s]/g, "")) : null;
-    if (!costCategory || !description || Number.isNaN(quantity) || quantity < 0 || (unitCost !== null && (Number.isNaN(unitCost) || unitCost < 0))) {
-      back(contentItemId, `error=${encodeURIComponent(`Budget line ${n + 1}: use category | description | quantity | unit | unit cost | reason | recurring`)}`);
+  const text = (v: unknown) => String(v ?? "").trim();
+  const amount = (v: unknown) => (text(v) === "" ? null : Number(text(v).replace(/[^0-9.]/g, "")));
+  for (const [n, row] of rows.filter((r) => text(r.item)).entries()) {
+    const quantity = amount(row.qty) ?? 1;
+    const unitCost = amount(row.price);
+    if (Number.isNaN(quantity) || (unitCost !== null && Number.isNaN(unitCost))) {
+      back(contentItemId, `error=${encodeURIComponent(`Budget row ${n + 1} (${text(row.item)}): quantity and price must be numbers`)}`);
     }
-    if (unitCost === null && !reason) back(contentItemId, `error=${encodeURIComponent(`Budget line ${n + 1}: no cost, so give the reason (e.g. Awaiting sourced quote)`)}`);
     lines.push({
-      costCategory, description, quantity: new Prisma.Decimal(quantity), unit: unit || null,
-      unitCost: unitCost === null ? null : new Prisma.Decimal(unitCost), unknownReason: unitCost === null ? reason : reason || null,
-      isRecurring: /^y(es)?$/i.test(recurring ?? ""), frequency: /^y(es)?$/i.test(recurring ?? "") ? "monthly" : "once", isOptional: /^y(es)?$/i.test(optional ?? ""), details: details || null, displayOrder: n,
+      costCategory: text(row.category) || "Other", description: text(row.item), quantity: new Prisma.Decimal(quantity), unit: text(row.unit) || null,
+      unitCost: unitCost === null ? null : new Prisma.Decimal(unitCost), unknownReason: text(row.reason) || (unitCost === null ? "Price not yet sourced" : null),
+      isRecurring: Boolean(row.recurring), frequency: row.recurring ? "monthly" : "once", isOptional: Boolean(row.optional), details: text(row.details) || null, displayOrder: n,
     });
   }
 

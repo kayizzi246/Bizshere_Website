@@ -102,7 +102,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
           </section>
 
           {more.length ? (
-            <section aria-labelledby="similar" className="flex flex-col gap-5 rounded-3xl border border-brand/15 bg-gradient-to-br from-brand-tint/70 to-accent-tint/40 p-5 sm:p-8">
+            <section aria-labelledby="similar" className="flex flex-col gap-5 -mx-2 rounded-2xl border border-brand/15 bg-gradient-to-br from-brand-tint/70 to-accent-tint/40 px-2 py-4 sm:mx-0 sm:rounded-3xl sm:p-8">
               <div className="flex items-end justify-between gap-3">
                 <span className="flex flex-col gap-1">
                   <h2 id="similar" className="text-block-title text-heading">Explore similar businesses</h2>

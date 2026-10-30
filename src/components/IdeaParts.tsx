@@ -64,21 +64,21 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
         {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-[#071A33]/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
       </Link>
       {/* Phones show two cards a row, so below sm the card is compact: stats and buttons stacked */}
-      <div className="flex flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-5">
+      <div className="flex flex-1 flex-col gap-2.5 px-2.5 pb-2.5 pt-3 sm:gap-4 sm:p-5">
         <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand sm:text-lg">{name}</Link>
         <dl className="grid gap-2 sm:grid-cols-2 sm:gap-2.5">
-          <div className="flex flex-col-reverse justify-end gap-0.5 rounded-xl bg-page px-2.5 py-2 sm:px-3 sm:py-2.5">
+          <div className="flex flex-col-reverse justify-end gap-0.5 rounded-lg bg-page px-2 py-1.5 sm:rounded-xl sm:px-3 sm:py-2.5">
             <dt className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Requirements</dt>
             <dd className="inline-flex items-center gap-1.5 font-display text-base font-bold text-heading"><ClipboardList aria-hidden className="h-4 w-4 text-brand" />{reqs}</dd>
           </div>
-          <div className="flex flex-col gap-0.5 rounded-xl bg-page px-2.5 py-2 sm:px-3 sm:py-2.5">
+          <div className="flex flex-col gap-0.5 rounded-lg bg-page px-2 py-1.5 sm:rounded-xl sm:px-3 sm:py-2.5">
             <dt className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-muted"><Wallet aria-hidden className="h-3.5 w-3.5 text-accent" />Capital</dt>
             <dd className="text-[13px] font-bold text-heading">{cost ?? <span className="font-medium text-ink-muted">Being priced</span>}</dd>
           </div>
         </dl>
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-line text-[13px] font-semibold sm:h-10 sm:text-sm text-heading hover:border-brand hover:text-brand"><Info aria-hidden className="h-4 w-4" />Overview</Link>
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-9 flex-[1.6] items-center justify-center gap-1.5 rounded-lg bg-brand text-[13px] font-semibold sm:order-none sm:h-10 sm:text-sm text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />Requirements →</Link>
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-line text-[13px] font-semibold sm:h-10 sm:text-sm text-heading hover:border-brand hover:text-brand"><Info aria-hidden className="hidden h-4 w-4 sm:block" />Overview</Link>
+          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-9 flex-[1.6] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-brand text-[13px] font-semibold sm:order-none sm:h-10 sm:text-sm text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="hidden h-4 w-4 sm:block" />Requirements<span aria-hidden className="hidden sm:inline"> →</span></Link>
         </div>
       </div>
     </div>
