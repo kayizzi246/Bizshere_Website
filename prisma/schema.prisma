@@ -703,6 +703,16 @@ model BusinessIdea {
   businessType           String?
   keyRequirements        String?
   remarks                String?
+  // client business idea template (Oct 2026): size, starting capital, profit potential, time to set up.
+  // Capital is the editor's headline range, shown publicly; the costed budget stays in BudgetScenario.
+  businessSize           String? // SMALL, MEDIUM, LARGE
+  capitalMin             Decimal? @db.Decimal(16, 2)
+  capitalMax             Decimal? @db.Decimal(16, 2)
+  currency               String   @default("UGX")
+  capitalNotes           String?
+  locationNotes          String?
+  profitPotential        String? // LOW, MEDIUM, HIGH
+  setupTime              String? // e.g. "2 – 3 weeks"
   pictureUrl             String? // main photo: https://… or a path on this site (/ideas/…)
   pictureCredit          String? // photographer and licence, shown under the photo
   businessModel          String?
@@ -784,6 +794,8 @@ model BudgetLine {
   frequency     String? // once, monthly...
   isRecurring   Boolean  @default(false)
   isContingency Boolean  @default(false)
+  isOptional    Boolean  @default(false) // nice to have; the essential items make the estimate
+  details       String? // what it is and why the business needs it, shown on the requirement card
   sourceId      String?
   displayOrder  Int      @default(0)
 

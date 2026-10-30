@@ -91,6 +91,77 @@ export async function seedSamples({ prisma, editorId, districts, now, days }: Ct
     });
   }
   await fill(prisma.businessIdea, "small-bakery", { businessType: "Food production", keyRequirements: "Premises with power and water\nAn oven and mixer\nFood handling permit", successFactors: "Fresh bread every morning\nRegular orders from shops and schools", remarks: "Sample remark: replace with notes from the research team." }, "businessType", prisma);
+
+  // The client's business idea template (size, capital, location, profit potential...). Only fills ideas
+  // that don't have a size yet, so admin edits are kept.
+  const template: [string, Prisma.BusinessIdeaUpdateManyMutationInput][] = [
+    ["small-bakery", { businessSize: "SMALL", capitalMin: D(8_000_000), capitalMax: D(15_000_000), capitalNotes: "Sample note: depends on the oven and how much flour you stock", locationRequirements: "Busy trading centre\nNear schools and shops", locationNotes: "Sample note: power must be reliable", licencesToInvestigate: "Trading licence\nFood handling permit", targetCustomers: "Shops, schools and families nearby", profitPotential: "MEDIUM", requiredSkills: "Baking\nStock management\nCustomer care", setupTime: "3 – 4 weeks", experienceLevel: "INTERMEDIATE" }],
+    ["sample-maize-milling", { businessSize: "SMALL", capitalMin: D(10_000_000), capitalMax: D(20_000_000), locationRequirements: "Maize-growing area\nTrading centre with three-phase power", licencesToInvestigate: "Trading licence\nUNBS certification", targetCustomers: "Shops, schools and families", profitPotential: "HIGH", requiredSkills: "Machine operation\nGrain buying\nRecord keeping", setupTime: "1 – 2 months", experienceLevel: "INTERMEDIATE" }],
+    ["sample-liquid-soap-making", { businessSize: "SMALL", capitalMin: D(2_000_000), capitalMax: D(4_000_000), capitalNotes: "Sample note: can start at home with one mixing drum", locationRequirements: "Home or small workshop\nNear offices and hotels", licencesToInvestigate: "Trading licence\nUNBS product certification", targetCustomers: "Homes, offices, schools and hotels", profitPotential: "MEDIUM", requiredSkills: "Soap making\nSafety handling chemicals\nSelling", setupTime: "2 – 3 weeks", experienceLevel: "BEGINNER", homeBasedSuitable: true }],
+    ["sample-poultry-layers-farm", { businessSize: "MEDIUM", capitalMin: D(12_000_000), capitalMax: D(25_000_000), locationRequirements: "Rural or peri-urban land\nAway from other poultry farms", locationNotes: "Sample note: good road access for selling eggs", licencesToInvestigate: "Trading licence\nVeterinary inspection", targetCustomers: "Shops, hotels and market traders", profitPotential: "HIGH", requiredSkills: "Poultry management\nDisease control\nRecord keeping", setupTime: "2 – 3 months", experienceLevel: "INTERMEDIATE" }],
+  ];
+  for (const [slug, data] of template) await fill(prisma.businessIdea, slug, data, "businessSize", prisma);
+
+  // The template's own example: a supermarket, with a budget for each business size.
+  const retail = await cat("INDUSTRY", "Retail");
+  await create("sample-supermarket", {
+    contentType: "BUSINESS_IDEA", title: "Sample: Supermarket", primaryCategoryId: retail,
+    shortSummary: "A self-service shop selling groceries and household goods to people living nearby.",
+    overview: "Sample description. A supermarket sells food, drinks and household goods from open shelves, so customers pick what they need and pay at one till. Location and good customer care decide whether people come back.",
+  }, async (contentItemId) => {
+    const idea = await prisma.businessIdea.create({
+      data: {
+        contentItemId, businessSize: "SMALL", businessType: "Retail business", keyRequirements: "Space\nFridges\nShelves",
+        locationRequirements: "Residential area", locationNotes: "Parking area is key",
+        capitalMin: D(30_000_000), capitalMax: D(50_000_000), capitalNotes: "Depending on the amount of stock and the kind of equipment bought",
+        licencesToInvestigate: "Trading licence", targetCustomers: "Working people returning home", successFactors: "Location\nGood customer care",
+        profitPotential: "MEDIUM", requiredSkills: "Business management\nCustomer care\nStock management", setupTime: "2 – 3 weeks",
+        remarks: "Sample from the client's business idea template; prices are placeholders.",
+      },
+    });
+    // [category, item, unit cost, optional?, quantity for small / medium / large]
+    const items: [string, string, number, boolean, [number, number, number]][] = [
+      ["Premises", "Shop rent, first 3 months", 1_500_000, false, [3, 3, 3]],
+      ["Legal", "Trading licence", 250_000, false, [1, 1, 1]],
+      ["Legal", "Business name registration", 100_000, false, [1, 1, 1]],
+      ["Equipment", "Shelves", 450_000, false, [10, 20, 35]],
+      ["Equipment", "Display fridge", 3_200_000, false, [1, 2, 4]],
+      ["Equipment", "Chest freezer", 1_800_000, true, [0, 1, 2]],
+      ["Equipment", "Till counter", 900_000, false, [1, 2, 3]],
+      ["Software", "Point-of-sale system", 1_500_000, true, [1, 1, 2]],
+      ["Equipment", "Shopping baskets", 15_000, true, [20, 40, 80]],
+      ["Stock", "Opening stock", 15_000_000, false, [1, 1.5, 2.5]],
+      ["Branding", "Signpost", 600_000, false, [1, 1, 1]],
+      ["Branding", "Branded carrier bags", 300_000, true, [1, 2, 4]],
+      ["Operating expenses", "Staff wages, first month", 400_000, false, [2, 4, 8]],
+    ];
+    // What each item is and why it is needed, shown on its requirement card.
+    const details: Record<string, string> = {
+      "Shop rent, first 3 months": "Sample: most landlords ask for three months up front. A shop on a busy road in a residential area, with parking, brings the most customers.",
+      "Trading licence": "Sample: issued by the local authority each year. You need it before you open, and inspectors ask to see it on the wall.",
+      "Business name registration": "Sample: register the shop's name with URSB so you can open a business bank account and sign supplier contracts.",
+      "Shelves": "Sample: metal gondola shelves for the shop floor. Plan for about one shelf unit per 6 m² of floor space.",
+      "Display fridge": "Sample: glass-door fridges for drinks, milk and yoghurt. Cold drinks are one of the main reasons people walk in.",
+      "Chest freezer": "Sample: for frozen foods and ice. Optional at first; add one once customers ask for frozen goods.",
+      "Till counter": "Sample: the checkout counter where customers pay. One till serves about 150 customers a day.",
+      "Point-of-sale system": "Sample: software and a barcode scanner to ring up sales and track stock. Optional for a small shop, but it saves stock losses.",
+      "Shopping baskets": "Sample: plastic baskets for customers. Optional; cheap, and they help people buy more.",
+      "Opening stock": "Sample: the first groceries and household goods on the shelves. Most of the starting capital goes here.",
+      "Signpost": "Sample: a clear sign with the shop's name, visible from the road.",
+      "Branded carrier bags": "Sample: bags with the shop's name. Optional; they advertise the shop wherever customers go.",
+      "Staff wages, first month": "Sample: shop attendants and a cashier, paid until the shop's own sales cover wages.",
+    };
+    for (const [i, level] of (["LOW", "STANDARD", "HIGHER"] as const).entries()) {
+      await prisma.budgetScenario.create({
+        data: {
+          ideaId: idea.id, level, name: ["Small", "Medium", "Large"][i], locationId: districts.Kampala, estimateDate: now, assumptions: "Sample figures for layout only",
+          operatingScale: ["One till, about 60 m²", "Two tills, about 150 m²", "Three or more tills, 300 m² and up"][i],
+          lines: { create: items.filter(([, , , , q]) => q[i] > 0).map(([costCategory, description, cost, isOptional, q], n) => ({ costCategory, description, unitCost: D(cost), quantity: D(q[i]), isOptional, details: details[description], displayOrder: n })) },
+        },
+      });
+    }
+    await prisma.ideaStep.createMany({ data: ["Find a busy residential location with parking", "Register the business and get a trading licence", "Fit shelves, fridges and the till", "Buy opening stock and open"].map((t, n) => ({ ideaId: idea.id, stepNumber: n + 1, title: t, description: "Sample step. Replace with practical guidance." })) });
+  });
   // Sample photos from Wikimedia Commons (credits in public/ideas/README.md). Only fills empty pictures.
   for (const [slug, pictureUrl, pictureCredit] of IDEA_PHOTOS) {
     await prisma.businessIdea.updateMany({ where: { contentItem: { slug }, pictureUrl: null }, data: { pictureUrl, pictureCredit } });

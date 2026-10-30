@@ -21,6 +21,21 @@ export function moneyRange(min: Num, max: Num, currency = "UGX", empty = "Price 
 
 const fmt = (n: number) => n.toLocaleString("en-UG", { maximumFractionDigits: 0 });
 
+/** "30M", "450K", "1.2bn": for chips and cards where the full figure doesn't fit. */
+export function compact(n: number) {
+  const [d, s] = n >= 1e9 ? [1e9, "bn"] : n >= 1e6 ? [1e6, "M"] : n >= 1e3 ? [1e3, "K"] : [1, ""];
+  return `${Number((n / d).toFixed(n / d < 10 && d > 1 ? 1 : 0))}${s}`;
+}
+
+/** "UGX 30M – 50M", or null when neither end is known. */
+export function compactRange(min: Num, max: Num, currency = "UGX") {
+  const a = toNumber(min);
+  const b = toNumber(max);
+  if (a === null && b === null) return null;
+  if (a !== null && b !== null && a !== b) return `${currency} ${compact(a)} – ${compact(b)}`;
+  return `${currency} ${compact((a ?? b) as number)}`;
+}
+
 export function date(d: Date | string | null | undefined, empty = "—") {
   if (!d) return empty;
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Kampala" });

@@ -33,7 +33,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
 
   return (
     <div className="lg:hidden">
-      <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
+      <button type="button" data-quick-services="" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
         className={`spin-border fixed right-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
         {/* The orange border travels round the edge (.spin-border in globals.css) */}
         <span className="inline-flex h-[50px] items-center gap-2 rounded-full bg-brand pl-4 pr-5 font-display text-sm font-bold text-white">

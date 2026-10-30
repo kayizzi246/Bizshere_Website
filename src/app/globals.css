@@ -194,3 +194,7 @@ select {
 /* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in
    src/components/DirectoryList.tsx), so the site header scrolls away there instead of sticking. */
 body:has([data-sticky-search]) [data-site-header] { position: relative; }
+
+/* Business idea requirements: the "my list" bar along the bottom on phones (BudgetCalculator) lifts the
+   floating Services button above it. */
+body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }

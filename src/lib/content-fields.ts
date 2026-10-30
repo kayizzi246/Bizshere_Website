@@ -46,20 +46,30 @@ const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is ze
 export const DIRECTORIES: Directory[] = [
   {
     type: "BUSINESS_IDEA", label: "Business idea", model: "businessIdea",
-    labels: { title: "Business idea name", shortSummary: "Brief", overview: "Description", category: "Category" },
+    labels: { title: "Business idea name", shortSummary: "Brief", overview: "Business description", category: "Business category" },
+    // Main details follow the client's business idea template (rows 1–13); row 14, the start-up
+    // budget, is edited under "Startup budget scenarios".
     fields: [
-      t("businessType", "Business type", MAIN, "e.g. Manufacturing, Retail, Service"), ta("keyRequirements", "Key requirements", MAIN),
-      ta("successFactors", "Success factors", MAIN), ta("remarks", "Remarks", MAIN),
+      e("businessSize", "Business size", ["SMALL", "MEDIUM", "LARGE"], MAIN),
+      t("businessType", "Business type", MAIN, "e.g. Retail business, Manufacturing, Service"),
+      ta("keyRequirements", "Key requirements", MAIN, "One per line, e.g. Space, Fridges, Shelves"),
+      ta("locationRequirements", "Best location", MAIN, "One per line, e.g. Residential area"), ta("locationNotes", "Best location: notes", MAIN, "e.g. Parking area is key"),
+      d("capitalMin", "Starting capital from", MAIN, MONEY_HELP), d("capitalMax", "Starting capital to", MAIN, MONEY_HELP), cur(MAIN),
+      ta("capitalNotes", "Starting capital: notes", MAIN, "e.g. Depends on the amount of stock and kind of equipment bought"),
+      ta("licencesToInvestigate", "Special requirements", MAIN, "Licences and registrations, one per line, e.g. Trading licence"),
+      ta("targetCustomers", "Target market", MAIN), ta("successFactors", "Success factors", MAIN),
+      e("profitPotential", "Profit potential", ["LOW", "MEDIUM", "HIGH"], MAIN),
+      ta("requiredSkills", "Key skills", MAIN, "One per line, e.g. Business management"), t("setupTime", "Time to set up", MAIN, "e.g. 2 – 3 weeks"),
+      ta("remarks", "Remarks", MAIN),
       { ...u("pictureUrl", "Picture", MAIN), upload: "image" }, t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       ta("businessModel", "Business model", "Concept"), ta("productsOrServices", "Products or services", "Concept"),
       ta("customerProblem", "Customer problem", "Concept"), ta("valueProposition", "Value proposition", "Concept"),
       e("experienceLevel", "Experience level", ["BEGINNER", "INTERMEDIATE", "ADVANCED"], "Suitability"),
-      ta("requiredSkills", "Required skills", "Suitability"), t("ownerTimeCommitment", "Owner time commitment", "Suitability"),
-      ta("locationRequirements", "Location requirements", "Suitability"), b("homeBasedSuitable", "Can be home-based", "Suitability"),
-      ta("targetCustomers", "Target customers", "Market"), ta("demandEvidence", "Demand evidence", "Market"),
+      t("ownerTimeCommitment", "Owner time commitment", "Suitability"), b("homeBasedSuitable", "Can be home-based", "Suitability"),
+      ta("demandEvidence", "Demand evidence", "Market"),
       ta("competitorNotes", "Competitors", "Market"), ta("salesChannels", "Sales channels", "Market"), t("seasonality", "Seasonality", "Market"),
       ta("premisesRequirements", "Premises", "Implementation"), ta("staffingRequirements", "Staffing", "Implementation"),
-      i("staffCount", "Staff count", "Implementation"), ta("licencesToInvestigate", "Licences and registrations to investigate", "Implementation"),
+      i("staffCount", "Staff count", "Implementation"),
       ta("operatingCosts", "Operating costs", "Operating economics"), ta("sellingPriceAssumption", "Selling-price assumptions", "Operating economics"),
       ta("salesVolumeAssumption", "Sales-volume assumptions", "Operating economics"), ta("workingCapitalNotes", "Working capital", "Operating economics"),
       ta("majorRisks", "Major risks", "Assessment"),
@@ -251,4 +261,4 @@ export const isMemberOnly = (type: ContentType, f: Field) => {
 };
 
 /** Amount fields shown with the record's currency. */
-export const MONEY_FIELDS = new Set(["priceMin", "priceMax", "amountMin", "amountMax", "minAnnualTurnover", "capitalSought", "minimumParticipation", "feeMin", "feeMax"]);
+export const MONEY_FIELDS = new Set(["capitalMin", "capitalMax", "priceMin", "priceMax", "amountMin", "amountMax", "minAnnualTurnover", "capitalSought", "minimumParticipation", "feeMin", "feeMax"]);

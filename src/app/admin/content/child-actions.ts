@@ -15,7 +15,7 @@ const back = (contentItemId: string, msg: string) => redirect(`/admin/content/${
 
 /**
  * Saves one budget scenario and replaces its lines (blueprint §04).
- * Line format: category | description | quantity | unit | unit cost | reason if unknown | recurring (yes/no)
+ * Line format: category | description | quantity | unit | unit cost | reason if unknown | recurring (yes/no) | optional (yes/no) | details
  */
 export async function saveBudgetScenario(form: FormData) {
   const editor = await requireStaff();
@@ -29,7 +29,7 @@ export async function saveBudgetScenario(form: FormData) {
   const lines: Prisma.BudgetLineCreateManyScenarioInput[] = [];
   const rows = s(form, "lines").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   for (const [n, row] of rows.entries()) {
-    const [costCategory, description, qty, unit, cost, reason, recurring] = row.split("|").map((c) => c.trim());
+    const [costCategory, description, qty, unit, cost, reason, recurring, optional, details] = row.split("|").map((c) => c.trim());
     const quantity = qty ? Number(qty.replace(/,/g, "")) : 1;
     const unitCost = cost ? Number(cost.replace(/[,\s]/g, "")) : null;
     if (!costCategory || !description || Number.isNaN(quantity) || quantity < 0 || (unitCost !== null && (Number.isNaN(unitCost) || unitCost < 0))) {
@@ -39,7 +39,7 @@ export async function saveBudgetScenario(form: FormData) {
     lines.push({
       costCategory, description, quantity: new Prisma.Decimal(quantity), unit: unit || null,
       unitCost: unitCost === null ? null : new Prisma.Decimal(unitCost), unknownReason: unitCost === null ? reason : reason || null,
-      isRecurring: /^y(es)?$/i.test(recurring ?? ""), frequency: /^y(es)?$/i.test(recurring ?? "") ? "monthly" : "once", displayOrder: n,
+      isRecurring: /^y(es)?$/i.test(recurring ?? ""), frequency: /^y(es)?$/i.test(recurring ?? "") ? "monthly" : "once", isOptional: /^y(es)?$/i.test(optional ?? ""), details: details || null, displayOrder: n,
     });
   }
 

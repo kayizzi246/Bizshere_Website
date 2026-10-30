@@ -22,7 +22,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
           {(["LOW", "STANDARD", "HIGHER"] as const).map((level) => {
             const sc = scenarios.find((x) => x.level === level);
             const total = sc ? budgetTotal(sc.lines) : null;
-            const linesText = sc?.lines.map((l) => [l.costCategory, l.description, String(l.quantity), l.unit ?? "", l.unitCost === null ? "" : String(l.unitCost), l.unknownReason ?? "", l.isRecurring ? "yes" : "no"].join(" | ")).join("\n") ?? "";
+            const linesText = sc?.lines.map((l) => [l.costCategory, l.description, String(l.quantity), l.unit ?? "", l.unitCost === null ? "" : String(l.unitCost), l.unknownReason ?? "", l.isRecurring ? "yes" : "no", l.isOptional ? "yes" : "no", l.details ?? ""].join(" | ")).join("\n") ?? "";
             return (
               <details key={level} open={level === "STANDARD"} className="rounded-xl border border-line p-4">
                 <summary className="cursor-pointer font-bold capitalize">{level.toLowerCase()} scenario {sc ? <span className="font-normal text-ink-muted">· {sc.lines.length} lines · {total === null ? "total incomplete" : money(total, sc.currency)}{sc.estimateDate ? ` · estimated ${date(sc.estimateDate)}` : " · no estimate date"}</span> : <span className="font-normal text-ink-muted">· not created</span>}</summary>
@@ -42,7 +42,7 @@ export async function ChildEditors({ contentItemId, ideaId, programmeId }: { con
                   </div>
                   <label className="label">Lines
                     <textarea name="lines" rows={7} defaultValue={linesText} className="input py-2 font-mono text-sm" />
-                    <span className="text-xs font-normal text-ink-muted">One per line: category | description | quantity | unit | unit cost | reason if cost unknown | recurring (yes/no). Leave unit cost empty if not sourced and give the reason.</span>
+                    <span className="text-xs font-normal text-ink-muted">One per line: category | description | quantity | unit | unit cost | reason if cost unknown | recurring (yes/no) | optional (yes/no; essential if left out) | details (what it is and why it is needed). Leave unit cost empty if not sourced and give the reason.</span>
                   </label>
                   <div className="flex justify-end gap-2">
                     <button className="btn-primary">Save {level.toLowerCase()} scenario</button>
