@@ -36,9 +36,9 @@ const config: Config = {
         info: { bg: v("info-bg"), fg: v("info-fg") },
       },
       fontFamily: {
-        // Inter for body copy and UI controls; Manrope (`font-display`) for headings and titles.
+        // Inter for everything; `font-display` (headings and titles) is kept as a name for heavier, tighter settings.
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-inter)", "system-ui", "sans-serif"], // headings use Inter too; the class name stays
       },
       maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
     },

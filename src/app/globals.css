@@ -60,18 +60,18 @@
 @layer components {
   .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-16; } /* 64px on desktop leaves room for the left service rail */
   .card { @apply rounded-2xl border border-line bg-surface; }
-  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-sm font-semibold transition-colors; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-[15px] font-semibold transition-colors; }
   .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark hover:text-white; }
   .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
   .btn-danger { @apply btn border border-[#C9A39C] bg-white text-bad-fg; }
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
   .input { @apply min-h-[44px] rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-4 focus:ring-brand/10; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
-  /* Type scale (SaaS-style: bold, tight tracking, one size per level).
-     Hero (homepage only) 30→46px · page title 26→36 · section title 22→28 · block title 18→20 */
-  .text-page-title { @apply font-display text-[26px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[36px]; }
-  .text-section-title { @apply font-display text-[22px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[28px]; }
-  .text-block-title { @apply font-display text-lg font-bold leading-tight tracking-[-0.015em] sm:text-xl; }
+  /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
+     section title 24→32 / 700 · card title 20→24 / 600 */
+  .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[36px] lg:text-[44px]; }
+  .text-section-title { @apply font-display text-[24px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
+  .text-block-title { @apply font-display text-[20px] font-semibold leading-tight tracking-[-0.02em] sm:text-[24px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
