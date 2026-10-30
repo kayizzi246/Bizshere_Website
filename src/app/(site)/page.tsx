@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { getViewer } from "@/lib/access";
-import { BarChart3, ChevronRight, Landmark, Lightbulb, Settings, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -43,14 +43,6 @@ export default async function HomePage() {
     homeVideo(),
   ]);
   const [lead, ...more] = guides;
-
-  // What you can do here, under the hero (no counts: the homepage never shows invented numbers).
-  const features: [LucideIcon, string, string, string, string][] = [
-    [Lightbulb, "/business-ideas", "Discover ideas", "Explore business ideas with dated start-up budgets.", "bg-accent-tint text-accent"],
-    [Settings, "/suppliers", "Find suppliers", "Get machines and suppliers, with checked contacts.", "bg-brand-tint text-brand"],
-    [Landmark, "/funding", "Access funding", "Find loans and grants that fit your business.", "bg-[#E3F6EC] text-[#12805C]"],
-    [Users, "/experts", "Learn from experts", "Get guidance from business consultants.", "bg-[#EFEBFF] text-[#6B4EE6]"],
-  ];
 
   return (
     <>
@@ -145,21 +137,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* ── What you can do here: four features under the hero ── */}
-      <section aria-label="What you can do" className="border-b border-line bg-white">
-        <ul className="container-site grid gap-x-8 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:py-12">
-          {features.map(([I, href, title, text, tone]) => (
-            <li key={href}>
-              <Link href={href} className="group flex flex-col gap-3 text-ink hover:text-ink">
-                <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tone}`}><I aria-hidden className="h-7 w-7" /></span>
-                <span className="font-display text-[22px] font-bold tracking-[-0.02em] text-heading group-hover:text-brand">{title}</span>
-                <span className="text-[16px] leading-relaxed text-ink-muted">{text}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
       </section>
 
       {/* ── Updates marquee (managed at /admin/updates) ── */}
