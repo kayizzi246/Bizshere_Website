@@ -32,7 +32,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Content</h1><p className="text-sm text-ink-muted">Every directory, with publishing status, access level and freshness</p></div>
+        <div><h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Content</h1><p className="text-sm text-ink-muted">Every directory, with publishing status, access level and freshness</p></div>
         <Link href={`/admin/content/new${type ? `?type=${type}` : ""}`} className="btn-primary">Add {type ? contentTypeLabel[type].toLowerCase() : "content"}</Link>
       </div>
 

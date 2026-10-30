@@ -24,7 +24,7 @@ export function Identity({ eyebrow, title, summary, children }: { eyebrow: strin
     <section className="flex flex-col gap-3">
       <span className="eyebrow">{eyebrow}</span>
       <h1 className="text-page-title">{title}</h1>
-      {summary ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{summary}</p> : null}
+      {summary ? <p className="max-w-3xl text-base leading-relaxed text-ink-soft">{summary}</p> : null}
       {children}
     </section>
   );
@@ -97,7 +97,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-sm text-ink-muted">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">Sources and checks</h2>
+        <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Sources and checks</h2>
         {nextReviewDueAt && nextReviewDueAt < new Date()
           ? <span className="rounded-full bg-warn-bg px-2.5 py-1 text-xs font-semibold text-warn-fg">Review overdue</span>
           : <span className="rounded-full bg-brand-tint px-2.5 py-1 text-xs font-semibold text-brand-dark">Up to date</span>}

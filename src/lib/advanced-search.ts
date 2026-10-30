@@ -16,12 +16,12 @@ export type SearchParams = Record<string, string | string[] | undefined>;
 
 export const GROUPS: { id: string; label: string; types: ContentType[] }[] = [
   { id: "ideas", label: "Business ideas", types: ["BUSINESS_IDEA"] },
-  { id: "machines", label: "Machines", types: ["MACHINE"] },
+  { id: "machines", label: "Business machines", types: ["MACHINE"] },
   { id: "suppliers", label: "Suppliers", types: ["SUPPLIER"] },
-  { id: "funding", label: "Funding", types: ["FUNDING_PROGRAMME"] },
+  { id: "funding", label: "Funding sources", types: ["FUNDING_PROGRAMME"] },
   { id: "opportunities", label: "Investment opportunities", types: ["INVESTMENT_OPPORTUNITY"] },
   { id: "guides", label: "Guides and tools", types: ["GUIDE", "TOOL", "WEBSITE"] },
-  { id: "experts", label: "Experts", types: ["CONSULTANT"] },
+  { id: "experts", label: "Business experts", types: ["CONSULTANT"] },
   { id: "news", label: "News", types: ["NEWS"] },
 ];
 export const PRICES_GROUP = { id: "prices", label: "Market prices" };
@@ -103,10 +103,16 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
 
   const terms = searchTerms(`${p.q} ${p.all}`);
   const topic = TOPICS.find((t) => t.id === p.topic);
+  // "Without these words": exclude the pages that mention them by id. (A plain NOT on the text
+  // match also dropped every page with an empty summary or overview: SQL "unknown".)
+  const leaveOut = words(p.none);
+  const excluded = leaveOut.length
+    ? (await prisma.contentItem.findMany({ where: { contentType: { in: types }, OR: leaveOut.map(text) }, select: { id: true } })).map((r) => r.id)
+    : [];
   const and: Prisma.ContentItemWhereInput[] = [
+    ...(excluded.length ? [{ id: { notIn: excluded } }] : []),
     ...(topic ? [termWhere(asWords(topic.words))] : []),
     ...(p.phrase ? [text(p.phrase)] : []),
-    ...words(p.none).map((w) => ({ NOT: text(w) })),
     ...(p.category ? [{ OR: [{ primaryCategoryId: p.category }, { categories: { some: { categoryId: p.category } } }] }] : []),
     ...(p.district ? [{ OR: [{ locations: { some: { locationId: p.district } } }, ...(districtName ? [{ consultant: { district: districtName } }] : [])] }] : []),
     ...(p.stage ? [{ businessStages: { has: p.stage } }] : []),

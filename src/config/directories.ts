@@ -27,7 +27,7 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     href: "/machines", icon: "machine", type: "MACHINE", unit: ["machine", "machines"],
-    title: "Business machines", nav: "Machines", short: "machines",
+    title: "Business machines", nav: "Business machines", short: "machines",
     text: "Database of business machines, their business applications, possible sources in Uganda and overseas, and estimated prices.",
   },
   {
@@ -37,17 +37,17 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     href: "/funding", icon: "funding", type: "FUNDING_PROGRAMME", unit: ["source", "sources"],
-    title: "Funding sources", nav: "Funding", short: "funding sources",
+    title: "Funding sources", nav: "Funding sources", short: "funding sources",
     text: "Structured database of funding sources (banks, government agencies and private sources) with their terms and conditions, criteria and contact information.",
   },
   {
     href: "/guides", icon: "guide", type: "GUIDE", unit: ["guide", "guides"],
-    title: "Business information and guidelines", nav: "Guidelines", short: "guidelines",
+    title: "Business information and guidelines", nav: "Business guidelines", short: "guidelines",
     text: "Guidelines, books, investment opportunities, videos, websites and other sources for business processes like business registration, export licences, EFRIS registration and tax compliance.",
   },
   {
     href: "/experts", icon: "expert", type: "CONSULTANT", unit: ["expert", "experts"],
-    title: "Business consultants and experts", nav: "Experts", short: "experts",
+    title: "Business consultants and experts", nav: "Business experts", short: "experts",
     text: "Database of verified business consultants and advisors in areas like taxation, accounting, importation, export, farming, coffee processing, mining and manufacturing.",
   },
   {

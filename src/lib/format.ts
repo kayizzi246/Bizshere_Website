@@ -51,7 +51,7 @@ export const contentTypeLabel: Record<string, string> = {
   BUSINESS_IDEA: "Business idea",
   MACHINE: "Machine",
   SUPPLIER: "Supplier",
-  FUNDING_PROGRAMME: "Funding",
+  FUNDING_PROGRAMME: "Funding source",
   INVESTMENT_OPPORTUNITY: "Investment opportunity",
   GUIDE: "Guide",
   CONSULTANT: "Expert",

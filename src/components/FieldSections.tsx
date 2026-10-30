@@ -43,7 +43,7 @@ export function FieldSections({ type, record, gated, skip, back }: { type: Conte
 
   return (
     <section id="details" className="flex scroll-mt-36 flex-col gap-4">
-      <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">Full details</h2>
+      <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Full details</h2>
       {/* Groups pack two to a row; a group with long text takes the full width. */}
       <div className="grid gap-4 md:grid-cols-2">
         {groups.map(([group, fields]) => {

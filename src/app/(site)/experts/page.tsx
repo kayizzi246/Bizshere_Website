@@ -74,12 +74,12 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
       <header className="bg-[#071A33] text-white">
         <div className="container-site flex flex-col gap-6 py-10 sm:py-14">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[13px] text-white/60">
-            <Link href="/" className="text-white/60 hover:text-white">Home</Link><span aria-hidden>/</span><span className="text-white/90">Experts</span>
+            <Link href="/" className="text-white/60 hover:text-white">Home</Link><span aria-hidden>/</span><span className="text-white/90">Business experts</span>
           </nav>
           <div className="flex max-w-3xl flex-col gap-3">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white/90"><Users aria-hidden className="h-3.5 w-3.5 text-accent" />{all.length} {all.length === 1 ? "expert" : "experts"} listed</span>
             <h1 className="text-page-title">Find the right expert</h1>
-            <p className="text-base leading-relaxed text-white/75 sm:text-lg">{d.text}</p>
+            <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{d.text}</p>
           </div>
 
           <form action="/experts" role="search" className="flex w-full max-w-3xl flex-col gap-2 rounded-2xl bg-white p-2 text-ink sm:flex-row sm:items-center">
@@ -122,7 +122,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
           {people.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"><Users aria-hidden className="h-6 w-6" /></span>
-              <p className="font-sans text-lg font-bold text-heading">No expert matches that yet</p>
+              <p className="font-display text-lg font-bold text-heading">No expert matches that yet</p>
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search or another district. <Link href="/contact" className="font-semibold">Tell our team who you need</Link> and we&apos;ll help you find them.</p>
             </div>
           ) : (
@@ -139,12 +139,12 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
                           // eslint-disable-next-line @next/next/no-img-element -- editor-entered photo address
                           <img src={c.photoUrl} alt={name} loading="lazy" className="h-24 w-24 rounded-full object-cover ring-4 ring-brand-tint" />
                         ) : (
-                          <span aria-hidden className={`flex h-24 w-24 items-center justify-center rounded-full font-sans text-2xl font-bold ring-4 ring-brand-tint ${toneOf(name)}`}>{initials(name)}</span>
+                          <span aria-hidden className={`flex h-24 w-24 items-center justify-center rounded-full font-display text-2xl font-bold ring-4 ring-brand-tint ${toneOf(name)}`}>{initials(name)}</span>
                         )}
                         {checked ? <span title="Checked by BizSphere-Ug" className="absolute -bottom-0.5 -right-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white text-brand"><BadgeCheck aria-label="Checked" className="h-6 w-6" /></span> : null}
                       </span>
 
-                      <span className="mt-4 font-sans text-lg font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{name}</span>
+                      <span className="mt-4 font-display text-lg font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{name}</span>
                       <span className="mt-1 text-sm font-medium text-accent-dark">{c.professionalTitle ?? c.contentItem.primaryCategory?.name ?? "Business expert"}</span>
                       {c.contentItem.shortSummary ? <span className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{c.contentItem.shortSummary}</span> : null}
 

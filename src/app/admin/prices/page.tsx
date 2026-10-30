@@ -16,7 +16,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Add dated observations. Old observations are kept as history and never overwritten.</p></div>
+      <div><h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Add dated observations. Old observations are kept as history and never overwritten.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {searchParams.added ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">Observation added.</p> : null}
 

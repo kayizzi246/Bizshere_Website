@@ -25,7 +25,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
       <article className="flex flex-col gap-3">
         <span className="eyebrow">{n.articleType.toLowerCase()} · {item.primaryCategory?.name ?? "Business"}</span>
         <h1 className="text-page-title max-w-4xl">{item.title}</h1>
-        {n.standfirst ? <p className="max-w-3xl text-lg leading-relaxed text-ink-soft">{n.standfirst}</p> : null}
+        {n.standfirst ? <p className="max-w-3xl text-base leading-relaxed text-ink-soft">{n.standfirst}</p> : null}
         <span className="text-sm text-ink-muted">
           {[n.author, n.publisher].filter(Boolean).join(", ") || "BizSphere-Ug"} · Published {date(item.publishedAt)}
           {item.updatedAt > (item.publishedAt ?? item.updatedAt) ? ` · Updated ${date(item.updatedAt)}` : ""}

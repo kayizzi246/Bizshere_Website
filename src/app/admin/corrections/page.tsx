@@ -16,7 +16,7 @@ export default async function CorrectionsAdminPage({ searchParams }: { searchPar
   });
   return (
     <>
-      <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Correction reports</h1><p className="text-sm text-ink-muted">Reports from readers. Check each against the source before changing the page. Accepting marks the page as due for review now.</p></div>
+      <div><h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Correction reports</h1><p className="text-sm text-ink-muted">Reports from readers. Check each against the source before changing the page. Accepting marks the page as due for review now.</p></div>
       <div className="flex gap-2">
         {[["open", "Open"], ["done", "Decided"]].map(([s, l]) => <Link key={s} href={`?status=${s}`} className={`rounded-full px-3.5 py-2 text-sm font-bold ${status === s ? "bg-ink text-white hover:text-white" : "border border-line-strong bg-surface text-ink-soft"}`}>{l}</Link>)}
       </div>

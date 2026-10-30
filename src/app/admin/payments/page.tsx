@@ -37,7 +37,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Payments</h1>
+          <h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Payments</h1>
           <p className="text-sm text-ink-muted">Membership payments made on the website, newest first.</p>
         </div>
         <a href={exportHref} className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-line bg-surface px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">
@@ -139,7 +139,7 @@ function Stat({ label, value, sub, icon, href, warn = false }: { label: string; 
         <span className="text-[13px] text-ink-muted">{label}</span>
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-4 w-4" /></span>
       </span>
-      <span className="truncate font-sans text-[24px] font-bold leading-none tracking-tight text-heading">{value}</span>
+      <span className="truncate font-display text-[24px] font-bold leading-none tracking-tight text-heading">{value}</span>
       <span className={`text-xs ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
     </>
   );

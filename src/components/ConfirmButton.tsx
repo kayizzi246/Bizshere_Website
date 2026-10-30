@@ -44,7 +44,7 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
         <div className="flex flex-col gap-4 p-6">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bad-bg text-bad-fg"><AlertTriangle aria-hidden className="h-6 w-6" /></span>
           <div className="flex flex-col gap-1.5">
-            <h2 id="confirm-title" className="font-sans text-lg font-bold tracking-tight text-heading">{title}</h2>
+            <h2 id="confirm-title" className="font-display text-lg font-bold tracking-tight text-heading">{title}</h2>
             <p id="confirm-text" className="text-sm leading-relaxed text-ink-soft">{message}</p>
           </div>
           <ul className="flex flex-col gap-1 rounded-xl bg-page p-3 text-[13px] text-ink-muted">

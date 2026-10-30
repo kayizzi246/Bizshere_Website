@@ -26,7 +26,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
 }) {
   const search = await readSearch(types[0], searchParams);
   const items: (ContentItem & { primaryCategory: Category | null })[] = search.active
-    ? await searchListings(types[0], search.q, search.values)
+    ? await searchListings(types[0], search.q, search.values, search.adv)
     : await prisma.contentItem.findMany({
         where: { contentType: { in: types }, publicationStatus: "PUBLISHED" },
         include: { primaryCategory: true },
@@ -40,10 +40,11 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
 
   return (
     <>
-      <ListingHeader icon={icon} title={title} intro={intro} tabs={tabs} active={active} count={items.length} searching={search.active}>
-        <ServiceSearch path={path} label={title} q={search.q} filters={search.filters} values={search.values} count={items.length} />
-      </ListingHeader>
+      <ListingHeader icon={icon} title={title} intro={intro} tabs={tabs} active={active} count={items.length} searching={search.active} overlap />
       <div className="bg-page">
+        <StickySearch>
+          <ServiceSearch path={path} label={title} q={search.q} filters={search.filters} values={search.values} count={items.length} adv={search.adv} advancedActive={search.advancedActive} />
+        </StickySearch>
         <div className="container-site flex flex-col gap-6 py-8 sm:py-10">
 
           {items.length === 0 ? (
@@ -66,7 +67,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
                     <span className="w-fit max-w-full truncate rounded-full bg-accent-tint px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-dark">{extra[i.id] || "Document"}</span>
-                    <span className="line-clamp-2 font-sans text-sm font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
+                    <span className="line-clamp-2 font-display text-sm font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     <span className="mt-auto pt-1 text-[11px] text-ink-muted">{i.primaryCategory?.name ?? "General"}</span>
                   </span>
                 </Link>
@@ -94,7 +95,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
                         <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
                       </span>
                     ) : null}
-                    <span className="font-sans text-[17px] font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
+                    <span className="font-display text-base font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
                     {i.shortSummary ? <span className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.shortSummary}</span> : null}
                     {extra[i.id] ? <span className="line-clamp-2 w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft">{extra[i.id]}</span> : null}
                     <span className="mt-auto flex items-center justify-between pt-3 text-xs text-ink-muted">
@@ -116,7 +117,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
  * Page header for a directory: a deep navy band (like the homepage hero and the Experts page)
  * with section tabs, the number of listings, title, intro and, as `children`, the search.
  */
-export function ListingHeader({ icon, title, intro, tabs, active, count, searching = false, unit, children }: {
+export function ListingHeader({ icon, title, intro, tabs, active, count, searching = false, unit, overlap = false }: {
   icon: string;
   title: string;
   intro: string;
@@ -125,13 +126,13 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
   count: number;
   searching?: boolean;
   unit?: [string, string];
-  /** The directory's search form, shown in the band. */
-  children?: React.ReactNode;
+  /** Leave room at the bottom for a <StickySearch> that overlaps the band. */
+  overlap?: boolean;
 }) {
   const [one, many] = unit ?? ["listing", "listings"];
   return (
     <header className="bg-[#071A33] text-white">
-      <div className="container-site flex flex-col gap-6 py-9 sm:py-12">
+      <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-12 ${overlap ? "pb-20 sm:pb-24" : "pb-9 sm:pb-12"}`}>
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
             <div className="inline-flex gap-0.5 rounded-full border border-white/15 bg-white/[0.06] p-1">
@@ -147,10 +148,23 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
             {count} {count === 1 ? one : many}{searching ? " found" : ""}
           </span>
           <h1 className="text-page-title">{title}</h1>
-          <p className="text-base leading-relaxed text-white/75 sm:text-lg">{intro}</p>
+          <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{intro}</p>
         </div>
-        {children ? <div className="max-w-4xl">{children}</div> : null}
       </div>
     </header>
+  );
+}
+
+/**
+ * Holds a directory's search card: it overlaps the bottom of the navy header band, then stays
+ * pinned to the top of the screen while the results scroll (desktop and phones); on these pages the
+ * site header scrolls away instead (globals.css). It sits inside the
+ * results area, not the band, because a sticky element only sticks within its parent.
+ */
+export function StickySearch({ children }: { children: React.ReactNode }) {
+  return (
+    <div data-sticky-search="" className="sticky top-2 z-30 -mt-14 sm:-mt-16">
+      <div className="container-site">{children}</div>
+    </div>
   );
 }

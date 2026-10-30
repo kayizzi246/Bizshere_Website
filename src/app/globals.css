@@ -68,10 +68,10 @@
   .input { @apply min-h-[44px] rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-4 focus:ring-brand/10; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
   /* Type scale (SaaS-style: bold, tight tracking, one size per level).
-     Hero (homepage only) 34→54px · page title 30→42 · section title 26→34 · block title 20→24 */
-  .text-page-title { @apply font-sans text-[30px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[42px]; }
-  .text-section-title { @apply font-sans text-[26px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[34px]; }
-  .text-block-title { @apply font-sans text-xl font-bold leading-tight tracking-[-0.02em] sm:text-2xl; }
+     Hero (homepage only) 30→46px · page title 26→36 · section title 22→28 · block title 18→20 */
+  .text-page-title { @apply font-display text-[26px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[36px]; }
+  .text-section-title { @apply font-display text-[22px] font-bold leading-[1.2] tracking-[-0.02em] sm:text-[28px]; }
+  .text-block-title { @apply font-display text-lg font-bold leading-tight tracking-[-0.015em] sm:text-xl; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
@@ -190,3 +190,7 @@ select {
   .spin-border::before { animation: none; }
   .word-in { animation: none; }
 }
+
+/* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in
+   src/components/DirectoryList.tsx), so the site header scrolls away there instead of sticking. */
+body:has([data-sticky-search]) [data-site-header] { position: relative; }

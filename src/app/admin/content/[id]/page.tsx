@@ -29,7 +29,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <Link href={`/admin/content?type=${item.contentType}`} className="text-sm">← {contentTypeLabel[item.contentType]} list</Link>
-          <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">{item.title}</h1>
+          <h1 className="font-display text-[22px] font-bold tracking-tight text-heading">{item.title}</h1>
           <p className="text-sm text-ink-muted">{contentTypeLabel[item.contentType]} · {item.publicationStatus.replace("_", " ").toLowerCase()} · updated {date(item.updatedAt)}</p>
         </div>
         <div className="flex gap-2">

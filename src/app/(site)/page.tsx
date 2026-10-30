@@ -54,7 +54,7 @@ export default async function HomePage() {
           <div className="hero-rise flex flex-col items-start gap-7">
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
                 SaaS-style: bold (not black) with tight tracking, and "start" in an orange gradient. */}
-            <h1 className="font-sans text-[34px] font-bold leading-[1.08] tracking-[-0.035em] text-white sm:text-[44px] lg:text-[48px] xl:text-[54px]">
+            <h1 className="font-display text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-white sm:text-[38px] lg:text-[42px] xl:text-[46px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
                   {w === "start," ? (
@@ -64,7 +64,7 @@ export default async function HomePage() {
               ))}
             </h1>
 
-            <p className="max-w-xl text-base leading-relaxed text-white/70 sm:text-[17px]">
+            <p className="max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-base">
               Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
@@ -140,7 +140,7 @@ export default async function HomePage() {
         <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <Heading title="What you'll find here" />
-            <p className="max-w-md text-base leading-relaxed text-ink-muted sm:text-lg lg:text-right">
+            <p className="max-w-md text-[15px] leading-relaxed text-ink-muted sm:text-base lg:text-right">
               The directories link to each other. Look up “bakery” and you get the plan, the oven, who sells flour and who lends.
             </p>
           </div>
@@ -149,15 +149,15 @@ export default async function HomePage() {
             {DIRECTORIES.map((d) => (
               <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-7">
                 <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
-                <h3 className="font-sans text-[18px] font-bold sm:mt-5 sm:text-[20px] leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-[15px]">{d.text}</p>
+                <h3 className="font-display text-[17px] font-bold sm:mt-5 sm:text-[18px] leading-tight tracking-[-0.02em] text-heading">{d.title}</h3>
+                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-sm">{d.text}</p>
                 <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
               </Link>
             ))}
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
             <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-6 text-white sm:col-span-2 sm:p-8">
               <div className="flex flex-col gap-1">
-                <span className="font-sans text-[24px] font-bold tracking-[-0.02em]">Looking for something specific?</span>
+                <span className="font-display text-[24px] font-bold tracking-[-0.02em]">Looking for something specific?</span>
                 <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
               </div>
               <label className="flex items-center gap-2 rounded-lg bg-white p-1.5 pl-3 text-ink-muted">
@@ -181,7 +181,7 @@ export default async function HomePage() {
               <div className="flex max-w-2xl flex-col gap-3">
                 <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
                 <h2 className="text-section-title text-heading">Recently reviewed</h2>
-                <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
+                <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
               </div>
               <Link href="/guides" className="btn-outline min-h-[44px]">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
             </div>
@@ -196,8 +196,8 @@ export default async function HomePage() {
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
                 </span>
                 <span className="flex max-w-lg flex-col gap-4">
-                  <span className="font-sans text-[28px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
-                  {lead.shortSummary ? <span className="line-clamp-3 text-base leading-relaxed text-white/90 sm:text-lg">{lead.shortSummary}</span> : null}
+                  <span className="font-display text-[28px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
+                  {lead.shortSummary ? <span className="line-clamp-3 text-[15px] leading-relaxed text-white/90 sm:text-base">{lead.shortSummary}</span> : null}
                   <span className="inline-flex w-fit items-center gap-2 rounded-[10px] bg-white px-4 py-2.5 text-sm font-semibold text-heading transition group-hover:bg-accent group-hover:text-ink">
                     Read the guide <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </span>
@@ -213,7 +213,7 @@ export default async function HomePage() {
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">{contentTypeLabel[g.contentType]}</span>
-                    <span className="font-sans text-[19px] font-bold leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
+                    <span className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
                   </span>
                   <span className="flex items-center justify-between border-t border-line pt-3 text-[15px] font-semibold text-brand">
                     Read
@@ -232,13 +232,13 @@ export default async function HomePage() {
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
             <span className="w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
             <h2 className="text-section-title text-heading">Questions, answered</h2>
-            <p className="text-base leading-relaxed text-ink-muted sm:text-lg">Short answers about access, sources, prices and payment.</p>
+            <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">Short answers about access, sources, prices and payment.</p>
             <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-page p-5">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
                 <span className="flex flex-col">
-                  <span className="font-sans text-[18px] font-bold text-heading">Still have a question?</span>
+                  <span className="font-display text-[18px] font-bold text-heading">Still have a question?</span>
                   <span className="text-[15px] text-ink-muted">Our team replies to every message.</span>
                 </span>
               </div>
@@ -252,8 +252,8 @@ export default async function HomePage() {
             {FAQ.map(([q, a], n) => (
               <details key={q} open={n === 0} className="group rounded-xl border border-line bg-white px-4 transition-colors hover:border-brand/50 open:border-brand open:bg-brand-tint/50 sm:px-5 [&_summary::-webkit-details-marker]:hidden">
                 <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-sans text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-sans text-[17px] font-semibold leading-snug text-heading">{q}</span>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-display text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 font-display text-[15px] font-semibold leading-snug text-heading">{q}</span>
                   <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/30 text-lg font-medium leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
                 </summary>
                 <p className="pb-5 pl-[48px] pr-2 text-base leading-relaxed text-ink-soft sm:pr-12">{a}</p>
@@ -296,7 +296,7 @@ function Showcase() {
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-white"><Icon name="idea" className="h-4 w-4" /></span>
             <span className={`${tag} bg-brand-tint text-brand-dark`}>Business plan</span>
           </span>
-          <span className="font-sans text-base font-bold leading-tight text-heading">Bakery business</span>
+          <span className="font-display text-base font-bold leading-tight text-heading">Bakery business</span>
           <span className="text-[11px] leading-snug text-ink-muted">Budget, steps, staff and risks.</span>
           <span className="flex flex-wrap gap-1">
             {["Low", "Standard", "Higher"].map((l) => <span key={l} className="rounded-md bg-page px-1.5 py-0.5 text-[10px] font-semibold text-ink-soft">{l}</span>)}
@@ -307,7 +307,7 @@ function Showcase() {
           {[
             ["machine", "Machine", "Deck oven", "Price for members", "bg-accent-tint text-accent-dark"],
             ["supplier", "Supplier", "Flour wholesaler", "Contact checked", "bg-brand-tint text-brand-dark"],
-            ["funding", "Funding", "SME loan", "Round open", "bg-brand-tint text-brand-dark"],
+            ["funding", "Funding source", "SME loan", "Round open", "bg-brand-tint text-brand-dark"],
           ].map(([icon, kind, name, note, c]) => (
             <div key={kind} className="flex flex-1 items-center gap-2.5 rounded-xl border border-line bg-white px-3 py-2 text-left">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-page text-brand"><Icon name={icon} className="h-4 w-4" /></span>

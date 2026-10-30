@@ -21,7 +21,7 @@ export default async function AdminVideoPage({ searchParams }: { searchParams: {
   return (
     <>
       <div>
-        <h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Homepage video</h1>
+        <h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Homepage video</h1>
         <p className="text-sm text-ink-muted">The video in the homepage banner. When you go live on YouTube, your live stream replaces it automatically (checked every minute) and a LIVE item leads the updates bar.</p>
       </div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}

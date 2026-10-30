@@ -26,7 +26,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
 
   return (
     <>
-      <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Homepage updates</h1><p className="text-sm text-ink-muted">Short messages that scroll across the homepage under the main banner. Changes show on the site straight away.</p></div>
+      <div><h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Homepage updates</h1><p className="text-sm text-ink-muted">Short messages that scroll across the homepage under the main banner. Changes show on the site straight away.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {notice ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{notice}</p> : null}
 

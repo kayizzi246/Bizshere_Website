@@ -115,7 +115,7 @@ export async function RecordPage({
                 {eyebrow}
               </span>
               <h1 className="text-page-title">{title}</h1>
-              {brief ? <p className="max-w-2xl text-base leading-relaxed text-white/75 sm:text-lg">{brief}</p> : null}
+              {brief ? <p className="max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-base">{brief}</p> : null}
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
                 <span className="rounded-full border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white/60">{ref}</span>
@@ -159,7 +159,7 @@ export async function RecordPage({
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                  <h2 className="font-sans text-xl font-bold tracking-[-0.01em] text-heading">{t.label}</h2>
+                  <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -207,7 +207,7 @@ export async function RecordPage({
           {contact !== undefined ? (
             <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-sans text-lg font-bold text-heading">Contact</h2>
+                <h2 className="font-display text-lg font-bold text-heading">Contact</h2>
                 {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
               </div>
               {contact === "locked" ? (
@@ -305,7 +305,7 @@ export async function RecordPage({
 function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, cls?: string) => React.ReactNode }) {
   return (
     <div className="flex flex-col rounded-2xl border border-line bg-white p-6 text-ink shadow-[0_20px_50px_-24px_rgba(7,26,51,0.45)]">
-      <span className="mb-2 font-sans text-base font-bold text-heading">At a glance</span>
+      <span className="mb-2 font-display text-base font-bold text-heading">At a glance</span>
       <dl className="flex flex-col divide-y divide-line">
         {rows.map((r) => (
           <div key={r.label} className="flex items-start justify-between gap-6 py-3">

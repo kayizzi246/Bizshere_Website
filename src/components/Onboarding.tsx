@@ -109,8 +109,8 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
             <div className="flex flex-col gap-5 sm:gap-6">
               <div className="flex flex-col gap-2">
                 <span className="hidden w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark sm:inline">Takes less than a minute</span>
-                <h2 id="onboard-title" className="font-sans text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-heading sm:text-[28px]">Create your account</h2>
-                <p className="text-sm leading-relaxed text-ink-muted sm:text-[15px]"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
+                <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[24px]">Create your account</h2>
+                <p className="text-sm leading-relaxed text-ink-muted"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
               </div>
               <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
@@ -136,21 +136,21 @@ function WhyPanel({ plan }: { plan: Plan }) {
     <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-10 sm:pb-6 sm:pt-8 md:py-12 md:pr-10">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_100%,#22B8DF_0%,#0072CE_40%,transparent_80%)] opacity-80" />
       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold"><Sparkles aria-hidden className="h-3.5 w-3.5 text-accent" />Full access</span>
-      <p className="mt-3 font-sans text-[20px] font-bold leading-[1.15] tracking-[-0.02em] sm:mt-4 sm:text-[26px] md:text-[34px]">Start your business with the full picture</p>
-      <p className="mt-3 hidden text-[15px] leading-relaxed text-white/80 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
+      <p className="mt-3 font-display text-[18px] font-bold leading-[1.2] tracking-[-0.02em] sm:mt-4 sm:text-[22px] md:text-[26px]">Start your business with the full picture</p>
+      <p className="mt-3 hidden text-sm leading-relaxed text-white/80 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
       <ul className="mt-6 hidden flex-col gap-4 sm:flex">
         {WHY.map((w) => (
           <li key={w.title} className="flex gap-3.5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent"><w.icon aria-hidden className="h-5 w-5" /></span>
             <span className="flex flex-col gap-0.5">
-              <span className="text-[15px] font-bold">{w.title}</span>
-              <span className="text-[13px] leading-relaxed text-white/75">{w.text}</span>
+              <span className="text-sm font-bold">{w.title}</span>
+              <span className="text-[13px] leading-snug text-white/70">{w.text}</span>
             </span>
           </li>
         ))}
       </ul>
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-white/80 sm:mt-6 sm:border-t sm:border-white/15 sm:pt-5 sm:text-[13px]">
-        {plan.monthly ? <span><strong className="text-base font-bold text-white sm:text-lg">{plan.monthly}</strong> / month</span> : null}
+        {plan.monthly ? <span><strong className="text-base font-bold text-white">{plan.monthly}</strong> / month</span> : null}
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />Cancel any time</span>
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />MoMo, Airtel or card</span>
       </div>
@@ -230,7 +230,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <h2 id="onboard-title" className="font-sans text-[24px] font-bold leading-[1.1] tracking-[-0.02em] text-heading sm:text-[28px]">Unlock full access</h2>
+        <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[24px]">Unlock full access</h2>
         <p className="text-[15px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
       </div>
 

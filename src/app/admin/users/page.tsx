@@ -35,7 +35,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="font-sans text-[22px] font-bold tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
+        <div><h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
         <Link href={qs({ create: "1" })} className="btn-primary">+ Create account</Link>
       </div>
 

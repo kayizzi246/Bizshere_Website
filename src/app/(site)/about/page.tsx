@@ -15,7 +15,7 @@ export default function AboutPage() {
       <H2>What you will find</H2>
       <ul className="list-disc pl-5">
         <li><Link href="/business-ideas">Business ideas and plans</Link> with dated startup budgets</li>
-        <li><Link href="/machines">Machines</Link> and <Link href="/suppliers">suppliers</Link>, with offers from different sellers</li>
+        <li><Link href="/machines">Business machines</Link> and <Link href="/suppliers">suppliers</Link>, with offers from different sellers</li>
         <li><Link href="/funding">Funding programmes</Link> and <Link href="/opportunities">investment opportunities</Link></li>
         <li><Link href="/guides">Guides</Link>, <Link href="/tools">tools and templates</Link>, <Link href="/recipes">recipes</Link> and <Link href="/websites">useful websites</Link></li>
         <li><Link href="/prices">Market prices</Link>, each with the date it was observed</li>
