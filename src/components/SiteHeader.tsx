@@ -8,6 +8,7 @@ import { site } from "@/config/site";
 import { Logo } from "./Logo";
 import { HideOnHome } from "./HideOnHome";
 import { Icon } from "./Icon";
+import { MobileMenu } from "./MobileMenu";
 
 // Shown as plain links next to the "Directories" menu on desktop.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
@@ -28,7 +29,7 @@ export async function SiteHeader() {
   return (
     <>
     <TopBar />
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-xl">
+    <header data-site-header="" className="sticky top-0 z-[45] border-b border-line/70 bg-white/85 backdrop-blur-xl">
       <div className="container-site relative flex h-[78px] items-center gap-4">
         <Logo full />
 
@@ -76,14 +77,15 @@ export async function SiteHeader() {
           <HideOnHome><AccessButton viewer={viewer} /></HideOnHome>
         </nav>
 
-        {/* Mobile menu: works without JavaScript */}
+        {/* Mobile menu: opens without JavaScript; MobileMenu also closes it on an outside tap, Escape or navigation */}
         <Suspense fallback={null}>
           <HeaderSearch label={false} className="ml-auto flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink lg:hidden" />
         </Suspense>
-        <details className="group relative lg:hidden">
+        <MobileMenu summary={
           <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-line text-ink [&::-webkit-details-marker]:hidden" aria-label="Menu">
             <Icon name="menu" />
           </summary>
+        }>
           <div className="absolute right-0 top-12 flex max-h-[calc(100vh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3">
             <span className="px-3 pb-1 pt-1 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Directories</span>
             {DIRECTORIES.map((d) => (
@@ -97,7 +99,7 @@ export async function SiteHeader() {
             {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
             <HideOnHome><AccessButton viewer={viewer} mobile /></HideOnHome>
           </div>
-        </details>
+        </MobileMenu>
       </div>
     </header>
     </>

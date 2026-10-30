@@ -51,7 +51,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
             className="onboard-pop relative max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-8 pt-3">
             <span aria-hidden className="mx-auto mb-4 block h-1.5 w-10 rounded-full bg-line-strong" />
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 id="quick-links-title" className="font-sans text-lg font-bold text-heading">All services</h2>
+              <h2 id="quick-links-title" className="font-display text-lg font-bold text-heading">All services</h2>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-heading">
                 <Icon name="close" className="h-4 w-4" />
@@ -83,21 +83,14 @@ const STEP = 50; // button height (44px) + gap (6px)
 /**
  * Desktop quick links to every service (URSB-style), floating in the bottom-left corner.
  * On arrival they sit stacked as a small deck of cards (Search on top, two cards peeking behind);
- * once the visitor scrolls (or hovers the deck) they unfold upward into a line, bottom first.
- * Back at the top of the page they stack again.
+ * they unfold upward into a line, bottom first, only while the visitor hovers (or tabs into) the deck.
  */
 export function ServiceRail({ services }: { services: Service[] }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [hover, setHover] = useState(false);
+  const [open, setOpen] = useState(false);
   const path = usePathname();
-  const open = scrolled || hover;
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // Fold the deck again after following one of its links.
+  useEffect(() => setOpen(false), [path]);
 
   const items = [{ href: "/search", nav: "Search everything", search: true }, ...services.map((s) => ({ href: s.href, nav: s.nav, search: false }))];
   const n = items.length;
@@ -107,7 +100,8 @@ export function ServiceRail({ services }: { services: Service[] }) {
   const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 
   return (
-    <nav aria-label="Quick links to services" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+    <nav aria-label="Quick links to services" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}
       className="fixed bottom-5 left-5 z-30 hidden w-[260px] lg:block" style={{ height: open ? n * STEP - 6 : 56 }}>
       {items.map((it, i) => {
         const fromBottom = n - 1 - i; // 0 for the last button
