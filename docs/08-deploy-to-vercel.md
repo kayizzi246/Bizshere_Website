@@ -105,8 +105,10 @@ git commit -m "what changed"
 git push
 ```
 
-**If you changed `prisma/schema.prisma`:** first create the migration locally
-(`npm run db:migrate`), push, then apply it to the online database the same way as Step 4:
+**If you changed `prisma/schema.prisma`:** create the migration locally
+(`npm run db:migrate`) and push. The Vercel build applies pending migrations to the online
+database itself (`scripts/deploy-migrate.mjs`). To apply them by hand instead, do it the same
+way as Step 4:
 
 ```powershell
 $env:DATABASE_URL = "<DATABASE_URL_UNPOOLED>"
