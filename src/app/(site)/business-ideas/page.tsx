@@ -1,53 +1,46 @@
 import Link from "next/link";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { directory } from "@/config/directories";
 import { compactRange } from "@/lib/format";
-import { ServiceSearch } from "@/components/ServiceSearch";
-import { ListingHeader, StickySearch } from "@/components/DirectoryList";
-import { readSearch, searchListings, type SearchParams } from "@/lib/directory-search";
-import { IDEA_CARD_SELECT, IdeaCard } from "@/components/IdeaParts";
+import { IDEA_CARD_SELECT, requirementCount } from "@/components/IdeaParts";
+import { IdeaBrowser, type BrowseIdea } from "@/components/IdeaBrowser";
 import { Icon } from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Business ideas and plans" };
 
-const PER_PAGE = 12;
+type Params = Partial<Record<"q" | "category" | "sort" | "page", string | string[]>>;
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
 /**
- * Business ideas: the directory's pinned advanced search, category chips with counts, then one
- * paged grid of idea cards (photo, requirement count, starting capital, Overview and Requirements),
- * a way on when nothing fits, and questions answered from the published ideas themselves.
+ * Business ideas: a hero with the search box, category chips with counts, a sort choice and one
+ * paged grid of idea cards. Search, chips, sort and pages work on the page itself (IdeaBrowser),
+ * so visitors never leave it. Below: a way on when nothing fits, and questions answered from the
+ * published ideas themselves.
  */
-export default async function Page({ searchParams }: { searchParams: SearchParams & { page?: string } }) {
+export default async function Page({ searchParams }: { searchParams: Params }) {
   const d = directory("/business-ideas");
-  const search = await readSearch("BUSINESS_IDEA", searchParams);
-  // The search finds the matching ids; the cards need the fuller record below.
-  const matches = search.active ? (await searchListings("BUSINESS_IDEA", search.q, search.values, search.adv)).map((i) => i.id) : null;
-  const published = { contentType: "BUSINESS_IDEA" as const, publicationStatus: "PUBLISHED" as const };
   const all = await prisma.contentItem.findMany({
-    where: published,
-    select: { ...IDEA_CARD_SELECT, businessIdea: { select: { ...IDEA_CARD_SELECT.businessIdea.select, profitPotential: true, homeBasedSuitable: true } } },
+    where: { contentType: "BUSINESS_IDEA", publicationStatus: "PUBLISHED" },
+    select: { ...IDEA_CARD_SELECT, businessIdea: { select: { ...IDEA_CARD_SELECT.businessIdea.select, businessType: true, profitPotential: true, homeBasedSuitable: true } } },
     orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }],
     take: 500,
   });
-  // Keep the search's order (its sort choice) when there is one.
-  const items = matches ? all.filter((i) => matches.includes(i.id)).sort((a, b) => matches.indexOf(a.id) - matches.indexOf(b.id)) : all;
-  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
-  const page = Math.min(pages, Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1));
-  const shown = items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const pageHref = (n: number) => {
-    const p = new URLSearchParams(Object.entries(searchParams).flatMap(([k, v]) => (k === "page" || v == null ? [] : (Array.isArray(v) ? v : [v]).map((x) => [k, x]))));
-    if (n > 1) p.set("page", String(n));
-    const s = p.toString();
-    return `/business-ideas${s ? `?${s}` : ""}`;
-  };
-
-  // Categories with their number of ideas (all published ideas, so the chips stay put while searching)
-  const cats = [...all.reduce((m, i) => (i.primaryCategory ? m.set(i.primaryCategory.id, { name: i.primaryCategory.name, n: (m.get(i.primaryCategory.id)?.n ?? 0) + 1 }) : m), new Map<string, { name: string; n: number }>())]
-    .sort((a, b) => b[1].n - a[1].n || a[1].name.localeCompare(b[1].name));
-  const chosen = search.values.category ?? "";
-  const chosenName = cats.find(([id]) => id === chosen)?.[1].name;
+  // Plain values only: the search runs in the visitor's browser, where money (Decimal) can't be sent.
+  const ideas: BrowseIdea[] = all.map((i, order) => {
+    const bi = i.businessIdea;
+    const capitalMin = bi?.capitalMin == null ? null : Number(bi.capitalMin);
+    const capitalMax = bi?.capitalMax == null ? null : Number(bi.capitalMax);
+    return {
+      id: i.id, slug: i.slug, title: i.title, shortSummary: i.shortSummary, primaryCategory: i.primaryCategory,
+      businessIdea: bi && { pictureUrl: bi.pictureUrl, keyRequirements: bi.keyRequirements, currency: bi.currency, scenarios: bi.scenarios, capitalMin, capitalMax },
+      order,
+      reqs: bi ? requirementCount(bi) : 0,
+      capital: capitalMin ?? capitalMax,
+      text: [i.title, i.shortSummary, i.primaryCategory?.name, bi?.businessType, bi?.keyRequirements].filter(Boolean).join(" ").toLowerCase(),
+    };
+  });
 
   // Questions answered from the published ideas; a question without an answer is left out.
   // "Bakery (UGX 2M – 5M), Soap making and Poultry", each name linking to its plan.
@@ -74,48 +67,13 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
   return (
     <>
-      <ListingHeader icon="idea" title={`${all.length} business ideas to start in Uganda`} intro={d.text} count={items.length} searching={search.active} unit={["plan", "plans"]} overlap />
+      <IdeaBrowser
+        ideas={ideas}
+        intro={d.text}
+        initial={{ q: first(searchParams.q), category: first(searchParams.category), sort: first(searchParams.sort), page: Math.max(1, Number.parseInt(first(searchParams.page), 10) || 1) }}
+      />
       <div className="bg-page">
-        <StickySearch>
-          <ServiceSearch path="/business-ideas" label="business ideas" q={search.q} filters={search.filters} values={search.values} count={items.length} adv={search.adv} advancedActive={search.advancedActive} />
-        </StickySearch>
-        <div className="container-site flex flex-col gap-8 py-8 sm:py-10">
-          {/* Categories, with how many ideas each has */}
-          <nav aria-label="Categories" className="flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-ink-muted">Browse by category</span>
-            <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none] sm:flex-wrap">
-              <li className="shrink-0"><Chip href="/business-ideas" on={!chosen} label="All" n={all.length} /></li>
-              {cats.map(([id, c]) => <li key={id} className="shrink-0"><Chip href={`/business-ideas?category=${id}`} on={chosen === id} label={c.name} n={c.n} /></li>)}
-            </ul>
-          </nav>
-
-          <section aria-labelledby="ideas" className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1">
-              <h2 id="ideas" className="text-section-title text-heading">{chosenName ? `${chosenName} business ideas` : search.active ? "Matching business ideas" : "Business ideas in Uganda"}</h2>
-              <p className="text-sm text-ink-muted"><strong className="font-semibold text-ink-soft">{items.length} {items.length === 1 ? "business" : "businesses"} available</strong>{pages > 1 ? ` · page ${page} of ${pages}` : ""}</p>
-            </div>
-            {items.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
-                <p className="text-sm font-semibold text-heading">{search.active ? "Nothing matches this search. Try fewer filters." : "Nothing published here yet."}</p>
-                {search.active ? <Link href="/business-ideas" className="text-[13px] font-semibold">Clear the search</Link> : null}
-              </div>
-            ) : (
-              <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-                {shown.map((i) => <li key={i.id} id={i.slug}><IdeaCard idea={i} /></li>)}
-              </ul>
-            )}
-            {pages > 1 ? (
-              <nav aria-label="Pages" className="flex items-center justify-center gap-1.5 pt-2">
-                <PageLink href={page > 1 ? pageHref(page - 1) : null} label="Previous page"><ChevronLeft className="h-4 w-4" /></PageLink>
-                {Array.from({ length: pages }, (_, n) => n + 1).map((n) => (
-                  <Link key={n} href={pageHref(n)} aria-current={n === page ? "page" : undefined}
-                    className={`flex h-9 min-w-9 items-center justify-center rounded-lg border px-2 text-sm font-semibold ${n === page ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink-soft hover:border-brand hover:text-brand"}`}>{n}</Link>
-                ))}
-                <PageLink href={page < pages ? pageHref(page + 1) : null} label="Next page"><ChevronRight className="h-4 w-4" /></PageLink>
-              </nav>
-            ) : null}
-          </section>
-
+        <div className="container-site flex flex-col gap-8 pb-10 sm:pb-14">
           {/* When nothing fits */}
           <section className="mx-auto flex max-w-2xl flex-col items-center gap-3 py-6 text-center">
             <h2 className="text-block-title text-heading">Can&apos;t find what you&apos;re looking for?</h2>
@@ -147,19 +105,4 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       </div>
     </>
   );
-}
-
-function Chip({ href, on, label, n }: { href: string; on: boolean; label: string; n: number }) {
-  return (
-    <Link href={href} aria-current={on ? "true" : undefined} className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold ${on ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink-soft hover:border-brand hover:text-brand"}`}>
-      {label}<span className={`rounded-full px-1.5 text-xs ${on ? "bg-white/20" : "bg-page"}`}>{n}</span>
-    </Link>
-  );
-}
-
-function PageLink({ href, label, children }: { href: string | null; label: string; children: React.ReactNode }) {
-  const cls = "flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-white";
-  return href
-    ? <Link href={href} aria-label={label} className={`${cls} text-ink-soft hover:border-brand hover:text-brand`}>{children}</Link>
-    : <span aria-hidden className={`${cls} text-line-strong`}>{children}</span>;
 }

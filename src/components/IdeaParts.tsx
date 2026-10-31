@@ -21,7 +21,12 @@ export const IDEA_CARD_SELECT = {
   id: true, slug: true, title: true, shortSummary: true, primaryCategory: { select: { id: true, name: true } },
   businessIdea: { select: { pictureUrl: true, keyRequirements: true, capitalMin: true, capitalMax: true, currency: true, scenarios: { select: { _count: { select: { lines: true } } } } } },
 } satisfies Prisma.ContentItemSelect;
-type CardIdea = Prisma.ContentItemGetPayload<{ select: typeof IDEA_CARD_SELECT }>;
+type CardPayload = Prisma.ContentItemGetPayload<{ select: typeof IDEA_CARD_SELECT }>;
+type Capital = Prisma.Decimal | number | null;
+/** A card's idea. Capital may be a plain number, so the in-page search (a client component) can show cards too. */
+export type CardIdea = Omit<CardPayload, "businessIdea"> & {
+  businessIdea: (Omit<NonNullable<CardPayload["businessIdea"]>, "capitalMin" | "capitalMax"> & { capitalMin: Capital; capitalMax: Capital }) | null;
+};
 
 /** The idea's photo, or a plain panel with the idea icon when there isn't one yet. */
 export function IdeaPhoto({ src, alt, className = "" }: { src?: string | null; alt: string; className?: string }) {
