@@ -24,7 +24,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
 
   return (
     <RecordPage
-      trail={["/experts", "Business consultants and experts"]}
+      trail={["/experts", "Business experts"]}
       eyebrow={`Expert · ${item.primaryCategory?.name ?? c.professionalTitle ?? "Consultant"}`}
       title={c.fullName}
       brief={item.shortSummary}

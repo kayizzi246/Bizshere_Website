@@ -6,7 +6,7 @@ import { date, itemHref } from "@/lib/format";
 import { searchTerms } from "@/lib/search-terms";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Business consultants and experts" };
+export const metadata = { title: "Business experts" };
 
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();

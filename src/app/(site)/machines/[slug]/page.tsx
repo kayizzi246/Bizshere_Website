@@ -27,7 +27,7 @@ export default async function MachinePage({ params }: { params: { slug: string }
 
   return (
     <RecordPage
-      trail={["/machines", "Business machines"]}
+      trail={["/machines", "Machines"]}
       eyebrow={`Machine · ${item.primaryCategory?.name ?? "Equipment"}`}
       title={item.title}
       brief={item.shortSummary}

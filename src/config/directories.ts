@@ -1,7 +1,8 @@
 import type { ContentType } from "@prisma/client";
 
 /**
- * The directories, in the client's order and wording (recipes left out at the client's request). One list feeds the
+ * The directories, in the client's order (recipes left out at the client's request), named and described in
+ * plain, short words so first-time visitors know at once what each one is for. One list feeds the
  * header menu, the homepage blocks and the footer, so they never drift apart.
  *
  *   title  card and menu heading      nav    short label for the header and footer
@@ -22,53 +23,53 @@ export type Directory = {
 export const DIRECTORIES: Directory[] = [
   {
     href: "/business-ideas", icon: "idea", type: "BUSINESS_IDEA", unit: ["plan", "plans"],
-    title: "Business ideas and plans", nav: "Business ideas", short: "business ideas",
-    text: "Structured database of business ideas, with brief guidelines for their implementation and basic start-up budgets.",
+    title: "Business ideas", nav: "Business ideas", short: "business ideas",
+    text: "Pick a business. See what you need and how much it costs to start.",
   },
   {
     href: "/machines", icon: "machine", type: "MACHINE", unit: ["machine", "machines"],
-    title: "Business machines", nav: "Business machines", short: "machines",
-    text: "Database of business machines, their business applications, possible sources in Uganda and overseas, and estimated prices.",
+    title: "Machines", nav: "Machines", short: "machines",
+    text: "See what each machine does, where to buy it and what it costs.",
   },
   {
     href: "/suppliers", icon: "supplier", type: "SUPPLIER", unit: ["supplier", "suppliers"],
     title: "Suppliers", nav: "Suppliers", short: "suppliers",
-    text: "Database of verified suppliers of business commodities, both local and foreign.",
+    text: "Checked suppliers for your stock and materials, in Uganda and abroad.",
   },
   {
     href: "/funding", icon: "funding", type: "FUNDING_PROGRAMME", unit: ["source", "sources"],
-    title: "Funding sources", nav: "Funding sources", short: "funding sources",
-    text: "Structured database of funding sources (banks, government agencies and private sources) with their terms and conditions, criteria and contact information.",
+    title: "Loans and funding", nav: "Funding", short: "funding",
+    text: "Banks, government and other lenders: what they give, their terms and how to apply.",
   },
   {
     href: "/guides", icon: "guide", type: "GUIDE", unit: ["guide", "guides"],
-    title: "Business information and guidelines", nav: "Business guidelines", short: "guidelines",
-    text: "Guidelines, books, investment opportunities, videos, websites and other sources for business processes like business registration, export licences, EFRIS registration and tax compliance.",
+    title: "How-to guides", nav: "Guides", short: "guides",
+    text: "Step-by-step help to register your business, get licences, use EFRIS and pay taxes.",
   },
   {
     href: "/experts", icon: "expert", type: "CONSULTANT", unit: ["expert", "experts"],
-    title: "Business consultants and experts", nav: "Business experts", short: "experts",
-    text: "Database of verified business consultants and advisors in areas like taxation, accounting, importation, export, farming, coffee processing, mining and manufacturing.",
+    title: "Business experts", nav: "Experts", short: "experts",
+    text: "Checked advisors for tax, accounting, import, export, farming and more.",
   },
   {
     href: "/tools", icon: "tool", type: "TOOL", unit: ["tool", "tools"],
-    title: "Business tools", nav: "Business tools", short: "tools",
-    text: "A collection of downloadable business tools and templates, like a VAT calculator, PAYE calculator, business plan templates and cash flow templates.",
+    title: "Business tools", nav: "Tools", short: "tools",
+    text: "Calculators and templates: VAT, PAYE, business plans and cash flow.",
   },
   {
     href: "/prices", icon: "prices", type: "PRICES", unit: ["price", "prices"],
-    title: "Markets and prices", nav: "Markets and prices", short: "markets and prices",
-    text: "Structured database of verified markets for produce like rice, coffee and milk, and product prices.",
+    title: "Market prices", nav: "Market prices", short: "market prices",
+    text: "Latest prices for rice, coffee, milk and other goods, market by market.",
   },
   {
     href: "/websites", icon: "link", type: "WEBSITE", unit: ["website", "websites"],
-    title: "Useful websites", nav: "Useful websites", short: "websites",
-    text: "A collection of business-related and other useful websites.",
+    title: "Useful websites", nav: "Websites", short: "websites",
+    text: "Government and business websites you will need, in one list.",
   },
   {
     href: "/news", icon: "news", type: "NEWS", unit: ["update", "updates"],
-    title: "Business news and updates", nav: "News", short: "news",
-    text: "Business, education and career news and updates.",
+    title: "Business news", nav: "News", short: "news",
+    text: "Latest business, education and career news.",
   },
 ];
 

@@ -8,7 +8,7 @@ import { IdeaBrowser, type BrowseIdea } from "@/components/IdeaBrowser";
 import { Icon } from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Business ideas and plans" };
+export const metadata = { title: "Business ideas" };
 
 type Params = Partial<Record<"q" | "category" | "sort" | "page", string | string[]>>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -60,9 +60,9 @@ export default async function Page({ searchParams }: { searchParams: Params }) {
     ["Which businesses need the least starting capital?", cheapest.length ? <>Of the ideas priced so far: {list(cheapest)}. Each plan lists its start-up budget item by item.</> : null],
     ["Which business ideas have high profit potential?", profitable.length ? <>{list(profitable)}. Profit potential is our researchers&apos; estimate; check the plan&apos;s target market and success factors for your area.</> : null],
     ["Which businesses can I start from home?", fromHome.length ? <>{list(fromHome)}.</> : null],
-    ["How do I register my business?", <>Step-by-step registration and licensing guides are in <Link href="/guides" className="font-semibold">Business information and guidelines</Link>. Each plan also lists its special requirements, such as licences.</>],
-    ["Where can I get money to start?", <>Loans, grants and other programmes for small businesses are listed under <Link href="/funding" className="font-semibold">Funding sources</Link>.</>],
-    ["Where do I buy the machines and stock?", <>See <Link href="/machines" className="font-semibold">Business machines</Link> and <Link href="/suppliers" className="font-semibold">Suppliers</Link>. Plans link to the machines and suppliers they need where we have them.</>],
+    ["How do I register my business?", <>Step-by-step registration and licensing guides are in <Link href="/guides" className="font-semibold">How-to guides</Link>. Each plan also lists its special requirements, such as licences.</>],
+    ["Where can I get money to start?", <>Loans, grants and other programmes for small businesses are listed under <Link href="/funding" className="font-semibold">Loans and funding</Link>.</>],
+    ["Where do I buy the machines and stock?", <>See <Link href="/machines" className="font-semibold">Machines</Link> and <Link href="/suppliers" className="font-semibold">Suppliers</Link>. Plans link to the machines and suppliers they need where we have them.</>],
   ] as [string, React.ReactNode][]).filter(([, a]) => Boolean(a));
 
   return (

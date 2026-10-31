@@ -19,7 +19,7 @@ export function HeaderSearch({ className = "", label = true }: { className?: str
   return (
     <Link href={href} aria-label={text} title={text} className={className}>
       <Icon name="search" className="h-[18px] w-[18px] shrink-0" />
-      {label ? <span className="hidden max-w-[11rem] truncate 2xl:inline">{text}</span> : null}
+      {label ? <span className="hidden max-w-[11rem] truncate xl:inline">{text}</span> : null}
     </Link>
   );
 }

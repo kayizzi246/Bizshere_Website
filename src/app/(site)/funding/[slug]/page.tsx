@@ -27,7 +27,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
 
   return (
     <RecordPage
-      trail={["/funding", "Funding sources"]}
+      trail={["/funding", "Loans and funding"]}
       eyebrow={`Funding · ${titleCase(f.fundingType)}`}
       title={item.title}
       brief={item.shortSummary}

@@ -6,16 +6,15 @@ import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { site } from "@/config/site";
 import { Logo } from "./Logo";
-import { HideOnHome } from "./HideOnHome";
 import { Icon } from "./Icon";
 import { MobileMenu } from "./MobileMenu";
 
 // Shown as plain links next to the "Directories" menu on desktop.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
-// Compact SaaS-style nav: plain 14px links (13px on laptops so the row still fits).
-const link = "whitespace-nowrap rounded-md px-2 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
-const searchBtn = "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border border-line bg-page/80 px-3 font-display text-[13px] font-medium text-ink-muted 2xl:min-w-[180px] transition hover:border-brand hover:text-brand";
+// 2026 SaaS header: links centred as soft pills, search as a rounded field, one solid call to action.
+const link = "whitespace-nowrap rounded-full px-2.5 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3.5 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
+const searchBtn = "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-page/70 px-3.5 font-display text-[13px] font-medium text-ink-muted xl:w-44 2xl:w-52 transition hover:border-brand/40 hover:bg-white hover:text-heading";
 
 /**
  * Header: a blue contact bar that scrolls away, then a light frosted bar that stays at the top:
@@ -30,11 +29,12 @@ export async function SiteHeader() {
   return (
     <>
     <TopBar />
-    <header data-site-header="" className="sticky top-0 z-[45] border-b border-line/70 bg-white/85 backdrop-blur-xl">
-      <div className="container-site relative flex h-[72px] items-center gap-4 lg:h-[84px]">
+    <header data-site-header="" className="sticky top-0 z-[45] border-b border-line/60 bg-white/75 shadow-[0_1px_0_rgba(255,255,255,0.6),0_8px_24px_-18px_rgba(7,26,51,0.25)] backdrop-blur-xl backdrop-saturate-150">
+      <div className="container-site relative flex h-[72px] items-center gap-4 lg:h-[80px]">
         <Logo full />
 
-        <nav aria-label="Main" className="ml-auto hidden h-full items-center gap-2 lg:flex xl:gap-3">
+        {/* Links centred between the logo and the actions */}
+        <nav aria-label="Main" className="hidden h-full flex-1 items-center justify-center lg:flex">
           <div className="flex items-center gap-0.5">
           {/* Directories menu: opens on hover or keyboard focus, no JavaScript needed */}
           <div className="group flex h-full items-center">
@@ -69,15 +69,18 @@ export async function SiteHeader() {
           <Link href="/membership" className={link}>Pricing</Link>
           {staff ? <Link href="/admin" className={link}>Admin</Link> : null}
           </div>
+        </nav>
 
+        <div className="hidden shrink-0 items-center gap-2 lg:flex xl:gap-3">
           {/* useSearchParams needs a Suspense boundary on static pages */}
           <Suspense fallback={<Link href="/search" aria-label="Search" className={searchBtn}><Icon name="search" className="h-4 w-4" /></Link>}>
             <HeaderSearch className={searchBtn} />
           </Suspense>
-
-          {/* From 1280px; narrower, it is in the menu */}
-          <span className="hidden xl:contents"><HideOnHome><AccessButton viewer={viewer} /></HideOnHome></span>
-        </nav>
+          {/* Back on a new phone or computer: the sign-in page (signed-out visitors only) */}
+          {!viewer.userId ? <Link href="/login" className="hidden whitespace-nowrap px-1.5 font-display text-[14px] font-semibold text-heading hover:text-brand xl:inline">Log in</Link> : null}
+          {/* The one call to action, on every page; narrower than 1280px it is in the menu */}
+          <span className="hidden xl:contents"><AccessButton viewer={viewer} /></span>
+        </div>
 
         {/* Mobile menu: opens without JavaScript; MobileMenu also closes it on an outside tap, Escape or navigation */}
         <Suspense fallback={null}>
@@ -99,7 +102,7 @@ export async function SiteHeader() {
             <div className="my-1 border-t border-line" />
             <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
             {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
-            <HideOnHome><AccessButton viewer={viewer} mobile /></HideOnHome>
+            <AccessButton viewer={viewer} mobile />
           </div>
         </MobileMenu>
       </div>
@@ -153,8 +156,10 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
       </span>
     );
   }
-  const [href, label] = viewer.userId ? ["/membership", "Get full access"] : ["/signup", "Get started free"];
+  const [href, label] = viewer.userId ? ["/membership", "Get full access"] : ["/signup", "Get started"];
   return (
-    <Link href={href} className={`inline-flex items-center whitespace-nowrap rounded-full bg-brand-deep px-5 font-display font-semibold text-white transition hover:bg-brand hover:text-white ${size}`}>{label}</Link>
+    <Link href={href} className={`group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 font-display font-semibold text-white shadow-[0_6px_18px_-6px_rgba(0,114,206,0.6)] transition hover:-translate-y-px hover:bg-brand-dark hover:text-white ${size}`}>
+      {label}<span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
+    </Link>
   );
 }

@@ -24,7 +24,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
 
   return (
     <div className="container-site flex flex-col gap-7 py-6">
-      <Crumbs trail={[["/funding", "Funding sources"], ["/opportunities", "Investment opportunities"]]} title={item.title} />
+      <Crumbs trail={[["/funding", "Loans and funding"], ["/opportunities", "Investment opportunities"]]} title={item.title} />
       <Identity eyebrow={`Investment opportunity${o.sector ? ` · ${o.sector}` : ""}`} title={item.title} summary={item.shortSummary}>
         <span className="text-ink-muted">Promoted by {o.promoterOrganization?.tradingName ?? o.promoterOrganization?.legalName ?? o.promoter ?? "—"}</span>
         <CheckBadges checks={item.checks} />

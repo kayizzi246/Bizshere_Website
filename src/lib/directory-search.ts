@@ -21,13 +21,13 @@ export type Filter = { name: string; label: string; options?: Option[]; placehol
 export const TABS: { id: Tab; label: string }[] = [
   { id: "ALL", label: "Everything" },
   { id: "BUSINESS_IDEA", label: "Business ideas" },
-  { id: "MACHINE", label: "Business machines" },
+  { id: "MACHINE", label: "Machines" },
   { id: "SUPPLIER", label: "Suppliers" },
-  { id: "FUNDING_PROGRAMME", label: "Funding sources" },
-  { id: "GUIDE", label: "Business guidelines" },
+  { id: "FUNDING_PROGRAMME", label: "Loans and funding" },
+  { id: "GUIDE", label: "How-to guides" },
   { id: "CONSULTANT", label: "Business experts" },
   { id: "TOOL", label: "Tools" },
-  { id: "PRICES", label: "Markets and prices" },
+  { id: "PRICES", label: "Market prices" },
   { id: "WEBSITE", label: "Websites" },
   { id: "NEWS", label: "News" },
 ];

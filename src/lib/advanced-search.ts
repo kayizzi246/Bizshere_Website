@@ -16,9 +16,9 @@ export type SearchParams = Record<string, string | string[] | undefined>;
 
 export const GROUPS: { id: string; label: string; types: ContentType[] }[] = [
   { id: "ideas", label: "Business ideas", types: ["BUSINESS_IDEA"] },
-  { id: "machines", label: "Business machines", types: ["MACHINE"] },
+  { id: "machines", label: "Machines", types: ["MACHINE"] },
   { id: "suppliers", label: "Suppliers", types: ["SUPPLIER"] },
-  { id: "funding", label: "Funding sources", types: ["FUNDING_PROGRAMME"] },
+  { id: "funding", label: "Loans and funding", types: ["FUNDING_PROGRAMME"] },
   { id: "opportunities", label: "Investment opportunities", types: ["INVESTMENT_OPPORTUNITY"] },
   { id: "guides", label: "Guides and tools", types: ["GUIDE", "TOOL", "WEBSITE"] },
   { id: "experts", label: "Business experts", types: ["CONSULTANT"] },

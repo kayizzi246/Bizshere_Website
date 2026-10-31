@@ -56,6 +56,13 @@ export function SiteFooter() {
         ))}
       </div>
 
+      {/* Big wordmark across the footer on one line, sized to the screen width, fading out at the bottom */}
+      <div aria-hidden className="container-site select-none overflow-hidden">
+        <div className="-mb-[0.18em] whitespace-nowrap bg-gradient-to-b from-brand to-brand/10 bg-clip-text text-center font-hero text-[clamp(44px,16vw,236px)] font-extrabold leading-none tracking-[-0.05em] text-transparent">
+          Bizsphere
+        </div>
+      </div>
+
       <div className="border-t border-line">
         <div className="container-site flex flex-col gap-2 py-5 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} BizSphere-Ug · Kampala, Uganda</span>

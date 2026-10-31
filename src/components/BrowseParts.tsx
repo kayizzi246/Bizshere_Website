@@ -47,7 +47,7 @@ export function BrowseHero({ crumb, badge, title, intro, tabs, active, q, onSear
             {badge[1]}
           </span>
         )}
-        <h1 className="max-w-3xl font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.035em] sm:text-[40px] xl:text-[46px]">{title}</h1>
+        <h1 className="max-w-3xl font-hero text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[40px] xl:text-[46px]">{title}</h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-[17px]">{intro}</p>
         <form role="search" onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="search-glow mt-1 w-full max-w-xl rounded-2xl">
           <div className="relative rounded-[14px] bg-white">

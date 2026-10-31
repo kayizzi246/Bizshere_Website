@@ -23,7 +23,7 @@ export default async function GuidePage({ params }: { params: { slug: string } }
 
   return (
     <RecordPage
-      trail={["/guides", "Business information and guidelines"]}
+      trail={["/guides", "How-to guides"]}
       eyebrow={`${g.resourceType ?? "Document"} · ${item.primaryCategory?.name ?? "General"}`}
       title={item.title}
       brief={item.shortSummary}

@@ -48,14 +48,14 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero: deep navy with a curved blue light from the right and a teal glow bottom-right.
-          Compact SaaS-style: badge, headline (52px max), paragraph, glowing search, directory chips, actions and a trust line on the left; the
+          Roomy SaaS-style: badge, headline (52px max), paragraph, search with a moving-colour border, directory chips and actions on the left; the
           "How it works" card on the right (wide screens). ── */}
       <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
         <div aria-hidden className="drift pointer-events-none absolute -right-[20%] -top-[30%] -z-10 h-[120%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(30,127,219,0.35),transparent)]" />
 
-        <div className="container-site relative grid items-center gap-10 pb-10 pt-8 sm:pb-12 sm:pt-12 xl:grid-cols-[1.15fr_1fr] xl:gap-12 2xl:gap-16">
-          <div className="hero-rise flex flex-col items-start gap-5">
+        <div className="container-site relative grid items-center gap-12 pb-16 pt-14 sm:pb-20 sm:pt-20 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
+          <div className="hero-rise flex flex-col items-start gap-6">
             <Link href="/business-ideas" className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] py-1 pl-1.5 pr-3 text-[13px] font-medium text-white/90 backdrop-blur transition hover:border-accent hover:text-white">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-ink"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-ink" />New</span>
               Business plans with real start-up budgets
@@ -63,7 +63,7 @@ export default async function HomePage() {
             </Link>
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
                 "start" in orange. From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-display text-[32px] font-extrabold leading-[1.08] tracking-[-0.035em] text-white sm:text-[40px] xl:text-[46px] 2xl:text-[52px]">
+            <h1 className="font-hero text-[32px] font-extrabold leading-[1.08] tracking-[-0.03em] text-white sm:text-[40px] xl:text-[46px] 2xl:text-[52px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="contents">
                   <span className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
@@ -74,7 +74,7 @@ export default async function HomePage() {
               ))}
             </h1>
 
-            <p className="max-w-xl text-[16px] leading-[1.6] text-white/75 sm:text-[17px] 2xl:text-[18px]">
+            <p className="max-w-lg text-[14px] leading-[1.65] text-white/70 sm:text-[15px]">
               Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
@@ -97,11 +97,6 @@ export default async function HomePage() {
               <Link href="/business-ideas" className="inline-flex min-h-[46px] items-center justify-center rounded-lg border border-white/30 px-6 text-[15px] font-semibold text-white transition hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
             </div>
 
-            <ul aria-label="Why BizSphere-Ug" className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-white/65">
-              {["Free to start", "Budgets in UGX", "Pay with MTN MoMo or Airtel Money"].map((t) => (
-                <li key={t} className="inline-flex items-center gap-1.5"><Icon name="check" className="h-3.5 w-3.5 text-accent" />{t}</li>
-              ))}
-            </ul>
           </div>
 
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
