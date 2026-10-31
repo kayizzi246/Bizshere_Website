@@ -13,9 +13,9 @@ import { MobileMenu } from "./MobileMenu";
 // Shown as plain links next to the "Directories" menu on desktop.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
-// Nav 16px / 500 on wide screens, a step smaller on laptops so the row still fits.
-const link = "whitespace-nowrap rounded-full px-2 py-2 font-display text-[13px] font-medium text-ink xl:px-2.5 xl:text-[14px] 2xl:px-4 2xl:text-[16px] transition-colors hover:bg-white hover:text-heading";
-const searchBtn = "inline-flex h-12 items-center gap-2.5 whitespace-nowrap rounded-xl border border-line bg-page/80 px-3.5 font-display text-[15px] font-medium text-ink-soft 2xl:min-w-[150px] 2xl:px-4 2xl:text-[16px] transition hover:border-brand hover:text-brand";
+// Compact SaaS-style nav: plain 14px links (13px on laptops so the row still fits).
+const link = "whitespace-nowrap rounded-md px-2 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
+const searchBtn = "inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border border-line bg-page/80 px-3 font-display text-[13px] font-medium text-ink-muted 2xl:min-w-[180px] transition hover:border-brand hover:text-brand";
 
 /**
  * Header: a blue contact bar that scrolls away, then a light frosted bar that stays at the top:
@@ -31,16 +31,16 @@ export async function SiteHeader() {
     <>
     <TopBar />
     <header data-site-header="" className="sticky top-0 z-[45] border-b border-line/70 bg-white/85 backdrop-blur-xl">
-      <div className="container-site relative flex h-[72px] items-center gap-4 lg:h-[88px]">
+      <div className="container-site relative flex h-14 items-center gap-4 lg:h-16">
         <Logo full />
 
         <nav aria-label="Main" className="ml-auto hidden h-full items-center gap-2 lg:flex xl:gap-3">
-          <div className="flex items-center gap-0.5 rounded-full border border-line bg-page/80 p-1.5">
+          <div className="flex items-center gap-0.5">
           {/* Directories menu: opens on hover or keyboard focus, no JavaScript needed */}
           <div className="group flex h-full items-center">
-            <button type="button" aria-haspopup="true" className={`${link} flex items-center gap-1 group-focus-within:bg-white group-focus-within:text-heading group-hover:bg-white group-hover:text-heading`}>
+            <button type="button" aria-haspopup="true" className={`${link} flex items-center gap-1 group-focus-within:bg-page group-focus-within:text-heading group-hover:bg-page group-hover:text-heading`}>
               Directories
-              <ChevronDown aria-hidden className="h-4 w-4 transition group-hover:rotate-180 group-focus-within:rotate-180" />
+              <ChevronDown aria-hidden className="h-3.5 w-3.5 transition group-hover:rotate-180 group-focus-within:rotate-180" />
             </button>
             <div className="invisible absolute inset-x-6 top-full pt-2 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
               <div className="rounded-2xl border border-line bg-white p-3">
@@ -119,7 +119,7 @@ function TopBar() {
 
   return (
     <div className="hidden bg-brand-deep text-[12px] text-white/90 md:block">
-      <div className="container-site flex h-11 items-center justify-between gap-6">
+      <div className="container-site flex h-9 items-center justify-between gap-6">
         {items.length ? (
           <ul className="flex items-center gap-6">
             {items.map((i) => (
@@ -136,7 +136,7 @@ function TopBar() {
           <Link href="/about" className="text-white/80 hover:text-white">About</Link>
           <Link href="/methodology" className="text-white/80 hover:text-white">How we check</Link>
           <Link href="/contact" className="text-white/80 hover:text-white">Contact</Link>
-          <Link href="/contact" className="inline-flex items-center rounded-lg bg-accent px-3.5 py-1.5 text-[14px] font-semibold text-ink hover:bg-white hover:text-ink">Get your business listed</Link>
+          <Link href="/contact" className="inline-flex items-center rounded-md bg-accent px-3 py-1 text-[12px] font-semibold text-ink hover:bg-white hover:text-ink">Get your business listed</Link>
         </nav>
       </div>
     </div>
