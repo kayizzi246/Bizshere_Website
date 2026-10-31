@@ -23,6 +23,7 @@
     "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "jobs": "tsx scripts/jobs.ts",
+    "sms:test": "tsx --env-file=.env scripts/sms-test.ts",
     "docs:db": "tsx scripts/data-dictionary.ts",
     "postinstall": "prisma generate",
     "theme:prime": "node scripts/prime-theme.mjs"
