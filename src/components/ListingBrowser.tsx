@@ -159,7 +159,7 @@ function DocumentCard({ i, icon }: { i: BrowseListing; icon: string }) {
 
 function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; photos: boolean }) {
   return (
-    <Link href={i.href} className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink hover:shadow-[0_14px_30px_-14px_rgba(7,26,51,0.25)]">
+    <Link href={i.href} className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">
       {photos ? (
         <span className="relative block overflow-hidden bg-page">
           {i.picture ? (

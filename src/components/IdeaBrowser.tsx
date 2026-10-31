@@ -108,7 +108,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
                 {ideas.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
             ) : (
-              <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+              <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                 {shown.map((i) => <li key={i.id} id={i.slug}><IdeaCard idea={i} /></li>)}
               </ul>
             )}

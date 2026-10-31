@@ -6,22 +6,33 @@
  * EGOSMS_SENDER_ID is optional and must be approved on the account first; EGOSMS_URL can point
  * at the sandbox for testing. Without the keys sendSms returns false and only the test number
  * can sign in (see src/lib/phone-codes.ts). `npm run sms:test -- 0772123456` sends a test text.
+ *
+ * Local testing without EgoSMS: SMS_CONSOLE=true prints each text (with its sign-in code) in the
+ * terminal running `npm run dev` instead of sending it. Ignored on Vercel and in production builds.
  */
 const LIVE_URL = "https://comms.egosms.co/api/v1/json/";
 
 type EgoResponse = { Status?: string; Message?: string; Cost?: number; MsgFollowUpUniqueCode?: string };
 
+/** True when texts go to the terminal instead of EgoSMS (local development only). */
+export const smsToConsole = () => process.env.SMS_CONSOLE === "true" && !process.env.VERCEL && process.env.NODE_ENV !== "production";
+
 /** Sends `text` to `to` (+256772123456, 0772 123 456 …). True when EgoSMS accepted it. */
 export async function sendSms(to: string, text: string): Promise<boolean> {
+  // EgoSMS wants the international number without "+" or "00": 256772123456
+  let number = to.replace(/\D/g, "").replace(/^00/, "");
+  if (number.startsWith("0")) number = `256${number.slice(1)}`;
+
+  if (smsToConsole()) {
+    console.log(`\n┌─ SMS (not sent: SMS_CONSOLE=true) ─────────\n│ To:   +${number}\n│ Text: ${text}\n└────────────────────────────────────────────\n`);
+    return true;
+  }
   const username = process.env.EGOSMS_USERNAME;
   const password = process.env.EGOSMS_PASSWORD;
   if (!username || !password) {
     console.error("sms: EGOSMS_USERNAME / EGOSMS_PASSWORD are not set");
     return false;
   }
-  // EgoSMS wants the international number without "+" or "00": 256772123456
-  let number = to.replace(/\D/g, "").replace(/^00/, "");
-  if (number.startsWith("0")) number = `256${number.slice(1)}`;
 
   const message: Record<string, unknown> = { number, message: text, priority: 0 }; // 0: most urgent (codes expire)
   if (process.env.EGOSMS_SENDER_ID) message.senderid = process.env.EGOSMS_SENDER_ID;

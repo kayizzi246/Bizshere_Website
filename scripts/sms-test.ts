@@ -3,7 +3,7 @@
  *
  *   npm run sms:test -- 0772123456
  */
-import { sendSms } from "../src/lib/sms";
+import { sendSms, smsToConsole } from "../src/lib/sms";
 
 const to = process.argv[2];
 if (!to) {
@@ -12,6 +12,6 @@ if (!to) {
 }
 
 sendSms(to, "BizSphere-Ug test message: SMS is working.").then((ok) => {
-  console.log(ok ? `Sent to ${to}. Check the phone.` : "Not sent. See the error above.");
+  console.log(!ok ? "Not sent. See the error above." : smsToConsole() ? "Printed above, not sent (SMS_CONSOLE=true). Set it to \"\" in .env to send for real." : `Sent to ${to}. Check the phone.`);
   process.exit(ok ? 0 : 1);
 });

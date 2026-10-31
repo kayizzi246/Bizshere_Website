@@ -62,14 +62,14 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
   const reqs = bi ? requirementCount(bi) : 0;
   const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)] transition hover:-translate-y-0.5 hover:border-brand hover:shadow-[0_14px_30px_-14px_rgba(7,26,51,0.25)]">
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:border-brand">
       <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden">
         <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[16/9] transition duration-500 group-hover:scale-[1.03]" />
         <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-xs font-bold text-heading"><ClipboardList className="h-3.5 w-3.5 text-brand" />{reqs}</span>
         {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-[#071A33]/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
       </Link>
-      {/* Phones show two cards a row, so below sm the card is compact: stats and buttons stacked */}
-      <div className="flex flex-1 flex-col gap-2.5 px-2.5 pb-2.5 pt-3 sm:gap-4 sm:p-5">
+      {/* Phones show two cards a row, so below sm the card uses tight padding: stats and buttons stacked */}
+      <div className="flex flex-1 flex-col gap-2 px-2 pb-2 pt-2.5 sm:gap-4 sm:p-5">
         <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand sm:text-lg">{name}</Link>
         <dl className="grid gap-2 sm:grid-cols-2 sm:gap-2.5">
           <div className="flex flex-col-reverse justify-end gap-0.5 rounded-lg bg-page px-2 py-1.5 sm:rounded-xl sm:px-3 sm:py-2.5">
@@ -82,8 +82,8 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
           </div>
         </dl>
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-line text-[13px] font-semibold sm:h-10 sm:text-sm text-heading hover:border-brand hover:text-brand"><Info aria-hidden className="hidden h-4 w-4 sm:block" />Overview</Link>
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-9 flex-[1.6] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-brand text-[13px] font-semibold sm:order-none sm:h-10 sm:text-sm text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="hidden h-4 w-4 sm:block" />Requirements<span aria-hidden className="hidden sm:inline"> →</span></Link>
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-line text-[13px] font-semibold sm:h-11 sm:text-sm text-heading hover:border-brand hover:text-brand"><Info aria-hidden className="hidden h-4 w-4 sm:block" />Overview</Link>
+          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-11 flex-[1.6] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-brand text-[15px] font-bold sm:order-none sm:h-11 sm:text-[15px] text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="hidden h-4 w-4 sm:block" />Requirements<span aria-hidden className="hidden sm:inline"> →</span></Link>
         </div>
       </div>
     </div>
