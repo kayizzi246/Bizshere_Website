@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { IdeaCard, type CardIdea } from "./IdeaParts";
+import { useTypingHint } from "./TypingHint";
 
 /** A card plus what the in-page search and sort need. `order` is the newest-first position. */
 export type BrowseIdea = CardIdea & { order: number; reqs: number; capital: number | null; text: string };
@@ -65,6 +66,10 @@ export function IdeaBrowser({ ideas, intro, initial }: {
   const current = Math.min(page, pages);
   const shown = items.slice((current - 1) * PER_PAGE, current * PER_PAGE);
   const chosenName = cats.find(([id]) => id === category)?.[1].name;
+  // Examples for the search box and the "Popular" links: the newest ideas' names.
+  const examples = useMemo(() => ideas.slice(0, 6).map((i) => name(i).toLowerCase()), [ideas]);
+  const hint = useTypingHint(examples.length ? examples : ["bakery"], { prefix: "Search business ideas, e.g. ", paused: Boolean(q) });
+  const search = (v: string) => { setQ(v); setPage(1); };
 
   // Keep the address bar in step without reloading or adding history entries.
   useEffect(() => {
@@ -85,29 +90,49 @@ export function IdeaBrowser({ ideas, intro, initial }: {
 
   return (
     <>
-      <header className="bg-gradient-to-br from-[#071A33] to-brand-dark text-white">
-        <div className="container-site flex flex-col items-center gap-5 py-12 text-center sm:py-16">
-          <nav aria-label="Breadcrumb" className="text-xs text-white/70">
-            <Link href="/" className="text-white/70 hover:text-white">Home</Link> / <span className="font-semibold text-white">Business ideas in Uganda</span>
+      <header className="relative isolate overflow-hidden bg-[#071A33] text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_80%_at_50%_120%,#1E7FDB_0%,rgba(7,26,51,0)_70%)]" />
+        <div aria-hidden className="drift pointer-events-none absolute -right-[15%] -top-[40%] -z-10 h-[110%] w-[55%] rounded-full bg-[radial-gradient(closest-side,rgba(34,199,207,0.22),transparent)]" />
+        <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 -z-10" />
+        <div className="hero-rise container-site flex flex-col items-center gap-4 py-10 text-center sm:py-14">
+          <nav aria-label="Breadcrumb" className="text-xs text-white/60">
+            <Link href="/" className="text-white/60 hover:text-white">Home</Link> / <span className="text-white/90">Business ideas</span>
           </nav>
-          <h1 className="max-w-3xl text-page-title">{ideas.length} business ideas to start in Uganda today</h1>
-          <p className="max-w-2xl text-[15px] leading-relaxed text-white/80 sm:text-base">{intro}</p>
-          <form role="search" onSubmit={(e) => { e.preventDefault(); listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="relative mt-2 w-full max-w-2xl">
-            <Search aria-hidden className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" />
-            <input
-              type="search"
-              value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1); }}
-              placeholder="Search business ideas (e.g. 'bakery', 'poultry', 'salon')…"
-              aria-label="Search business ideas"
-              className="h-14 w-full rounded-xl border-0 bg-white pl-14 pr-12 text-base text-heading shadow-[0_10px_30px_-10px_rgba(0,0,0,0.35)] outline-none placeholder:text-ink-muted focus:ring-4 focus:ring-white/30 [&::-webkit-search-cancel-button]:hidden"
-            />
-            {q ? (
-              <button type="button" onClick={() => { setQ(""); setPage(1); }} aria-label="Clear the search" className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted hover:bg-page hover:text-heading">
-                <X className="h-4 w-4" />
-              </button>
-            ) : null}
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] py-1 pl-1.5 pr-3 text-[13px] font-medium text-white/90 backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-ink"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-ink" />{ideas.length}</span>
+            business plans with start-up budgets
+          </span>
+          <h1 className="max-w-3xl font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.035em] sm:text-[40px] xl:text-[46px]">
+            Business ideas to start in <span className="text-accent">Uganda</span> today
+          </h1>
+          <p className="max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-[17px]">{intro}</p>
+          <form role="search" onSubmit={(e) => { e.preventDefault(); listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="search-glow mt-1 w-full max-w-xl rounded-2xl">
+            <div className="relative rounded-[14px] bg-white">
+              <Search aria-hidden className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" />
+              <input
+                type="search"
+                value={q}
+                onChange={(e) => search(e.target.value)}
+                placeholder={hint}
+                aria-label="Search business ideas"
+                className="h-12 w-full rounded-[14px] border-0 bg-transparent pl-12 pr-11 text-[16px] text-heading outline-none placeholder:text-ink-muted sm:h-[52px] [&::-webkit-search-cancel-button]:hidden"
+              />
+              {q ? (
+                <button type="button" onClick={() => search("")} aria-label="Clear the search" className="absolute right-2.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted hover:bg-page hover:text-heading">
+                  <X className="h-4 w-4" />
+                </button>
+              ) : null}
+            </div>
           </form>
+          {examples.length ? (
+            <p className="flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-white/60">
+              Popular:
+              {examples.slice(0, 4).map((e) => (
+                <button key={e} type="button" onClick={() => { search(e); listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                  className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-0.5 capitalize text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white">{e}</button>
+              ))}
+            </p>
+          ) : null}
         </div>
       </header>
 

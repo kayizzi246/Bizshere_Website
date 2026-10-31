@@ -7,6 +7,7 @@ import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
+import { HomeSearch } from "@/components/HomeSearch";
 import { getViewer } from "@/lib/access";
 import { BarChart3, ChevronRight } from "lucide-react";
 
@@ -47,17 +48,23 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero: deep navy with a curved blue light from the right and a teal glow bottom-right.
-          Headline (64px / 800 on wide screens), paragraph, search, directory chips and actions on the left; the
+          Compact SaaS-style: badge, headline (52px max), paragraph, glowing search, directory chips, actions and a trust line on the left; the
           "How it works" card on the right (wide screens). ── */}
       <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
-        <div aria-hidden className="pointer-events-none absolute -right-[20%] -top-[30%] -z-10 h-[120%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(30,127,219,0.35),transparent)]" />
+        <div aria-hidden className="drift pointer-events-none absolute -right-[20%] -top-[30%] -z-10 h-[120%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(30,127,219,0.35),transparent)]" />
+        <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 -z-10" />
 
-        <div className="container-site relative grid items-center gap-12 pb-10 pt-10 sm:pt-14 lg:pb-10 lg:pt-14 xl:grid-cols-[1.1fr_1fr] xl:gap-12 2xl:gap-16">
-          <div className="hero-rise flex flex-col items-start gap-6">
+        <div className="container-site relative grid items-center gap-10 pb-10 pt-8 sm:pb-12 sm:pt-12 xl:grid-cols-[1.15fr_1fr] xl:gap-12 2xl:gap-16">
+          <div className="hero-rise flex flex-col items-start gap-5">
+            <Link href="/business-ideas" className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] py-1 pl-1.5 pr-3 text-[13px] font-medium text-white/90 backdrop-blur transition hover:border-accent hover:text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-ink"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-ink" />New</span>
+              Business plans with real start-up budgets
+              <ChevronRight aria-hidden className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+            </Link>
             {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
                 "start" in orange. From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-display text-[36px] font-extrabold leading-[1.05] tracking-[-0.04em] text-white sm:text-[48px] lg:text-[44px] xl:text-[52px] 2xl:text-[64px]">
+            <h1 className="font-display text-[32px] font-extrabold leading-[1.08] tracking-[-0.035em] text-white sm:text-[40px] xl:text-[46px] 2xl:text-[52px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="contents">
                   <span className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
@@ -68,39 +75,40 @@ export default async function HomePage() {
               ))}
             </h1>
 
-            <p className="max-w-2xl text-[17px] leading-[1.55] text-white/85 sm:text-xl 2xl:text-[24px]">
+            <p className="max-w-xl text-[16px] leading-[1.6] text-white/75 sm:text-[17px] 2xl:text-[18px]">
               Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
-            <form action="/search" role="search" className="flex w-full max-w-[720px] items-center gap-2 rounded-2xl bg-white p-1.5 pl-4 text-ink-muted ring-4 ring-white/10 sm:p-2 sm:pl-6">
-              <Icon name="search" className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
-              <label className="sr-only" htmlFor="hero-q">Search all directories</label>
-              <input id="hero-q" name="q" type="search" enterKeyHint="search" placeholder="Try “start a bakery”" className="min-h-[48px] w-full min-w-0 bg-transparent text-[17px] text-ink outline-none placeholder:text-ink-muted sm:min-h-[60px] sm:text-[20px]" />
-              <button className="btn-primary min-h-[48px] shrink-0 rounded-xl px-5 text-base font-semibold sm:min-h-[60px] sm:px-9 sm:text-[20px]">Search</button>
-            </form>
+            <HomeSearch />
 
             {/* Every directory as a chip */}
-            <ul aria-label="Directories" className="-mt-1 flex max-w-[780px] flex-wrap gap-2">
+            <ul aria-label="Directories" className="flex max-w-[640px] flex-wrap gap-1.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/[0.04] px-3 py-2 text-[14px] font-medium text-white transition-colors hover:border-accent hover:bg-accent hover:text-ink sm:px-3.5 sm:text-[15px] 2xl:py-2.5 2xl:text-base">
-                    <Icon name={d.icon} className="h-4 w-4 text-white group-hover:text-ink sm:h-[18px] sm:w-[18px]" />
+                  <Link href={d.href} className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-3 py-1.5 text-[13px] font-medium text-white/85 transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-ink">
+                    <Icon name={d.icon} className="h-3.5 w-3.5 text-white/80 group-hover:text-ink" />
                     {d.nav}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-1 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-              <Link href="/signup" className="inline-flex min-h-[54px] items-center justify-center rounded-lg bg-accent px-8 text-[17px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink 2xl:text-[18px]">Get started now</Link>
-              <Link href="/search" className="inline-flex min-h-[54px] items-center justify-center rounded-lg border border-white/80 px-8 text-[17px] 2xl:text-[18px] font-semibold text-white transition-colors hover:bg-white/10 hover:text-white">Search directories</Link>
+            <div className="mt-1 flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
+              <Link href="/signup" className="group inline-flex min-h-[46px] items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink shadow-[0_8px_24px_-8px_rgba(254,131,2,0.7)] transition hover:-translate-y-0.5 hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
+              <Link href="/business-ideas" className="inline-flex min-h-[46px] items-center justify-center rounded-lg border border-white/30 px-6 text-[15px] font-semibold text-white transition hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
             </div>
+
+            <ul aria-label="Why BizSphere-Ug" className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-white/65">
+              {["Free to start", "Budgets in UGX", "Pay with MTN MoMo or Airtel Money"].map((t) => (
+                <li key={t} className="inline-flex items-center gap-1.5"><Icon name="check" className="h-3.5 w-3.5 text-accent" />{t}</li>
+              ))}
+            </ul>
           </div>
 
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
           <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center gap-6 xl:flex">
-            <div className="w-full max-w-[680px] rounded-[22px] bg-white p-4 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] xl:p-5">
+            <div className="float-slow w-full max-w-[560px] rounded-[20px] bg-white p-4 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/20">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-5 w-5" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -128,7 +136,7 @@ export default async function HomePage() {
             </div>
 
             {/* Status pill under the card */}
-            <div className="flex w-full max-w-[640px] items-center gap-3 rounded-2xl border border-white/40 bg-white/10 px-6 py-4 text-[16px] italic text-white backdrop-blur">
+            <div className="flex w-full max-w-[520px] items-center gap-3 rounded-xl border border-white/20 bg-white/[0.07] px-4 py-2.5 text-[13px] text-white/80 backdrop-blur">
               <span aria-hidden className="flex gap-1">
                 {[0, 200, 400].map((d) => <span key={d} className="live-dot h-1.5 w-1.5 rounded-full bg-white" style={{ animationDelay: `${d}ms` }} />)}
               </span>
