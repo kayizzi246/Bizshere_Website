@@ -34,7 +34,9 @@ export default async function MembershipPage({ searchParams }: { searchParams: {
             <div key={p.id} className={`flex flex-[1_1_320px] max-w-md flex-col gap-4 rounded-[20px] p-8 ${featured ? "bg-ink text-white" : "card"}`}>
               <span className="text-lg font-bold">{p.name}</span>
               <span className="text-3xl font-bold">{money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{yearly ? "per year" : "per month"}</span> : null}</span>
-              <Link href={p.code === "free" ? "/signup" :`/membership/checkout?plan=${p.code}&period=${yearly ? "yearly" : "monthly"}`} className={featured ? "btn min-h-[50px] bg-white font-bold text-heading hover:text-heading" : "btn-outline min-h-[50px]"}>
+              {/* Subscribe opens the payment pop-up right here (sign-in first if needed): no extra page */}
+              <Link href={p.code === "free" ? "/signup" : "/membership?onboard=pay&next=%2Fbusiness-ideas"} data-pay={p.code === "free" ? undefined : ""} data-next="/business-ideas"
+                className={featured ? "btn min-h-[50px] bg-white font-bold text-heading hover:text-heading" : "btn-outline min-h-[50px]"}>
                 {p.code === "free" ? "Create free account" : "Subscribe"}
               </Link>
               <ul className="flex flex-col gap-3 text-[15px]">

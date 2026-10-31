@@ -156,9 +156,10 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
       </span>
     );
   }
-  const [href, label] = viewer.userId ? ["/membership", "Get full access"] : ["/signup", "Get started"];
+  const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
-    <Link href={href} className={`group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 font-display font-semibold text-white shadow-[0_6px_18px_-6px_rgba(0,114,206,0.6)] transition hover:-translate-y-px hover:bg-brand-dark hover:text-white ${size}`}>
+    // Signed in: straight to the payment pop-up (data-pay), wherever they are.
+    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`group inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 font-display font-semibold text-white shadow-[0_6px_18px_-6px_rgba(0,114,206,0.6)] transition hover:-translate-y-px hover:bg-brand-dark hover:text-white ${size}`}>
       {label}<span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
     </Link>
   );

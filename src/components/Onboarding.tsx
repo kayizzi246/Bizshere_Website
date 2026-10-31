@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, CreditCard, Download, Landmark, LockKeyhole, Phone, Smartphone, Sparkles, Wallet, X } from "lucide-react";
 import { accessState, startMembership, type CheckoutOutcome } from "@/app/actions/onboarding";
 import { PhoneSignIn } from "./PhoneSignIn";
+import { site } from "@/config/site";
 
 /**
  * Onboarding pop-up for directory cards: sign in with a phone number (or Google)
@@ -17,6 +18,10 @@ import { PhoneSignIn } from "./PhoneSignIn";
  * With `paths` (the site-wide gate in the (site) layout), it instead catches every link into
  * those paths, wherever it sits: header, footer, chips, cards, search results. Links marked
  * `data-onboard` are left to the page's own gate so only one pop-up opens.
+ *
+ * Links marked `data-pay` (Subscribe, Get full access) open the pop-up straight away on any page,
+ * at the payment step, or at sign-in first for visitors without an account. `data-next` is where
+ * to go afterwards. Their href (?onboard=pay) does the same on a full page load.
  */
 type Plan = { name: string; monthly: string | null; yearly: string | null };
 type Step = "account" | "pay" | "done";
@@ -37,6 +42,13 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     if (isMember || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     const a = (e.target as Element).closest<HTMLAnchorElement>("a[href]");
     if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+    if (paths && a.hasAttribute("data-pay")) {
+      e.preventDefault();
+      setNext(a.dataset.next?.startsWith("/") ? a.dataset.next : "/business-ideas");
+      setStep(signedIn ? "pay" : "account");
+      setOpen(true);
+      return;
+    }
     if (paths) {
       if (a.hasAttribute("data-onboard")) return;
       const url = new URL(a.href, location.href);
@@ -57,8 +69,8 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     const target = q.get("next");
     setNext(target && target.startsWith("/") ? target : "/");
     window.history.replaceState(null, "", window.location.pathname);
-    if (!isMember) { setStep("pay"); setOpen(true); }
-  }, [isMember, paths]);
+    if (!isMember) { setStep(signedIn ? "pay" : "account"); setOpen(true); }
+  }, [isMember, signedIn, paths]);
 
   return (
     <div onClickCapture={onClickCapture}>
@@ -95,7 +107,7 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8" onClick={onClose}>
       {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right */}
-      <div ref={panel} className="onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full max-w-[960px] overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:grid-cols-[1fr_1.05fr] md:overflow-hidden md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+      <div ref={panel} className="onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full max-w-[880px] overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:grid-cols-[1fr_1.05fr] md:overflow-hidden md:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
         {/* Desktop: positioned absolutely, so it is not a grid cell and the two panels keep their columns */}
         <div className="sticky top-0 z-10 col-span-full h-0 md:absolute md:inset-x-0 md:top-0">
@@ -104,15 +116,15 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
 
         <WhyPanel plan={plan} />
 
-        <div className="flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-10 sm:pb-8 sm:pt-7 md:py-12">
+        <div className="flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 md:py-10">
           {step === "account" ? (
-            <div className="flex flex-col gap-5 sm:gap-6">
+            <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
-                <span className="hidden w-fit rounded-full bg-accent-tint px-3 py-1 text-xs font-bold text-accent-dark sm:inline">Takes less than a minute</span>
-                <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[24px]">Create your account</h2>
-                <p className="text-sm leading-relaxed text-ink-muted"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
+                <span className="hidden w-fit rounded-full bg-accent-tint px-2.5 py-0.5 text-[11px] font-semibold text-accent-dark sm:inline">Takes less than a minute</span>
+                <h2 id="onboard-title" className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.02em] text-heading sm:text-[20px]">Create your account</h2>
+                <p className="text-[13px] leading-relaxed text-ink-muted"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
               </div>
-              <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
+              <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : null}
           {step === "pay" ? <PayStep plan={plan} onDone={() => { router.refresh(); setStep("done"); }} /> : null}
@@ -133,26 +145,26 @@ const WHY = [
 /** Left panel: why an account and membership are worth it. Navy like the hero; trimmed on phones. */
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
-    <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-10 sm:pb-6 sm:pt-8 md:py-12 md:pr-10">
+    <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_100%,#22B8DF_0%,#0072CE_40%,transparent_80%)] opacity-80" />
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold"><Sparkles aria-hidden className="h-3.5 w-3.5 text-accent" />Full access</span>
-      <p className="mt-3 font-display text-[18px] font-bold leading-[1.2] tracking-[-0.02em] sm:mt-4 sm:text-[22px] md:text-[26px]">Start your business with the full picture</p>
-      <p className="mt-3 hidden text-sm leading-relaxed text-white/80 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
-      <ul className="mt-6 hidden flex-col gap-4 sm:flex">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold"><Sparkles aria-hidden className="h-3 w-3 text-accent" />Full access</span>
+      <p className="mt-3 font-display text-[17px] font-bold leading-[1.25] tracking-[-0.02em] sm:mt-4 sm:text-[19px] md:text-[21px]">Start your business with the full picture</p>
+      <p className="mt-2.5 hidden text-[13px] leading-relaxed text-white/70 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
+      <ul className="mt-6 hidden flex-col gap-3.5 sm:flex">
         {WHY.map((w) => (
           <li key={w.title} className="flex gap-3.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent"><w.icon aria-hidden className="h-5 w-5" /></span>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-accent"><w.icon aria-hidden className="h-4 w-4" /></span>
             <span className="flex flex-col gap-0.5">
-              <span className="text-sm font-bold">{w.title}</span>
-              <span className="text-[13px] leading-snug text-white/70">{w.text}</span>
+              <span className="text-[13px] font-semibold">{w.title}</span>
+              <span className="text-[12px] leading-snug text-white/65">{w.text}</span>
             </span>
           </li>
         ))}
       </ul>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-white/80 sm:mt-6 sm:border-t sm:border-white/15 sm:pt-5 sm:text-[13px]">
-        {plan.monthly ? <span><strong className="text-base font-bold text-white">{plan.monthly}</strong> / month</span> : null}
-        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />Cancel any time</span>
-        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-4 w-4 text-accent" />MoMo, Airtel or card</span>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-white/75 sm:mt-6 sm:border-t sm:border-white/15 sm:pt-4 sm:text-[12px]">
+        {plan.monthly ? <span><strong className="text-[14px] font-bold text-white">{plan.monthly}</strong> / month</span> : null}
+        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />Cancel any time</span>
+        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />MoMo, Airtel or card</span>
       </div>
     </div>
   );
@@ -171,7 +183,7 @@ function DoneStep({ onContinue }: { onContinue: () => void }) {
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-6 w-6" /></span>
       <h2 id="onboard-title" className="text-lg font-bold text-heading">You have full access</h2>
       <p className="text-[13px] text-ink-muted">Taking you there now…</p>
-      <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[48px] w-full">Continue</button>
+      <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[46px] w-full text-[15px]">Continue</button>
     </div>
   );
 }
@@ -206,6 +218,23 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   const [result, setResult] = useState<CheckoutOutcome | null>(null);
   const price = period === "MONTHLY" ? plan.monthly : plan.yearly;
 
+  // After the mobile money prompt: check every few seconds whether the payment went through
+  // (the gateway's webhook grants access), and carry on by itself, for up to 5 minutes.
+  const waiting = result?.status === "prompt_sent";
+  const done = useRef(onDone);
+  done.current = onDone;
+  useEffect(() => {
+    if (!waiting) return;
+    let tries = 0;
+    const t = setInterval(async () => {
+      tries += 1;
+      const s = await accessState().catch(() => null);
+      if (s?.isMember) { clearInterval(t); done.current(); }
+      else if (tries >= 75) clearInterval(t);
+    }, 4000);
+    return () => clearInterval(t);
+  }, [waiting]);
+
   // Pre-fill the number they signed in with, and pick its network, so most people only tap "Pay".
   useEffect(() => {
     accessState().then((s) => {
@@ -230,8 +259,8 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[24px]">Unlock full access</h2>
-        <p className="text-[15px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
+        <h2 id="onboard-title" className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.02em] text-heading sm:text-[20px]">Unlock full access</h2>
+        <p className="text-[13px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
       </div>
 
       <div className="rounded-xl border border-line bg-page p-4">
@@ -243,7 +272,7 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
             ))}
           </div>
         </div>
-        <p className="mt-2 font-display text-[22px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</p>
+        <p className="mt-2 font-display text-[20px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</p>
       </div>
 
       <fieldset className="flex flex-col gap-2">
@@ -264,15 +293,30 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
           Mobile money number
           <input name="payPhone" type="tel" inputMode="tel" placeholder="0772 123 456" autoComplete="tel" value={payPhone}
             onChange={(e) => { setPayPhone(e.target.value); const net = networkOf(`+256${e.target.value.replace(/\D/g, "").replace(/^(256|0)/, "")}`); if (net) setMethod(net); }}
-            className="input min-h-[48px] text-[15px]" />
+            className="input min-h-[44px] text-[15px]" />
           <span className="text-[12px] font-normal text-ink-muted">You&apos;ll get a prompt on this phone to approve the payment.</span>
         </label>
       ) : null}
 
-      {result?.status === "error" ? <p role="alert" className="rounded-lg bg-warn-bg px-3 py-2 text-[13px] font-medium text-warn-fg">{result.message}</p> : null}
-      {result?.status === "prompt_sent" ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-[13px] font-medium text-brand-dark">Check your phone and approve the payment. Your access opens as soon as it goes through.</p> : null}
+      {result?.status === "error" ? (
+        <div role="alert" className="flex flex-col gap-1.5 rounded-lg bg-warn-bg px-3 py-2.5 text-[13px] font-medium text-warn-fg">
+          <p>{result.message}</p>
+          {/* Never a dead end: a direct way to reach a person who can activate the membership */}
+          <p className="flex flex-wrap gap-x-3 gap-y-1">
+            {site.contact.whatsapp ? <a href={`https://wa.me/${site.contact.whatsapp.replace(/D/g, "")}?text=${encodeURIComponent("Hello, I want to pay for BizSphere-Ug membership.")}`} target="_blank" rel="noopener noreferrer" className="font-bold underline">WhatsApp us</a> : null}
+            {site.contact.phone ? <a href={`tel:${site.contact.phone.replace(/s/g, "")}`} className="font-bold underline">Call {site.contact.phone}</a> : null}
+            <a href="/contact" className="font-bold underline">Send us a message</a>
+          </p>
+        </div>
+      ) : null}
+      {waiting ? (
+        <p role="status" className="flex items-center gap-2 rounded-lg bg-brand-tint px-3 py-2 text-[13px] font-medium text-brand-dark">
+          <span aria-hidden className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          Check your phone and enter your PIN to approve. This page opens your access by itself as soon as the payment goes through.
+        </p>
+      ) : null}
 
-      <button disabled={busy} className="btn-primary min-h-[52px] w-full text-base"><LockKeyhole className="h-4 w-4" />{busy ? "Starting payment…" : price ? `Pay ${price}` : "Pay and unlock"}</button>
+      <button disabled={busy || waiting} className="btn-primary min-h-[48px] w-full text-[15px]"><LockKeyhole className="h-4 w-4" />{busy ? "Starting payment…" : price ? `Pay ${price}` : "Pay and unlock"}</button>
       <p className="flex items-center justify-center gap-1.5 text-[12px] text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />Secure payment · Cancel any time from your account</p>
     </form>
   );
