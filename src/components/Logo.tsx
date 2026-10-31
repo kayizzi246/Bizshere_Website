@@ -9,7 +9,7 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
   if (full) {
     return (
       <Link href={href} aria-label="BizSphere-Ug home" className="shrink-0">
-        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority className="h-10 w-auto lg:h-11" />
+        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority className="-my-1 h-[68px] w-auto lg:h-[80px]" />
       </Link>
     );
   }

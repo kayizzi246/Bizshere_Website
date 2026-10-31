@@ -31,7 +31,7 @@ export async function SiteHeader() {
     <>
     <TopBar />
     <header data-site-header="" className="sticky top-0 z-[45] border-b border-line/70 bg-white/85 backdrop-blur-xl">
-      <div className="container-site relative flex h-14 items-center gap-4 lg:h-16">
+      <div className="container-site relative flex h-[72px] items-center gap-4 lg:h-[84px]">
         <Logo full />
 
         <nav aria-label="Main" className="ml-auto hidden h-full items-center gap-2 lg:flex xl:gap-3">
