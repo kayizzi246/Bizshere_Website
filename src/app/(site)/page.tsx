@@ -64,7 +64,7 @@ export default async function HomePage() {
           <circle cx="510" cy="330" r="6" fill="white" fillOpacity="0.5" />
         </svg>
 
-        <div className="container-site relative grid items-center gap-12 pb-16 pt-12 sm:pb-24 sm:pt-20 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
+        <div className="container-site relative grid items-center gap-12 pb-14 pt-10 sm:pb-20 sm:pt-16 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
           <div className="hero-rise flex flex-col items-start gap-5 sm:gap-6">
             <Link href="/methodology" className="group inline-flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] py-1 pl-1 pr-3 text-[13px] font-medium text-white/85 transition hover:border-white/40 hover:text-white">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#12B76A] text-white"><BadgeCheck aria-hidden className="h-3.5 w-3.5" /></span>

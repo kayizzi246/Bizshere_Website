@@ -14,7 +14,7 @@ const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) =>
 
 // 2026 SaaS header: links centred as soft pills, search as a rounded field, one solid call to action.
 const link = "whitespace-nowrap rounded-full px-2.5 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3.5 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
-const searchBtn = "inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-line bg-page px-3.5 font-display text-[13px] font-medium text-ink-muted xl:w-44 2xl:w-52 transition hover:border-brand/40 hover:bg-white hover:text-heading";
+const searchBtn = "inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-line bg-page px-3.5 font-display text-[13px] font-medium text-ink-muted xl:w-36 2xl:w-52 transition hover:border-brand/40 hover:bg-white hover:text-heading";
 
 /**
  * Header: a blue contact bar that scrolls away, then a light frosted bar that stays at the top:
@@ -68,7 +68,7 @@ export async function SiteHeader() {
             </div>
           </div>
           {NAV.map((n) => <Link key={n.href} href={n.href} className={link}>{n.nav}</Link>)}
-          <Link href="/methodology" className={link}>How we check</Link>
+          <Link href="/methodology" className={`${link} hidden 2xl:inline-flex`}>How we check</Link>
           <Link href="/membership" className={link}>Pricing</Link>
           {staff ? <Link href="/admin" className={link}>Admin</Link> : null}
           </div>

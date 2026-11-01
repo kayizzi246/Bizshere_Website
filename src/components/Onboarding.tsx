@@ -119,10 +119,10 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
         <div className="flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 md:py-10">
           {step === "account" ? (
             <div className="flex flex-col gap-5">
+              <StepBar n={1} />
               <div className="flex flex-col gap-2">
-                <span className="hidden w-fit rounded-full bg-accent-tint px-2.5 py-0.5 text-[11px] font-semibold text-accent-dark sm:inline">Takes less than a minute</span>
-                <h2 id="onboard-title" className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.02em] text-heading sm:text-[20px]">Create your account</h2>
-                <p className="text-[13px] leading-relaxed text-ink-muted"><span className="sm:hidden">Takes less than a minute: just</span><span className="hidden sm:inline">Just</span> your phone number, no password. Your account keeps your membership and saved pages on every device. Already a member? Use the same number to get straight back in.</p>
+                <h2 id="onboard-title" className="font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]">Create your account</h2>
+                <p className="text-[13px] leading-relaxed text-ink-muted">Just your phone number. No password. Already a member? Use the same number to get back in.</p>
               </div>
               <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
@@ -146,16 +146,20 @@ const WHY = [
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
     <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold"><Sparkles aria-hidden className="h-3 w-3 text-accent" />Full access</span>
-      <p className="mt-3 font-display text-[17px] font-bold leading-[1.25] tracking-[-0.02em] sm:mt-4 sm:text-[19px] md:text-[21px]">Start your business with the full picture</p>
-      <p className="mt-2.5 hidden text-[13px] leading-relaxed text-white/70 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>
-      <ul className="mt-6 hidden flex-col gap-3.5 sm:flex">
+      {/* Faint flat rings in the bottom-right corner, behind the list */}
+      <svg aria-hidden viewBox="0 0 400 400" fill="none" className="pointer-events-none absolute -bottom-40 -right-40 -z-10 hidden h-[400px] w-[400px] sm:block">
+        {[70, 130, 190].map((r) => <circle key={r} cx="200" cy="200" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
+      </svg>
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold text-ink"><Sparkles aria-hidden className="h-3 w-3" />Full access</span>
+      <p className="mt-3 font-display text-[24px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:mt-4 sm:text-[28px] md:text-[32px]">Start your business with the <span className="text-accent">full picture</span></p>
+      <p className="mt-2.5 hidden text-[12px] leading-relaxed text-white/65 sm:block">Free visitors see a preview. Members see everything to plan, buy and borrow.</p>
+      <ul className="mt-6 hidden flex-col gap-2.5 sm:flex">
         {WHY.map((w) => (
-          <li key={w.title} className="flex gap-3.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-accent"><w.icon aria-hidden className="h-4 w-4" /></span>
+          <li key={w.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent"><w.icon aria-hidden className="h-[18px] w-[18px]" /></span>
             <span className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-semibold">{w.title}</span>
-              <span className="text-[12px] leading-snug text-white/65">{w.text}</span>
+              <span className="font-display text-[15px] font-bold leading-tight">{w.title}</span>
+              <span className="text-[11.5px] leading-snug text-white/60">{w.text}</span>
             </span>
           </li>
         ))}
@@ -165,6 +169,19 @@ function WhyPanel({ plan }: { plan: Plan }) {
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />Cancel any time</span>
         <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />MoMo, Airtel or card</span>
       </div>
+    </div>
+  );
+}
+
+/** "Step 1 of 2": account, then payment, as two bars that fill in. */
+function StepBar({ n }: { n: 1 | 2 }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">Step {n} of 2 · {n === 1 ? "Your account" : "Payment"}</span>
+      <span aria-hidden className="grid grid-cols-2 gap-1.5">
+        <span className="h-1.5 rounded-full bg-brand" />
+        <span className={`h-1.5 rounded-full ${n === 2 ? "bg-brand" : "bg-line"}`} />
+      </span>
     </div>
   );
 }
@@ -180,7 +197,7 @@ function DoneStep({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 py-4 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"><Check className="h-6 w-6" /></span>
-      <h2 id="onboard-title" className="text-lg font-bold text-heading">You have full access</h2>
+      <h2 id="onboard-title" className="font-display text-[26px] font-extrabold tracking-[-0.03em] text-heading">You have full access</h2>
       <p className="text-[13px] text-ink-muted">Taking you there now…</p>
       <button type="button" onClick={onContinue} className="btn-primary mt-2 min-h-[46px] w-full text-[15px]">Continue</button>
     </div>
@@ -258,8 +275,9 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
   return (
     <form onSubmit={pay} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <h2 id="onboard-title" className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.02em] text-heading sm:text-[20px]">Unlock full access</h2>
-        <p className="text-[13px] leading-relaxed text-ink-muted">One membership opens every directory. Pay once and you&apos;re in straight away.</p>
+        <StepBar n={2} />
+        <h2 id="onboard-title" className="mt-3 font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]">Unlock full access</h2>
+        <p className="text-[13px] leading-relaxed text-ink-muted">One membership opens every directory. You&apos;re in straight away.</p>
       </div>
 
       <div className="rounded-xl border border-line bg-page p-4">
