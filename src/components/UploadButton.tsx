@@ -15,10 +15,11 @@ export function UploadButton({ target, kind }: { target: string; kind: UploadKin
   const [state, setState] = useState<{ busy?: boolean; error?: string; url?: string; name?: string }>({});
   const accept = allowedTypes(kind).join(",");
 
-  const pick = async (file: File) => {
-    setState({ busy: true, name: file.name });
+  const pick = async (original: File) => {
+    setState({ busy: true, name: original.name });
     try {
-      if (!allowedTypes(kind).includes(file.type)) throw new Error(kind === "image" ? "Choose a JPG, PNG, WebP or GIF image." : "Choose a PDF, image or Office document.");
+      if (!allowedTypes(kind).includes(original.type)) throw new Error(kind === "image" ? "Choose a JPG, PNG, WebP or GIF image." : "Choose a PDF, image or Office document.");
+      const file = await shrink(original);
       const { mode } = await fetch("/api/admin/upload").then((r) => r.json());
       let url: string;
       if (mode === "cloud") {
@@ -41,7 +42,7 @@ export function UploadButton({ target, kind }: { target: string; kind: UploadKin
         field.value = url;
         field.dispatchEvent(new Event("input", { bubbles: true }));
       }
-      setState({ url, name: file.name });
+      setState({ url, name: original.name });
     } catch (e) {
       setState({ error: e instanceof Error ? e.message : "Upload failed" });
     } finally {
@@ -74,4 +75,33 @@ export function UploadButton({ target, kind }: { target: string; kind: UploadKin
       ) : null}
     </div>
   );
+}
+
+const MAX_SIDE = 2000; // px: sharp on any screen the site is shown on
+const SHRINK_OVER = 600 * 1024; // smaller photos are sent as they are
+
+/**
+ * Phone photos are often 4 to 10 MB, which is slow to send over mobile data. JPG, PNG and WebP
+ * photos over 600 KB are scaled down to 2,000px on the long side and saved as JPG (85%) in the
+ * browser before upload. PNGs keep their format (they may have transparency), GIFs are left
+ * alone (they may be animated), and anything that comes out larger is sent as it was.
+ */
+async function shrink(file: File): Promise<File> {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size <= SHRINK_OVER) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const type = file.type === "image/png" ? "image/png" : "image/jpeg";
+    const blob = await new Promise<Blob | null>((done) => canvas.toBlob(done, type, 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    const name = type === "image/jpeg" ? file.name.replace(/\.(png|webp|jpe?g)$/i, "") + ".jpg" : file.name;
+    return new File([blob], name, { type });
+  } catch {
+    return file; // the browser couldn't read it: send the original
+  }
 }

@@ -3,7 +3,8 @@ const dev = process.env.NODE_ENV !== "production";
 /**
  * Security headers on every response.
  * The Content-Security-Policy lists the only outside sources the site uses: YouTube for the
- * homepage video, and any https image (photos are credited from other sites). Next.js needs
+ * homepage video, any https image (photos are credited from other sites) and Vercel Blob for
+ * admin uploads. Next.js needs
  * inline scripts and styles; development also needs eval and a websocket for hot reload.
  */
 const csp = [
@@ -14,7 +15,8 @@ const csp = [
   "font-src 'self' data:",
   "media-src 'self' blob: https:",
   "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
-  `connect-src 'self'${dev ? " ws: wss:" : ""}`,
+  // Admin uploads go from the browser straight to Vercel Blob (src/components/UploadButton.tsx).
+  `connect-src 'self' https://blob.vercel-storage.com${dev ? " ws: wss:" : ""}`,
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'none'",
