@@ -55,8 +55,8 @@ export default async function HomePage() {
           Right (wide screens): the "How it works" card. ── */}
       <section className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
         {/* Flat decoration: thin rings spreading from the top-right corner, a blue arc and an orange dot
-            riding on them. Solid lines only, no glow; smaller and fainter on phones so text stays clear. */}
-        <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -right-48 -top-24 -z-10 h-[520px] w-[520px] opacity-60 sm:-right-32 sm:h-[720px] sm:w-[720px] sm:opacity-100 xl:-right-16 xl:-top-10 xl:h-[860px] xl:w-[860px]">
+            riding on them. Solid lines only, no glow; hidden on phones, where it would sit on the headline. */}
+        <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -right-48 -top-24 -z-10 hidden h-[520px] w-[520px] sm:block sm:-right-32 sm:h-[720px] sm:w-[720px] sm:opacity-100 xl:-right-16 xl:-top-10 xl:h-[860px] xl:w-[860px]">
           {[90, 160, 230, 300].map((r) => <circle key={r} cx="420" cy="180" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
           <path d="M 420 -50 A 230 230 0 0 1 650 180" stroke="#0072CE" strokeWidth="6" strokeLinecap="round" />
           <path d="M 120 180 A 300 300 0 0 1 207 -32" stroke="#FE8302" strokeOpacity="0.9" strokeWidth="4" strokeLinecap="round" />
@@ -91,11 +91,11 @@ export default async function HomePage() {
             <HomeSearch />
 
             {/* Every directory as a chip, right under the search */}
-            <ul aria-label="Directories" className="flex max-w-[660px] flex-wrap gap-2">
+            <ul aria-label="Directories" className="flex max-w-[720px] flex-wrap gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-3.5 text-[14px] font-medium text-white/85 transition-colors hover:border-accent hover:bg-accent hover:text-ink">
-                    <Icon name={d.icon} className="h-4 w-4 text-accent group-hover:text-ink" />
+                  <Link href={d.href} className="group inline-flex h-12 items-center gap-2.5 rounded-xl border-2 border-dotted border-white/45 bg-white/[0.04] px-4 text-[16px] font-semibold text-white/90 transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:h-[52px] sm:px-5 sm:text-[17px]">
+                    <Icon name={d.icon} className="h-5 w-5 text-accent group-hover:text-ink" />
                     {d.nav}
                   </Link>
                 </li>

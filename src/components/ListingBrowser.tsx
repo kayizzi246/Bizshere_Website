@@ -126,7 +126,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 {shown.map((i) => <li key={i.id} id={i.slug}><DocumentCard i={i} icon={icon} /></li>)}
               </ul>
             ) : (
-              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <ul className={`grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 ${photos ? "grid-cols-2 gap-2.5" : "gap-4"}`}>
                 {shown.map((i) => <li key={i.id} id={i.slug} className="flex"><ListingCard i={i} icon={icon} photos={photos} /></li>)}
               </ul>
             )}
@@ -138,6 +138,11 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
     </>
   );
 }
+
+// Photo cards (machines) sit two a row on phones, so below sm they are compact: smaller padding,
+// title and footer, and the summary and one-line detail are left out.
+// Classes are written out in full so Tailwind finds them.
+const compact = (photos: boolean, photoCard: string, iconCard: string) => (photos ? photoCard : iconCard);
 
 /** Digital products: a file tile with its type, then the title. */
 function DocumentCard({ i, icon }: { i: BrowseListing; icon: string }) {
@@ -171,11 +176,11 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
           ) : (
             <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
-          {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-heading backdrop-blur">{i.primaryCategory.name}</span> : null}
-          <SeenBadge href={i.href} className="absolute right-3 top-3" />
+          {i.primaryCategory ? <span className="absolute left-2 top-2 max-w-[85%] truncate rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-heading backdrop-blur sm:left-3 sm:top-3 sm:max-w-[80%] sm:px-2.5 sm:py-1 sm:text-[11px]">{i.primaryCategory.name}</span> : null}
+          <SeenBadge href={i.href} className="absolute bottom-2 right-2 sm:bottom-auto sm:right-3 sm:top-3" />
         </span>
       ) : null}
-      <span className="flex flex-1 flex-col gap-2 p-5">
+      <span className={`flex flex-1 flex-col ${compact(photos, "gap-1.5 p-3 sm:gap-2 sm:p-5", "gap-2 p-5")}`}>
         {!photos ? (
           <span className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-[18px] w-[18px]" /></span>
@@ -183,12 +188,12 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
             <SeenBadge href={i.href} className="ml-auto shrink-0 bg-brand-tint" />
           </span>
         ) : null}
-        <span className="font-display text-base font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>
-        {i.summary ? <span className="line-clamp-2 text-[13px] leading-relaxed text-ink-muted">{i.summary}</span> : null}
-        {i.extra ? <span className="line-clamp-2 w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft">{i.extra}</span> : null}
-        <span className="mt-auto flex items-center justify-between pt-3 text-xs text-ink-muted">
-          <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand" />Checked {i.reviewed}</span>
-          <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
+        <span className={`font-display font-bold leading-tight tracking-tight text-heading group-hover:text-brand ${compact(photos, "line-clamp-2 text-[14px] sm:line-clamp-none sm:text-base", "text-base")}`}>{i.title}</span>
+        {i.summary ? <span className={`text-[13px] leading-relaxed text-ink-muted ${compact(photos, "hidden sm:line-clamp-2", "line-clamp-2")}`}>{i.summary}</span> : null}
+        {i.extra ? <span className={`w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft ${compact(photos, "hidden sm:line-clamp-2", "line-clamp-2")}`}>{i.extra}</span> : null}
+        <span className={`mt-auto flex items-center justify-between text-ink-muted ${compact(photos, "pt-1.5 text-[11px] sm:pt-3 sm:text-xs", "pt-3 text-xs")}`}>
+          <span className="inline-flex min-w-0 items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" /><span className="truncate">Checked {i.reviewed}</span></span>
+          <span aria-hidden className={`flex shrink-0 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white ${compact(photos, "h-7 w-7 sm:h-8 sm:w-8", "h-8 w-8")}`}>→</span>
         </span>
       </span>
     </Link>
