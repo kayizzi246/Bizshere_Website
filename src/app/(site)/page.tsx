@@ -10,7 +10,7 @@ import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { HomeSearch } from "@/components/HomeSearch";
 import { RecentStrip } from "@/components/Recent";
 import { getViewer } from "@/lib/access";
-import { BadgeCheck, BarChart3, Check, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -54,34 +54,15 @@ export default async function HomePage() {
           what people worry about before paying (free search, mobile money, cancel any time).
           Right (wide screens): the "How it works" card. ── */}
       <section className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
-        {/* Flat decoration: thin rings spreading from the top-right corner, a blue arc and an orange dot
-            riding on them. Solid lines only, no glow; hidden on phones, where it would sit on the headline. */}
-        <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -right-48 -top-24 -z-10 hidden h-[520px] w-[520px] sm:block sm:-right-32 sm:h-[720px] sm:w-[720px] sm:opacity-100 xl:-right-16 xl:-top-10 xl:h-[860px] xl:w-[860px]">
-          {[90, 160, 230, 300].map((r) => <circle key={r} cx="420" cy="180" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
-          <path d="M 420 -50 A 230 230 0 0 1 650 180" stroke="#157EC2" strokeWidth="6" strokeLinecap="round" />
-          <path d="M 120 180 A 300 300 0 0 1 207 -32" stroke="#F28C28" strokeOpacity="0.9" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="257" cy="255" r="11" fill="#F28C28" />
-          <circle cx="510" cy="330" r="6" fill="white" fillOpacity="0.5" />
-        </svg>
-
         <div className="container-site relative grid items-center gap-12 pb-14 pt-10 sm:pb-20 sm:pt-16 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
           <div className="hero-rise flex flex-col items-start gap-5 sm:gap-6">
-            <Link href="/methodology" className="group inline-flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] py-1 pl-1 pr-3 text-[13px] font-medium text-white/85 transition hover:border-white/40 hover:text-white">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#12B76A] text-white"><BadgeCheck aria-hidden className="h-3.5 w-3.5" /></span>
-              <span className="truncate">Every page checked by our team{stats.lastChecked ? ` · latest ${date(stats.lastChecked)}` : ""}</span>
-              <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
+            <Link href="/methodology" className="max-w-full truncate text-[13px] font-medium text-white/70 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white">
+              Every page checked by our team{stats.lastChecked ? `, most recently ${date(stats.lastChecked)}` : ""}
             </Link>
-            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Manrope ExtraBold. Words rise in one by one;
-                "start" in orange. From laptop width it breaks after "to", as in the design. */}
+            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Manrope ExtraBold.
+                From laptop width it breaks after "to", as in the design. */}
             <h1 className="font-hero text-[34px] font-extrabold leading-[1.06] tracking-[-0.03em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
-              {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
-                <span key={w} className="contents">
-                  <span className="word-in inline-block" style={{ animationDelay: `${n * 70}ms` }}>
-                    {w === "start," ? <><span className="text-accent">start</span>,</> : w}
-                  </span>
-                  {n === 4 ? <br className="hidden xl:block" /> : null}{n < 8 ? " " : ""}
-                </span>
-              ))}
+              What do you want to <br className="hidden xl:block" />start, find or solve?
             </h1>
 
             <p className="max-w-xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
@@ -108,18 +89,14 @@ export default async function HomePage() {
                 <Link href="/business-ideas" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/25 px-6 text-[16px] font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
               </div>
               {/* What stops people paying, answered before they ask */}
-              <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-white/70">
-                {["Free to search", "Pay with MTN MoMo or Airtel Money", "Cancel any time"].map((t) => (
-                  <li key={t} className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-[#12B76A]" strokeWidth={3} />{t}</li>
-                ))}
-              </ul>
+              <p className="text-[13px] text-white/70">Searching is free. Members pay with MTN MoMo or Airtel Money and can cancel any time.</p>
             </div>
 
           </div>
 
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
-          <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center gap-6 xl:flex">
+          <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center xl:flex">
             <div className="w-full max-w-[560px] rounded-[20px] border border-white/15 bg-white p-4 text-ink">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
@@ -146,14 +123,6 @@ export default async function HomePage() {
                 <Showcase />
               )}
             </div>
-
-            {/* Status pill under the card */}
-            <div className="flex w-full max-w-[520px] items-center gap-3 rounded-xl border border-white/20 bg-white/[0.07] px-4 py-2.5 text-[13px] text-white/80 backdrop-blur">
-              <span aria-hidden className="flex gap-1">
-                {[0, 200, 400].map((d) => <span key={d} className="live-dot h-1.5 w-1.5 rounded-full bg-white" style={{ animationDelay: `${d}ms` }} />)}
-              </span>
-              Linking the plan to machines, suppliers and funding…
-            </div>
           </div>
         </div>
 
@@ -167,7 +136,7 @@ export default async function HomePage() {
         <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
           <RecentStrip title="Welcome back · pick up where you left off" className="-mt-6 sm:-mt-10" />
-          <Heading eyebrow="Directories" title={<>What you&apos;ll <span className="text-brand">find here</span></>}
+          <Heading title="What you'll find here"
             text="The directories link to each other. Look up “bakery” and you get the plan, the oven, who sells flour and who lends." />
 
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
@@ -201,16 +170,10 @@ export default async function HomePage() {
           light FAQ below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
-        <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
-          {/* Same flat rings as the hero, from the opposite corner */}
-          <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -bottom-64 -left-56 -z-10 h-[640px] w-[640px]">
-            {[90, 160, 230, 300].map((r) => <circle key={r} cx="300" cy="300" r={r} stroke="white" strokeOpacity="0.06" strokeWidth="1.5" />)}
-            <path d="M 300 70 A 230 230 0 0 1 530 300" stroke="#F28C28" strokeWidth="4" strokeLinecap="round" />
-          </svg>
+        <section className="bg-[#071A33] text-white">
           <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
-                <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-accent">Resources</span>
                 <h2 className="text-section-title text-white">Recently reviewed</h2>
                 <p className="text-[15px] leading-relaxed text-white/70 sm:text-base">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
               </div>
@@ -242,7 +205,7 @@ export default async function HomePage() {
                     <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/70">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-accent">{contentTypeLabel[g.contentType]}</span>
+                    <span className="text-[13px] font-semibold text-accent">{contentTypeLabel[g.contentType]}</span>
                     <span className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-white">{g.title}</span>
                   </span>
                   <span className="flex items-center justify-between border-t border-white/10 pt-3 text-[15px] font-semibold text-white">
@@ -256,14 +219,13 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* ── FAQ: sticky intro with a contact card on the left; a numbered list that opens on the right ── */}
-      <section className="border-t border-line bg-gradient-to-br from-[#EEF6FF] via-[#F6FAFF] to-[#FFF4E8]">
+      {/* ── FAQ: sticky intro with a contact card on the left; a list that opens on the right ── */}
+      <section className="border-t border-line bg-page">
         <div className="container-site grid gap-8 py-14 sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
-            <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
-            <h2 className="text-section-title text-heading">Questions, answered</h2>
-            <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">Short answers about access, sources, prices and payment.</p>
-            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-white bg-white/80 p-5 backdrop-blur">
+            <h2 className="text-section-title text-heading">Common questions</h2>
+            <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">About access, sources, prices and payment.</p>
+            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-white p-5">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
@@ -276,17 +238,15 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Each question is a card like the rest of the site: blue number tile, bold title,
-              orange toggle when open, light blue tint on the open card. */}
-          <div className="flex flex-col gap-2">
+          {/* One white card, questions split by lines; the + turns into × when open */}
+          <div className="flex flex-col divide-y divide-line rounded-2xl border border-line bg-white px-4 sm:px-6">
             {FAQ.map(([q, a], n) => (
-              <details key={q} open={n === 0} className="group rounded-xl border border-white bg-white/90 px-4 transition-colors hover:border-brand/40 open:border-brand/40 open:bg-white sm:px-5 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-display text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-display text-[15px] font-semibold leading-snug text-heading">{q}</span>
-                  <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/30 text-lg font-medium leading-none text-brand transition group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-ink">+</span>
+              <details key={q} open={n === 0} className="group [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center gap-4 py-4 sm:py-5">
+                  <span className="flex-1 font-display text-[16px] font-semibold leading-snug text-heading">{q}</span>
+                  <span aria-hidden className="text-xl leading-none text-brand transition-transform group-open:rotate-45">+</span>
                 </summary>
-                <p className="pb-5 pl-[48px] pr-2 text-base leading-relaxed text-ink-soft sm:pr-12">{a}</p>
+                <p className="pb-5 pr-2 text-base leading-relaxed text-ink-soft sm:pr-12">{a}</p>
               </details>
             ))}
           </div>
@@ -297,15 +257,10 @@ export default async function HomePage() {
 }
 
 /** Section heading: dark title, optional one-line intro. */
-function Heading({ eyebrow, title, text }: { eyebrow?: string; title: React.ReactNode; text?: string }) {
+function Heading({ title, text }: { title: React.ReactNode; text?: string }) {
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-      {eyebrow ? (
-        <span className="inline-flex items-center gap-2 rounded-full border border-dotted border-brand/40 bg-brand-tint px-3 py-1 text-xs font-bold uppercase tracking-widest text-brand">
-          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />{eyebrow}
-        </span>
-      ) : null}
-      <h2 className="font-display text-[32px] font-extrabold leading-[1.05] tracking-[-0.04em] text-heading sm:text-[44px] lg:text-[52px]">{title}</h2>
+      <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-heading sm:text-[40px] lg:text-[46px]">{title}</h2>
       {text ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-muted sm:text-[18px]">{text}</p> : null}
     </div>
   );
@@ -323,11 +278,8 @@ function Showcase() {
     ["/funding", "funding", "SME loan", "Funding source", "Round open", "bg-[#EFEBFF] text-[#6B4EE6]"],
   ];
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-[#EEF5FD] via-[#F7FAFE] to-[#FFF6EE] p-3 xl:p-4">
-      <div className="flex items-center justify-between gap-3">
-        <span className="rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-heading">Example: starting a bakery</span>
-        <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] text-ink-muted"><BarChart3 aria-hidden className="h-3.5 w-3.5 text-brand" />Live sessions coming soon</span>
-      </div>
+    <div className="flex flex-col gap-3 rounded-2xl bg-page p-3 xl:p-4">
+      <span className="w-fit rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-heading">Example: starting a bakery</span>
       <div className="grid grid-cols-[1.1fr_1fr] gap-2.5 2xl:gap-3">
         {/* The plan */}
         <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-3.5 xl:p-4">

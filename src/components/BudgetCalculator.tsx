@@ -136,7 +136,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
               </div>
             </div>
           ) : null}
-          <div className="flex flex-col items-center gap-1.5 rounded-xl bg-gradient-to-br from-brand-tint to-accent-tint/60 px-4 py-6 text-center">
+          <div className="flex flex-col items-center gap-1.5 rounded-xl bg-brand-tint px-4 py-6 text-center">
             <span className="text-sm text-ink-soft">Estimated start-up cost{plans.length > 1 ? ` for a ${plan.label.toLowerCase()} ${name.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
             {gated ? (
               <a href={unlockHref} data-onboard="" className="inline-flex items-center gap-2 py-1 font-display text-xl font-bold text-brand"><LockKeyhole aria-hidden className="h-5 w-5" />Unlock the estimate</a>
@@ -169,9 +169,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
         {/* ── Every requirement, by category ── */}
         <div ref={listRef} className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-3 text-center">
-            <h3 className="text-section-title text-heading">Complete list of requirements for a {name.toLowerCase()} business</h3>
-            <span aria-hidden className="h-1 w-20 rounded-full bg-gradient-to-r from-brand to-accent" />
-            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Every requirement, by category, with essential and optional items. Search and filter to find items, and add them to your list to work out how much you need.</p>
+            <h3 className="text-section-title text-heading">Complete list of requirements for a {name.toLowerCase()} business</h3>            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Every requirement, by category, with essential and optional items. Search and filter to find items, and add them to your list to work out how much you need.</p>
           </div>
           <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:flex-row sm:p-5">
             <label className="relative flex-1">

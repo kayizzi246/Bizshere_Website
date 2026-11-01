@@ -79,7 +79,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
             </nav>
             <h1 className="text-page-title max-w-3xl text-heading">
               {count ? <>{count + keyPoints.length} requirements to start a </> : "Requirements to start a "}
-              <span className="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">{name.toLowerCase()}</span> business in Uganda
+              {name.toLowerCase()} business in Uganda
             </h1>
             <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">
               Everything you need, by category: licences, equipment, stock and more, with what each costs. Pick your business size, then add what you need to work out your own start-up cost.
@@ -102,7 +102,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
           </section>
 
           {more.length ? (
-            <section aria-labelledby="similar" className="flex flex-col gap-5 -mx-2 rounded-2xl border border-brand/15 bg-gradient-to-br from-brand-tint/70 to-accent-tint/40 px-2 py-4 sm:mx-0 sm:rounded-3xl sm:p-8">
+            <section aria-labelledby="similar" className="flex flex-col gap-5 -mx-2 rounded-2xl border border-line bg-page px-2 py-4 sm:mx-0 sm:rounded-3xl sm:p-8">
               <div className="flex items-end justify-between gap-3">
                 <span className="flex flex-col gap-1">
                   <h2 id="similar" className="text-block-title text-heading">Explore similar businesses</h2>

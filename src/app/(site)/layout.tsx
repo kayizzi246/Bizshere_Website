@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollEffects } from "@/components/ScrollEffects";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { NavProgress } from "@/components/NavProgress";
 import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { OnboardingGate } from "@/components/Onboarding";
@@ -29,6 +30,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}><NavProgress /></Suspense>
         <SiteHeader />
         <ScrollEffects />
+        <SmoothScroll />
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <QuickLinks services={SERVICES} />

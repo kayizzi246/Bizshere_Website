@@ -60,7 +60,7 @@
 @layer components {
   .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-16; } /* 64px on desktop leaves room for the left service rail */
   .card { @apply rounded-2xl border border-line bg-surface; }
-  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-[15px] font-semibold transition-colors; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-[15px] font-semibold transition-[color,background-color,border-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:active:scale-100; }
   .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark hover:text-white; }
   .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
   .btn-danger { @apply btn border border-[#C9A39C] bg-white text-bad-fg; }
@@ -96,9 +96,6 @@
   to { transform: translateX(-50%); }
 }
 
-/* Hero headline: each word rises out of a blur, one after another */
-.word-in { animation: word-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@keyframes word-in { from { opacity: 0; transform: translateY(0.4em); } }
 
 /* Floating Services button: a plain orange border. Flat design: no shadows, glows or moving light. */
 .spin-border { background: #F28C28; } /* the 3px padding shows as the ring */
@@ -170,7 +167,6 @@ select {
   .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
-  .word-in { animation: none; }
 }
 
 /* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in

@@ -81,13 +81,16 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
         <p className="text-center text-xs text-ink-muted">We&apos;ll text you a one-time code. No password needed.</p>
       </form>
 
-      <div className="flex items-center gap-3 text-xs text-ink-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
-
-      <button type="button" disabled={!googleEnabled} onClick={() => signIn("google", { callbackUrl: googleCallbackUrl })}
-        className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-50 ${size === "lg" ? "min-h-[52px]" : "min-h-[48px] text-[14px]"}`}>
-        <GoogleMark /> Continue with Google
-      </button>
-      {!googleEnabled ? <p className="-mt-2 text-center text-xs text-ink-muted">Google sign-in is being set up.</p> : null}
+      {/* Google appears only once it is configured; a greyed-out button just looks unfinished */}
+      {googleEnabled ? (
+        <>
+          <div className="flex items-center gap-3 text-xs text-ink-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
+          <button type="button" onClick={() => signIn("google", { callbackUrl: googleCallbackUrl })}
+            className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink ${size === "lg" ? "min-h-[52px]" : "min-h-[48px] text-[14px]"}`}>
+            <GoogleMark /> Continue with Google
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }

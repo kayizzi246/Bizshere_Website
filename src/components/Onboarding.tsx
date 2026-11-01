@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, CreditCard, Download, Landmark, LockKeyhole, Phone, Smartphone, Sparkles, Wallet, X } from "lucide-react";
+import { Check, CreditCard, Download, Landmark, LockKeyhole, Phone, Smartphone, Wallet, X } from "lucide-react";
 import { accessState, startMembership, type CheckoutOutcome } from "@/app/actions/onboarding";
 import { PhoneSignIn } from "./PhoneSignIn";
 import { site } from "@/config/site";
@@ -136,39 +136,31 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
 }
 
 const WHY = [
-  { icon: Wallet, title: "Know the real cost first", text: "Full start-up budgets and every step of each business plan, line by line." },
-  { icon: Phone, title: "Call the right people", text: "Supplier and expert contacts, each marked with the date we checked it." },
-  { icon: Landmark, title: "Find money that fits", text: "Funding amounts, terms and criteria, and machine prices to compare." },
-  { icon: Download, title: "Keep everything", text: "Price history, downloadable tools and templates, and pages you save." },
+  { icon: Wallet, title: "The real start-up cost", text: "Full budgets, line by line, and every step of each business plan." },
+  { icon: Phone, title: "Who to call", text: "Supplier and expert contacts, with the date we last checked each one." },
+  { icon: Landmark, title: "Where to borrow", text: "Funding amounts, terms and who qualifies." },
+  { icon: Download, title: "Prices and downloads", text: "Price history, machine prices, tools and templates." },
 ];
 
 /** Left panel: why an account and membership are worth it. Navy like the hero; trimmed on phones. */
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
-    <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      {/* Faint flat rings in the bottom-right corner, behind the list */}
-      <svg aria-hidden viewBox="0 0 400 400" fill="none" className="pointer-events-none absolute -bottom-40 -right-40 -z-10 hidden h-[400px] w-[400px] sm:block">
-        {[70, 130, 190].map((r) => <circle key={r} cx="200" cy="200" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
-      </svg>
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold text-ink"><Sparkles aria-hidden className="h-3 w-3" />Full access</span>
-      <p className="mt-3 font-display text-[24px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:mt-4 sm:text-[28px] md:text-[32px]">Start your business with the <span className="text-accent">full picture</span></p>
-      <p className="mt-2.5 hidden text-[12px] leading-relaxed text-white/65 sm:block">Free visitors see a preview. Members see everything to plan, buy and borrow.</p>
-      <ul className="mt-6 hidden flex-col gap-2.5 sm:flex">
+    <div className="bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
+      <p className="text-[12px] font-semibold text-white/60">BizSphere-Ug membership</p>
+      <p className="mt-2 font-display text-[24px] font-extrabold leading-[1.12] tracking-[-0.02em] sm:mt-3 sm:text-[28px] md:text-[30px]">See the full budget before you spend a shilling.</p>
+      <p className="mt-3 hidden text-[13px] leading-relaxed text-white/70 sm:block">Anyone can read a preview. Members get the whole page:</p>
+      <ul className="mt-4 hidden flex-col divide-y divide-white/10 sm:flex">
         {WHY.map((w) => (
-          <li key={w.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent"><w.icon aria-hidden className="h-[18px] w-[18px]" /></span>
-            <span className="flex flex-col gap-0.5">
-              <span className="font-display text-[15px] font-bold leading-tight">{w.title}</span>
-              <span className="text-[11.5px] leading-snug text-white/60">{w.text}</span>
-            </span>
+          <li key={w.title} className="flex items-start gap-3 py-3 first:pt-0">
+            <w.icon aria-hidden className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
+            <span className="text-[13px] leading-snug text-white/70"><span className="font-semibold text-white">{w.title}.</span> {w.text}</span>
           </li>
         ))}
       </ul>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-white/75 sm:mt-6 sm:border-t sm:border-white/15 sm:pt-4 sm:text-[12px]">
-        {plan.monthly ? <span><strong className="text-[14px] font-bold text-white">{plan.monthly}</strong> / month</span> : null}
-        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />Cancel any time</span>
-        <span className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-accent" />MoMo, Airtel or card</span>
-      </div>
+      <p className="mt-3 text-[12px] text-white/70 sm:mt-5 sm:border-t sm:border-white/15 sm:pt-4">
+        {plan.monthly ? <><strong className="text-[15px] font-bold text-white">{plan.monthly}</strong> a month. </> : null}
+        Pay with MoMo, Airtel Money or card, and cancel any time.
+      </p>
     </div>
   );
 }
@@ -177,7 +169,7 @@ function WhyPanel({ plan }: { plan: Plan }) {
 function StepBar({ n }: { n: 1 | 2 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">Step {n} of 2 · {n === 1 ? "Your account" : "Payment"}</span>
+      <span className="text-[13px] font-medium text-ink-muted">Step {n} of 2</span>
       <span aria-hidden className="grid grid-cols-2 gap-1.5">
         <span className="h-1.5 rounded-full bg-brand" />
         <span className={`h-1.5 rounded-full ${n === 2 ? "bg-brand" : "bg-line"}`} />

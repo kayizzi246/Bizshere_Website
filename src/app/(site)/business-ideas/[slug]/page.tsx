@@ -402,7 +402,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />
 
           {/* ── Call to action ── */}
-          <section className="flex flex-col items-center gap-4 rounded-3xl bg-gradient-to-br from-brand-deep via-brand to-[#0A8FE8] px-6 py-10 text-center text-white sm:px-10">
+          <section className="flex flex-col items-center gap-4 rounded-3xl bg-brand-deep px-6 py-10 text-center text-white sm:px-10">
             <h2 className="text-section-title max-w-2xl">Ready to start your {name.toLowerCase()} business?</h2>
             <p className="max-w-xl text-[15px] text-white/85">
               {viewer.isMember

@@ -76,7 +76,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
       <BrowseHero
         crumb="Business ideas"
         badge={[ideas.length, "business plans with start-up budgets"]}
-        title={<>Business ideas to start in <span className="text-accent">Uganda</span> today</>}
+        title="Business ideas to start in Uganda"
         intro={intro}
         q={q}
         onSearch={(v) => { setQ(v); setPage(1); }}
