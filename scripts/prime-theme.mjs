@@ -14,16 +14,16 @@ const target = join(root, "src/styles/primereact-theme.css");
 
 // Amber -> brand blue. Keys are lowercase hex as they appear in the Lara theme.
 const colours = {
-  "#f59e0b": "#0072CE", // primary (brand.DEFAULT)
-  "#d97706": "#0166B9", // primary hover
-  "#b45309": "#005BA6", // primary active / highlight text (brand.dark)
-  "#fffbeb": "#E8F2FB", // highlight background (brand.tint)
-  "#fde68a": "#CFE5F7", // brand.sky
-  "#fef08a": "#A9D1F2", // focus ring
+  "#f59e0b": "#157EC2", // primary (brand.DEFAULT)
+  "#d97706": "#126FAB", // primary hover
+  "#b45309": "#0E5E94", // primary active / highlight text (brand.dark)
+  "#fffbeb": "#E7F2FA", // highlight background (brand.tint)
+  "#fde68a": "#CDE4F4", // brand.sky
+  "#fef08a": "#A3CDEA", // focus ring
 };
 const scale = {
-  50: "#E8F2FB", 100: "#CFE5F7", 200: "#A9D1F2", 300: "#6DB1EA", 400: "#2E8BDC",
-  500: "#0072CE", 600: "#0166B9", 700: "#005BA6", 800: "#01467F", 900: "#012F55",
+  50: "#E7F2FA", 100: "#CDE4F4", 200: "#A3CDEA", 300: "#6AAFDC", 400: "#3C95D0",
+  500: "#157EC2", 600: "#126FAB", 700: "#0E5E94", 800: "#0B4A75", 900: "#083354",
 };
 
 let css = readFileSync(source, "utf8");
@@ -33,7 +33,7 @@ css = css.replace(/@font-face\s*{[^}]*}\s*/g, "");
 css = css.replaceAll('"Inter var", sans-serif', "var(--font-inter), system-ui, sans-serif");
 
 for (const [from, to] of Object.entries(colours)) css = css.replace(new RegExp(from, "gi"), to);
-css = css.replace(/rgba\(245, 158, 11,/g, "rgba(0, 114, 206,");
+css = css.replace(/rgba\(245, 158, 11,/g, "rgba(21, 126, 194,");
 css = css.replace(/--primary-(\d+):#[0-9a-f]{6};/gi, (_, step) => `--primary-${step}:${scale[step]};`);
 
 mkdirSync(dirname(target), { recursive: true });

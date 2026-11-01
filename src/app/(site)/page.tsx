@@ -58,9 +58,9 @@ export default async function HomePage() {
             riding on them. Solid lines only, no glow; hidden on phones, where it would sit on the headline. */}
         <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -right-48 -top-24 -z-10 hidden h-[520px] w-[520px] sm:block sm:-right-32 sm:h-[720px] sm:w-[720px] sm:opacity-100 xl:-right-16 xl:-top-10 xl:h-[860px] xl:w-[860px]">
           {[90, 160, 230, 300].map((r) => <circle key={r} cx="420" cy="180" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
-          <path d="M 420 -50 A 230 230 0 0 1 650 180" stroke="#0072CE" strokeWidth="6" strokeLinecap="round" />
-          <path d="M 120 180 A 300 300 0 0 1 207 -32" stroke="#FE8302" strokeOpacity="0.9" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="257" cy="255" r="11" fill="#FE8302" />
+          <path d="M 420 -50 A 230 230 0 0 1 650 180" stroke="#157EC2" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 120 180 A 300 300 0 0 1 207 -32" stroke="#F28C28" strokeOpacity="0.9" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="257" cy="255" r="11" fill="#F28C28" />
           <circle cx="510" cy="330" r="6" fill="white" fillOpacity="0.5" />
         </svg>
 
@@ -71,9 +71,9 @@ export default async function HomePage() {
               <span className="truncate">Every page checked by our team{stats.lastChecked ? ` · latest ${date(stats.lastChecked)}` : ""}</span>
               <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
             </Link>
-            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Poppins Black (900). Words rise in one by one;
+            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Manrope ExtraBold. Words rise in one by one;
                 "start" in orange. From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-poppins text-[34px] font-black leading-[1.08] tracking-[-0.01em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
+            <h1 className="font-hero text-[34px] font-extrabold leading-[1.06] tracking-[-0.03em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="contents">
                   <span className="word-in inline-block" style={{ animationDelay: `${n * 70}ms` }}>
@@ -205,7 +205,7 @@ export default async function HomePage() {
           {/* Same flat rings as the hero, from the opposite corner */}
           <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -bottom-64 -left-56 -z-10 h-[640px] w-[640px]">
             {[90, 160, 230, 300].map((r) => <circle key={r} cx="300" cy="300" r={r} stroke="white" strokeOpacity="0.06" strokeWidth="1.5" />)}
-            <path d="M 300 70 A 230 230 0 0 1 530 300" stroke="#FE8302" strokeWidth="4" strokeLinecap="round" />
+            <path d="M 300 70 A 230 230 0 0 1 530 300" stroke="#F28C28" strokeWidth="4" strokeLinecap="round" />
           </svg>
           <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">

@@ -10,19 +10,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Blue and orange sampled from the client logo (public/brand/logo-full.png), on white.
+        // Client style guide: blue #157EC2 and orange #F28C28.
         // Blue is the main colour (buttons, links); orange is the accent.
         brand: {
-          DEFAULT: "#0072CE",
+          DEFAULT: "#157EC2",
           dark: v("brand-dark"), // hover and blue text; white text on it 7:1 in light mode
-          deep: "#005BA6", // darker logo blue: top bar, dark buttons, admin sidebar
-          admin: "#005BA6",
+          deep: "#0E5E94", // darker brand blue: top bar, dark buttons, admin sidebar
+          admin: "#0E5E94",
           tint: v("brand-tint"),
-          mint: "#FE8302", // orange accent on blue panels
-          sky: "#CFE5F7",
+          mint: "#F28C28", // orange accent on blue panels
+          sky: "#CDE4F4",
         },
         accent: {
-          DEFAULT: "#FE8302", // fills, icons, large text; too light for small text on white
+          DEFAULT: "#F28C28", // fills, icons, large text; too light for small text on white
           dark: v("accent-dark"), // orange small text (5:1 on white)
           tint: v("accent-tint"),
         },
@@ -36,11 +36,10 @@ const config: Config = {
         info: { bg: v("info-bg"), fg: v("info-fg") },
       },
       fontFamily: {
-        // Inter for everything; `font-display` (headings and titles) is kept as a name for heavier, tighter settings.
+        // Client style guide: Inter for body text, Manrope for headings, navigation and titles.
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-inter)", "system-ui", "sans-serif"], // headings use Inter too; the class name stays
-        hero: ["var(--font-hero)", "var(--font-inter)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
-        poppins: ["var(--font-poppins)", "var(--font-inter)", "system-ui", "sans-serif"], // homepage headline
+        display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"], // headings, nav, UI titles
+        hero: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
       },
       maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
     },
