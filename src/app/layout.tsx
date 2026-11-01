@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, Poppins } from "next/font/google";
 import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
 import "./globals.css";
@@ -10,6 +10,8 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 // Hero headlines and the big footer wordmark: Plus Jakarta Sans ExtraBold, a rounder, bolder SaaS look.
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["800"], variable: "--font-hero", display: "swap" });
+// Homepage headline only: Poppins Black (900).
+const poppins = Poppins({ subsets: ["latin"], weight: ["900"], variable: "--font-poppins", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "BizSphere-Ug", template: "%s | BizSphere-Ug" },
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${jakarta.variable} ${poppins.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>

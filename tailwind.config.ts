@@ -40,6 +40,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-inter)", "system-ui", "sans-serif"], // headings use Inter too; the class name stays
         hero: ["var(--font-hero)", "var(--font-inter)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
+        poppins: ["var(--font-poppins)", "var(--font-inter)", "system-ui", "sans-serif"], // homepage headline
       },
       maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
     },

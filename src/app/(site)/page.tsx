@@ -71,9 +71,9 @@ export default async function HomePage() {
               <span className="truncate">Every page checked by our team{stats.lastChecked ? ` · latest ${date(stats.lastChecked)}` : ""}</span>
               <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
             </Link>
-            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words rise in one by one;
+            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Poppins Black (900). Words rise in one by one;
                 "start" in orange. From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-hero text-[34px] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
+            <h1 className="font-poppins text-[34px] font-black leading-[1.08] tracking-[-0.01em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="contents">
                   <span className="word-in inline-block" style={{ animationDelay: `${n * 70}ms` }}>
@@ -197,18 +197,24 @@ export default async function HomePage() {
       </section>
 
 
-      {/* ── Recently reviewed: bento. The newest guide as a large blue card, four more around it. ── */}
+      {/* ── Recently reviewed: bento on navy, so it stands apart from the white directories above and the
+          light FAQ below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
-        <section className="bg-white">
+        <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
+          {/* Same flat rings as the hero, from the opposite corner */}
+          <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -bottom-64 -left-56 -z-10 h-[640px] w-[640px]">
+            {[90, 160, 230, 300].map((r) => <circle key={r} cx="300" cy="300" r={r} stroke="white" strokeOpacity="0.06" strokeWidth="1.5" />)}
+            <path d="M 300 70 A 230 230 0 0 1 530 300" stroke="#FE8302" strokeWidth="4" strokeLinecap="round" />
+          </svg>
           <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
-                <span className="w-fit rounded-full bg-brand-tint px-3 py-1 text-xs font-semibold text-brand-dark">Resources</span>
-                <h2 className="text-section-title text-heading">Recently reviewed</h2>
-                <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
+                <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-accent">Resources</span>
+                <h2 className="text-section-title text-white">Recently reviewed</h2>
+                <p className="text-[15px] leading-relaxed text-white/70 sm:text-base">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
               </div>
-              <Link href="/guides" className="btn-outline min-h-[44px]">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
+              <Link href="/guides" className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-white/25 px-5 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white hover:text-ink">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-4 lg:grid-rows-2">
@@ -230,18 +236,18 @@ export default async function HomePage() {
 
               {/* Four more */}
               {more.slice(0, 4).map((g) => (
-                <Link key={g.id} href={itemHref(g)} className="group flex flex-col gap-4 rounded-3xl border border-line bg-white p-6 text-ink transition-colors hover:border-brand hover:text-ink">
+                <Link key={g.id} href={itemHref(g)} className="group flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.05] p-6 text-white transition-colors hover:border-accent hover:bg-white/[0.08] hover:text-white">
                   <span className="flex items-center justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white"><Icon name={TYPE_ICON[g.contentType] ?? "guide"} className="h-5 w-5" /></span>
-                    <span className="rounded-full bg-page px-2.5 py-1 text-[11px] font-medium text-ink-muted">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-accent transition-colors group-hover:bg-accent group-hover:text-ink"><Icon name={TYPE_ICON[g.contentType] ?? "guide"} className="h-5 w-5" /></span>
+                    <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/70">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
                   </span>
                   <span className="flex flex-1 flex-col gap-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-accent-dark">{contentTypeLabel[g.contentType]}</span>
-                    <span className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-heading">{g.title}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-accent">{contentTypeLabel[g.contentType]}</span>
+                    <span className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-white">{g.title}</span>
                   </span>
-                  <span className="flex items-center justify-between border-t border-line pt-3 text-[15px] font-semibold text-brand">
+                  <span className="flex items-center justify-between border-t border-white/10 pt-3 text-[15px] font-semibold text-white">
                     Read
-                    <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">→</span>
+                    <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white transition group-hover:border-accent group-hover:bg-accent group-hover:text-ink">→</span>
                   </span>
                 </Link>
               ))}
