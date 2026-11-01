@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Boxes, Check, ClipboardList, FileText, Hash, LockKeyhole, Megaphone, Minus, Monitor, Plus, Scale, Search, ShoppingCart, Store, Wallet, Wrench, X,
+  Boxes, Check, ClipboardList, FileText, LockKeyhole, Megaphone, Minus, Monitor, Plus, Scale, Search, ShoppingCart, Store, Wallet, Wrench, X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -137,76 +137,53 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             </div>
           ) : null}
           <div className="flex flex-col items-center gap-1.5 rounded-xl bg-brand-tint px-4 py-6 text-center">
-            <span className="text-sm text-ink-soft">Estimated start-up cost{plans.length > 1 ? ` for a ${plan.label.toLowerCase()} ${name.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
+            <span className="text-sm text-ink-soft">Start-up cost{plans.length > 1 ? `, ${plan.label.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
             {gated ? (
               <a href={unlockHref} data-onboard="" className="inline-flex items-center gap-2 py-1 font-display text-xl font-bold text-brand"><LockKeyhole aria-hidden className="h-5 w-5" />Unlock the estimate</a>
             ) : (
               <span className="font-display text-3xl font-extrabold tracking-tight text-brand-deep sm:text-4xl">{estimate === null ? "Some costs pending" : fmt(estimate, plan.currency)}</span>
             )}
+            {/* Only say how many items are counted when some are not priced yet */}
             <span className="text-xs text-ink-muted">
-              Based on {withOptional ? plan.count.priced : plan.count.pricedEssential} priced out of {withOptional ? plan.count.all : essential} {withOptional ? "requirements" : "essential requirements"} · {plan.place}{plan.asOf ? `, prices as of ${plan.asOf}` : ""}
+              {withOptional
+                ? plan.count.priced < plan.count.all ? `${plan.count.all - plan.count.priced} items not priced yet · ` : ""
+                : plan.count.pricedEssential < essential ? `${essential - plan.count.pricedEssential} items not priced yet · ` : ""}
+              {plan.place} prices{plan.asOf ? `, ${plan.asOf}` : ""}
             </span>
             {plan.count.optional ? (
               <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
                 <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#157EC2]" />
-                Include {plan.count.optional} optional {plan.count.optional === 1 ? "item" : "items"} in this estimate
+                Include {plan.count.optional} optional {plan.count.optional === 1 ? "item" : "items"}
               </label>
             ) : null}
-          </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-center text-xs font-bold uppercase tracking-widest text-ink-muted">Requirements breakdown</h3>
-            <dl className="grid grid-cols-3 gap-2.5">
-              {([["Total", plan.count.all, "text-brand bg-page"], ["Essential", essential, "text-brand-deep bg-brand-tint"], ["Optional", plan.count.optional, "text-accent-dark bg-accent-tint"]] as const).map(([k, n, tone]) => (
-                <div key={k} className={`flex flex-col-reverse items-center rounded-xl px-2 py-3 ${tone}`}>
-                  <dt className="text-xs font-semibold text-ink-soft">{k}</dt>
-                  <dd className="font-display text-2xl font-extrabold">{n}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </div>
 
         {/* ── Every requirement, by category ── */}
         <div ref={listRef} className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <h3 className="text-section-title text-heading">Complete list of requirements for a {name.toLowerCase()} business</h3>            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Every requirement, by category, with essential and optional items. Search and filter to find items, and add them to your list to work out how much you need.</p>
-          </div>
+          <h3 className="text-section-title text-center text-heading">All {plan.count.all} {plan.count.all === 1 ? "item" : "items"}</h3>
           <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:flex-row sm:p-5">
             <label className="relative flex-1">
               <span className="sr-only">Search requirements</span>
               <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-              <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search all requirements…" className="input w-full pl-9" />
+              <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search items" className="input w-full pl-9" />
             </label>
-            <label className="flex items-center gap-2 text-sm text-ink-muted">Filter
+            <label className="flex items-center gap-2 text-sm text-ink-muted">Show
               <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="input">
-                <option value="all">All</option><option value="essential">Essential</option><option value="optional">Optional</option>
+                <option value="all">All</option><option value="essential">Must-have</option><option value="optional">Optional</option>
               </select>
             </label>
           </div>
 
-          {sections.map(({ c, all, shown }) => {
-            const req = shown.filter((l) => !l.optional);
-            const opt = shown.filter((l) => l.optional);
-            return (
-              <section key={c} id={slug(c)} data-cat={c} aria-label={c} className="overflow-hidden rounded-2xl border border-line bg-page">
-                <div className="flex items-center justify-between gap-3 bg-[#E9EEF5] px-5 py-4">
-                  <h4 className="font-display text-xl font-bold text-heading">{c}</h4>
-                  <span className="text-[13px] font-semibold text-ink-soft">{shown.length} of {all.length} {all.length === 1 ? "requirement" : "requirements"}</span>
-                </div>
-                <div className="flex flex-col gap-5 p-4 sm:p-5">
-                  <p className="font-display text-base font-bold text-heading">{c} requirements for your {name.toLowerCase()} business</p>
-                  {([["Required items", req, false], ["Optional items", opt, true]] as const).map(([label, list, optional]) => list.length ? (
-                    <div key={label} className="flex flex-col gap-3">
-                      <span className={`inline-flex items-center gap-2 text-sm font-semibold ${optional ? "text-accent-dark" : "text-brand"}`}><span aria-hidden className={`h-2 w-2 rounded-full ${optional ? "bg-accent" : "bg-brand"}`} />{label} ({list.length})</span>
-                      {list.map((l) => <RequirementCard key={l.id} l={l} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />)}
-                    </div>
-                  ) : null)}
-                </div>
-                <button type="button" onClick={() => listRef.current && window.scrollTo({ top: listRef.current.getBoundingClientRect().top + window.scrollY - 24, behavior: "smooth" })}
-                  className="w-full border-t border-line bg-[#E9EEF5] py-3 text-center text-[13px] font-semibold text-brand hover:text-brand-dark">↑ Back to top</button>
-              </section>
-            );
-          })}
+          {/* Each category: its name, then must-have items before optional ones */}
+          {sections.map(({ c, shown }) => (
+            <section key={c} id={slug(c)} data-cat={c} aria-label={c} className="flex flex-col gap-3">
+              <h4 className="flex items-baseline gap-2 font-display text-xl font-bold text-heading">{c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span></h4>
+              {[...shown.filter((l) => !l.optional), ...shown.filter((l) => l.optional)].map((l) => (
+                <RequirementCard key={l.id} l={l} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />
+              ))}
+            </section>
+          ))}
           {sections.length === 0 ? <p className="rounded-2xl border border-dashed border-line-strong bg-white px-5 py-10 text-center text-sm text-ink-muted">No requirements match. Clear the search or change the filter.</p> : null}
           {hidden[plan.level] ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4">
@@ -242,7 +219,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
           <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
             <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-tint text-brand"><ShoppingCart aria-hidden className="h-7 w-7" /></span>
             <span className="font-display text-base font-bold text-heading">Your list is empty</span>
-            <span className="text-[13px] leading-relaxed text-ink-muted">Add the requirements you need with <strong>+ Add to my list</strong> to work out your own start-up cost.</span>
+            <span className="text-[13px] leading-relaxed text-ink-muted">Tap <strong>+ Add</strong> on an item to see your own total.</span>
           </div>
         ) : (
           <>
@@ -276,45 +253,40 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
   );
 }
 
-/** One requirement: icon, name and whether it's required on the left; what it is, its cost and "Add" on the right. */
+/**
+ * One requirement as a single row: icon, name (marked "Optional" when it is), a short note;
+ * then the cost and "Add". Must-have is the default, so it carries no label.
+ */
 function RequirementCard({ l, currency, added, onToggle }: { l: CalcLine; currency: string; added: number; onToggle: () => void }) {
   const I = iconFor(l.category);
+  const qty = `${l.qty.toLocaleString("en-UG")}${l.unit ? ` ${l.unit}` : ""}`;
   return (
-    <article className={`grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 ${added ? "border-brand" : "border-line"}`}>
-      <div className="flex items-start gap-3.5">
-        <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${l.optional ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><I aria-hidden className="h-7 w-7" strokeWidth={1.75} /></span>
-        <span className="flex min-w-0 flex-col items-start gap-2">
-          <h5 className="font-display text-lg font-bold leading-tight text-heading">{l.item}</h5>
-          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${l.optional ? "border-accent/30 bg-accent-tint text-accent-dark" : "border-brand/25 bg-brand-tint text-brand-dark"}`}>
-            <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${l.optional ? "bg-accent" : "bg-brand"}`} />{l.optional ? "Optional" : "Required"}
-          </span>
+    <article className={`flex flex-col gap-4 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5 ${added ? "border-brand" : "border-line"}`}>
+      <div className="flex min-w-0 flex-1 items-start gap-3.5">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><I aria-hidden className="h-5 w-5" strokeWidth={1.75} /></span>
+        <span className="flex min-w-0 flex-col gap-1">
+          <h5 className="font-display text-[17px] font-bold leading-tight text-heading">
+            {l.item}{l.optional ? <span className="ml-2 align-middle text-xs font-semibold text-accent-dark">Optional</span> : null}
+          </h5>
+          {l.details ? <p className="line-clamp-2 text-sm leading-relaxed text-ink-muted">{l.details}</p> : null}
         </span>
       </div>
-      <div className="flex min-w-0 flex-col gap-4">
-        {l.details ? <p className="text-sm leading-relaxed text-ink-soft">{l.details}</p> : null}
-        {/* Phones: the figures two to a row and a full-width button; wider screens: one row */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6">
-          <Stat icon={Wallet} label="Price" value={l.price === null ? (l.reason ?? "To be confirmed") : fmt(l.price, currency)} strong={l.price !== null} />
-          <Stat icon={Hash} label="Quantity" value={`${l.qty.toLocaleString("en-UG")}${l.unit ? ` ${l.unit}` : ""}`} />
-          {l.price !== null && l.qty !== 1 ? <Stat icon={ClipboardList} label="Amount" value={fmt(l.price * l.qty, currency)} strong /> : null}
-          <button type="button" onClick={onToggle} aria-pressed={Boolean(added)} aria-label={added ? `Remove ${l.item} from my list` : `Add ${l.item} to my list`}
-            className={`col-span-2 mt-1 inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-xl px-4 text-[15px] font-semibold transition sm:ml-auto sm:mt-0 sm:h-10 sm:w-auto sm:text-sm ${added ? "bg-brand-deep text-white" : "bg-brand text-white hover:bg-brand-dark sm:bg-page sm:text-heading sm:hover:bg-brand-tint sm:hover:text-brand"}`}>
-            {added ? <><Check aria-hidden className="h-4 w-4" />Added</> : <><Plus aria-hidden className="h-4 w-4" />Add to my list</>}
-          </button>
-        </div>
+      <div className="flex items-center justify-between gap-4 sm:justify-end">
+        <span className="flex flex-col leading-tight sm:items-end">
+          {l.price === null ? (
+            <span className="text-sm text-ink-muted">{l.reason ?? "Price to be confirmed"}</span>
+          ) : (
+            <>
+              <span className="whitespace-nowrap font-display text-base font-bold text-brand-deep">{fmt(l.price * l.qty, currency)}</span>
+              {l.qty !== 1 || l.unit ? <span className="whitespace-nowrap text-xs text-ink-muted">{qty}{l.qty !== 1 ? ` × ${fmt(l.price, currency)}` : ""}</span> : null}
+            </>
+          )}
+        </span>
+        <button type="button" onClick={onToggle} aria-pressed={Boolean(added)} aria-label={added ? `Remove ${l.item} from my list` : `Add ${l.item} to my list`}
+          className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition ${added ? "bg-brand-deep text-white" : "bg-brand text-white hover:bg-brand-dark"}`}>
+          {added ? <><Check aria-hidden className="h-4 w-4" />Added</> : <><Plus aria-hidden className="h-4 w-4" />Add</>}
+        </button>
       </div>
     </article>
-  );
-}
-
-function Stat({ icon: I, label, value, strong = false }: { icon: LucideIcon; label: string; value: string; strong?: boolean }) {
-  return (
-    <span className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand sm:h-9 sm:w-9"><I aria-hidden className="h-4 w-4" /></span>
-      <span className="flex min-w-0 flex-col leading-tight">
-        <span className="text-xs text-ink-muted">{label}</span>
-        <span className={`whitespace-nowrap ${strong ? "font-display text-sm font-bold text-brand-deep sm:text-base" : "text-sm font-semibold text-heading"}`}>{value}</span>
-      </span>
-    </span>
   );
 }

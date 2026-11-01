@@ -77,13 +77,8 @@ export default async function RequirementsPage({ params, searchParams }: { param
               <span aria-hidden>›</span>
               <span className="font-semibold text-heading">Requirements</span>
             </nav>
-            <h1 className="text-page-title max-w-3xl text-heading">
-              {count ? <>{count + keyPoints.length} requirements to start a </> : "Requirements to start a "}
-              {name.toLowerCase()} business in Uganda
-            </h1>
-            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">
-              Everything you need, by category: licences, equipment, stock and more, with what each costs. Pick your business size, then add what you need to work out your own start-up cost.
-            </p>
+            <h1 className="text-page-title max-w-3xl text-heading">What you need to start a {name.toLowerCase()} business</h1>
+            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Each item with its price. Add the ones you need to see your own cost.</p>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
               <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Overview</Link>
               <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Requirements</span>
@@ -104,10 +99,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
           {more.length ? (
             <section aria-labelledby="similar" className="flex flex-col gap-5 -mx-2 rounded-2xl border border-line bg-page px-2 py-4 sm:mx-0 sm:rounded-3xl sm:p-8">
               <div className="flex items-end justify-between gap-3">
-                <span className="flex flex-col gap-1">
-                  <h2 id="similar" className="text-block-title text-heading">Explore similar businesses</h2>
-                  <span className="text-sm text-ink-soft">Other business ideas{inCategory && item.primaryCategory ? ` in ${item.primaryCategory.name.toLowerCase()}` : ""}, with their requirements and cost calculators.</span>
-                </span>
+                <h2 id="similar" className="text-block-title text-heading">Similar businesses</h2>
                 <Link href={inCategory && item.primaryCategory ? `/business-ideas?category=${item.primaryCategory.id}` : "/business-ideas"} className="shrink-0 text-sm font-semibold">View all →</Link>
               </div>
               <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
@@ -118,7 +110,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
 
           {faq.length ? (
             <section aria-labelledby="fq" className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-              <h2 id="fq" className="text-center text-section-title text-heading">Frequently asked questions</h2>
+              <h2 id="fq" className="text-center text-section-title text-heading">Common questions</h2>
               <div className="flex flex-col gap-3">
                 {faq.map(([q, a]) => (
                   <details key={q} className="group rounded-xl border border-line bg-white px-5 [&_summary::-webkit-details-marker]:hidden">
