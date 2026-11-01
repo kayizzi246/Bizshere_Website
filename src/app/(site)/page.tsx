@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
+import { cachedHomeStats, cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { homeVideo } from "@/lib/youtube";
@@ -8,8 +8,9 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { HomeSearch } from "@/components/HomeSearch";
+import { RecentStrip } from "@/components/Recent";
 import { getViewer } from "@/lib/access";
-import { BarChart3, ChevronRight } from "lucide-react";
+import { BadgeCheck, BarChart3, Check, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -37,36 +38,45 @@ const FAQ: [string, string][] = [
 ];
 
 export default async function HomePage() {
-  const [viewer, guides, updates, yt] = await Promise.all([
+  const [viewer, guides, updates, yt, stats] = await Promise.all([
     getViewer(),
     cachedRecentGuides(),
     cachedSiteUpdates(),
     homeVideo(),
+    cachedHomeStats(),
   ]);
   const [lead, ...more] = guides;
 
   return (
     <>
-      {/* ── Hero: deep navy with a curved blue light from the right and a teal glow bottom-right.
-          Roomy SaaS-style: badge, headline (52px max), paragraph, search with a moving-colour border, directory chips and actions on the left; the
-          "How it works" card on the right (wide screens). ── */}
-      <section className="relative isolate overflow-hidden bg-[#071A33] text-white">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_100%_100%,#22C7CF_0%,#1E7FDB_38%,rgba(7,26,51,0)_75%)]" />
-        <div aria-hidden className="drift pointer-events-none absolute -right-[20%] -top-[30%] -z-10 h-[120%] w-[70%] rounded-full bg-[radial-gradient(closest-side,rgba(30,127,219,0.35),transparent)]" />
+      {/* ── Hero: flat navy, no glows. The floating header sits on it (.under-header).
+          Left: a trust line, the headline, one sentence, search, popular directories, two actions and
+          what people worry about before paying (free search, mobile money, cancel any time).
+          Right (wide screens): the "How it works" card. ── */}
+      <section className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
+        {/* Flat decoration: thin rings spreading from the top-right corner, a blue arc and an orange dot
+            riding on them. Solid lines only, no glow; smaller and fainter on phones so text stays clear. */}
+        <svg aria-hidden viewBox="0 0 600 600" fill="none" className="pointer-events-none absolute -right-48 -top-24 -z-10 h-[520px] w-[520px] opacity-60 sm:-right-32 sm:h-[720px] sm:w-[720px] sm:opacity-100 xl:-right-16 xl:-top-10 xl:h-[860px] xl:w-[860px]">
+          {[90, 160, 230, 300].map((r) => <circle key={r} cx="420" cy="180" r={r} stroke="white" strokeOpacity="0.07" strokeWidth="1.5" />)}
+          <path d="M 420 -50 A 230 230 0 0 1 650 180" stroke="#0072CE" strokeWidth="6" strokeLinecap="round" />
+          <path d="M 120 180 A 300 300 0 0 1 207 -32" stroke="#FE8302" strokeOpacity="0.9" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="257" cy="255" r="11" fill="#FE8302" />
+          <circle cx="510" cy="330" r="6" fill="white" fillOpacity="0.5" />
+        </svg>
 
-        <div className="container-site relative grid items-center gap-12 pb-16 pt-14 sm:pb-20 sm:pt-20 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
-          <div className="hero-rise flex flex-col items-start gap-6">
-            <Link href="/business-ideas" className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] py-1 pl-1.5 pr-3 text-[13px] font-medium text-white/90 backdrop-blur transition hover:border-accent hover:text-white">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-ink"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-ink" />New</span>
-              Business plans with real start-up budgets
-              <ChevronRight aria-hidden className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+        <div className="container-site relative grid items-center gap-12 pb-16 pt-12 sm:pb-24 sm:pt-20 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
+          <div className="hero-rise flex flex-col items-start gap-5 sm:gap-6">
+            <Link href="/methodology" className="group inline-flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] py-1 pl-1 pr-3 text-[13px] font-medium text-white/85 transition hover:border-white/40 hover:text-white">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#12B76A] text-white"><BadgeCheck aria-hidden className="h-3.5 w-3.5" /></span>
+              <span className="truncate">Every page checked by our team{stats.lastChecked ? ` · latest ${date(stats.lastChecked)}` : ""}</span>
+              <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
             </Link>
-            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words blur in one by one;
+            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Words rise in one by one;
                 "start" in orange. From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-hero text-[32px] font-extrabold leading-[1.08] tracking-[-0.03em] text-white sm:text-[40px] xl:text-[46px] 2xl:text-[52px]">
+            <h1 className="font-hero text-[34px] font-extrabold leading-[1.06] tracking-[-0.035em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
               {["What", "do", "you", "want", "to", "start,", "find", "or", "solve?"].map((w, n) => (
                 <span key={w} className="contents">
-                  <span className="word-in inline-block" style={{ animationDelay: `${n * 90}ms` }}>
+                  <span className="word-in inline-block" style={{ animationDelay: `${n * 70}ms` }}>
                     {w === "start," ? <><span className="text-accent">start</span>,</> : w}
                   </span>
                   {n === 4 ? <br className="hidden xl:block" /> : null}{n < 8 ? " " : ""}
@@ -74,27 +84,35 @@ export default async function HomePage() {
               ))}
             </h1>
 
-            <p className="max-w-lg text-[14px] leading-[1.65] text-white/70 sm:text-[15px]">
-              Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
+            <p className="max-w-xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
+              Real start-up budgets, machine prices, checked suppliers and funding for Uganda. In one place, dated and sourced.
             </p>
 
             <HomeSearch />
 
-            {/* Every directory as a chip */}
-            <ul aria-label="Directories" className="flex max-w-[680px] flex-wrap gap-2">
+            {/* Every directory as a chip, right under the search */}
+            <ul aria-label="Directories" className="flex max-w-[660px] flex-wrap gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex items-center gap-2 rounded-full border border-dotted border-white/45 bg-white/[0.04] px-3.5 py-2 text-[15px] font-medium text-white/85 transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-ink">
-                    <Icon name={d.icon} className="h-4 w-4 text-white/80 group-hover:text-ink" />
+                  <Link href={d.href} className="group inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-3.5 text-[14px] font-medium text-white/85 transition-colors hover:border-accent hover:bg-accent hover:text-ink">
+                    <Icon name={d.icon} className="h-4 w-4 text-accent group-hover:text-ink" />
                     {d.nav}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-1 flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
-              <Link href="/signup" className="group inline-flex min-h-[46px] items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink shadow-[0_8px_24px_-8px_rgba(254,131,2,0.7)] transition hover:-translate-y-0.5 hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
-              <Link href="/business-ideas" className="inline-flex min-h-[46px] items-center justify-center rounded-lg border border-white/30 px-6 text-[15px] font-semibold text-white transition hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
+            <div className="flex w-full flex-col gap-3">
+              <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
+                <Link href="/signup" className="group inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-accent px-6 text-[16px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
+                <Link href="/business-ideas" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/25 px-6 text-[16px] font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
+              </div>
+              {/* What stops people paying, answered before they ask */}
+              <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-white/70">
+                {["Free to search", "Pay with MTN MoMo or Airtel Money", "Cancel any time"].map((t) => (
+                  <li key={t} className="inline-flex items-center gap-1.5"><Check aria-hidden className="h-3.5 w-3.5 text-[#12B76A]" strokeWidth={3} />{t}</li>
+                ))}
+              </ul>
             </div>
 
           </div>
@@ -102,7 +120,7 @@ export default async function HomePage() {
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
           <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center gap-6 xl:flex">
-            <div className="float-slow w-full max-w-[560px] rounded-[20px] bg-white p-4 text-ink shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/20">
+            <div className="w-full max-w-[560px] rounded-[20px] border border-white/15 bg-white p-4 text-ink">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -138,14 +156,17 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+
       </section>
 
       {/* ── Updates marquee (managed at /admin/updates) ── */}
       <UpdatesMarquee updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
       {/* ── Directories ─────────────────────────────────── */}
-      <section className="bg-white">
+      <section id="directories" className="scroll-mt-24 bg-white">
         <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
+          {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
+          <RecentStrip title="Welcome back · pick up where you left off" className="-mt-6 sm:-mt-10" />
           <Heading eyebrow="Directories" title={<>What you&apos;ll <span className="text-brand">find here</span></>}
             text="The directories link to each other. Look up “bakery” and you get the plan, the oven, who sells flour and who lends." />
 
@@ -193,7 +214,6 @@ export default async function HomePage() {
             <div className="grid gap-4 lg:grid-cols-4 lg:grid-rows-2">
               {/* Newest */}
               <Link href={itemHref(lead)} className="group relative isolate flex min-h-[320px] flex-col justify-between overflow-hidden rounded-3xl bg-brand p-7 text-white hover:text-white lg:col-span-2 lg:row-span-2 lg:p-9">
-                <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_0%,rgba(255,255,255,0.25),transparent_70%),linear-gradient(to_bottom,transparent_40%,#005BA6)]" />
                 <Icon name={TYPE_ICON[lead.contentType] ?? "guide"} className="absolute -bottom-10 -right-8 -z-10 h-56 w-56 text-white/10" strokeWidth={1.25} />
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-heading">{contentTypeLabel[lead.contentType]}</span>
@@ -234,10 +254,10 @@ export default async function HomePage() {
       <section className="border-t border-line bg-gradient-to-br from-[#EEF6FF] via-[#F6FAFF] to-[#FFF4E8]">
         <div className="container-site grid gap-8 py-14 sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
           <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
-            <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-accent-dark shadow-[0_1px_2px_rgba(7,26,51,0.08)]">FAQ</span>
+            <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-accent-dark">FAQ</span>
             <h2 className="text-section-title text-heading">Questions, answered</h2>
             <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">Short answers about access, sources, prices and payment.</p>
-            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-white bg-white/80 p-5 shadow-[0_8px_30px_-12px_rgba(7,26,51,0.15)] backdrop-blur">
+            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-white bg-white/80 p-5 backdrop-blur">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
@@ -254,7 +274,7 @@ export default async function HomePage() {
               orange toggle when open, light blue tint on the open card. */}
           <div className="flex flex-col gap-2">
             {FAQ.map(([q, a], n) => (
-              <details key={q} open={n === 0} className="group rounded-xl border border-white bg-white/90 px-4 shadow-[0_1px_3px_rgba(7,26,51,0.06)] transition-colors hover:border-brand/40 open:border-brand/40 open:bg-white sm:px-5 [&_summary::-webkit-details-marker]:hidden">
+              <details key={q} open={n === 0} className="group rounded-xl border border-white bg-white/90 px-4 transition-colors hover:border-brand/40 open:border-brand/40 open:bg-white sm:px-5 [&_summary::-webkit-details-marker]:hidden">
                 <summary className="flex cursor-pointer list-none items-center gap-4 py-4">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint font-display text-[12px] font-bold text-brand transition-colors group-open:bg-brand group-open:text-white">{String(n + 1).padStart(2, "0")}</span>
                   <span className="flex-1 font-display text-[15px] font-semibold leading-snug text-heading">{q}</span>
@@ -299,12 +319,12 @@ function Showcase() {
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-gradient-to-br from-[#EEF5FD] via-[#F7FAFE] to-[#FFF6EE] p-3 xl:p-4">
       <div className="flex items-center justify-between gap-3">
-        <span className="rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-heading shadow-[0_1px_2px_rgba(7,26,51,0.08)]">Example: starting a bakery</span>
+        <span className="rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-heading">Example: starting a bakery</span>
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] text-ink-muted"><BarChart3 aria-hidden className="h-3.5 w-3.5 text-brand" />Live sessions coming soon</span>
       </div>
       <div className="grid grid-cols-[1.1fr_1fr] gap-2.5 2xl:gap-3">
         {/* The plan */}
-        <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-3.5 shadow-[0_1px_3px_rgba(7,26,51,0.06)] xl:p-4">
+        <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-3.5 xl:p-4">
           <span className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-white"><Icon name="idea" className="h-3.5 w-3.5" /></span>
             <span className="whitespace-nowrap rounded-md bg-brand-tint px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-dark">Business plan</span>
@@ -319,7 +339,7 @@ function Showcase() {
         {/* What it links to */}
         <div className="flex flex-col gap-2.5">
           {linked.map(([href, icon, name, kind, note, tone]) => (
-            <Link key={kind} href={href} className="group flex flex-1 items-center gap-3 rounded-2xl bg-white px-3.5 py-2.5 text-ink shadow-[0_1px_3px_rgba(7,26,51,0.06)] hover:text-ink hover:shadow-[0_8px_20px_-10px_rgba(7,26,51,0.3)]">
+            <Link key={kind} href={href} className="group flex flex-1 items-center gap-3 rounded-2xl bg-white px-3.5 py-2.5 text-ink hover:text-ink">
               <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tone}`}><Icon name={icon} className="h-4 w-4" /></span>
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="truncate font-display text-[13px] font-bold leading-tight text-heading">{name}</span>

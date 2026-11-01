@@ -98,18 +98,10 @@
 
 /* Hero headline: each word rises out of a blur, one after another */
 .word-in { animation: word-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@keyframes word-in { from { opacity: 0; transform: translateY(0.4em); filter: blur(8px); } }
+@keyframes word-in { from { opacity: 0; transform: translateY(0.4em); } }
 
-/* Floating Services button: an orange border that keeps travelling round the edge.
-   A rotating conic gradient behind a 3px inset; no glow or shadow. */
-/* No position here: the element sets its own (the Services button is `fixed`), which also anchors ::before. */
-.spin-border { isolation: isolate; overflow: hidden; }
-.spin-border::before {
-  content: ""; position: absolute; inset: -60%; z-index: -1;
-  background: conic-gradient(from 0deg, #FE8302, #FFD9AE, #FE8302 30%, #C45F00 50%, #FE8302 70%, #FFD9AE 85%, #FE8302);
-  animation: spin-border 3.2s linear infinite;
-}
-@keyframes spin-border { to { transform: rotate(360deg); } }
+/* Floating Services button: a plain orange border. Flat design: no shadows, glows or moving light. */
+.spin-border { background: #FE8302; } /* the 3px padding shows as the ring */
 
 /* Dropdowns: iPhone Safari ignores height and padding on native selects, so draw our own
    (same height and padding as inputs everywhere) with a chevron that reads in light and dark. */
@@ -154,34 +146,13 @@ select {
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
 .rise-late { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
 
-.float { animation: float 6s ease-in-out infinite; }
-.float-slow { animation: float 8s ease-in-out 1s infinite; }
-@keyframes float { 50% { transform: translateY(-10px); } }
+/* Kept as names only: the site is flat, nothing floats or drifts. */
+.float, .float-slow, .drift { animation: none; }
 
-/* Soft blue light drifting behind the hero */
-.drift { animation: drift 18s ease-in-out infinite alternate; }
-@keyframes drift { to { transform: translate(-60px, 40px) scale(1.15); } }
+.text-gradient { color: #0072CE; }
 
-.text-gradient {
-  background: linear-gradient(90deg, #0072CE, #3A9BE8, #FE8302, #0072CE);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 8s linear infinite;
-}
-@keyframes shimmer { to { background-position: 300% 0; } }
-
-/* Hero search boxes: blue-to-orange colours that travel round the edge (no glow).
-   The box itself sits inside with a 2px gap, which shows as the border. */
-@property --glow-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-.search-glow { position: relative; isolation: isolate; padding: 2px; }
-.search-glow::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
-  background: conic-gradient(from var(--glow-angle), #0072CE, #3A9BE8, #22C7CF, #FE8302, #FFD9AE, #0072CE);
-  animation: glow-turn 5s linear infinite;
-}
-@keyframes glow-turn { to { --glow-angle: 360deg; } }
+/* Hero search boxes: a solid 2px blue edge (the box sits inside the padding). */
+.search-glow { padding: 2px; background: #0072CE; }
 
 .onboard-pop { animation: pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
@@ -199,8 +170,6 @@ select {
   .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
   .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop { animation: none; }
-  .spin-border::before { animation: none; }
-  .search-glow::before { animation: none; }
   .word-in { animation: none; }
 }
 
@@ -211,3 +180,10 @@ body:has([data-sticky-search]) [data-site-header] { position: relative; }
 /* Business idea requirements: the "my list" bar along the bottom on phones (BudgetCalculator) lifts the
    floating Services button above it. */
 body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
+
+/* The floating header (SiteHeader) is a rounded bar with a gap around it. --hh is its full height:
+   8px gap + 64px bar on phones, 12px + 72px from laptop width. A dark hero marked .under-header runs
+   up behind it (the transparent top border shows the hero's own background), so the bar floats on it. */
+:root { --hh: 72px; }
+@media (min-width: 1024px) { :root { --hh: 84px; } }
+.under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }

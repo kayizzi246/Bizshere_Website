@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 
 /**
  * Shared pieces of the in-page directory browsers (IdeaBrowser, ListingBrowser): the compact
- * SaaS-style hero with its glowing search box, category chips, sort menu and page numbers.
+ * SaaS-style hero with its search box, category chips, sort menu and page numbers.
  */
 
 export function BrowseHero({ crumb, badge, title, intro, tabs, active, q, onSearch, onSubmit, hint, label, popular }: {
@@ -26,9 +26,7 @@ export function BrowseHero({ crumb, badge, title, intro, tabs, active, q, onSear
   popular: string[];
 }) {
   return (
-    <header className="relative isolate overflow-hidden bg-[#071A33] text-white">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_80%_at_50%_120%,#1E7FDB_0%,rgba(7,26,51,0)_70%)]" />
-      <div aria-hidden className="drift pointer-events-none absolute -right-[15%] -top-[40%] -z-10 h-[110%] w-[55%] rounded-full bg-[radial-gradient(closest-side,rgba(34,199,207,0.22),transparent)]" />
+    <header className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
       <div className="hero-rise container-site flex flex-col items-center gap-4 py-10 text-center sm:py-14">
         <nav aria-label="Breadcrumb" className="text-xs text-white/60">
           <Link href="/" className="text-white/60 hover:text-white">Home</Link> / <span className="text-white/90">{crumb}</span>

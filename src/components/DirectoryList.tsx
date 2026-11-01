@@ -77,7 +77,7 @@ export function ListingHeader({ icon, title, intro, tabs, active, count, searchi
 }) {
   const [one, many] = unit ?? ["listing", "listings"];
   return (
-    <header className="bg-[#071A33] text-white">
+    <header className="under-header bg-[#071A33] text-white">
       <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-12 ${overlap ? "pb-20 sm:pb-24" : "pb-9 sm:pb-12"}`}>
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">

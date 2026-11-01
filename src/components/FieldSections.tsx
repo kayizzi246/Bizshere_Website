@@ -36,21 +36,23 @@ export function visibleGroups(type: ContentType, record: Rec, skip: string[] = [
   return [...groups.entries()];
 }
 
-export function FieldSections({ type, record, gated, skip, back }: { type: ContentType; record: Rec; gated: boolean; skip?: string[]; back: string }) {
+/** How many filled fields the groups hold, for the "All details" count. */
+export const fieldCount = (groups: ReturnType<typeof visibleGroups>) => groups.reduce((n, [, fields]) => n + fields.length, 0);
+
+/** `bare`: just the groups, for a page that puts them inside its own section (RecordPage's "All details"). */
+export function FieldSections({ type, record, gated, skip, back, bare = false }: { type: ContentType; record: Rec; gated: boolean; skip?: string[]; back: string; bare?: boolean }) {
   const groups = visibleGroups(type, record, skip);
   if (!groups.length) return null;
   const currency = typeof record.currency === "string" ? record.currency : "UGX";
 
-  return (
-    <section id="details" className="flex scroll-mt-36 flex-col gap-4">
-      <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Full details</h2>
-      {/* Groups pack two to a row; a group with long text takes the full width. */}
+  // Groups pack two to a row; a group with long text takes the full width.
+  const body = (
       <div className="grid gap-4 md:grid-cols-2">
         {groups.map(([group, fields]) => {
           const short = fields.filter((f) => f.kind !== "textarea" && f.kind !== "json");
           const long = fields.filter((f) => f.kind === "textarea" || f.kind === "json");
           return (
-            <div key={group} className={`flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 ${long.length ? "md:col-span-2" : ""}`}>
+            <div key={group} className={`flex flex-col gap-3 rounded-2xl ${bare ? "bg-page p-4 sm:p-5" : "border border-line bg-white p-6"} ${long.length ? "md:col-span-2" : ""}`}>
               <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-muted">{group}</h3>
               {short.length ? (
                 <dl className={`grid divide-y divide-line ${long.length ? "sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0" : ""}`}>
@@ -65,7 +67,7 @@ export function FieldSections({ type, record, gated, skip, back }: { type: Conte
                 </dl>
               ) : null}
               {long.map((f) => (
-                <div key={f.name} className="flex flex-col gap-1.5 rounded-xl bg-page p-4">
+                <div key={f.name} className={`flex flex-col gap-1.5 rounded-xl p-4 ${bare ? "bg-white" : "bg-page"}`}>
                   <h4 className="text-xs font-semibold text-ink-muted">{f.label}</h4>
                   {gated && isMemberOnly(type, f) ? <Locked back={back} /> : <Value f={f} v={record[f.name]} currency={currency} />}
                 </div>
@@ -74,6 +76,12 @@ export function FieldSections({ type, record, gated, skip, back }: { type: Conte
           );
         })}
       </div>
+  );
+  if (bare) return body;
+  return (
+    <section id="details" className="flex scroll-mt-36 flex-col gap-4">
+      <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Full details</h2>
+      {body}
     </section>
   );
 }

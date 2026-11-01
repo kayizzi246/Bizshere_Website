@@ -71,7 +71,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
   return (
     <>
       {/* ── Header: navy band with the search front and centre ── */}
-      <header className="bg-[#071A33] text-white">
+      <header className="under-header bg-[#071A33] text-white">
         <div className="container-site flex flex-col gap-6 py-10 sm:py-14">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[13px] text-white/60">
             <Link href="/" className="text-white/60 hover:text-white">Home</Link><span aria-hidden>/</span><span className="text-white/90">Business experts</span>
@@ -133,7 +133,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
                 const remote = c.deliveryModes.some((m) => /online|remote|phone|video/i.test(m));
                 return (
                   <li key={c.id}>
-                    <Link href={itemHref(c.contentItem)} className="group flex h-full flex-col items-center rounded-3xl border border-line bg-white p-6 text-center text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink hover:shadow-[0_20px_40px_-24px_rgba(7,26,51,0.4)]">
+                    <Link href={itemHref(c.contentItem)} className="group flex h-full flex-col items-center rounded-3xl border border-line bg-white p-6 text-center text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">
                       <span className="relative">
                         {c.photoUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element -- editor-entered photo address

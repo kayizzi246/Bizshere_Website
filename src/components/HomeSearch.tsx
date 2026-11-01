@@ -6,7 +6,7 @@ import { useTypingHint } from "./TypingHint";
 
 const EXAMPLES = ["start a bakery", "poultry farming", "maize milling machine", "loans for small business", "soap making", "register a business"];
 
-/** Homepage search: one compact box with a glowing edge and a typed-out example; searches every directory. */
+/** Homepage search: one compact box with a solid blue edge and a typed-out example; searches every directory. */
 export function HomeSearch() {
   const [q, setQ] = useState("");
   const hint = useTypingHint(EXAMPLES, { paused: Boolean(q) });

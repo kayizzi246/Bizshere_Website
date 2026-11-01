@@ -23,7 +23,7 @@ export function CookieNotice() {
   };
 
   return (
-    <div role="region" aria-label="Cookie notice" className="onboard-pop fixed inset-x-3 bottom-3 z-[65] flex items-center gap-3 rounded-2xl border border-line bg-white py-3 pl-3 pr-3 shadow-[0_18px_50px_-12px_rgba(7,26,51,0.35)] sm:inset-x-auto sm:bottom-5 sm:left-5 sm:max-w-[440px] sm:gap-4 sm:pl-4">
+    <div role="region" aria-label="Cookie notice" className="onboard-pop fixed inset-x-3 bottom-3 z-[65] flex items-center gap-3 rounded-2xl border border-line bg-white py-3 pl-3 pr-3 sm:inset-x-auto sm:bottom-5 sm:left-5 sm:max-w-[440px] sm:gap-4 sm:pl-4">
       <button type="button" onClick={() => done("dismissed")} aria-label="Close cookie notice" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink hover:bg-page"><X aria-hidden className="h-5 w-5" /></button>
       <p className="flex-1 text-[13px] leading-snug text-ink-soft">
         By continuing to use our website, you agree to our cookie policy and privacy policy.{" "}

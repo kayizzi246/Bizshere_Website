@@ -94,38 +94,48 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
     prisma.evidenceLink.findMany({ where: { contentItemId }, include: { source: true } }),
     viewer.userId ? prisma.savedItem.findUnique({ where: { userId_contentItemId: { userId: viewer.userId, contentItemId } } }) : null,
   ]);
+  const overdue = Boolean(nextReviewDueAt && nextReviewDueAt < new Date());
+  // One short line people can trust at a glance; the source list and dates are one tap away.
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 text-sm text-ink-muted">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Sources and checks</h2>
-        {nextReviewDueAt && nextReviewDueAt < new Date()
-          ? <span className="rounded-full bg-warn-bg px-2.5 py-1 text-xs font-semibold text-warn-fg">Review overdue</span>
-          : <span className="rounded-full bg-brand-tint px-2.5 py-1 text-xs font-semibold text-brand-dark">Up to date</span>}
+    <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 text-sm text-ink-muted sm:p-6">
+      <div className="flex items-center gap-3">
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold ${overdue ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`} aria-hidden>{overdue ? "!" : "✓"}</span>
+        <span className="flex min-w-0 flex-col">
+          <h2 className="font-display text-base font-bold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
+          <span className="text-[13px]">Last checked {date(lastReviewedAt)}</span>
+        </span>
       </div>
-      <dl className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-page p-3"><dt className="text-[11px] text-ink-muted">Last reviewed</dt><dd className="text-sm font-semibold text-ink">{date(lastReviewedAt)}</dd></div>
-        <div className="rounded-xl bg-page p-3"><dt className="text-[11px] text-ink-muted">Next review due</dt><dd className="text-sm font-semibold text-ink">{date(nextReviewDueAt)}</dd></div>
-      </dl>
       {extra}
-      {sources.length ? (
-        <ul className="flex flex-col gap-1.5">
-          {sources.map((e) => (
-            <li key={e.id}>
-              <span className="badge-muted mr-1.5">{claimLabel[e.claimType]}</span>
-              {e.source.sourceUrl ? <a href={e.source.sourceUrl} target="_blank" rel="noreferrer">{e.source.sourceTitle}</a> : e.source.sourceTitle}
-              {e.source.publisherName ? `, ${e.source.publisherName}` : ""}
-              {e.source.accessedAt ? ` (accessed ${date(e.source.accessedAt)})` : ""}
-            </li>
-          ))}
-        </ul>
+      {sources.length || nextReviewDueAt ? (
+        <details className="group rounded-xl bg-page px-4 py-3 [&_summary::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-[32px] cursor-pointer list-none items-center justify-between gap-2 text-[13px] font-semibold text-ink-soft">
+            {sources.length ? `Where this comes from (${sources.length})` : "Check dates"}
+            <span aria-hidden className="transition-transform group-open:rotate-180">↓</span>
+          </summary>
+          <div className="flex flex-col gap-2 pt-2">
+            {sources.length ? (
+              <ul className="flex flex-col gap-1.5">
+                {sources.map((e) => (
+                  <li key={e.id}>
+                    <span className="badge-muted mr-1.5">{claimLabel[e.claimType]}</span>
+                    {e.source.sourceUrl ? <a href={e.source.sourceUrl} target="_blank" rel="noreferrer">{e.source.sourceTitle}</a> : e.source.sourceTitle}
+                    {e.source.publisherName ? `, ${e.source.publisherName}` : ""}
+                    {e.source.accessedAt ? ` (accessed ${date(e.source.accessedAt)})` : ""}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <span className="text-xs">Next check due {date(nextReviewDueAt)} · Ref BSU-{contentItemId.slice(-6).toUpperCase()}</span>
+          </div>
+        </details>
       ) : null}
-      <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
+      <div className="grid grid-cols-2 gap-2">
         <form action={toggleSave}>
           <input type="hidden" name="contentItemId" value={contentItemId} />
           <input type="hidden" name="back" value={back} />
-          <button className="inline-flex h-11 items-center gap-1.5 rounded-[10px] border border-line px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">{saved ? "★ Saved" : "☆ Save"}</button>
+          <button className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border text-sm font-bold ${saved ? "border-brand bg-brand-tint text-brand" : "border-line text-ink hover:border-brand hover:text-brand"}`}>{saved ? "★ Saved" : "☆ Save for later"}</button>
         </form>
-        <Link href={`/corrections?item=${contentItemId}`} className="inline-flex h-11 items-center rounded-[10px] px-3 text-[13px] font-semibold text-ink-soft hover:text-brand">Report a correction</Link>
+        <Link href={`/corrections?item=${contentItemId}`} className="inline-flex h-12 items-center justify-center rounded-xl border border-line text-sm font-semibold text-ink-soft hover:border-brand hover:text-brand">Report a mistake</Link>
       </div>
     </section>
   );

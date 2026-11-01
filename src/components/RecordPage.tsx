@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Globe, LockKeyhole, Mail, Phone } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Globe, LockKeyhole, Mail, Phone } from "lucide-react";
 import type { ContentType } from "@prisma/client";
 import type { Viewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -8,7 +8,8 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { date, money } from "@/lib/format";
 import { DIRECTORIES } from "@/config/directories";
 import { Connected, Evidence } from "./DetailParts";
-import { FieldSections, visibleGroups } from "./FieldSections";
+import { FieldSections, fieldCount, visibleGroups } from "./FieldSections";
+import { Expand, ReadMore, RecentStrip, RememberVisit } from "./Recent";
 import { ChildSections, loadChildSections } from "./ChildSections";
 import { Icon } from "./Icon";
 import { ProductAction, ProductCard, productFormat, type Product } from "./ProductCard";
@@ -65,7 +66,8 @@ export async function RecordPage({
   };
 
   const icon = DIRECTORIES.find((d) => d.href === trail[0])?.icon ?? "link";
-  const ref = `BSU-${item.id.slice(-6).toUpperCase()}`;
+  // Empty facts are left out: "Not added yet" rows are just more to read.
+  const shownRows = rows.filter((r) => r.locked || !empty(r.value));
   const lockedLabels = [
     ...rows.filter((r) => r.locked).map((r) => r.label),
     ...texts.filter((t) => t.locked).map((t) => t.label),
@@ -79,15 +81,18 @@ export async function RecordPage({
   const sections = details && details.record.id
     ? await loadChildSections(details.type, { record: String(details.record.id), item: item.id, org: typeof details.record.organizationId === "string" && details.type === "SUPPLIER" ? details.record.organizationId : null })
     : [];
-  const hasDetails = details ? visibleGroups(details.type, details.record, details.skip).length > 0 : false;
+  const detailCount = details ? fieldCount(visibleGroups(details.type, details.record, details.skip)) : 0;
   const tabs: [string, string][] = [
-    ...(shownTexts.length || children ? [["overview", "Overview"] as [string, string]] : []),
+    ...(shownTexts.length || children ? [["overview", "About"] as [string, string]] : []),
     ...sections.filter((x) => x.table.layout !== "gallery").map((x) => [`c-${x.table.key}`, x.table.label] as [string, string]),
-    ...(hasDetails ? [["details", "Full details"] as [string, string]] : []),
+    ...(detailCount ? [["details", "All details"] as [string, string]] : []),
     ...sections.filter((x) => x.table.layout === "gallery").map((x) => [`c-${x.table.key}`, x.table.label] as [string, string]),
-    ["evidence", "Sources and checks"],
+    ["evidence", "Checks"],
     ["related", "Related"],
   ];
+  const bar = product && (product.href || product.locked) ? "product"
+    : contact !== undefined && (contact === "locked" || contact.phone || contact.email) ? "contact"
+    : locked ? "unlock" : null;
   const unlock = (label = "Unlock", cls = "") => (
     <Link href={back} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}>
       <LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}
@@ -98,9 +103,13 @@ export async function RecordPage({
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
       {/* ── 1–2. Identity and key facts: a deep navy band like the homepage hero. Title and
           access on the left; the photo (or, without one, the key facts) on the right. ── */}
-      <header className="bg-[#071A33] text-white">
-        <div className="container-site flex flex-col gap-7 py-8 lg:py-12">
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/60">
+      <header className="under-header bg-[#071A33] text-white">
+        <div className="container-site flex flex-col gap-4 py-4 sm:gap-7 sm:py-8 lg:py-12">
+          {/* Phones: one clear way back. Wider screens: the full trail. */}
+          <Link href={trail[0]} className="inline-flex min-h-[40px] w-fit items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white sm:hidden">
+            <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
+          </Link>
+          <nav aria-label="Breadcrumb" className="hidden flex-wrap items-center gap-1.5 text-[13px] text-white/60 sm:flex">
             <Link href="/" className="text-white/60 hover:text-white">Home</Link>
             <span aria-hidden>/</span>
             <Link href={trail[0]} className="text-white/60 hover:text-white">{trail[1]}</Link>
@@ -108,43 +117,43 @@ export async function RecordPage({
             <span className="max-w-[32ch] truncate text-white/90">{title}</span>
           </nav>
 
-          <div className={`grid grid-cols-[minmax(0,1fr)] gap-8 lg:items-center lg:gap-12 ${picture ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]"}`}>
-            <div className="flex min-w-0 flex-col gap-5">
+          <div className={`grid grid-cols-[minmax(0,1fr)] gap-5 lg:items-center lg:gap-12 ${picture ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]"}`}>
+            <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
                 {eyebrow}
               </span>
               <h1 className="text-page-title">{title}</h1>
-              {brief ? <p className="max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-base">{brief}</p> : null}
+              {brief ? <p className="max-w-2xl text-base leading-relaxed text-white/80">{brief}</p> : null}
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
-                <span className="rounded-full border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white/60">{ref}</span>
+                <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Checked {date(item.lastReviewedAt)}</span>
                 {viewer.isMember ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 font-bold text-ink"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span>
                 ) : null}
               </div>
               {locked ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center gap-2 rounded-lg bg-white px-6 text-sm font-bold text-ink hover:bg-accent hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock full details</Link>
-                  <span className="text-xs text-white/60">{planInfo.monthly ? `${planInfo.monthly} a month · ` : ""}MoMo, Airtel Money or card</span>
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
+                  <span className="text-center text-xs text-white/60 sm:text-left">{planInfo.monthly ? `${planInfo.monthly} a month · ` : ""}MoMo, Airtel Money or card</span>
                 </div>
               ) : null}
             </div>
 
             {picture ? (
-              <figure className="flex flex-col gap-2">
+              <figure className="order-first flex flex-col gap-2 lg:order-none">
                 {/* External image URLs entered by editors; no Next image domain list to maintain. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={picture} alt={title} className="aspect-[4/3] w-full rounded-3xl border border-white/10 bg-white/5 object-cover shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)]" />
+                <img src={picture} alt={title} className="aspect-[16/10] w-full rounded-2xl border border-white/10 bg-white/5 object-cover sm:aspect-[4/3] sm:rounded-3xl" />
                 {pictureCredit ? <figcaption className="text-xs text-white/50">{pictureCredit}</figcaption> : null}
               </figure>
-            ) : rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
+            ) : shownRows.length ? <Facts rows={shownRows} unlock={unlock} /> : null}
           </div>
         </div>
       </header>
 
       {/* Section tabs: stay under the site header while reading */}
-      <nav aria-label="On this page" className="sticky top-[78px] z-30 border-b border-line bg-white/90 backdrop-blur-xl">
+      <nav aria-label="On this page" className="sticky top-[var(--hh)] z-30 border-b border-line bg-white/90 backdrop-blur-xl">
         <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
           {tabs.map(([id, label]) => (
             <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
@@ -158,14 +167,14 @@ export async function RecordPage({
           {shownTexts.length || children ? (
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
-                <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-                  <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">{t.label}</h2>
+                <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5 sm:p-6">
+                  <h2 className="font-display text-lg font-bold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
                     </div>
                   ) : (
-                    <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{t.text}</p>
+                    <ReadMore text={t.text!} />
                   )}
                 </div>
               ))}
@@ -175,7 +184,12 @@ export async function RecordPage({
 
           <ChildSections sections={sections.filter((x) => x.table.layout !== "gallery")} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
 
-          {details ? <FieldSections type={details.type} record={details.record} gated={details.gated && !viewer.isMember} skip={details.skip} back={back} /> : null}
+          {/* Every other field, folded away: one tap for people who want it all */}
+          {details && detailCount ? (
+            <Expand id="details" summary="All details" count={detailCount}>
+              <FieldSections bare type={details.type} record={details.record} gated={details.gated && !viewer.isMember} skip={details.skip} back={back} />
+            </Expand>
+          ) : null}
 
           <ChildSections sections={sections.filter((x) => x.table.layout === "gallery")} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
 
@@ -190,11 +204,12 @@ export async function RecordPage({
             header, and connected resources stay at the end. */}
         <aside className="contents lg:sticky lg:top-36 lg:flex lg:flex-col lg:gap-4 lg:self-start">
           <div className="order-first flex flex-col gap-4 lg:order-none">
-          {picture && rows.length ? <Facts rows={rows} unlock={unlock} /> : null}
+          {picture && shownRows.length ? <Facts rows={shownRows} unlock={unlock} /> : null}
           {product ? <ProductCard product={product} back={back} price={planInfo.monthly} /> : null}
 
+          {/* Phones already have the unlock button in the header and the bar at the bottom */}
           {locked && !product ? (
-            <section className="flex flex-col gap-3 rounded-2xl bg-brand-deep p-6 text-white">
+            <section className="hidden flex-col gap-3 rounded-2xl bg-brand-deep p-6 text-white lg:flex">
               <span className="font-display text-base font-bold">See the full listing</span>
               <p className="text-[13px] leading-relaxed text-white/75">
                 {lockedLabels.length ? `Members see ${lockedLabels.join(", ").toLowerCase()} and every other detail.` : "Members see prices, contacts, terms and downloads."}
@@ -259,10 +274,13 @@ export async function RecordPage({
             <Connected contentItemId={item.id} />
           </div>
         </aside>
-      </div></div>
+      </div>
+        {/* What they looked at before: easy to go back to, and the site feels like theirs */}
+        <div className="container-site pb-10"><RecentStrip exclude={back} title="You looked at these recently" /></div>
+      </div>
 
       {/* Phones: the download stays one tap away at the bottom of the screen */}
-      {product && (product.href || product.locked) ? (
+      {bar === "product" && product ? (
         <>
           <div aria-hidden className="h-20 lg:hidden" />
           <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
@@ -275,11 +293,11 @@ export async function RecordPage({
             </div>
           </div>
         </>
-      ) : contact !== undefined && (contact === "locked" || contact.phone || contact.email) ? (
+      ) : bar === "contact" && contact !== undefined ? (
         // Phones: getting in touch stays one tap away at the bottom of the screen.
         <>
           <div aria-hidden className="h-24 lg:hidden" />
-          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_30px_-20px_rgba(7,26,51,0.35)] backdrop-blur-xl lg:hidden">
+          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
             <div className="flex items-center gap-3">
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Contact</span>
@@ -296,22 +314,43 @@ export async function RecordPage({
             </div>
           </div>
         </>
+      ) : bar === "unlock" ? (
+        // Phones: what's hidden and how to see it, always in reach.
+        <>
+          <div aria-hidden className="h-24 lg:hidden" />
+          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+            <div className="flex items-center gap-3">
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{planInfo.monthly ? `${planInfo.monthly} a month` : "Members"}</span>
+                <span className="truncate text-[13px] font-semibold text-heading">{title}</span>
+              </span>
+              <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
+            </div>
+          </div>
+        </>
       ) : null}
     </OnboardingGate>
   );
 }
 
-/** "At a glance": the client's main fields as label/value rows. */
+/** The unlock button names what it shows, in plain words: "See price and source". */
+function unlockWhat(labels: string[]) {
+  const named = labels.filter((l) => l.length <= 16).slice(0, 2).map((l) => l.toLowerCase());
+  return named.length ? `See ${named.join(" and ")}` : "Unlock full details";
+}
+
+/** "Key facts": the client's main fields as big tiles, two to a row, easy to scan on a phone. */
 function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, cls?: string) => React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-line bg-white p-6 text-ink shadow-[0_20px_50px_-24px_rgba(7,26,51,0.45)]">
-      <span className="mb-2 font-display text-base font-bold text-heading">At a glance</span>
-      <dl className="flex flex-col divide-y divide-line">
+    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 text-ink sm:p-5">
+      <span className="font-display text-base font-bold text-heading">Key facts</span>
+      <dl className="grid grid-cols-2 gap-2">
         {rows.map((r) => (
-          <div key={r.label} className="flex items-start justify-between gap-6 py-3">
-            <dt className="shrink-0 text-[13px] text-ink-muted">{r.label}</dt>
-            <dd className="min-w-0 text-right text-[13px] font-semibold leading-snug text-ink">
-              {r.locked ? unlock("Members only", "text-[13px]") : empty(r.value) ? <span className="font-normal text-ink-muted">Not added yet</span> : r.value}
+          // Long values (addresses, lists of sellers) get the full row.
+          <div key={r.label} className={`flex min-w-0 flex-col gap-1 rounded-xl bg-page p-3 ${!r.locked && typeof r.value !== "string" ? "col-span-2" : typeof r.value === "string" && r.value.length > 28 ? "col-span-2" : ""}`}>
+            <dt className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{r.label}</dt>
+            <dd className="break-words text-[15px] font-bold leading-snug text-heading">
+              {r.locked ? unlock("Members only", "text-sm") : r.value}
             </dd>
           </div>
         ))}

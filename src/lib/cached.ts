@@ -30,3 +30,16 @@ export const cachedRecentGuides = unstable_cache(
   }),
   ["recent-guides"], opts,
 );
+
+/** Real numbers for the homepage hero: published records per type and the latest check date. */
+export const cachedHomeStats = unstable_cache(
+  async () => {
+    const [byType, latest] = await Promise.all([
+      prisma.contentItem.groupBy({ by: ["contentType"], where: { publicationStatus: "PUBLISHED" }, _count: { _all: true } }),
+      prisma.contentItem.aggregate({ where: { publicationStatus: "PUBLISHED" }, _max: { lastReviewedAt: true } }),
+    ]);
+    const counts = Object.fromEntries(byType.map((r) => [r.contentType, r._count._all])) as Partial<Record<ContentType, number>>;
+    return { counts, total: byType.reduce((n, r) => n + r._count._all, 0), lastChecked: latest._max.lastReviewedAt };
+  },
+  ["home-stats"], opts,
+);

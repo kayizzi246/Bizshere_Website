@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { IdeaCard, type CardIdea } from "./IdeaParts";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
+import { RecentStrip } from "./Recent";
 
 /** A card plus what the in-page search and sort need. `order` is the newest-first position. */
 export type BrowseIdea = CardIdea & { order: number; reqs: number; capital: number | null; text: string };
@@ -87,6 +88,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
 
       <div className="bg-page">
         <div className="container-site flex flex-col gap-8 py-8 sm:py-10">
+          <RecentStrip only="/business-ideas" />
           <CategoryChips cats={cats} total={ideas.length} chosen={category} onChoose={(id) => { setCategory(id); setPage(1); }} />
 
           <section ref={listTop} aria-labelledby="ideas" className="flex scroll-mt-4 flex-col gap-5">

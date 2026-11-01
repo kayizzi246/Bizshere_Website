@@ -15,6 +15,7 @@ import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaCard, LEVEL_DOTS, PLAN_LABEL, PLAN_ORDER, points, titleCase } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
 import { PrintButton } from "@/components/PrintButton";
+import { RememberVisit } from "@/components/Recent";
 
 export const dynamic = "force-dynamic";
 
@@ -138,7 +139,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="bg-page">
         {/* ── Hero: the photo full width, name, requirement count, capital and the main action ── */}
-        <header className="relative isolate overflow-hidden bg-[#071A33] text-white">
+        <header className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
           {idea.pictureUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -166,6 +167,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               {idea.pictureCredit ? <span>{idea.pictureCredit}</span> : null}
               {viewer.isMember ? <span className="inline-flex items-center gap-1 text-accent"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
             </p>
+            <RememberVisit item={{ href: `/business-ideas/${item.slug}`, title: name, kind: "Business idea", icon: "idea", picture: idea.pictureUrl }} />
           </div>
         </header>
 
@@ -218,7 +220,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 [`${reqPath}#calculator`, Calculator, "Start-up cost calculator", scenarios.length ? `Pick a business size and add what you need to work out your own start-up cost.` : "Being prepared.", false],
                 ["#steps", BookOpen, "How to start", idea.steps.length ? `${idea.steps.length} steps in order, from registration to your first customers.` : "Being prepared.", true],
               ] as [string, typeof ClipboardList, string, string, boolean][]).map(([href, I, title, text, orange]) => (
-                <Link key={href} href={href} className={`group flex items-start gap-4 rounded-2xl border-2 bg-white p-5 text-ink transition hover:-translate-y-0.5 hover:text-ink hover:shadow-[0_14px_30px_-16px_rgba(7,26,51,0.3)] ${orange ? "border-accent/40" : "border-brand/40"}`}>
+                <Link key={href} href={href} className={`group flex items-start gap-4 rounded-2xl border-2 bg-white p-5 text-ink transition hover:-translate-y-0.5 hover:text-ink ${orange ? "border-accent/40" : "border-brand/40"}`}>
                   <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${orange ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><I aria-hidden className="h-5 w-5" /></span>
                   <span className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className={`font-display text-base font-bold ${orange ? "text-accent-dark" : "text-brand"}`}>{title}</span>
@@ -234,7 +236,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           <section id="requirements" aria-labelledby="req" className="flex scroll-mt-24 flex-col gap-5">
             <h2 id="req" className="text-block-title text-heading">{name} business requirements</h2>
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start">
-              <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)]">
+              <div className="overflow-hidden rounded-2xl border border-line bg-white">
                 <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
                   <h3 className="font-display text-[15px] font-bold text-heading">Popular requirements</h3>
                   <Link href={reqPath} className="text-[13px] font-semibold">View all {requirementCount} →</Link>
@@ -248,7 +250,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 ) : null}
               </div>
               {categories.length ? (
-                <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)]">
+                <div className="overflow-hidden rounded-2xl border border-line bg-white">
                   <h3 className="border-b border-line px-5 py-4 font-display text-[15px] font-bold text-heading">Requirement categories</h3>
                   <ul className="divide-y divide-line">
                     {categories.map(([c, n]) => (
@@ -266,7 +268,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           {/* ── The client's template as a table ── */}
           <section id="profile" aria-labelledby="prof" className="flex scroll-mt-24 flex-col gap-5">
             <h2 id="prof" className="text-block-title text-heading">{name} business profile</h2>
-            <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)]">
+            <div className="overflow-hidden rounded-2xl border border-line bg-white">
               <table className="w-full text-left text-sm">
                 <thead className="hidden bg-[#071A33] text-xs uppercase tracking-wider text-white/80 sm:table-header-group">
                   <tr><th className="w-12 px-4 py-3 font-semibold">S/N</th><th className="w-48 px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Details</th><th className="w-[28%] px-4 py-3 font-semibold">Notes</th></tr>
@@ -299,7 +301,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               ) : null}
             </div>
             {scenario ? (
-              <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)]">
+              <div className="overflow-hidden rounded-2xl border border-line bg-white">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
                   <span className="font-display text-[15px] font-bold text-heading">{PLAN_LABEL[scenario.level]} {name.toLowerCase()} business{scenario.operatingScale ? <span className="font-sans text-sm font-normal text-ink-muted"> · {scenario.operatingScale}</span> : null}</span>
                   <span className="text-xs text-ink-muted">{scenario.location?.name ?? "Uganda"} · {scenario.estimateDate ? `prices as of ${date(scenario.estimateDate)}` : "estimate date pending"}</span>
@@ -346,7 +348,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           {idea.steps.length ? (
             <section id="steps" aria-labelledby="st" className="flex scroll-mt-24 flex-col gap-5">
               <h2 id="st" className="text-block-title text-heading">How to start</h2>
-              <ol className="flex flex-col rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(7,26,51,0.06)] sm:p-8">
+              <ol className="flex flex-col rounded-2xl border border-line bg-white p-6 sm:p-8">
                 {steps.map((s, n) => (
                   <li key={s.id} className="flex gap-4">
                     <span className="flex flex-col items-center">
@@ -380,7 +382,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             {faq.length ? (
               <section id="faq" aria-labelledby="fq" className="flex scroll-mt-24 flex-col gap-5">
                 <h2 id="fq" className="text-block-title text-heading">Frequently asked questions: {name.toLowerCase()} business</h2>
-                <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)]">
+                <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                   {faq.map(([q, a], n) => (
                     <details key={q} open={n === 0} className="group px-5 [&_summary::-webkit-details-marker]:hidden">
                       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[15px] font-semibold text-heading">

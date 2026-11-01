@@ -121,7 +121,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
               <h2 id="fq" className="text-center text-section-title text-heading">Frequently asked questions</h2>
               <div className="flex flex-col gap-3">
                 {faq.map(([q, a]) => (
-                  <details key={q} className="group rounded-xl border border-line bg-white px-5 shadow-[0_1px_3px_rgba(7,26,51,0.05)] [&_summary::-webkit-details-marker]:hidden">
+                  <details key={q} className="group rounded-xl border border-line bg-white px-5 [&_summary::-webkit-details-marker]:hidden">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[15px] font-semibold text-heading">
                       {q}<ChevronDown aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition group-open:rotate-180" />
                     </summary>

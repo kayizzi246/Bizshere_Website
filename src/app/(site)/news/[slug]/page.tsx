@@ -4,6 +4,7 @@ import { getViewer } from "@/lib/access";
 import { date } from "@/lib/format";
 import { Card, Connected, Crumbs, Evidence, Prose, Rows, TwoColumn, trackView } from "@/components/DetailParts";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
+import { RememberVisit } from "@/components/Recent";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
           {item.updatedAt > (item.publishedAt ?? item.updatedAt) ? ` · Updated ${date(item.updatedAt)}` : ""}
         </span>
         {n.correctionStatus ? <span className="badge-warn self-start">Correction: {n.correctionStatus}</span> : null}
+        <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "News", icon: "news" }} />
       </article>
 
       <TwoColumn

@@ -94,7 +94,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
       {/* ── The bar at the top of the screen while the list is in view ── */}
-      <div aria-hidden={!bar.show || barClosed} className={`fixed inset-x-0 top-0 z-[46] border-b border-line bg-white shadow-[0_8px_24px_-12px_rgba(7,26,51,0.25)] transition duration-200 ${bar.show && !barClosed ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"}`}>
+      <div aria-hidden={!bar.show || barClosed} className={`fixed inset-x-0 top-0 z-[46] border-b border-line bg-white transition duration-200 ${bar.show && !barClosed ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"}`}>
         <div className="container-site flex flex-col gap-2.5 py-2.5">
           <div className="flex items-center gap-3">
             {plans.length > 1 ? (
@@ -122,7 +122,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 
       <div className="flex min-w-0 flex-col gap-6">
         {/* ── Size and estimate ── */}
-        <div className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 shadow-[0_1px_3px_rgba(7,26,51,0.06)] sm:p-6">
+        <div className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           {plans.length > 1 ? (
             <div className="flex flex-col gap-2.5">
               <h3 className="text-center font-display text-[15px] font-bold text-heading">Business size</h3>
@@ -173,7 +173,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             <span aria-hidden className="h-1 w-20 rounded-full bg-gradient-to-r from-brand to-accent" />
             <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Every requirement, by category, with essential and optional items. Search and filter to find items, and add them to your list to work out how much you need.</p>
           </div>
-          <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 shadow-[0_1px_3px_rgba(7,26,51,0.06)] sm:flex-row sm:p-5">
+          <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:flex-row sm:p-5">
             <label className="relative flex-1">
               <span className="sr-only">Search requirements</span>
               <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
@@ -221,7 +221,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 
       {/* ── Phones: my list as a bar along the bottom once something is added; it opens as a sheet ── */}
       {picked.length && !listOpen ? (
-        <div data-list-bar="" className="fixed inset-x-0 bottom-0 z-[41] border-t border-line bg-white shadow-[0_-8px_24px_-12px_rgba(7,26,51,0.3)] lg:hidden">
+        <div data-list-bar="" className="fixed inset-x-0 bottom-0 z-[41] border-t border-line bg-white lg:hidden">
           <div className="container-site flex items-center gap-3 py-3">
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="text-xs text-ink-muted">{picked.length} {picked.length === 1 ? "item" : "items"} in my list</span>
@@ -235,7 +235,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 
       {/* ── My list: the visitor's own selection and total (beside the list on wide screens) ── */}
       <aside aria-label="My requirements list"
-        className={`flex-col rounded-2xl border border-line bg-white shadow-[0_1px_3px_rgba(7,26,51,0.06)] lg:sticky lg:inset-auto lg:top-36 lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
+        className={`flex-col rounded-2xl border border-line bg-white lg:sticky lg:inset-auto lg:top-36 lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
         <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[15px] font-bold text-heading">
           <span className="flex items-center gap-2">My requirements list{picked.length ? <span className="rounded-full bg-brand px-2 text-xs text-white">{picked.length}</span> : null}</span>
           <button type="button" onClick={() => setListOpen(false)} aria-label="Close my list" className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-soft hover:bg-page lg:hidden"><X className="h-4 w-4" /></button>
@@ -282,7 +282,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 function RequirementCard({ l, currency, added, onToggle }: { l: CalcLine; currency: string; added: number; onToggle: () => void }) {
   const I = iconFor(l.category);
   return (
-    <article className={`grid gap-4 rounded-2xl border bg-white p-5 shadow-[0_1px_3px_rgba(7,26,51,0.06)] md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 ${added ? "border-brand" : "border-line"}`}>
+    <article className={`grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 ${added ? "border-brand" : "border-line"}`}>
       <div className="flex items-start gap-3.5">
         <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${l.optional ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><I aria-hidden className="h-7 w-7" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-col items-start gap-2">

@@ -6,6 +6,7 @@ import { Gate } from "@/components/Gate";
 import { CheckBadges } from "@/components/Checks";
 import { Card, Connected, Crumbs, Evidence, Facts, FakeRows, Identity, Prose, Rows, TwoColumn, trackView } from "@/components/DetailParts";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
+import { RememberVisit } from "@/components/Recent";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
       <Identity eyebrow={`Investment opportunity${o.sector ? ` · ${o.sector}` : ""}`} title={item.title} summary={item.shortSummary}>
         <span className="text-ink-muted">Promoted by {o.promoterOrganization?.tradingName ?? o.promoterOrganization?.legalName ?? o.promoter ?? "—"}</span>
         <CheckBadges checks={item.checks} />
+        <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "Investment", icon: "funding" }} />
       </Identity>
 
       <Facts items={[

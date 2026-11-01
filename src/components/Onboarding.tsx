@@ -111,7 +111,7 @@ function OnboardingModal({ step, setStep, next, googleEnabled, plan, onClose }: 
         {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
         {/* Desktop: positioned absolutely, so it is not a grid cell and the two panels keep their columns */}
         <div className="sticky top-0 z-10 col-span-full h-0 md:absolute md:inset-x-0 md:top-0">
-          <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink shadow-[0_4px_14px_rgba(7,26,51,0.25)] hover:bg-page md:shadow-none"><X className="h-5 w-5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink hover:bg-page"><X className="h-5 w-5" /></button>
         </div>
 
         <WhyPanel plan={plan} />
@@ -146,7 +146,6 @@ const WHY = [
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
     <div className="relative isolate overflow-hidden bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_100%,#22B8DF_0%,#0072CE_40%,transparent_80%)] opacity-80" />
       <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold"><Sparkles aria-hidden className="h-3 w-3 text-accent" />Full access</span>
       <p className="mt-3 font-display text-[17px] font-bold leading-[1.25] tracking-[-0.02em] sm:mt-4 sm:text-[19px] md:text-[21px]">Start your business with the full picture</p>
       <p className="mt-2.5 hidden text-[13px] leading-relaxed text-white/70 sm:block">Free visitors see a preview. Members see everything they need to plan, buy and borrow with confidence.</p>

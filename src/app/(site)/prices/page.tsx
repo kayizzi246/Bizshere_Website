@@ -66,7 +66,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
   return (
     <>
       {/* ── Header: deep navy band with the product and price type pickers ── */}
-      <header className="bg-[#071A33] text-white">
+      <header className="under-header bg-[#071A33] text-white">
         <div className="container-site flex flex-col gap-6 py-9 sm:py-12">
           <div className="flex max-w-3xl flex-col gap-3">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
@@ -90,7 +90,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
                 {TYPES.map(([k, label]) => (
                   <label key={k} className="cursor-pointer">
                     <input type="radio" name="type" value={k} defaultChecked={k === priceType} data-auto="" className="peer sr-only" />
-                    <span className="flex min-h-[40px] items-center justify-center whitespace-nowrap rounded-lg px-3 text-sm font-semibold text-ink-soft peer-checked:bg-white peer-checked:text-heading peer-checked:shadow-[0_1px_3px_rgba(7,26,51,0.15)] peer-focus-visible:ring-2 peer-focus-visible:ring-brand">{label}</span>
+                    <span className="flex min-h-[40px] items-center justify-center whitespace-nowrap rounded-lg px-3 text-sm font-semibold text-ink-soft peer-checked:bg-white peer-checked:text-heading peer-focus-visible:ring-2 peer-focus-visible:ring-brand">{label}</span>
                   </label>
                 ))}
               </div>

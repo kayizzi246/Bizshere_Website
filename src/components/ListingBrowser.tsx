@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
+import { RecentStrip, SeenBadge } from "./Recent";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
 export type BrowseListing = {
@@ -98,6 +99,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
 
       <div className="bg-page">
         <div className="container-site flex flex-col gap-8 py-8 sm:py-10">
+          <RecentStrip only={path} />
           <CategoryChips cats={cats} total={all.length} chosen={category} onChoose={(id) => { setCategory(id); setPage(1); }} />
 
           <section ref={listTop} aria-labelledby="listings" className="flex scroll-mt-4 flex-col gap-5">
@@ -142,6 +144,7 @@ function DocumentCard({ i, icon }: { i: BrowseListing; icon: string }) {
   return (
     <Link href={i.href} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition-colors hover:border-brand hover:text-ink">
       <span className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-brand-tint to-white">
+        <SeenBadge href={i.href} className="absolute right-2 top-2" />
         <span className="relative flex h-[72px] w-[58px] flex-col items-center justify-end rounded-lg border border-line bg-white pb-2 transition group-hover:-translate-y-1">
           <span aria-hidden className="absolute right-0 top-0 h-4 w-4 rounded-bl-md bg-brand-tint" />
           <Icon name={icon} className="absolute top-3 h-5 w-5 text-brand" strokeWidth={1.75} />
@@ -169,6 +172,7 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
             <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
           {i.primaryCategory ? <span className="absolute left-3 top-3 max-w-[80%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-heading backdrop-blur">{i.primaryCategory.name}</span> : null}
+          <SeenBadge href={i.href} className="absolute right-3 top-3" />
         </span>
       ) : null}
       <span className="flex flex-1 flex-col gap-2 p-5">
@@ -176,6 +180,7 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
           <span className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-[18px] w-[18px]" /></span>
             <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
+            <SeenBadge href={i.href} className="ml-auto shrink-0 bg-brand-tint" />
           </span>
         ) : null}
         <span className="font-display text-base font-bold leading-tight tracking-tight text-heading group-hover:text-brand">{i.title}</span>

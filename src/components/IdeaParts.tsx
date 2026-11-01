@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ClipboardList, Info, Wallet } from "lucide-react";
 import { compactRange } from "@/lib/format";
 import { Icon } from "./Icon";
+import { SeenBadge } from "./Recent";
 
 /** Shared bits for the business idea list and page. */
 
@@ -66,6 +67,7 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
       <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden">
         <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[16/9] transition duration-500 group-hover:scale-[1.03]" />
         <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-xs font-bold text-heading"><ClipboardList className="h-3.5 w-3.5 text-brand" />{reqs}</span>
+        <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2 sm:left-3 sm:top-3" />
         {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-[#071A33]/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
       </Link>
       {/* Phones show two cards a row, so below sm the card uses tight padding: stats and buttons stacked */}
