@@ -14,13 +14,13 @@ export default function AboutPage() {
       </p>
       <H2>What you will find</H2>
       <ul className="list-disc pl-5">
-        <li><Link href="/business-ideas">Business ideas and plans</Link> with dated startup budgets</li>
-        <li><Link href="/machines">Business machines</Link> and <Link href="/suppliers">suppliers</Link>, with offers from different sellers</li>
-        <li><Link href="/funding">Funding programmes</Link> and <Link href="/opportunities">investment opportunities</Link></li>
-        <li><Link href="/guides">Guides</Link>, <Link href="/tools">tools and templates</Link>, <Link href="/recipes">recipes</Link> and <Link href="/websites">useful websites</Link></li>
-        <li><Link href="/prices">Market prices</Link>, each with the date it was observed</li>
-        <li><Link href="/experts">Consultants and experts</Link></li>
-        <li><Link href="/news">Business news</Link> that affects what you should do next</li>
+        <li><Link href="/business-ideas">Business Ideas</Link> with plans and dated startup budgets</li>
+        <li><Link href="/machines">Business Machines</Link> and <Link href="/suppliers">Trusted Suppliers</Link>, with offers from different sellers</li>
+        <li><Link href="/funding">Funding Sources</Link> and <Link href="/opportunities">investment opportunities</Link></li>
+        <li><Link href="/guides">Business Guides</Link>, <Link href="/tools">Business Tools</Link>, <Link href="/recipes">recipes</Link> and <Link href="/websites">Useful Websites</Link></li>
+        <li><Link href="/prices">Markets and Prices</Link>, each with the date it was observed</li>
+        <li><Link href="/experts">Business Experts</Link>: consultants and advisors</li>
+        <li><Link href="/news">Business News</Link> that affects what you should do next</li>
       </ul>
       <H2>How we work</H2>
       <p>

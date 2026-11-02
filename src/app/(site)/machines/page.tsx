@@ -4,7 +4,7 @@ import { directory } from "@/config/directories";
 import { MACHINE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Machines" };
+export const metadata = { title: directory("/machines").title };
 
 // Public fields only: price and source are member detail.
 async function meta(ids: string[]) {

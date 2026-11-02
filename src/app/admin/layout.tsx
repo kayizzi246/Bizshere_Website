@@ -35,7 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { section: "Content" },
     { href: "/admin/content", label: "All content", icon: "files" },
     { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },
-    { href: "/admin/prices", label: "Market prices", icon: "prices" },
+    { href: "/admin/prices", label: "Markets and Prices", icon: "prices" },
     { section: "People and site" },
     { href: "/admin/users", label: "Users and businesses", icon: "users" },
     { href: "/admin/updates", label: "Homepage updates", icon: "megaphone" },

@@ -20,7 +20,7 @@ export default async function WebsitePage({ params }: { params: { slug: string }
 
   return (
     <RecordPage
-      trail={["/websites", "Useful websites"]}
+      trail={["/websites", "Useful Websites"]}
       eyebrow={`Website · ${item.primaryCategory?.name ?? w.siteType ?? "General"}`}
       title={item.title}
       brief={item.shortSummary}

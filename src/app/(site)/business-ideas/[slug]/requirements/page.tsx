@@ -71,7 +71,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
         <header className="border-b border-line bg-white">
           <div className="container-site flex flex-col items-center gap-4 py-10 text-center sm:py-12">
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-ink-muted">
-              <Link href="/business-ideas" className="inline-flex items-center gap-1 text-ink-muted hover:text-brand"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />Business ideas</Link>
+              <Link href="/business-ideas" className="inline-flex items-center gap-1 text-ink-muted hover:text-brand"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />Business Ideas</Link>
               <span aria-hidden>›</span>
               <Link href={overview} className="text-ink-muted hover:text-brand">{name}</Link>
               <span aria-hidden>›</span>

@@ -15,7 +15,7 @@ export function HeaderSearch({ className = "", label = true }: { className?: str
   const params = useSearchParams();
   const here = path === "/search" ? DIRECTORIES.find((d) => d.type === params?.get("in")) : DIRECTORIES.find((d) => path === d.href || path.startsWith(d.href + "/"));
   const href = here ? `/search?in=${here.type}` : "/search";
-  const text = here ? `Search ${here.nav.toLowerCase()}` : "Search";
+  const text = here ? `Search ${here.title}` : "Search";
   return (
     <Link href={href} aria-label={text} title={text} className={className}>
       <Icon name="search" className="h-[18px] w-[18px] shrink-0" />

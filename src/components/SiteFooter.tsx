@@ -5,7 +5,7 @@ import { site } from "@/config/site";
 import { Icon } from "./Icon";
 
 // Directories split across two columns: starting out, then reference material.
-const directoryLinks = DIRECTORIES.map((d) => [d.href, d.nav] as [string, string]);
+const directoryLinks = DIRECTORIES.map((d) => [d.href, d.title] as [string, string]);
 const COLUMNS: { title: string; links: [string, string][] }[] = [
   { title: "Start a business", links: directoryLinks.slice(0, 5) },
   { title: "Resources", links: [...directoryLinks.slice(5), ["/opportunities", "Investment opportunities"]] },

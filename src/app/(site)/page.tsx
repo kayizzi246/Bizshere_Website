@@ -59,14 +59,15 @@ export default async function HomePage() {
             <Link href="/methodology" className="max-w-full truncate text-[13px] font-medium text-white/70 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white">
               Every page checked by our team{stats.lastChecked ? `, most recently ${date(stats.lastChecked)}` : ""}
             </Link>
-            {/* Headline is the blueprint's search prompt (Design Blueprint, section 15). Manrope ExtraBold.
-                From laptop width it breaks after "to", as in the design. */}
-            <h1 className="font-hero text-[34px] font-extrabold leading-[1.06] tracking-[-0.03em] text-white sm:text-[44px] xl:text-[50px] 2xl:text-[56px]">
-              What do you want to <br className="hidden xl:block" />start, find or solve?
+            {/* The client's main message, word for word. Manrope ExtraBold in capitals, so it is sized smaller than
+                a mixed-case headline: from tablet width "B2B INFORMATION PORTAL" keeps to one line. */}
+            <h1 className="font-hero text-[28px] font-extrabold leading-[1.1] tracking-[-0.02em] text-white sm:text-[36px] 2xl:text-[40px]">
+              BIZSPHERE-UG – <br className="hidden sm:block" />B2B INFORMATION PORTAL
             </h1>
 
-            <p className="max-w-xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
-              Real start-up budgets, machine prices, checked suppliers and funding for Uganda. In one place, dated and sourced.
+            <p className="max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
+              Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
+              <span className="font-semibold text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />
@@ -77,7 +78,7 @@ export default async function HomePage() {
                 <li key={d.href}>
                   <Link href={d.href} className="group inline-flex h-12 items-center gap-2.5 rounded-xl border-2 border-dotted border-white/45 bg-white/[0.04] px-4 text-[16px] font-semibold text-white/90 transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:h-[52px] sm:px-5 sm:text-[17px]">
                     <Icon name={d.icon} className="h-5 w-5 text-accent group-hover:text-ink" />
-                    {d.nav}
+                    {d.title}
                   </Link>
                 </li>
               ))}
@@ -145,7 +146,7 @@ export default async function HomePage() {
                 <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
                 <h3 className="font-display text-[17px] font-extrabold sm:mt-5 sm:text-[19px] leading-tight tracking-[-0.025em] text-heading">{d.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-sm">{d.text}</p>
-                <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.short} →</span>
+                <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.title} →</span>
               </Link>
             ))}
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}

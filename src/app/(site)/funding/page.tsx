@@ -4,7 +4,7 @@ import { directory } from "@/config/directories";
 import { FUNDING_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Loans and funding" };
+export const metadata = { title: directory("/funding").title };
 
 // Public fields only: the amount is member detail.
 async function meta(ids: string[]) {

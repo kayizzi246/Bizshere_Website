@@ -8,13 +8,13 @@ import { Icon } from "@/components/Icon";
 import type { PriceType } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Market prices" };
+export const metadata = { title: "Markets and Prices" };
 
 const STALE_DAYS = 30;
 const TYPES: [PriceType, string][] = [["WHOLESALE", "Wholesale"], ["RETAIL", "Retail"], ["FARM_GATE", "Farm-gate"]];
 
 /**
- * Markets and prices: pick a product and price type, then compare the latest dated price from
+ * Markets and Prices: pick a product and price type, then compare the latest dated price from
  * each market. Same deep navy header as the directory pages. Summary figures use only the rows
  * this viewer can see, so they never reveal member prices. Phones get one card per market
  * instead of a wide table.
@@ -73,7 +73,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { pro
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name="prices" className="h-3 w-3" /></span>
               {products.length} {products.length === 1 ? "product" : "products"} tracked
             </span>
-            <h1 className="text-page-title">Market prices</h1>
+            <h1 className="text-page-title">Markets and Prices</h1>
             <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">Dated price observations from markets across Uganda. Every price shows when it was observed.</p>
           </div>
 

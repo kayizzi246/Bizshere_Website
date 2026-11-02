@@ -23,7 +23,7 @@ export default async function ToolPage({ params }: { params: { slug: string } })
 
   return (
     <RecordPage
-      trail={["/tools", "Business tools"]}
+      trail={["/tools", "Business Tools"]}
       eyebrow={`${titleCase(t.toolType) ?? "Tool"} · ${item.primaryCategory?.name ?? "General"}`}
       title={item.title}
       brief={item.shortSummary}

@@ -15,16 +15,18 @@ import { asWords, searchTerms, termScore, termWhere } from "./search-terms";
 export type SearchParams = Record<string, string | string[] | undefined>;
 
 export const GROUPS: { id: string; label: string; types: ContentType[] }[] = [
-  { id: "ideas", label: "Business ideas", types: ["BUSINESS_IDEA"] },
-  { id: "machines", label: "Machines", types: ["MACHINE"] },
-  { id: "suppliers", label: "Suppliers", types: ["SUPPLIER"] },
-  { id: "funding", label: "Loans and funding", types: ["FUNDING_PROGRAMME"] },
+  { id: "ideas", label: "Business Ideas", types: ["BUSINESS_IDEA"] },
+  { id: "machines", label: "Business Machines", types: ["MACHINE"] },
+  { id: "suppliers", label: "Trusted Suppliers", types: ["SUPPLIER"] },
+  { id: "funding", label: "Funding Sources", types: ["FUNDING_PROGRAMME"] },
   { id: "opportunities", label: "Investment opportunities", types: ["INVESTMENT_OPPORTUNITY"] },
-  { id: "guides", label: "Guides and tools", types: ["GUIDE", "TOOL", "WEBSITE"] },
-  { id: "experts", label: "Business experts", types: ["CONSULTANT"] },
-  { id: "news", label: "News", types: ["NEWS"] },
+  { id: "guides", label: "Business Guides", types: ["GUIDE"] },
+  { id: "experts", label: "Business Experts", types: ["CONSULTANT"] },
+  { id: "tools", label: "Business Tools", types: ["TOOL"] },
+  { id: "websites", label: "Useful Websites", types: ["WEBSITE"] },
+  { id: "news", label: "Business News", types: ["NEWS"] },
 ];
-export const PRICES_GROUP = { id: "prices", label: "Market prices" };
+export const PRICES_GROUP = { id: "prices", label: "Markets and Prices" };
 export const CONDITIONS: [MachineCondition, string][] = [["NEW", "New"], ["USED", "Used"], ["REFURBISHED", "Refurbished"]];
 export const FUNDING_TYPES: [FundingType, string][] = [["LOAN", "Loan"], ["GRANT", "Grant"], ["EQUITY", "Equity"], ["GUARANTEE", "Guarantee"], ["OTHER", "Other"]];
 export const STAGES: [BusinessStage, string][] = [["IDEA", "Idea"], ["STARTING", "Starting out"], ["GROWING", "Growing"], ["ESTABLISHED", "Established"]];

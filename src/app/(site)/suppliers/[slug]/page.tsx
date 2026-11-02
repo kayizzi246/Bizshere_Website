@@ -24,7 +24,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
 
   return (
     <RecordPage
-      trail={["/suppliers", "Suppliers"]}
+      trail={["/suppliers", "Trusted Suppliers"]}
       eyebrow={`Supplier · ${item.primaryCategory?.name ?? titleCase(s.supplierType) ?? "Business"}`}
       title={item.title}
       brief={item.shortSummary}

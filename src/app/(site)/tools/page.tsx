@@ -4,7 +4,7 @@ import { directory } from "@/config/directories";
 import { GUIDE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Business tools" };
+export const metadata = { title: directory("/tools").title };
 
 async function meta(ids: string[]) {
   const rows = await prisma.tool.findMany({ where: { contentItemId: { in: ids } } });

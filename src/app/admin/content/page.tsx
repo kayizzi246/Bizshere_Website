@@ -9,7 +9,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Content" };
 
-const DIRS: ["" | ContentType, string][] = [["", "All"], ["BUSINESS_IDEA", "Business ideas"], ["MACHINE", "Machines"], ["SUPPLIER", "Suppliers"], ["FUNDING_PROGRAMME", "Funding"], ["INVESTMENT_OPPORTUNITY", "Opportunities"], ["GUIDE", "Guides"], ["CONSULTANT", "Experts"], ["TOOL", "Tools"], ["WEBSITE", "Websites"], ["NEWS", "News"]];
+const DIRS: ["" | ContentType, string][] = [["", "All"], ["BUSINESS_IDEA", "Business Ideas"], ["MACHINE", "Business Machines"], ["SUPPLIER", "Trusted Suppliers"], ["FUNDING_PROGRAMME", "Funding Sources"], ["INVESTMENT_OPPORTUNITY", "Opportunities"], ["GUIDE", "Business Guides"], ["CONSULTANT", "Business Experts"], ["TOOL", "Business Tools"], ["WEBSITE", "Useful Websites"], ["NEWS", "Business News"]];
 const FRESH: [string, string][] = [["any", "Any freshness"], ["due", "Review due in 30 days"], ["over", "Overdue"], ["ok", "Fresh"]];
 const STATUS_BADGE: Record<string, string> = { PUBLISHED: "badge-ok", IN_REVIEW: "badge-info", DRAFT: "badge-muted", ARCHIVED: "badge-muted" };
 

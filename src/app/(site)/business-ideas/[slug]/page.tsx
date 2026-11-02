@@ -149,7 +149,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           ) : null}
           <div className={`container-site flex flex-col justify-end gap-5 py-10 sm:py-14 ${idea.pictureUrl ? "min-h-[340px] sm:min-h-[420px]" : ""}`}>
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-white/70">
-              <Link href="/business-ideas" className="inline-flex items-center gap-1 text-white/70 hover:text-white"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />Business ideas</Link>
+              <Link href="/business-ideas" className="inline-flex items-center gap-1 text-white/70 hover:text-white"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />Business Ideas</Link>
               {item.primaryCategory ? <><span aria-hidden>›</span><Link href={`/business-ideas?category=${item.primaryCategory.id}`} className="text-white/70 hover:text-white">{item.primaryCategory.name}</Link></> : null}
               <span aria-hidden>›</span>
               <span className="max-w-[32ch] truncate font-semibold text-white">{name}</span>

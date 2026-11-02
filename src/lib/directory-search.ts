@@ -20,16 +20,16 @@ export type Filter = { name: string; label: string; options?: Option[]; placehol
 
 export const TABS: { id: Tab; label: string }[] = [
   { id: "ALL", label: "Everything" },
-  { id: "BUSINESS_IDEA", label: "Business ideas" },
-  { id: "MACHINE", label: "Machines" },
-  { id: "SUPPLIER", label: "Suppliers" },
-  { id: "FUNDING_PROGRAMME", label: "Loans and funding" },
-  { id: "GUIDE", label: "How-to guides" },
-  { id: "CONSULTANT", label: "Business experts" },
-  { id: "TOOL", label: "Tools" },
-  { id: "PRICES", label: "Market prices" },
-  { id: "WEBSITE", label: "Websites" },
-  { id: "NEWS", label: "News" },
+  { id: "BUSINESS_IDEA", label: "Business Ideas" },
+  { id: "MACHINE", label: "Business Machines" },
+  { id: "SUPPLIER", label: "Trusted Suppliers" },
+  { id: "FUNDING_PROGRAMME", label: "Funding Sources" },
+  { id: "GUIDE", label: "Business Guides" },
+  { id: "CONSULTANT", label: "Business Experts" },
+  { id: "TOOL", label: "Business Tools" },
+  { id: "PRICES", label: "Markets and Prices" },
+  { id: "WEBSITE", label: "Useful Websites" },
+  { id: "NEWS", label: "Business News" },
 ];
 
 export const ALL_TYPES: ContentType[] = ["BUSINESS_IDEA", "MACHINE", "SUPPLIER", "FUNDING_PROGRAMME", "GUIDE", "CONSULTANT", "TOOL", "WEBSITE", "NEWS"];

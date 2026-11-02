@@ -22,7 +22,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
 
   return (
     <div className="container-site flex flex-col gap-7 py-6">
-      <Crumbs trail={[["/guides", "Guides and tools"], ["/news", "Business news"]]} title={item.title} />
+      <Crumbs trail={[["/news", "Business News"]]} title={item.title} />
       <article className="flex flex-col gap-3">
         <span className="eyebrow">{n.articleType.toLowerCase()} · {item.primaryCategory?.name ?? "Business"}</span>
         <h1 className="text-page-title max-w-4xl">{item.title}</h1>

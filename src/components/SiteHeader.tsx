@@ -9,8 +9,10 @@ import { Logo } from "./Logo";
 import { Icon } from "./Icon";
 import { MobileMenu } from "./MobileMenu";
 
-// Shown as plain links next to the "Directories" menu on desktop.
+// Shown as plain links next to the "Directories" menu on desktop. The full names are long, so the last one
+// waits for wide screens (1536px+) to keep the call to action in view at 1280px; it is always in the menu.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
+const WIDE_ONLY = "/experts";
 
 // 2026 SaaS header: links centred as soft pills, search as a rounded field, one solid call to action.
 const link = "whitespace-nowrap rounded-full px-2.5 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3.5 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
@@ -67,8 +69,7 @@ export async function SiteHeader() {
               </div>
             </div>
           </div>
-          {NAV.map((n) => <Link key={n.href} href={n.href} className={link}>{n.nav}</Link>)}
-          <Link href="/methodology" className={`${link} hidden 2xl:inline-flex`}>How we check</Link>
+          {NAV.map((n) => <Link key={n.href} href={n.href} className={n.href === WIDE_ONLY ? `${link} hidden 2xl:inline-flex` : link}>{n.title}</Link>)}
           <Link href="/membership" className={link}>Pricing</Link>
           {staff ? <Link href="/admin" className={link}>Admin</Link> : null}
           </div>

@@ -426,7 +426,7 @@ function PriceTable({ prices, member, more }: { prices: Price[]; member: boolean
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-        <h3 className="font-display text-sm font-bold text-heading">Market prices</h3>
+        <h3 className="font-display text-sm font-bold text-heading">Markets and Prices</h3>
         {more ? <Link href={more} className="text-[13px] font-semibold">See all prices</Link> : null}
       </div>
       <div className="overflow-x-auto">

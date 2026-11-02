@@ -105,20 +105,20 @@ export function minutes(m: number | null | undefined) {
   return h ? `${h} h${m % 60 ? ` ${m % 60} min` : ""}` : `${m} min`;
 }
 
-/** Guide and directory sub-sections shown as tabs on the Guides and tools pages. */
+/** Guide and directory sub-sections shown as tabs on the Business Guides pages. */
 export const GUIDE_TABS: [string, string][] = [
-  ["/guides", "Information and guidelines"],
-  ["/tools", "Business tools"],
-  ["/websites", "Useful websites"],
-  ["/news", "Business news"],
+  ["/guides", "Business Guides"],
+  ["/tools", "Business Tools"],
+  ["/websites", "Useful Websites"],
+  ["/news", "Business News"],
 ];
 
 export const FUNDING_TABS: [string, string][] = [
-  ["/funding", "Funding sources"],
+  ["/funding", "Funding Sources"],
   ["/opportunities", "Investment opportunities"],
 ];
 
 export const MACHINE_TABS: [string, string][] = [
-  ["/machines", "Business machines"],
-  ["/suppliers", "Suppliers"],
+  ["/machines", "Business Machines"],
+  ["/suppliers", "Trusted Suppliers"],
 ];
