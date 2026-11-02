@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, BookOpen, Calculator, Check, ChevronDown, Clock, ClipboardList, LockKeyhole, MapPin, Ruler, Table2, TrendingUp, Wallet, Wrench } from "lucide-react";
+import { ArrowLeft, BadgeCheck, BookOpen, Calculator, Check, Clock, ClipboardList, LockKeyhole, MapPin, Ruler, Table2, TrendingUp, Wallet, Wrench } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
@@ -26,8 +26,8 @@ export const dynamic = "force-dynamic";
 //
 // Laid out as a start-up guide: photo hero with the requirement count and starting capital, the
 // description, an overview strip, a four-part guide, popular requirements and their categories,
-// the template as a business profile table, the start-up budget, the steps, questions answered
-// from the plan's own data, a call to action and more ideas in the same category. Only facts the
+// the template as a business profile table, the start-up budget, the steps, linked resources,
+// a call to action and more ideas in the same category. Only facts the
 // plan has are shown; nothing is filled in.
 //
 // Gating happens here on the server: visitors receive only the first budget lines and steps, and
@@ -77,7 +77,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const categories: [string, number][] = [...(keyPoints.length ? [["Key requirements", keyPoints.length] as [string, number]] : []), ...byCategory];
   const biggest = Math.max(1, ...categories.map(([, n]) => n));
   const totals = scenarios.map((s) => ({ level: s.level, total: budgetTotal(s.lines), currency: s.currency }));
-  const firstStep = idea.steps[0]?.title;
 
   // The template's own figures.
   const name = item.title.replace(/^Sample:\s*/i, "");
@@ -117,23 +116,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     ["Start-up budget", scenarios.length ? <a href="#budget" className="font-semibold">{allLines.length} items in the {PLAN_LABEL[scenario!.level].toLowerCase()} plan, see below ↓</a> : null, null],
     ["Remarks", idea.remarks, null],
   ] as [string, React.ReactNode, string | null][]).filter(([, v]) => Boolean(v));
-
-  // Questions answered from the plan's own data; a question without an answer is left out.
-  const faq = ([
-    [`How much does it cost to start a ${name.toLowerCase()} business in Uganda?`,
-      capitalFull || scenarios.length ? <>
-        {capitalFull ? <>Starting capital is about {capitalFull}{idea.capitalNotes ? `. ${idea.capitalNotes.replace(/\.$/, "")}` : ""}. </> : null}
-        {scenarios.length === 0 ? null
-          : gated ? <>The start-up budget lists {allLines.length} costed items{scenario?.estimateDate ? `, priced as of ${date(scenario.estimateDate)}` : ""}. Members see every cost and the total. {unlock("Unlock the budget")}</>
-          : <>Budget plans: {totals.map((t) => `${PLAN_LABEL[t.level]} ${t.total === null ? "(some costs pending)" : money(t.total, t.currency)}`).join(" · ")}. Prices change, so confirm quotes with suppliers before you pay.</>}
-      </> : null],
-    [`How long does it take to set up a ${name.toLowerCase()} business?`, idea.setupTime ? <>About {idea.setupTime}{firstStep ? <>, starting with “{firstStep}”</> : null}.</> : null],
-    [`What do I need to start a ${name.toLowerCase()} business?`, keyPoints.length ? <>{keyPoints.join("; ")}{special.length ? <>, plus {special.join(", ").toLowerCase()}</> : null}. See the full checklist under Requirements.</> : null],
-    [`Is a ${name.toLowerCase()} business profitable?`, profit ? <>Our researchers rate its profit potential as {profit.toLowerCase()}.{idea.successFactors ? <> It depends most on {points(idea.successFactors).join(", ").toLowerCase()}.</> : null}</> : null],
-    ["Do I need special skills?", experience || skills.length ? <>{experience ? `${experience} level. ` : ""}{skills.length ? `Key skills: ${skills.join(", ").toLowerCase()}.` : ""}</> : null],
-    ["Where is the best place to set it up?", locations.length ? <>{locations.join(", ")}.{idea.locationNotes ? ` ${idea.locationNotes}` : ""}</> : null],
-    ["Who are the customers?", idea.targetCustomers],
-  ] as [string, React.ReactNode][]).filter(([, a]) => Boolean(a));
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
@@ -377,27 +359,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           <ChildSections sections={media} gated={gated} back={path} />
           <FieldSections type="BUSINESS_IDEA" record={idea as unknown as Record<string, unknown>} gated={gated} back={path} />
 
-          {/* ── Questions answered from this plan, with linked machines, suppliers and funding beside ── */}
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-            {faq.length ? (
-              <section id="faq" aria-labelledby="fq" className="flex scroll-mt-24 flex-col gap-5">
-                <h2 id="fq" className="text-block-title text-heading">Frequently asked questions: {name.toLowerCase()} business</h2>
-                <div className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-                  {faq.map(([q, a], n) => (
-                    <details key={q} open={n === 0} className="group px-5 [&_summary::-webkit-details-marker]:hidden">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[15px] font-semibold text-heading">
-                        {q}<ChevronDown aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition group-open:rotate-180" />
-                      </summary>
-                      <div className="pb-4 text-sm leading-relaxed text-ink-soft">{a}</div>
-                    </details>
-                  ))}
-                </div>
-              </section>
-            ) : <span className="hidden lg:block" />}
-            <aside className="flex flex-col gap-5 lg:sticky lg:top-24">
-              <Connected contentItemId={item.id} />
-            </aside>
-          </div>
+          {/* ── Linked machines, suppliers and funding ── */}
+          <Connected contentItemId={item.id} />
 
           <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />
 

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
-import { compactRange, money } from "@/lib/format";
+import { money } from "@/lib/format";
 import { calcPlans, getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
 import { trackView } from "@/components/DetailParts";
-import { IdeaCard, PLAN_LABEL, PLAN_ORDER, points } from "@/components/IdeaParts";
+import { IdeaCard, PLAN_ORDER } from "@/components/IdeaParts";
 import { BudgetCalculator } from "@/components/BudgetCalculator";
 import { OnboardingGate } from "@/components/Onboarding";
 
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 /**
  * A business idea's requirements on their own page (the card's "Requirements" button): how many
  * there are, the cost calculator by business size, every requirement by category as a card, then
- * similar businesses and questions answered from the plan. The overview stays at /business-ideas/[slug].
+ * similar businesses. The overview stays at /business-ideas/[slug].
  * Gating as on the overview: visitors get the free preview of the lines and no totals.
  */
 export default async function RequirementsPage({ params, searchParams }: { params: { slug: string }; searchParams: { scenario?: string } }) {
@@ -41,29 +41,11 @@ export default async function RequirementsPage({ params, searchParams }: { param
   const scenario = scenarios.find((s) => s.level === wanted) ?? scenarios.find((s) => s.level === "STANDARD") ?? scenarios[0];
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const plans = calcPlans(scenarios, gated);
-  const keyPoints = points(idea.keyRequirements);
-  const lines = scenario?.lines ?? [];
-  const count = lines.length;
-  const essential = lines.filter((l) => !l.isOptional);
   const plan = {
     name: memberPlan?.name ?? "Member",
     monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
     yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
   };
-  const capital = compactRange(idea.capitalMin, idea.capitalMax, idea.currency);
-  const categories = [...new Set(lines.map((l) => l.costCategory || "Other"))];
-
-  const faq = ([
-    [`What do I need to start a ${name.toLowerCase()} business in Uganda?`, count || keyPoints.length ? <>
-      {keyPoints.length ? <>Above all: {keyPoints.join(", ").toLowerCase()}. </> : null}
-      {count ? <>The full list has {count} requirements{scenario && scenarios.length > 1 ? ` for a ${PLAN_LABEL[scenario.level].toLowerCase()} business` : ""}, in {categories.length} {categories.length === 1 ? "category" : "categories"}: {categories.join(", ").toLowerCase()}.</> : null}
-    </> : null],
-    [`How many of the ${name.toLowerCase()} business requirements are essential?`, count ? <>{essential.length} of the {count} are essential; the other {count - essential.length} are optional and can wait until the business grows.</> : null],
-    [`How much do I need to start?`, capital || count ? <>
-      {capital ? <>Starting capital is about {capital}{idea.capitalNotes ? ` (${idea.capitalNotes.replace(/\.$/, "").toLowerCase()})` : ""}. </> : null}
-      {count ? <>Use the calculator above: pick a business size, then add only what you need for your own total.</> : null}
-    </> : null],
-  ] as [string, React.ReactNode][]).filter(([, a]) => Boolean(a));
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
@@ -108,21 +90,6 @@ export default async function RequirementsPage({ params, searchParams }: { param
             </section>
           ) : null}
 
-          {faq.length ? (
-            <section aria-labelledby="fq" className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-              <h2 id="fq" className="text-center text-section-title text-heading">Common questions</h2>
-              <div className="flex flex-col gap-3">
-                {faq.map(([q, a]) => (
-                  <details key={q} className="group rounded-xl border border-line bg-white px-5 [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[15px] font-semibold text-heading">
-                      {q}<ChevronDown aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition group-open:rotate-180" />
-                    </summary>
-                    <div className="pb-4 text-sm leading-relaxed text-ink-soft">{a}</div>
-                  </details>
-                ))}
-              </div>
-            </section>
-          ) : null}
         </div>
       </article>
     </OnboardingGate>

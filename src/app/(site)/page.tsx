@@ -21,21 +21,6 @@ export const dynamic = "force-dynamic";
 
 const TYPE_ICON: Record<string, string> = { GUIDE: "guide", TOOL: "tool", NEWS: "news", RECIPE: "recipe" };
 
-const FAQ: [string, string][] = [
-  ["Is BizSphere-Ug free to use?", "Yes. You can search everything and read a preview of every page for free. A membership unlocks full budgets, contacts, funding terms, price history and downloads."],
-  ["Where does the information come from?", "From official sources, supplier quotations, market visits and providers' published terms. Each page lists its sources and the date it was last reviewed."],
-  ["What does “checked” mean on a supplier?", "We say exactly what we checked and when, for example “Business contact checked on 12 March”. A checked contact doesn't guarantee product quality, so always confirm terms before you pay."],
-  ["How do I pay for membership?", "With MTN Mobile Money, Airtel Money or a card. You can cancel any time from your account."],
-  ["I run a business. Can I be listed?", "Yes. Contact our team with your business details. We add every listing ourselves and check it before it goes live."],
-  ["Do I need an account to search?", "No. Anyone can search every directory and use its filters. An account lets you save pages and come back to them."],
-  ["What does a membership unlock?", "Full start-up budgets and every step of each business plan, supplier and expert contacts, machine prices, funding amounts and terms, price history and downloads."],
-  ["Can I cancel my membership?", "Yes, any time from your account. You keep access until the end of the period you paid for."],
-  ["How current are the market prices?", "Every price shows the date it was observed, the market and the unit. Old observations are kept as history rather than overwritten."],
-  ["Are the start-up budgets exact?", "They are dated estimates, built line by line with their assumptions shown. Prices change, so confirm quotes with suppliers before you commit money."],
-  ["Does a listing guarantee funding or quality?", "No. Funding amounts are the provider's ranges, not a promise you will receive them, and a checked supplier contact is not a guarantee of product quality."],
-  ["I found a mistake. What should I do?", "Use “Report a correction” on the page. An editor reviews every report and updates the page if the information has changed."],
-  ["Does it work on my phone?", "Yes. Every page, search and payment works on a phone, and you can pay with MTN Mobile Money or Airtel Money."],
-];
 
 export default async function HomePage() {
   const [viewer, guides, updates, yt, stats] = await Promise.all([
@@ -59,10 +44,17 @@ export default async function HomePage() {
             <Link href="/methodology" className="max-w-full truncate text-[13px] font-medium text-white/70 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white">
               Every page checked by our team{stats.lastChecked ? `, most recently ${date(stats.lastChecked)}` : ""}
             </Link>
-            {/* The client's main message, word for word. Manrope ExtraBold in capitals, so it is sized smaller than
-                a mixed-case headline: from tablet width "B2B INFORMATION PORTAL" keeps to one line. */}
-            <h1 className="font-hero text-[28px] font-extrabold leading-[1.1] tracking-[-0.02em] text-white sm:text-[36px] 2xl:text-[40px]">
-              BIZSPHERE-UG – <br className="hidden sm:block" />B2B INFORMATION PORTAL
+            {/* The client's main message, word for word, in two tiers: the name large (with "-UG" in orange),
+                then "B2B INFORMATION PORTAL" with B2B as an orange badge. The dash is for screen readers only. */}
+            <h1 className="flex flex-col gap-3 font-hero font-extrabold uppercase text-white sm:gap-4">
+              <span className="text-[40px] leading-[0.95] tracking-[-0.035em] sm:text-[60px] xl:text-[58px] 2xl:text-[70px]">
+                BIZSPHERE<span className="text-accent">-UG</span>
+              </span>
+              <span className="sr-only"> – </span>
+              <span className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[20px] leading-none tracking-[0.04em] text-white/90 sm:text-[28px] 2xl:text-[32px]">
+                <span className="rounded-lg bg-accent px-2.5 py-1.5 text-ink sm:px-3">B2B</span>
+                INFORMATION PORTAL
+              </span>
             </h1>
 
             <p className="max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
@@ -72,12 +64,12 @@ export default async function HomePage() {
 
             <HomeSearch />
 
-            {/* Every directory as a chip, right under the search */}
-            <ul aria-label="Directories" className="flex max-w-[720px] flex-wrap gap-2.5">
+            {/* Every directory as a chip, right under the search: a tidy grid of equal, compact chips */}
+            <ul aria-label="Directories" className="grid w-full max-w-[580px] grid-cols-2 gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex h-12 items-center gap-2.5 rounded-xl border-2 border-dotted border-white/45 bg-white/[0.04] px-4 text-[16px] font-semibold text-white/90 transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:h-[52px] sm:px-5 sm:text-[17px]">
-                    <Icon name={d.icon} className="h-5 w-5 text-accent group-hover:text-ink" />
+                  <Link href={d.href} className="group flex h-full min-h-[44px] items-center gap-2 rounded-xl border-2 border-dotted border-white/45 bg-white/[0.04] px-3 py-1.5 text-[14px] font-semibold leading-tight text-white/90 transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:text-[15px]">
+                    <Icon name={d.icon} className="h-4 w-4 shrink-0 text-accent group-hover:text-ink" />
                     {d.title}
                   </Link>
                 </li>
@@ -168,7 +160,7 @@ export default async function HomePage() {
 
 
       {/* ── Recently reviewed: bento on navy, so it stands apart from the white directories above and the
-          light FAQ below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
+          footer below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
         <section className="bg-[#071A33] text-white">
@@ -219,40 +211,6 @@ export default async function HomePage() {
           </div>
         </section>
       ) : null}
-
-      {/* ── FAQ: sticky intro with a contact card on the left; a list that opens on the right ── */}
-      <section className="border-t border-line bg-page">
-        <div className="container-site grid gap-8 py-14 sm:gap-10 sm:py-20 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)] lg:gap-16 lg:py-24">
-          <div className="flex flex-col gap-3 lg:sticky lg:top-28 lg:self-start">
-            <h2 className="text-section-title text-heading">Common questions</h2>
-            <p className="text-[15px] leading-relaxed text-ink-muted sm:text-base">About access, sources, prices and payment.</p>
-            <div className="mt-3 flex flex-col gap-4 rounded-2xl border border-line bg-white p-5">
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/illustrations/coffee.gif" alt="" loading="lazy" width={96} height={72} className="h-14 w-auto shrink-0 mix-blend-multiply" />
-                <span className="flex flex-col">
-                  <span className="font-display text-[18px] font-bold text-heading">Still have a question?</span>
-                  <span className="text-[15px] text-ink-muted">Our team replies to every message.</span>
-                </span>
-              </div>
-              <Link href="/contact" className="btn-primary min-h-[44px]">Contact us <Icon name="arrow" className="h-4 w-4" /></Link>
-            </div>
-          </div>
-
-          {/* One white card, questions split by lines; the + turns into × when open */}
-          <div className="flex flex-col divide-y divide-line rounded-2xl border border-line bg-white px-4 sm:px-6">
-            {FAQ.map(([q, a], n) => (
-              <details key={q} open={n === 0} className="group [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex cursor-pointer list-none items-center gap-4 py-4 sm:py-5">
-                  <span className="flex-1 font-display text-[16px] font-semibold leading-snug text-heading">{q}</span>
-                  <span aria-hidden className="text-xl leading-none text-brand transition-transform group-open:rotate-45">+</span>
-                </summary>
-                <p className="pb-5 pr-2 text-base leading-relaxed text-ink-soft sm:pr-12">{a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
     </>
   );
 }
