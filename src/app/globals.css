@@ -90,8 +90,9 @@
   .table-base tbody tr:first-child td { @apply border-t-0; }
   .marquee-viewport { mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); }
   .marquee-track { animation: marquee var(--marquee-duration, 40s) linear infinite; will-change: transform; backface-visibility: hidden; }
-  /* Hero ribbon: a wider fade at both ends, so items glide in and out instead of being cut off. */
-  .marquee-wide .marquee-viewport { mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
+  /* Hero ribbon: the whole ribbon (border, glass and text) fades out at the start and the end, so items glide in and out. */
+  .marquee-wide { mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent); }
+  .marquee-wide .marquee-viewport { mask-image: none; }
   .marquee:hover .marquee-track,
   .marquee:focus-within .marquee-track { animation-play-state: paused; }
 }
