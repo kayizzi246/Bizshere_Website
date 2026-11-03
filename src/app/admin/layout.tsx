@@ -7,7 +7,8 @@ import { MobileNav, SideNav, type NavItem } from "@/components/SideNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavProgress } from "@/components/NavProgress";
 import { SignOutButton } from "@/components/SignOutButton";
-import { requireStaff } from "@/lib/access";
+import { staffAccess } from "@/lib/access";
+import { contentArea } from "@/lib/admin-areas";
 import { ADMIN_DIRECTORIES } from "@/lib/content-fields";
 import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
 import { prisma } from "@/lib/prisma";
@@ -20,40 +21,55 @@ const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.
  * The theme is remembered in the `admin-theme` cookie.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireStaff();
-  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews] = await Promise.all([
+  const user = await staffAccess();
+  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews, expertWork] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
     prisma.payment.count({ where: { status: "PENDING" } }),
     prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
     prisma.consultantReview.count({ where: { moderation: "PENDING" } }),
+    prisma.consultantProject.count({ where: { status: "IN_REVIEW" } }),
   ]);
   const theme = cookies().get("admin-theme")?.value === "dark" ? "dark" : "light";
-  const items: NavItem[] = [
+  // Each link with the area it needs (src/lib/admin-areas.ts); a sub-admin sees only their areas.
+  type Gated = NavItem & { area?: string };
+  const all: Gated[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
-    { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet" },
-    { href: "/admin/plans", label: "Membership prices", icon: "prices" },
-    { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox" },
-    { href: "/admin/corrections", label: "Corrections", badge: corrections, icon: "flag" },
+    { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
+    { href: "/admin/plans", label: "Membership prices", icon: "prices", area: "plans" },
+    { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox", area: "review" },
+    { href: "/admin/corrections", label: "Corrections", badge: corrections, icon: "flag", area: "corrections" },
     { section: "Content" },
     { href: "/admin/content", label: "All content", icon: "files" },
-    { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },
-    { href: "/admin/prices", label: "Markets and Prices", icon: "prices" },
+    { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.filter((d) => user.can(contentArea(d.type))).map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },
+    { href: "/admin/prices", label: "Markets and Prices", icon: "prices", area: "prices" },
     { section: "People and site" },
-    { href: "/admin/users", label: "Users and businesses", icon: "users" },
-    { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier" },
-    { href: "/admin/seller-products", label: "Seller products", badge: sellerProducts, icon: "supplier" },
-    { href: "/admin/expert-reviews", label: "Expert reviews", badge: pendingReviews, icon: "expert" },
-    { href: "/admin/updates", label: "Homepage updates", icon: "megaphone" },
-    { href: "/admin/video", label: "Homepage video", icon: "video" },
+    { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },
+    { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier", area: "suppliers" },
+    { href: "/admin/seller-products", label: "Seller products", badge: sellerProducts, icon: "supplier", area: "suppliers" },
+    { href: "/admin/expert-logins", label: "Expert logins", icon: "expert", area: "experts" },
+    { href: "/admin/expert-work", label: "Expert work", badge: expertWork, icon: "expert", area: "experts" },
+    { href: "/admin/expert-reviews", label: "Expert reviews", badge: pendingReviews, icon: "expert", area: "experts" },
+    { href: "/admin/updates", label: "Homepage updates", icon: "megaphone", area: "homepage" },
+    { href: "/admin/video", label: "Homepage video", icon: "video", area: "homepage" },
+    ...(user.superAdmin ? [{ section: "Super admin" }, { href: "/admin/team", label: "Admin team", icon: "users" }] : []),
   ];
+  const canContent = ADMIN_DIRECTORIES.some((d) => user.can(contentArea(d.type)));
+  const visible = all.filter((it) => {
+    if ("area" in it && it.area) return user.can(it.area);
+    if ("group" in it) return it.items.length > 0;
+    if ("href" in it && it.href === "/admin/content") return canContent;
+    return true;
+  });
+  // Drop section titles left with nothing under them.
+  const items: NavItem[] = visible.filter((it, n) => !("section" in it) || (visible[n + 1] && !("section" in visible[n + 1]))).map(({ area: _area, ...it }: Gated) => it as NavItem);
   const initials = (user.name ?? "A").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const userCard = (
     <div className="flex items-center gap-3 px-1">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-ink">{initials}</span>
       <span className="flex min-w-0 flex-col leading-tight">
         <span className="truncate text-[13px] font-semibold text-white">{user.name}</span>
-        <span className="text-[11px] capitalize text-white/50">{user.role.toLowerCase()}</span>
+        <span className="text-[11px] text-white/50">{user.superAdmin ? "Super admin" : "Sub-admin"}</span>
       </span>
     </div>
   );
@@ -65,9 +81,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex h-16 items-center gap-2 px-5">
           <Logo href="/admin" light sub="Admin" />
         </div>
-        <Link href="/admin/content/new" className="mx-4 mb-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
+        {canContent ? <Link href="/admin/content/new" className="mx-4 mb-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
           <Icon name="plus" className="h-4 w-4" />Add content
-        </Link>
+        </Link> : <span className="mb-2" />}
         <div className="flex-1 overflow-y-auto px-3 pb-4">
           <Suspense fallback={null}><SideNav items={items} dark /></Suspense>
         </div>
@@ -86,15 +102,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6 lg:h-16 lg:px-7">
           <Suspense fallback={null}><MobileNav items={items} footer={<>{userCard}<SignOutButton className="mt-3 text-white/70 hover:bg-white/[0.06] hover:text-white" /></>} /></Suspense>
           <span className="lg:hidden"><Logo full href="/admin" /></span>
-          <form action="/admin/content" role="search" className="ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface sm:flex lg:ml-0">
+          <form action="/admin/content" role="search" className={`ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface lg:ml-0 ${canContent ? "sm:flex" : ""}`}>
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
             <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
           </form>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle initial={theme} />
-            <Link href="/admin/content/new" aria-label="Add content" className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white hover:bg-brand-deep hover:text-white lg:hidden">
+            {canContent ? <Link href="/admin/content/new" aria-label="Add content" className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white hover:bg-brand-deep hover:text-white lg:hidden">
               <Icon name="plus" className="h-4 w-4" />
-            </Link>
+            </Link> : null}
           </div>
         </header>
         {/* Left-aligned to the sidebar (no centring), so wide screens don't open a gap beside it */}

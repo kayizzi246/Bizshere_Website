@@ -5,7 +5,7 @@ import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type AccessLevel, type BusinessStage, type ContentType, type PublicationStatus } from "@prisma/client";
 import { prisma, type Tx } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { directoryFor, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
 import { parseField } from "@/lib/field-parse";
@@ -70,12 +70,17 @@ async function saveChildren(tx: Tx, key: ChildList["key"], parentId: string, raw
 
 /** Creates or updates one content item and its specialised record. Keeps a revision snapshot. */
 export async function saveContent(_prev: ContentFormState, form: FormData): Promise<ContentFormState> {
-  const editor = await requireStaff();
   const errors: Record<string, string> = {};
   const id = str(form.get("id")) || null;
   const type = str(form.get("contentType")) as ContentType;
   const dir = directoryFor(type);
   if (!dir) return { errors: { form: "Unknown directory" } };
+  // Only staff with this directory's area; an existing item keeps its own directory.
+  const editor = await requireContentType(type);
+  if (id) {
+    const current = await prisma.contentItem.findUnique({ where: { id }, select: { contentType: true } });
+    if (!current || current.contentType !== type) return { errors: { form: "This page belongs to another directory." } };
+  }
 
   const title = str(form.get("title"));
   if (title.length < 2) errors.title = "Required";

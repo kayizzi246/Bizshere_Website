@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check, Package, X } from "lucide-react";
-import { requireRole } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { moneyRange } from "@/lib/format";
 import { reviewSellerProduct } from "@/app/actions/supplier";
@@ -13,7 +13,7 @@ export const metadata = { title: "Seller products" };
  * until approved here; rejected ones stay hidden (the seller sees "Not approved").
  */
 export default async function SellerProductsPage({ searchParams }: { searchParams: { done?: string } }) {
-  await requireRole(["EDITOR", "ADMIN"]);
+  await requireArea("suppliers");
   const waiting = await prisma.supplierProductListing.findMany({
     where: { status: "IN_REVIEW" },
     include: { supplier: { include: { contentItem: { select: { title: true, slug: true } } } } },

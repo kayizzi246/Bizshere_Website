@@ -18,12 +18,17 @@ export const dynamic = "force-dynamic";
  * Without it, in local development only, files are saved to public/uploads/.
  */
 const cloud = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-// Staff, and suppliers adding photos to their own catalog in /supplier (members of a supplier organisation).
+// Staff; sellers adding photos to their own catalog in /supplier (members of a supplier organisation);
+// and experts adding photos and files of their work in /expert (owners of an expert profile).
 const isStaff = async () => {
   const s = await getSession();
   if (!s?.user) return false;
   if (["EDITOR", "ADMIN"].includes(s.user.role)) return true;
-  return Boolean(await prisma.organizationMember.findFirst({ where: { userId: s.user.id, organization: { supplier: { isNot: null } } }, select: { userId: true } }));
+  const [seller, expert] = await Promise.all([
+    prisma.organizationMember.findFirst({ where: { userId: s.user.id, organization: { supplier: { isNot: null } } }, select: { userId: true } }),
+    prisma.consultant.findUnique({ where: { ownerId: s.user.id }, select: { id: true } }),
+  ]);
+  return Boolean(seller || expert);
 };
 
 /** Which way the upload button should send the file. */

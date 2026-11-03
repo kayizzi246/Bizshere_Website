@@ -4,6 +4,7 @@ import { getViewer } from "@/lib/access";
 import { trackView } from "@/components/DetailParts";
 import { extLink, RecordPage, list } from "@/components/RecordPage";
 import { ExpertReviewForm } from "@/components/ExpertReviewForm";
+import { ExpertWork } from "@/components/ExpertWork";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
   const viewer = await getViewer();
   const item = await prisma.contentItem.findFirst({
     where: { slug: params.slug, contentType: "CONSULTANT", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
-    include: { primaryCategory: true, consultant: true },
+    include: { primaryCategory: true, consultant: { include: { projects: { where: { publicationPermitted: true }, orderBy: [{ year: "desc" }, { createdAt: "desc" }] } } } },
   });
   if (!item?.consultant) notFound();
   const c = item.consultant;
@@ -22,6 +23,14 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
 
   // Email and phone are member-only and are not passed on for visitors.
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
+  // The expert's own links (added in their portal) and booking link, as "Useful links".
+  const host = (u: string) => { try { return new URL(u).hostname.replace(/^www./, ""); } catch { return u; } };
+  const links = [
+    ...(c.bookingUrl ? [{ label: "Book a consultation", href: c.bookingUrl, icon: "calendar" }] : []),
+    ...c.links.map((l) => ({ label: host(l), href: l, icon: "link" })),
+  ];
+  // Reference contacts are member detail; never passed to the page.
+  const work = c.projects.map(({ referenceContact: _ref, ...w }) => w);
 
   return (
     <RecordPage
@@ -37,6 +46,8 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
         { label: "Website", value: extLink(c.website) },
       ]}
       texts={[{ label: "Profile", text: item.overview }]}
+      picture={c.photoUrl}
+      links={links}
       contact={gated ? "locked" : { email: c.email, phone: c.phone }}
       details={{ type: "CONSULTANT", record: c as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
@@ -44,6 +55,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
       back={path}
       gateTitle="Subscribe to contact experts"
     >
+      <ExpertWork work={work} />
       {/* Users write reviews here; the team approves them before they show under "Client reviews". */}
       <ExpertReviewForm consultantId={c.id} back={path} signedIn={Boolean(viewer.userId)} status={searchParams.review} />
     </RecordPage>

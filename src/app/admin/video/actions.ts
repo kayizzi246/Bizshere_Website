@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { clearVideoCache, resolveChannel, SETTING, videoId } from "@/lib/youtube";
 
@@ -17,7 +17,7 @@ async function put(key: string, value: string | null) {
 
 /** Saves the YouTube channel (id, link or @handle) and the optional featured video. */
 export async function saveVideoSettings(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const channelRaw = String(form.get("channel") ?? "").trim();
   const featuredRaw = String(form.get("featured") ?? "").trim();
 

@@ -5,7 +5,7 @@ import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type ClaimType, type RoundStatus, type ScenarioLevel } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import type { BudgetRow } from "./BudgetLinesEditor";
 
@@ -20,9 +20,10 @@ const back = (contentItemId: string, msg: string) => redirect(`/admin/content/${
  * optional, details. Empty price = not yet sourced (never zero).
  */
 export async function saveBudgetScenario(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
   const ideaId = s(form, "ideaId");
+  if (!(await prisma.businessIdea.count({ where: { id: ideaId, contentItemId } }))) back(contentItemId, "error=Business+idea+not+found");
   const level = s(form, "level") as ScenarioLevel;
   if (!["LOW", "STANDARD", "HIGHER"].includes(level)) back(contentItemId, "error=Choose+a+scenario+level");
   const currency = s(form, "currency") || "UGX";
@@ -66,16 +67,16 @@ export async function saveBudgetScenario(form: FormData) {
 }
 
 export async function deleteBudgetScenario(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
-  await prisma.budgetScenario.delete({ where: { id: s(form, "id") } });
+  await prisma.budgetScenario.deleteMany({ where: { id: s(form, "id"), idea: { contentItemId: s(form, "contentItemId") } } });
   await audit(editor.id, "budget.deleted", "content_item", contentItemId);
   back(contentItemId, "saved=budget");
 }
 
 /** Adds or updates one application round (blueprint §07). */
 export async function saveRound(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
   const id = s(form, "id");
   const status = s(form, "status") as RoundStatus;
@@ -91,8 +92,8 @@ export async function saveRound(form: FormData) {
     status, opensAt, closesAt, isRolling, applicationUrl: url || null, process: s(form, "process") || null,
     requiredDocuments: s(form, "requiredDocuments").split(/\r?\n|,/).map((d) => d.trim()).filter(Boolean),
   };
-  if (id) await prisma.applicationRound.update({ where: { id }, data });
-  else await prisma.applicationRound.create({ data: { ...data, programmeId: s(form, "programmeId") } });
+  if (id) await prisma.applicationRound.updateMany({ where: { id, programme: { contentItemId } }, data });
+  else if (await prisma.fundingProgramme.count({ where: { id: s(form, "programmeId"), contentItemId } })) await prisma.applicationRound.create({ data: { ...data, programmeId: s(form, "programmeId") } });
   await audit(editor.id, id ? "round.updated" : "round.created", "content_item", contentItemId, { status });
   revalidatePath(`/admin/content/${contentItemId}`);
   revalidateTag(SITE_DATA);
@@ -100,9 +101,9 @@ export async function saveRound(form: FormData) {
 }
 
 export async function deleteRound(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
-  await prisma.applicationRound.delete({ where: { id: s(form, "id") } });
+  await prisma.applicationRound.deleteMany({ where: { id: s(form, "id"), programme: { contentItemId: s(form, "contentItemId") } } });
   await audit(editor.id, "round.deleted", "content_item", contentItemId);
   back(contentItemId, "saved=round");
 }
@@ -111,7 +112,7 @@ const CLAIMS: ClaimType[] = ["SOURCE_FACT", "EDITOR_EXPLANATION", "ESTIMATE", "P
 
 /** Records a source and what it supports on this page (blueprint §03 sources and evidence). */
 export async function addEvidence(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
   const claimType = s(form, "claimType") as ClaimType;
   const url = s(form, "sourceUrl");
@@ -135,9 +136,9 @@ export async function addEvidence(form: FormData) {
 }
 
 export async function deleteEvidence(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
-  await prisma.evidenceLink.delete({ where: { id: s(form, "id") } });
+  await prisma.evidenceLink.deleteMany({ where: { id: s(form, "id"), contentItemId: s(form, "contentItemId") } });
   await audit(editor.id, "evidence.deleted", "content_item", contentItemId);
   back(contentItemId, "saved=evidence");
 }

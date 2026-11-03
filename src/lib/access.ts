@@ -1,8 +1,9 @@
-import type { Role } from "@prisma/client";
+import type { ContentType, Role } from "@prisma/client";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "./auth";
 import { prisma } from "./prisma";
+import { AREA_KEYS, contentArea } from "./admin-areas";
 
 /**
  * Server-side access rules.
@@ -54,6 +55,37 @@ export async function requireRole(roles: Role[]) {
 
 export const requireStaff = () => requireRole(["EDITOR", "ADMIN"]);
 export const requireAdmin = () => requireRole(["ADMIN"]);
+
+/**
+ * The signed-in staff member with what they may open: the super admin (ADMIN) every area, a
+ * sub-admin (EDITOR) only their User.adminAreas. Read from the database on every request, so a
+ * change at /admin/team takes effect at once.
+ */
+export const staffAccess = cache(async function staffAccess() {
+  const user = await requireStaff();
+  const row = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true, adminAreas: true, isSuspended: true } });
+  if (!row || row.isSuspended || (row.role !== "ADMIN" && row.role !== "EDITOR")) redirect("/login?callbackUrl=%2Fadmin");
+  const superAdmin = row.role === "ADMIN";
+  const areas = new Set(superAdmin ? AREA_KEYS : row.adminAreas.filter((a) => AREA_KEYS.includes(a)));
+  return { ...user, superAdmin, areas, can: (area: string) => areas.has(area) };
+});
+
+/** For admin pages and actions: staff with this area, otherwise back to the admin home with a note. */
+export async function requireArea(area: string) {
+  const staff = await staffAccess();
+  if (!staff.can(area)) redirect(`/admin?denied=${encodeURIComponent(area)}`);
+  return staff;
+}
+
+/** Staff who may edit this directory (content:<TYPE>). */
+export const requireContentType = (type: ContentType | string) => requireArea(contentArea(type));
+
+/** Staff who may edit this content item, by its directory. Unknown items count as not allowed. */
+export async function requireItemArea(contentItemId: string) {
+  const item = contentItemId ? await prisma.contentItem.findUnique({ where: { id: contentItemId }, select: { contentType: true } }) : null;
+  if (!item) redirect("/admin?denied=content");
+  return requireContentType(item.contentType);
+}
 
 /** Number of items shown free before the "Show more" gate. */
 export const FREE_PREVIEW = { budgetLines: 2, steps: 2, specs: 3, markets: 2 } as const;

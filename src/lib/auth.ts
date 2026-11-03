@@ -10,6 +10,9 @@ import { prisma } from "./prisma";
 import { audit } from "./audit";
 import { isTestPhone, phoneKey, verifyCode } from "./phone-codes";
 
+/** Same rule as src/lib/pin-accounts.ts (not imported: that module sends SMS and is not needed here). */
+const USERNAME = /^[a-z0-9](?:[a-z0-9-]{1,38})[a-z0-9]$/;
+
 // `identifier` is an email address or a phone number. `email` is still accepted
 // for older forms that post it under that name.
 const credentialsSchema = z.object({
@@ -56,16 +59,20 @@ export const authOptions: NextAuthOptions = {
         const id = parsed.data.identifier ?? parsed.data.email;
         if (!id) return null;
         // Same phone lookup as the code sign-in (accepts 0772…, +256…, and the local test number).
+        // Sellers and experts may also sign in with their username (their personal sign-in address).
         const phone = id.includes("@") ? null : phoneKey(id);
-        const key = (phone ?? id).toLowerCase();
+        const username = !id.includes("@") && !phone && USERNAME.test(id.toLowerCase()) ? id.toLowerCase() : null;
+        const user = id.includes("@")
+          ? await prisma.user.findUnique({ where: { email: id.toLowerCase() } })
+          : phone ? await prisma.user.findUnique({ where: { phone } })
+          : username ? await prisma.user.findUnique({ where: { username } }) : null;
+        // Failures count per phone, so a username and the phone share one limit.
+        const key = (phone ?? user?.phone ?? username ?? id).toLowerCase();
         // Too many wrong passwords recently: refuse without checking, so guessing is slow.
         if ((await recentFailures(key)) >= MAX_FAILED_LOGINS) {
           await audit(null, "auth.login_blocked", "login", key);
           return null;
         }
-        const user = id.includes("@")
-          ? await prisma.user.findUnique({ where: { email: id.toLowerCase() } })
-          : phone ? await prisma.user.findUnique({ where: { phone } }) : null;
         const ok = Boolean(user?.passwordHash && !user.isSuspended && (await bcrypt.compare(parsed.data.password, user.passwordHash)));
         if (!user || !ok) {
           await audit(user?.id ?? null, "auth.login_failed", "login", key);

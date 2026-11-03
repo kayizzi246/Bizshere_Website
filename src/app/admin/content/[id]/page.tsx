@@ -5,7 +5,7 @@ import { checkLabel, contentTypeLabel, date, itemHref } from "@/lib/format";
 import { ContentForm } from "../ContentForm";
 import { loadOptions, loadValues } from "../load";
 import { deleteContent, recordCheck } from "../../actions";
-import { requireStaff } from "@/lib/access";
+import { requireItemArea } from "@/lib/access";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ChildEditors } from "../ChildEditors";
 import { ChildTableEditor } from "../ChildTableEditor";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit content" };
 
 export default async function EditContentPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; error?: string } }) {
-  const user = await requireStaff();
+  const user = await requireItemArea(params.id);
   const loaded = await loadValues(params.id);
   if (!loaded) notFound();
   const { item, values, multi } = loaded;
@@ -78,7 +78,7 @@ export default async function EditContentPage({ params, searchParams }: { params
           </div>
         ))}
       </section>
-      {user.role === "ADMIN" ? (
+      {user.superAdmin ? (
         <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-6 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-extrabold text-bad-fg">Delete permanently</h2>

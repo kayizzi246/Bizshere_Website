@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { audit } from "@/lib/audit";
+import { requireArea } from "@/lib/access";
 
 const input = z.object({
   consultantId: z.string().min(1).max(64),
@@ -38,12 +39,11 @@ export async function submitExpertReview(form: FormData) {
 
 /** Admin approves or rejects a user's review (/admin/expert-reviews). */
 export async function moderateReview(form: FormData) {
-  const session = await getSession();
-  if (!session?.user || !["EDITOR", "ADMIN"].includes(session.user.role)) redirect("/login?callbackUrl=%2Fadmin%2Fexpert-reviews");
+  const staff = await requireArea("experts");
   const approve = form.get("decision") === "approve";
   const review = await prisma.consultantReview.update({
     where: { id: String(form.get("id")) },
-    data: { moderation: approve ? "APPROVED" : "REJECTED", moderatedById: session.user.id, moderatedAt: new Date() },
+    data: { moderation: approve ? "APPROVED" : "REJECTED", moderatedById: staff.id, moderatedAt: new Date() },
     include: { consultant: { include: { contentItem: { select: { slug: true } } } } },
   });
   revalidatePath(`/experts/${review.consultant.contentItem.slug}`);

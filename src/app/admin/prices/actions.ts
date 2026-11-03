@@ -5,7 +5,7 @@ import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 
 const money = z.preprocess((v) => (v === "" || v === null ? undefined : String(v).replace(/[,\s]/g, "")), z.coerce.number().nonnegative().optional());
@@ -36,7 +36,7 @@ const observationSchema = z.object({
 
 /** Adds a dated observation. Observations are never edited in place: history is kept (blueprint 12). */
 export async function addObservation(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("prices");
   const parsed = observationSchema.safeParse({ ...Object.fromEntries(form), publish: form.get("publish") === "on" });
   if (!parsed.success) redirect(`/admin/prices?error=${encodeURIComponent(Object.values(parsed.error.flatten().fieldErrors).flat()[0] ?? "Invalid input")}`);
   const { publish, ...d } = parsed.data;
@@ -58,7 +58,7 @@ export async function addObservation(form: FormData) {
 }
 
 export async function addMarket(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("prices");
   const name = String(form.get("name") ?? "").trim();
   if (!name) redirect("/admin/prices?error=Market+name+required");
   const m = await prisma.market.create({ data: { name, marketType: String(form.get("marketType") ?? "") || null, locationId: String(form.get("locationId") ?? "") || null, town: String(form.get("town") ?? "") || null } });
@@ -68,7 +68,7 @@ export async function addMarket(form: FormData) {
 }
 
 export async function addProduct(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("prices");
   const name = String(form.get("name") ?? "").trim();
   if (!name) redirect("/admin/prices?error=Product+name+required");
   const s = (k: string) => String(form.get(k) ?? "").trim() || null;

@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Corrections" };
 
 export default async function CorrectionsAdminPage({ searchParams }: { searchParams: { status?: string } }) {
+  await requireArea("corrections");
   const status = searchParams.status === "done" ? "done" : "open";
   const reports = await prisma.correctionReport.findMany({
     where: status === "open" ? { status: "PENDING" } : { status: { not: "PENDING" } },

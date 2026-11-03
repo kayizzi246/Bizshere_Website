@@ -175,13 +175,15 @@ export const CHILD_TABLES: ChildTable[] = [
   },
   {
     key: "projects", model: "consultantProject", label: "Experience and case studies", item: "project", parents: ["CONSULTANT"],
-    intro: "Only projects marked 'publication permitted' show on the page.",
+    intro: "Only projects marked 'publication permitted' show on the page, as the expert's work cards. Work the expert adds in their portal is approved in Expert work.",
     scope: (p) => ({ consultantId: p.record }), link: (p) => ({ consultantId: p.record }),
     fields: [
       t("title", "Project", { required: true }), t("clientName", "Client"), i("year", "Year"), ta("summary", "Summary"), ta("outcome", "Outcome"),
+      u("imageUrl", "Photo", { upload: "image" }), u("fileUrl", "File", { upload: "file" }), u("linkUrl", "Link"),
       b("isCaseStudy", "Case study"), b("publicationPermitted", "Publication permitted", { internal: true }), t("referenceContact", "Reference contact", { member: true }),
     ],
-    heading: "title", orderBy: { year: "desc" }, publicWhere: { publicationPermitted: true },
+    // Shown on the expert's page by its own "Work" section (src/app/(site)/experts/[slug]/page.tsx).
+    heading: "title", orderBy: { year: "desc" }, publicWhere: { publicationPermitted: true }, adminOnly: true,
   },
   {
     key: "reviews", model: "consultantReview", label: "Client reviews", item: "review", parents: ["CONSULTANT"],

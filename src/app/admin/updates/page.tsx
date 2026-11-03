@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { liveSiteUpdates, updateState, type UpdateState } from "@/lib/site-updates";
@@ -18,6 +19,7 @@ const STATE: Record<UpdateState, [string, string]> = {
 const dayValue = (d: Date | null) => (d ? new Date(d.getTime() + 3 * 3_600_000).toISOString().slice(0, 10) : "");
 
 export default async function AdminUpdatesPage({ searchParams }: { searchParams: { error?: string; added?: string; saved?: string; deleted?: string } }) {
+  await requireArea("homepage");
   const [updates, live] = await Promise.all([
     prisma.siteUpdate.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] }),
     liveSiteUpdates(),

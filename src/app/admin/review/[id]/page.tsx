@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -16,6 +17,7 @@ const CHECKS_BY_TYPE: Record<string, { type: string; how: string; ph: string }[]
 };
 
 export default async function ReviewItem({ params, searchParams }: { params: { id: string }; searchParams: { error?: string } }) {
+  await requireArea("review");
   const s = await prisma.submission.findUnique({
     where: { id: params.id },
     include: {

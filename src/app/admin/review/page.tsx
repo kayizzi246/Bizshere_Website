@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import Link from "next/link";
 import type { SubmissionType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,7 @@ export const metadata = { title: "Review queue" };
 const FILTERS: [string, string][] = [["", "All"], ["NEW_BUSINESS", "New businesses"], ["SUPPLIER_OFFER", "Offers"], ["PRICE_OBSERVATION", "Prices"], ["CORRECTION", "Corrections"]];
 
 export default async function ReviewQueue({ searchParams }: { searchParams: { type?: string; done?: string } }) {
+  await requireArea("review");
   const type = FILTERS.some(([v]) => v === searchParams.type) ? (searchParams.type as SubmissionType | "") : "";
   const items = await prisma.submission.findMany({
     where: { status: "PENDING", ...(type ? { type } : {}) },

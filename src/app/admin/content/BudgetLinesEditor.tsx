@@ -51,7 +51,7 @@ export function BudgetLinesEditor({ initial, currency }: { initial: BudgetRow[];
         <span className="text-sm font-bold">Start-up budget</span>
         <span className="text-xs text-ink-muted">Tip: copy the rows of a filled-in template from Excel or Word (Item, Qty, Price) and paste them into an Item box.</span>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-line">
+      <div className="relative overflow-x-auto rounded-xl border border-line">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-page text-xs uppercase tracking-wider text-ink-muted">
             <tr>

@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { date, money } from "@/lib/format";
@@ -16,6 +17,7 @@ const STATUS_STYLE: Record<string, string> = {
 
 /** Every payment made through the site: who paid, for which plan, how, and whether it went through. */
 export default async function PaymentsPage({ searchParams }: { searchParams: PaymentFilters }) {
+  await requireArea("payments");
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const [rows, month, allTime, pending, failed] = await Promise.all([

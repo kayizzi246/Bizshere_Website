@@ -2,14 +2,14 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { audit } from "@/lib/audit";
 import { SITE_DATA } from "@/lib/cached";
 
 /** Admin sets the member plan's prices. An empty box means "not set yet" (shown as "Price coming soon"). */
 export async function savePlanPrices(form: FormData) {
-  const user = await requireRole(["ADMIN"]);
+  const user = await requireArea("plans");
   const price = (k: string) => {
     const v = String(form.get(k) ?? "").replace(/[,\s]/g, "");
     if (v === "") return null;

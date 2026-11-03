@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { homeVideo, SETTING } from "@/lib/youtube";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Homepage video" };
 
 export default async function AdminVideoPage({ searchParams }: { searchParams: { error?: string; saved?: string } }) {
+  await requireArea("homepage");
   const [rows, yt] = await Promise.all([
     prisma.siteSetting.findMany({ where: { key: { in: [SETTING.channel, SETTING.featured] } } }),
     homeVideo(),

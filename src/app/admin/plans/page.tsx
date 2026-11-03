@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { savePlanPrices } from "./actions";
 
@@ -7,7 +7,7 @@ export const metadata = { title: "Membership prices" };
 
 /** The member plan's daily, monthly and yearly prices, shown on /membership and in the payment pop-up. */
 export default async function PlansPage({ searchParams }: { searchParams: { saved?: string; error?: string } }) {
-  await requireRole(["ADMIN"]);
+  await requireArea("plans");
   const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
   const v = (n: unknown) => (n === null || n === undefined ? "" : String(Number(n)));
 

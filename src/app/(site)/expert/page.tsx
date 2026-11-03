@@ -1,0 +1,223 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Briefcase, CheckCircle2, Clock, ExternalLink, FileText, Link2, Plus, Settings, Trash2, UserRound, XCircle } from "lucide-react";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { UploadButton } from "@/components/UploadButton";
+import { SignOutButton } from "@/components/SignOutButton";
+import { ChoosePin } from "@/components/ChoosePin";
+import { changeMyPin } from "@/app/actions/pin";
+import { deleteWork, saveExpertProfile, saveWork } from "@/app/actions/expert";
+import { site } from "@/config/site";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Expert dashboard", robots: { index: false } };
+
+const NOTICE: Record<string, string> = {
+  password: "Your PIN is changed.",
+  profile: "Your profile is saved and shows on your page.",
+  "work-added": "Work sent. It shows on your page once our team approves it.",
+  "work-updated": "Changes sent. The work shows again once our team approves them.",
+  "work-deleted": "Work removed.",
+};
+const ERROR: Record<string, string> = {
+  password: "Enter the same 4-digit PIN twice.",
+  access: "You can only change your own profile.",
+  profile: "Check your profile: the email must be valid, and links and photos must start with https:// (or use Upload).",
+  links: "Each extra link goes on its own line and starts with https://.",
+  work: "Check the work: it needs a title, the year must be a number, and links must start with https://.",
+};
+
+// What each work status means to the expert, in plain words.
+const STATUS = {
+  PUBLISHED: { label: "On your page", cls: "bg-[#E6F4EC] text-[#1F7A4D]", Icon: CheckCircle2 },
+  IN_REVIEW: { label: "Waiting for approval", cls: "bg-accent-tint text-accent-dark", Icon: Clock },
+  ARCHIVED: { label: "Not approved", cls: "bg-bad-bg text-bad-fg", Icon: XCircle },
+  DRAFT: { label: "Draft", cls: "bg-page text-ink-soft", Icon: Clock },
+} as const;
+
+/**
+ * Expert dashboard (/expert): an expert signs in at /experts/login (phone and PIN) or at their
+ * personal address. They keep their profile and website links up to date, and add their work
+ * (photo, file, link), shown once the team approves it at /admin/expert-work. Access comes from
+ * the admin linking their phone to the expert (/admin/expert-logins); actions check it again.
+ */
+export default async function ExpertPortal({ searchParams }: { searchParams: { saved?: string; error?: string } }) {
+  const session = await getSession();
+  if (!session?.user?.id) redirect("/experts/login");
+  const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { pinMustChange: true } });
+  if (me?.pinMustChange) return <ChoosePin back="/expert" error={searchParams.error === "password"} />;
+  const expert = await prisma.consultant.findUnique({
+    where: { ownerId: session.user.id },
+    include: { contentItem: { select: { slug: true, shortSummary: true, overview: true } }, projects: { orderBy: { createdAt: "desc" } } },
+  });
+
+  const signOut = <span className="w-32"><SignOutButton to="/expert" className="border border-line bg-white text-ink-soft hover:border-brand" /></span>;
+  if (!expert) {
+    return (
+      <div className="bg-page"><div className="container-site py-8">
+        <section className="mx-auto flex max-w-lg flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+          <h1 className="font-display text-xl font-extrabold text-heading">This account isn&apos;t registered as an expert</h1>
+          <p className="text-sm text-ink-soft">Call us to be listed as a business expert. If you already have an expert sign-in, sign out and sign in with your expert phone and PIN.</p>
+          <span className="flex flex-wrap items-center gap-3">
+            {site.contact.phone ? <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="btn-primary min-h-[42px] px-4 text-sm">Call {site.contact.phone}</a> : <Link href="/contact" className="btn-primary min-h-[42px] px-4 text-sm">Contact us</Link>}
+            {signOut}
+          </span>
+        </section>
+      </div></div>
+    );
+  }
+
+  const input = "input min-h-[44px] w-full text-[14px]";
+  const label = "flex flex-col gap-1 text-[13px] font-semibold text-ink-soft";
+  const count = (st: string) => expert.projects.filter((p) => p.status === st).length;
+  const statusOf = (s: string) => STATUS[(s in STATUS ? s : "IN_REVIEW") as keyof typeof STATUS];
+
+  return (
+    <div className="bg-page">
+      <div className="container-site flex flex-col gap-5 py-5 sm:py-7">
+        {searchParams.saved && NOTICE[searchParams.saved] ? <p role="status" className="rounded-xl bg-brand-tint px-4 py-3 text-sm font-semibold text-brand-dark">{NOTICE[searchParams.saved]}</p> : null}
+        {searchParams.error && ERROR[searchParams.error] ? <p role="alert" className="rounded-xl bg-bad-bg px-4 py-3 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error]}</p> : null}
+
+        {/* ── Who and where ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or entered address */}
+              {expert.photoUrl ? <img src={expert.photoUrl} alt="" className="h-full w-full object-cover" /> : <UserRound aria-hidden className="h-6 w-6 text-brand/40" />}
+            </span>
+            <span className="flex flex-col">
+              <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">Expert dashboard</span>
+              <h1 className="font-display text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-heading sm:text-[28px]">{expert.fullName}</h1>
+              {expert.professionalTitle ? <span className="text-[13px] text-ink-muted">{expert.professionalTitle}</span> : null}
+            </span>
+          </div>
+          <span className="flex items-center gap-2">
+            <Link href={`/experts/${expert.contentItem.slug}`} className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-heading hover:border-brand hover:text-brand"><ExternalLink aria-hidden className="h-4 w-4" />View my page</Link>
+            {signOut}
+          </span>
+        </div>
+
+        {/* ── At a glance ── */}
+        <ul className="grid grid-cols-3 gap-2 sm:gap-3">
+          {(["PUBLISHED", "IN_REVIEW", "ARCHIVED"] as const).map((st) => {
+            const { label: l, cls, Icon } = STATUS[st];
+            return (
+              <li key={st} className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-3 sm:p-4">
+                <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold sm:text-[12px] ${cls}`}><Icon aria-hidden className="h-3.5 w-3.5" />{l}</span>
+                <span className="font-display text-[26px] font-extrabold text-heading">{count(st)}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="-mt-2 text-[13px] text-ink-muted">How it works: add your work → our team checks it → it shows on your page. Your profile and links show straight away.</p>
+
+        {/* ── Add work ── */}
+        <details className="group rounded-2xl border-2 border-brand/30 bg-white p-4" open={expert.projects.length === 0}>
+          <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add my work
+          </summary>
+          <WorkForm input={input} label={label} />
+        </details>
+
+        {/* ── My work ── */}
+        <div className="flex flex-col gap-2">
+          <h2 className="font-display text-lg font-extrabold text-heading">My work ({expert.projects.length})</h2>
+          {expert.projects.length === 0 ? <p className="text-sm text-ink-muted">Nothing yet. Add a project, a report or a case study above.</p> : null}
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {expert.projects.map((w) => {
+              const st = statusOf(w.status);
+              return (
+                <li key={w.id} className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white">
+                  <div className="relative flex aspect-[16/10] items-center justify-center bg-page">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {w.imageUrl ? <img src={w.imageUrl} alt="" className="h-full w-full object-cover" /> : <Briefcase aria-hidden className="h-8 w-8 text-brand/40" />}
+                    <span className={`absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${st.cls}`}><st.Icon aria-hidden className="h-3 w-3" />{st.label}</span>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-1.5 p-3">
+                    <span className="line-clamp-2 text-[14px] font-semibold text-heading">{w.title}</span>
+                    {w.clientName || w.year ? <span className="text-[12px] text-ink-muted">{[w.clientName, w.year].filter(Boolean).join(" · ")}</span> : null}
+                    <span className="flex flex-wrap gap-3 text-[12px] font-semibold">
+                      {w.fileUrl ? <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1"><FileText aria-hidden className="h-3.5 w-3.5" />File</a> : null}
+                      {w.linkUrl ? <a href={w.linkUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1"><Link2 aria-hidden className="h-3.5 w-3.5" />Link</a> : null}
+                    </span>
+                    <details className="mt-auto pt-1">
+                      <summary className="cursor-pointer list-none text-[13px] font-semibold text-brand [&::-webkit-details-marker]:hidden">Edit</summary>
+                      <WorkForm work={w} input={input} label={label} />
+                    </details>
+                    <form action={deleteWork}>
+                      <input type="hidden" name="id" value={w.id} />
+                      <button className="inline-flex items-center gap-1 text-[12px] font-semibold text-bad-fg"><Trash2 aria-hidden className="h-3.5 w-3.5" />Remove</button>
+                    </form>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* ── My profile and links ── */}
+        <details className="rounded-2xl border border-line bg-white p-4" open={!expert.contentItem.overview && !expert.website}>
+          <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><UserRound aria-hidden className="h-4 w-4 text-brand" />My profile and website links</summary>
+          <form action={saveExpertProfile} className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className={`${label} sm:col-span-2`}>Photo
+              <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
+            </label>
+            <div className="sm:col-span-2"><UploadButton target="photoUrl" kind="image" /></div>
+            <label className={label}>Professional title<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
+            <label className={label}>District<input name="district" defaultValue={expert.district ?? ""} placeholder="e.g. Kampala" className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>Short intro (one or two sentences)<input name="shortSummary" maxLength={300} defaultValue={expert.contentItem.shortSummary ?? ""} className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>About me<textarea name="overview" rows={5} defaultValue={expert.contentItem.overview ?? ""} className="input w-full py-2 text-[14px]" /></label>
+            <label className={label}>Specialties (comma between)<input name="specialties" defaultValue={expert.specialties.join(", ")} placeholder="e.g. VAT, Payroll" className={input} /></label>
+            <label className={label}>Languages (comma between)<input name="languages" defaultValue={expert.languages.join(", ")} placeholder="e.g. English, Luganda" className={input} /></label>
+            <label className={label}>Email<input name="email" type="email" defaultValue={expert.email ?? ""} className={input} /></label>
+            <label className={label}>Phone shown to members<input name="phone" type="tel" defaultValue={expert.phone ?? ""} className={input} /></label>
+            <label className={label}>Website<input name="website" type="url" defaultValue={expert.website ?? ""} placeholder="https://" className={input} /></label>
+            <label className={label}>Booking link<input name="bookingUrl" type="url" defaultValue={expert.bookingUrl ?? ""} placeholder="https://" className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>Other links, one per line (LinkedIn, portfolio, social pages)<textarea name="links" rows={3} defaultValue={expert.links.join("\n")} placeholder={"https://linkedin.com/in/…\nhttps://…"} className="input w-full py-2 text-[14px]" /></label>
+            <label className={`${label} sm:col-span-2`}>Availability<input name="availability" defaultValue={expert.availability ?? ""} placeholder="e.g. Weekdays, 9am to 5pm" className={input} /></label>
+            <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my profile</button>
+          </form>
+        </details>
+
+        {/* ── Settings: PIN ── */}
+        <details className="rounded-2xl border border-line bg-white p-4">
+          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4" />Settings: my PIN</summary>
+          <form action={changeMyPin} className="mt-4 flex max-w-sm flex-col gap-2">
+            <input type="hidden" name="back" value="/expert" />
+            <label className={label}>New 4-digit PIN<input name="password" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
+            <label className={label}>Repeat it<input name="confirm" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
+            <button className="btn-primary min-h-[40px] w-fit px-4 text-sm">Change PIN</button>
+          </form>
+        </details>
+      </div>
+    </div>
+  );
+}
+
+function WorkForm({ work, input, label }: {
+  work?: { id: string; title: string; clientName: string | null; year: number | null; summary: string | null; outcome: string | null; imageUrl: string | null; fileUrl: string | null; linkUrl: string | null };
+  input: string;
+  label: string;
+}) {
+  return (
+    <form action={saveWork} className="mt-3 grid gap-3 sm:grid-cols-2">
+      {work ? <input type="hidden" name="id" value={work.id} /> : null}
+      <label className={`${label} sm:col-span-2`}>Title<input name="title" required defaultValue={work?.title} placeholder="e.g. Business plan for a poultry farm" className={input} /></label>
+      <label className={label}>Client (if you may name them)<input name="clientName" defaultValue={work?.clientName ?? ""} className={input} /></label>
+      <label className={label}>Year<input name="year" inputMode="numeric" maxLength={4} defaultValue={work?.year ?? ""} className={input} /></label>
+      <label className={`${label} sm:col-span-2`}>What you did<textarea name="summary" rows={3} defaultValue={work?.summary ?? ""} className="input w-full py-2 text-[14px]" /></label>
+      <label className={`${label} sm:col-span-2`}>Result (optional)<input name="outcome" defaultValue={work?.outcome ?? ""} placeholder="e.g. Loan of UGX 40m approved" className={input} /></label>
+      <label className={label}>Photo
+        <input name="imageUrl" defaultValue={work?.imageUrl ?? ""} placeholder="Upload, or an https:// address" className={input} />
+      </label>
+      <label className={label}>File (PDF or document)
+        <input name="fileUrl" defaultValue={work?.fileUrl ?? ""} placeholder="Upload, or an https:// address" className={input} />
+      </label>
+      <UploadButton target="imageUrl" kind="image" />
+      <UploadButton target="fileUrl" kind="file" />
+      <label className={`${label} sm:col-span-2`}>Link (website, article or video)<input name="linkUrl" type="url" defaultValue={work?.linkUrl ?? ""} placeholder="https://" className={input} /></label>
+      <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">{work ? "Save and send for approval" : "Send for approval"}</button>
+    </form>
+  );
+}

@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { customerOf, listPayments, METHOD_LABEL, STATUS_LABEL } from "@/lib/admin-payments";
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 /** CSV of the payments shown on /admin/payments (same filters), staff only. */
 export async function GET(req: NextRequest) {
+  await requireArea("payments");
   const session = await getSession();
   if (!session?.user || !["EDITOR", "ADMIN"].includes(session.user.role)) return new NextResponse("Not found", { status: 404 });
 

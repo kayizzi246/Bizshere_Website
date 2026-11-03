@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check, X } from "lucide-react";
-import { requireRole } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { moderateReview } from "@/app/actions/reviews";
@@ -13,7 +13,7 @@ export const metadata = { title: "Expert reviews" };
  * The team can also add reviews itself in each expert's "Client reviews" in the content editor.
  */
 export default async function ExpertReviewsPage({ searchParams }: { searchParams: { done?: string } }) {
-  await requireRole(["EDITOR", "ADMIN"]);
+  await requireArea("experts");
   const waiting = await prisma.consultantReview.findMany({
     where: { moderation: "PENDING" },
     include: { consultant: { include: { contentItem: { select: { title: true, slug: true } } } }, author: { select: { name: true, phone: true, email: true } } },

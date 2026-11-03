@@ -5,7 +5,7 @@ import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 
 // Date inputs give YYYY-MM-DD. Read them as Kampala days: a start date opens at
@@ -43,7 +43,7 @@ function done(flag: string) {
 }
 
 export async function createUpdate(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const data = parse(form);
   const last = await prisma.siteUpdate.aggregate({ _max: { sortOrder: true } });
   const u = await prisma.siteUpdate.create({ data: { ...data, sortOrder: (last._max.sortOrder ?? 0) + 1 } });
@@ -52,7 +52,7 @@ export async function createUpdate(form: FormData) {
 }
 
 export async function saveUpdate(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const id = String(form.get("id") ?? "");
   const data = parse(form);
   await prisma.siteUpdate.update({ where: { id }, data });
@@ -61,7 +61,7 @@ export async function saveUpdate(form: FormData) {
 }
 
 export async function toggleUpdate(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const id = String(form.get("id") ?? "");
   const u = await prisma.siteUpdate.findUniqueOrThrow({ where: { id } });
   await prisma.siteUpdate.update({ where: { id }, data: { isActive: !u.isActive } });
@@ -71,7 +71,7 @@ export async function toggleUpdate(form: FormData) {
 
 /** Swaps an update with its neighbour so the marquee order changes by one step. */
 export async function moveUpdate(dir: "up" | "down", form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const id = String(form.get("id") ?? "");
   const all = await prisma.siteUpdate.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] });
   const i = all.findIndex((u) => u.id === id);
@@ -84,7 +84,7 @@ export async function moveUpdate(dir: "up" | "down", form: FormData) {
 }
 
 export async function deleteUpdate(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("homepage");
   const id = String(form.get("id") ?? "");
   const u = await prisma.siteUpdate.delete({ where: { id } });
   await audit(editor.id, "site_update.deleted", "site_update", id, { message: u.message });

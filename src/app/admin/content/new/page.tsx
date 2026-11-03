@@ -4,6 +4,9 @@ import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
 import { Icon } from "@/components/Icon";
 import { ContentForm } from "../ContentForm";
 import { loadOptions } from "../load";
+import { requireContentType, staffAccess } from "@/lib/access";
+import { contentArea } from "@/lib/admin-areas";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "New content" };
@@ -11,6 +14,9 @@ export const metadata = { title: "New content" };
 const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "funding" : "link");
 
 export default async function NewContentPage({ searchParams }: { searchParams: { type?: string } }) {
+  const user = await staffAccess();
+  const choices = ADMIN_DIRECTORIES.filter((d) => user.can(contentArea(d.type)));
+  if (!choices.length) redirect("/admin?denied=content");
   const dir = searchParams.type ? ADMIN_DIRECTORIES.find((d) => d.type === searchParams.type) ?? directoryFor(searchParams.type) : undefined;
   if (!dir || dir.type === "RECIPE") {
     return (
@@ -20,7 +26,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
           <p className="text-sm text-ink-muted">Choose the directory. Machine offers, funding rounds and market prices have their own forms.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {ADMIN_DIRECTORIES.map((d) => {
+          {choices.map((d) => {
             const groups = new Set(d.fields.map((f) => f.group ?? "Details"));
             return (
               <Link key={d.type} href={`?type=${d.type}`} className="group flex items-start gap-3.5 rounded-xl border border-line bg-surface p-6 text-ink hover:border-brand hover:text-ink">
@@ -36,6 +42,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
       </>
     );
   }
+  await requireContentType(dir.type);
   const options = await loadOptions(dir.type);
   return (
     <>

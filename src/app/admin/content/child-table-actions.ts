@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireStaff } from "@/lib/access";
+import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { childTable, delegate } from "@/lib/child-tables";
 import { parentIds, refOptions } from "@/lib/child-data";
@@ -18,7 +18,7 @@ const back = (id: string, key: string, msg: string): never => redirect(`/admin/c
 const KEEP_DEFAULT = new Set(["currency", "timeZone"]);
 
 export async function saveChildRow(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
   const table = childTable(s(form, "table"));
   const rowId = s(form, "rowId");
@@ -63,7 +63,7 @@ export async function saveChildRow(form: FormData) {
 }
 
 export async function deleteChildRow(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireItemArea(s(form, "contentItemId"));
   const contentItemId = s(form, "contentItemId");
   const table = childTable(s(form, "table"));
   const rowId = s(form, "rowId");

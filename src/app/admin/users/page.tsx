@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -8,9 +9,19 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Users and businesses" };
 
 const TABS: [string, string][] = [["all", "All"], ["member", "Members"], ["business", "Businesses"], ["pending", "Pending"], ["staff", "Staff"]];
+const ERRORS: Record<string, string> = {
+  exists: "An account with that email or phone already exists.",
+  contact: "Give an email or a phone number.",
+  phone: "Enter a valid phone number, e.g. 0772 123 456.",
+  invalid: "Check the fields and try again.",
+  self: "You can't change or suspend your own account here.",
+  staff: "Only the super admin can change staff accounts (Admin team).",
+  missing: "That account no longer exists.",
+};
 const DISTRICTS = ["Kampala", "Wakiso", "Mukono", "Jinja", "Mbarara", "Gulu", "Mbale", "Arua", "Masaka", "Lira"];
 
 export default async function UsersPage({ searchParams }: { searchParams: { tab?: string; q?: string; user?: string; create?: string; created?: string; error?: string } }) {
+  const me = await requireArea("users");
   const tab = TABS.some(([t]) => t === searchParams.tab) ? searchParams.tab! : "all";
   const q = searchParams.q?.trim();
   const where: Prisma.UserWhereInput = {
@@ -39,23 +50,24 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
         <Link href={qs({ create: "1" })} className="btn-primary">+ Create account</Link>
       </div>
 
-      {searchParams.created ? <div role="status" className="rounded-xl bg-brand-tint px-4 py-3 font-bold text-brand-dark">Account created. Send them a password-set link (email sending is not wired up yet).</div> : null}
+      {searchParams.created ? <div role="status" className="rounded-xl bg-brand-tint px-4 py-3 font-bold text-brand-dark">Account created. Members sign in with their phone and a texted code. For a seller or expert, give them their phone-and-PIN login in Supplier logins or Expert logins.</div> : null}
+      {searchParams.error && !searchParams.create ? <div role="alert" className="rounded-xl bg-bad-bg px-4 py-3 text-sm font-semibold text-bad-fg">{ERRORS[searchParams.error] ?? ERRORS.invalid}</div> : null}
 
       {searchParams.create ? (
         <form action={createAccount} className="card flex flex-col gap-4 border-2 border-brand p-6">
-          <div className="flex items-center justify-between"><div><h2 className="text-xl font-extrabold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or for a new staff member.</p></div><Link href={qs({})} aria-label="Close" className="text-xl text-ink">×</Link></div>
-          {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{searchParams.error === "exists" ? "An account with that email already exists." : "Check the fields and try again."}</p> : null}
+          <div className="flex items-center justify-between"><div><h2 className="text-xl font-extrabold">Create an account</h2><p className="text-sm text-ink-muted">For a business that asked to join by phone or in person, or a member. {me.superAdmin ? <>Staff and sub-admins are added in <Link href="/admin/team" className="font-semibold">Admin team</Link>.</> : null}</p></div><Link href={qs({})} aria-label="Close" className="text-xl text-ink">×</Link></div>
+          {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{ERRORS[searchParams.error] ?? ERRORS.invalid}</p> : null}
           <div className="flex flex-wrap gap-3.5">
             <label className="label flex-[1_1_220px]">Account type
               <select name="kind" className="input">
-                <option value="MACHINE_DEALER">Business: machine dealer</option><option value="SUPPLIER">Business: supplier</option><option value="CONSULTANCY">Business: consultant or expert</option><option value="FUNDING_PROVIDER">Business: funding provider</option><option value="SERVICE_PROVIDER">Business: service provider</option><option value="MEMBER">Member</option><option value="EDITOR">Staff: editor</option><option value="ADMIN">Staff: admin</option>
+                <option value="MACHINE_DEALER">Business: machine dealer</option><option value="SUPPLIER">Business: supplier</option><option value="CONSULTANCY">Business: consultant or expert</option><option value="FUNDING_PROVIDER">Business: funding provider</option><option value="SERVICE_PROVIDER">Business: service provider</option><option value="MEMBER">Member</option>
               </select>
             </label>
             <label className="label flex-[2_1_280px]">Business name (for business accounts)<input name="orgName" className="input" /></label>
           </div>
           <div className="flex flex-wrap gap-3.5">
             <label className="label flex-[1_1_220px]">Contact person<input name="name" required className="input" /></label>
-            <label className="label flex-[1_1_220px]">Email<input name="email" type="email" required className="input" /></label>
+            <label className="label flex-[1_1_220px]">Email (or phone)<input name="email" type="email" className="input" /></label>
             <label className="label flex-[1_1_220px]">Phone<input name="phone" type="tel" placeholder="+256" className="input" /></label>
             <label className="label flex-[1_1_180px]">District<select name="district" className="input">{DISTRICTS.map((d) => <option key={d}>{d}</option>)}</select></label>
           </div>
@@ -114,15 +126,15 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
               ))}
               {sel.subscriptions.every((s) => s.payments.length === 0) ? <span className="text-sm text-ink-muted">No payments.</span> : null}
             </div>
-            <form action={changeRole} className="flex items-end gap-2">
+            {me.superAdmin && sel.id !== me.id ? <form action={changeRole} className="flex items-end gap-2">
               <input type="hidden" name="id" value={sel.id} />
               <label className="label flex-1 text-xs">Role<select name="role" defaultValue={sel.role} className="input min-h-[44px]"><option value="USER">Member / visitor</option><option value="CONTRIBUTOR">Business owner</option><option value="EDITOR">Editor</option><option value="ADMIN">Admin</option></select></label>
               <button className="btn-outline min-h-[44px]">Save</button>
-            </form>
-            <form action={setSuspended}>
+            </form> : null}
+            {sel.id !== me.id && (me.superAdmin || (sel.role !== "ADMIN" && sel.role !== "EDITOR")) ? <form action={setSuspended}>
               <input type="hidden" name="id" value={sel.id} /><input type="hidden" name="suspend" value={sel.isSuspended ? "0" : "1"} />
               <button className={sel.isSuspended ? "btn-outline w-full" : "btn-danger w-full"}>{sel.isSuspended ? "Restore account" : "Suspend account"}</button>
-            </form>
+            </form> : null}
           </aside>
         ) : null}
       </div>

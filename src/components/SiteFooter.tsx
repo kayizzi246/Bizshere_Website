@@ -9,7 +9,7 @@ const directoryLinks = DIRECTORIES.map((d) => [d.href, d.title] as [string, stri
 const COLUMNS: { title: string; links: [string, string][] }[] = [
   { title: "Start a business", links: directoryLinks.slice(0, 5) },
   { title: "Resources", links: [...directoryLinks.slice(5), ["/opportunities", "Investment opportunities"]] },
-  { title: "Company", links: [["/about", "About"], ["/membership", "Membership and pricing"], ["/#watch", "Watch us on YouTube"], ["/contact", "Contact"], ["/suppliers/login", "Seller sign in"]] },
+  { title: "Company", links: [["/about", "About"], ["/membership", "Membership and pricing"], ["/#watch", "Watch us on YouTube"], ["/contact", "Contact"], ["/suppliers/login", "Seller sign in"], ["/experts/login", "Expert sign in"]] },
   { title: "Trust", links: [["/methodology", "How we check content"], ["/corrections", "Report a correction"], ["/terms", "Terms"], ["/privacy", "Privacy and data protection"]] },
 ];
 

@@ -83,4 +83,4 @@ export const directory = (href: string) => DIRECTORIES.find((d) => d.href === hr
 
 /** Pages under a paid path that are not directory items, so links to them never open the sign-up
  * pop-up. Files (…/pdf, …/file) are let through too: they check access themselves. */
-export const OPEN_PATHS = ["/suppliers/login"];
+export const OPEN_PATHS = ["/suppliers/login", "/experts/login"];

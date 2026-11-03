@@ -8,7 +8,9 @@ import crypto from "node:crypto";
 import { z } from "zod";
 import type { CheckResult, CheckType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requireStaff } from "@/lib/access";
+import { requireAdmin, requireArea, requireItemArea, staffAccess } from "@/lib/access";
+import { contentArea } from "@/lib/admin-areas";
+import { phoneKey } from "@/lib/phone-codes";
 import { audit } from "@/lib/audit";
 
 const CHECKS: CheckType[] = ["BUSINESS_CONTACT", "REGISTRATION", "PHYSICAL_ADDRESS", "PRICE_EVIDENCE"];
@@ -22,7 +24,7 @@ function slugify(s: string) {
  * Each check is stored separately with date, editor and evidence (blueprint section 03).
  */
 export async function decideSubmission(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("review");
   const id = String(form.get("id"));
   const decision = String(form.get("decision")) as "APPROVED" | "CHANGES_REQUESTED" | "REJECTED";
   const note = String(form.get("note") ?? "").trim();
@@ -96,35 +98,40 @@ export async function decideSubmission(form: FormData) {
   redirect(`/admin/review?done=${decision}`);
 }
 
+// Staff accounts are added at /admin/team (super admin), where the password and areas are set.
 const createSchema = z.object({
-  kind: z.enum(["MEMBER", "EDITOR", "ADMIN", "SUPPLIER", "MACHINE_DEALER", "CONSULTANCY", "FUNDING_PROVIDER", "SERVICE_PROVIDER"]),
+  kind: z.enum(["MEMBER", "SUPPLIER", "MACHINE_DEALER", "CONSULTANCY", "FUNDING_PROVIDER", "SERVICE_PROVIDER"]),
   name: z.string().trim().min(2),
   orgName: z.string().trim().optional(),
-  email: z.string().trim().toLowerCase().email(),
+  email: z.union([z.literal(""), z.string().trim().toLowerCase().email()]).optional(),
   phone: z.string().trim().optional(),
   district: z.string().optional(),
   sendToReview: z.boolean(),
 });
 
 /**
- * Admin creates an account for a business that asked to join by phone or in person,
- * or for a staff member. A random password is set; the person should use a
- * password reset / invite email (wire up an email provider) to choose their own.
+ * Admin creates an account for a business that asked to join by phone or in person, or for a
+ * member. It needs an email or a phone. Members then sign in with their phone (texted code);
+ * sellers and experts get their phone-and-PIN login from Supplier logins / Expert logins. The
+ * password is random and never used: nobody signs in with it.
  */
 export async function createAccount(form: FormData) {
-  const admin = await requireAdmin();
+  const admin = await requireArea("users");
   const parsed = createSchema.safeParse({ ...Object.fromEntries(form), sendToReview: form.get("sendToReview") === "on" });
   if (!parsed.success) redirect("/admin/users?create=1&error=invalid");
   const d = parsed.data;
-  if (await prisma.user.findUnique({ where: { email: d.email } })) redirect("/admin/users?create=1&error=exists");
+  const email = d.email || null;
+  const phone = d.phone ? phoneKey(d.phone) : null;
+  if (d.phone && !phone) redirect("/admin/users?create=1&error=phone");
+  if (!email && !phone) redirect("/admin/users?create=1&error=contact");
+  if ((email && (await prisma.user.findUnique({ where: { email } }))) || (phone && (await prisma.user.findUnique({ where: { phone } })))) redirect("/admin/users?create=1&error=exists");
 
-  const isBusiness = !["MEMBER", "EDITOR", "ADMIN"].includes(d.kind);
-  const tempPassword = crypto.randomBytes(12).toString("base64url");
+  const isBusiness = d.kind !== "MEMBER";
   const user = await prisma.user.create({
     data: {
-      name: d.name, email: d.email, phone: d.phone || null,
-      role: d.kind === "EDITOR" ? "EDITOR" : d.kind === "ADMIN" ? "ADMIN" : isBusiness ? "CONTRIBUTOR" : "USER",
-      passwordHash: await bcrypt.hash(tempPassword, 10),
+      name: d.name, email, phone,
+      role: isBusiness ? "CONTRIBUTOR" : "USER",
+      passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("base64url"), 10),
     },
   });
   if (isBusiness) {
@@ -135,7 +142,7 @@ export async function createAccount(form: FormData) {
         accountType: d.kind as "SUPPLIER" | "MACHINE_DEALER" | "CONSULTANCY" | "FUNDING_PROVIDER" | "SERVICE_PROVIDER",
         status: "PENDING",
         members: { create: { userId: user.id, role: "OWNER" } },
-        contacts: { create: { personName: d.name, email: d.email, phone: d.phone || null, isPrimary: true } },
+        contacts: { create: { personName: d.name, email, phone, isPrimary: true } },
         locations: { create: { locationId: location?.id, isPrimary: true } },
       },
     });
@@ -144,17 +151,20 @@ export async function createAccount(form: FormData) {
     }
   }
   await audit(admin.id, "user.created", "user", user.id, { kind: d.kind });
-  // TODO: send invite email with a password-set link instead of a temporary password.
   revalidatePath("/admin/users");
   revalidateTag(SITE_DATA);
   redirect(`/admin/users?created=${user.id}`);
 }
 
 export async function setSuspended(form: FormData) {
-  const admin = await requireAdmin();
+  const admin = await requireArea("users");
   const id = String(form.get("id"));
   const suspend = form.get("suspend") === "1";
   if (id === admin.id) redirect("/admin/users?error=self");
+  // Staff accounts are the super admin's to suspend (also from /admin/team).
+  const target = await prisma.user.findUnique({ where: { id }, select: { role: true } });
+  if (!target) redirect("/admin/users?error=missing");
+  if ((target.role === "ADMIN" || target.role === "EDITOR") && !admin.superAdmin) redirect(`/admin/users?user=${id}&error=staff`);
   await prisma.user.update({ where: { id }, data: { isSuspended: suspend } });
   await audit(admin.id, suspend ? "user.suspended" : "user.restored", "user", id);
   revalidatePath("/admin/users");
@@ -162,10 +172,12 @@ export async function setSuspended(form: FormData) {
   redirect(`/admin/users?user=${id}`);
 }
 
+/** Super admin only. Your own role can't be changed here, so the last super admin can't lock themselves out. */
 export async function changeRole(form: FormData) {
   const admin = await requireAdmin();
   const id = String(form.get("id"));
   const role = z.enum(["USER", "CONTRIBUTOR", "EDITOR", "ADMIN"]).parse(form.get("role"));
+  if (id === admin.id) redirect(`/admin/users?user=${id}&error=self`);
   await prisma.user.update({ where: { id }, data: { role } });
   await audit(admin.id, "user.role_changed", "user", id, { role });
   revalidatePath("/admin/users");
@@ -173,9 +185,15 @@ export async function changeRole(form: FormData) {
   redirect(`/admin/users?user=${id}`);
 }
 
+/** Only the ticked items in directories this staff member may edit. */
+async function allowedIds(form: FormData) {
+  const editor = await staffAccess();
+  const items = await prisma.contentItem.findMany({ where: { id: { in: form.getAll("ids").map(String) } }, select: { id: true, contentType: true } });
+  return { editor, ids: items.filter((i) => editor.can(contentArea(i.contentType))).map((i) => i.id) };
+}
+
 export async function sendForReReview(form: FormData) {
-  const editor = await requireStaff();
-  const ids = form.getAll("ids").map(String);
+  const { editor, ids } = await allowedIds(form);
   if (ids.length) {
     await prisma.contentItem.updateMany({ where: { id: { in: ids } }, data: { publicationStatus: "IN_REVIEW" } });
     await audit(editor.id, "content.sent_for_review", "content_item", undefined, { ids });
@@ -186,8 +204,8 @@ export async function sendForReReview(form: FormData) {
 
 /** Records one verification check directly from the content editor. */
 export async function recordCheck(form: FormData) {
-  const editor = await requireStaff();
   const contentItemId = String(form.get("contentItemId"));
+  const editor = await requireItemArea(contentItemId);
   const checkType = z.enum(["BUSINESS_CONTACT", "REGISTRATION", "PHYSICAL_ADDRESS", "IDENTITY", "CREDENTIAL", "PROFESSIONAL_REGISTRATION", "OFFICIAL_TERMS", "PRICE_EVIDENCE", "LINK"]).parse(form.get("checkType"));
   const result = z.enum(["PASSED", "FAILED"]).parse(form.get("result"));
   const due = String(form.get("reviewDueAt") ?? "");
@@ -205,7 +223,7 @@ export async function recordCheck(form: FormData) {
 
 /** Accept or reject a reader's correction report. Accepting marks the page for re-review. */
 export async function decideCorrection(form: FormData) {
-  const editor = await requireStaff();
+  const editor = await requireArea("corrections");
   const id = String(form.get("id"));
   const decision = z.enum(["APPROVED", "REJECTED"]).parse(form.get("decision"));
   const note = String(form.get("note") ?? "").trim() || null;
@@ -222,8 +240,7 @@ export async function decideCorrection(form: FormData) {
 }
 
 export async function archiveContent(form: FormData) {
-  const editor = await requireStaff();
-  const ids = form.getAll("ids").map(String);
+  const { editor, ids } = await allowedIds(form);
   if (ids.length) {
     await prisma.contentItem.updateMany({ where: { id: { in: ids } }, data: { publicationStatus: "ARCHIVED" } });
     await audit(editor.id, "content.archived", "content_item", undefined, { ids });

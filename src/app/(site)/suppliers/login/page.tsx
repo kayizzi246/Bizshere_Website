@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { site } from "@/config/site";
-import { SupplierLogin } from "@/components/SupplierLogin";
+import { PinLogin } from "@/components/PinLogin";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Supplier sign in", robots: { index: false } };
 
 /**
- * /suppliers/login: sellers sign in with their phone and password, then go to their portal
+ * /suppliers/login: sellers sign in with their phone and 4-digit PIN, then go to their portal
  * (/supplier). Already signed in as a seller: straight to the portal.
  */
 export default async function SupplierLoginPage() {
@@ -19,7 +19,7 @@ export default async function SupplierLoginPage() {
   }
   return (
     <div className="bg-page">
-      <div className="container-site py-8 sm:py-12"><SupplierLogin callPhone={site.contact.phone || null} /></div>
+      <div className="container-site py-8 sm:py-12"><PinLogin kind="supplier" portal="/supplier" callPhone={site.contact.phone || null} /></div>
     </div>
   );
 }

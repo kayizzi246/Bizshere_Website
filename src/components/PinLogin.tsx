@@ -3,19 +3,32 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { KeyRound, Loader2, LockKeyhole, Phone, Smartphone } from "lucide-react";
-import { requestPinReset, resetPinWithCode, sellerStatus } from "@/app/actions/supplier";
+import { pinStatus, requestPinReset, resetPinWithCode } from "@/app/actions/pin";
 
 /** Wrong PINs before the "Reset PIN" button appears (the server pauses sign-in after 5). */
 const RESET_AFTER = 4;
 
+const WORDS = {
+  supplier: { title: "Supplier sign in", intro: "For sellers listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "a seller", register: "Call us to register your business. We'll text you a PIN to sign in." },
+  expert: { title: "Expert sign in", intro: "For business experts listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "an expert", register: "Call us to be listed as an expert. We'll text you a PIN to sign in." },
+  any: { title: "Sign in", intro: "Enter your 4-digit PIN.", who: "a seller or expert", register: "Call us and we'll set up your sign-in." },
+} as const;
+
 /**
- * Seller sign-in at /suppliers/login: phone number and 4-digit PIN. The team's registration texts
- * the first PIN; the portal then asks for a new one. After 4 wrong PINs a "Reset PIN" button
- * texts a one-time code; code + new PIN resets it and signs in. Numbers that aren't registered
- * sellers are told to call the team.
+ * Phone-and-PIN sign-in for sellers (/suppliers/login), experts (/experts/login) and the personal
+ * sign-in address (/<username>, `account` set: the PIN only). The team's registration texts the
+ * first PIN; the portal then asks for a new one. After 4 wrong PINs a "Reset PIN" button texts a
+ * one-time code; code + new PIN resets it and signs in. Unregistered numbers are told to call the team.
  */
-export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
+export function PinLogin({ kind, portal, callPhone, account }: {
+  kind: "supplier" | "expert" | "any";
+  portal: string;
+  callPhone: string | null;
+  account?: { login: string; name: string; phoneHint: string | null };
+}) {
+  const words = WORDS[kind];
   const [phone, setPhone] = useState("");
+  const login = account?.login ?? phone;
   const [pinValue, setPin] = useState("");
   const [busy, setBusy] = useState(false);
   const [fails, setFails] = useState(0);
@@ -33,10 +46,10 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
     e.preventDefault();
     setBusy(true);
     setState("idle");
-    const status = await sellerStatus(phone).catch(() => "invalid" as const);
+    const status = await pinStatus(login, kind).catch(() => "invalid" as const);
     if (status !== "ok") { setState(status); setBusy(false); return; }
-    const res = await signIn("credentials", { identifier: phone, password: pinValue, redirect: false });
-    if (res?.ok) { window.location.assign("/supplier"); return; }
+    const res = await signIn("credentials", { identifier: login, password: pinValue, redirect: false });
+    if (res?.ok) { window.location.assign(portal); return; }
     setFails((n) => n + 1);
     setState("wrong");
     setPin("");
@@ -46,7 +59,7 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
   async function sendResetCode() {
     setBusy(true);
     setError(null);
-    const res = await requestPinReset(phone).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
+    const res = await requestPinReset(login, kind).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
     setBusy(false);
     if (res.ok) setReset({ step: "code", length: res.length });
     else setError(res.error);
@@ -57,10 +70,10 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
     if (next.length !== 4 || next !== again) { setError("Enter the same 4-digit PIN twice."); return; }
     setBusy(true);
     setError(null);
-    const res = await resetPinWithCode(phone, code, next).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
+    const res = await resetPinWithCode(login, code, next, kind).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
     if (!res.ok) { setError(res.error); setBusy(false); return; }
-    const login = await signIn("credentials", { identifier: phone, password: next, redirect: false });
-    if (login?.ok) window.location.assign("/supplier");
+    const done = await signIn("credentials", { identifier: login, password: next, redirect: false });
+    if (done?.ok) window.location.assign(portal);
     else { setBusy(false); setReset(null); setFails(0); setState("idle"); }
   }
 
@@ -70,12 +83,13 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
     <a href="/contact" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the team</a>
   );
   const pinInput = "input min-h-[46px] w-full pl-9 text-[18px] tracking-[0.5em]";
+  const sentTo = account ? (account.phoneHint ?? "your phone") : phone;
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <div className="flex flex-col gap-1">
-        <h1 className="font-display text-[26px] font-extrabold tracking-[-0.03em] text-heading">{reset ? "Reset your PIN" : "Supplier sign in"}</h1>
-        <p className="text-[14px] text-ink-muted">{reset ? `We sent a code by SMS to ${phone}.` : "For sellers listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN."}</p>
+        <h1 className="font-display text-[26px] font-extrabold tracking-[-0.03em] text-heading">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h1>
+        <p className="text-[14px] text-ink-muted">{reset ? `We sent a code by SMS to ${sentTo}.` : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
       </div>
 
       {reset ? (
@@ -100,23 +114,25 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
         </form>
       ) : state === "not-registered" ? (
         <div role="alert" className="flex flex-col gap-3 rounded-xl bg-accent-tint p-4">
-          <p className="text-sm font-semibold text-accent-dark">This number isn&apos;t registered as a seller.</p>
-          <p className="text-sm text-ink-soft">Call us to register your business. We&apos;ll text you a PIN to sign in.</p>
+          <p className="text-sm font-semibold text-accent-dark">This {account ? "account" : "number"} isn&apos;t registered as {words.who}.</p>
+          <p className="text-sm text-ink-soft">{words.register}</p>
           {call}
-          <button type="button" onClick={() => setState("idle")} className="text-left text-[13px] font-semibold text-brand">Try another number</button>
+          {account ? null : <button type="button" onClick={() => setState("idle")} className="text-left text-[13px] font-semibold text-brand">Try another number</button>}
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Phone number
-            <span className="relative">
-              <Smartphone aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-              <input type="tel" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setFails(0); }} placeholder="0772 123 456" className="input min-h-[46px] w-full pl-9 text-[15px]" />
-            </span>
-          </label>
+          {account ? null : (
+            <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Phone number
+              <span className="relative">
+                <Smartphone aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+                <input type="tel" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setFails(0); }} placeholder="0772 123 456" className="input min-h-[46px] w-full pl-9 text-[15px]" />
+              </span>
+            </label>
+          )}
           <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">4-digit PIN
             <span className="relative">
               <LockKeyhole aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-              <input type="password" inputMode="numeric" autoComplete="current-password" required value={pinValue} onChange={(e) => setPin(digits(e.target.value, 4))} placeholder="••••" className={pinInput} />
+              <input type="password" inputMode="numeric" autoComplete="current-password" autoFocus={Boolean(account)} required value={pinValue} onChange={(e) => setPin(digits(e.target.value, 4))} placeholder="••••" className={pinInput} />
             </span>
           </label>
           {state === "invalid" ? <p role="alert" className="text-sm font-semibold text-bad-fg">Enter a valid phone number, e.g. 0772 123 456.</p> : null}
@@ -129,7 +145,7 @@ export function SupplierLogin({ callPhone }: { callPhone: string | null }) {
               <KeyRound aria-hidden className="h-4 w-4" />Reset PIN by SMS
             </button>
           ) : null}
-          <p className="text-center text-[13px] text-ink-muted">Not a registered seller? {callPhone ? <a href={`tel:${callPhone.replace(/\s/g, "")}`} className="font-semibold">Call {callPhone}</a> : <a href="/contact" className="font-semibold">Contact us</a>} to register.</p>
+          <p className="text-center text-[13px] text-ink-muted">Not registered as {words.who}? {callPhone ? <a href={`tel:${callPhone.replace(/\s/g, "")}`} className="font-semibold">Call {callPhone}</a> : <a href="/contact" className="font-semibold">Contact us</a>} to register.</p>
         </form>
       )}
     </div>

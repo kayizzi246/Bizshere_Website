@@ -3,7 +3,9 @@ import type { ContentType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { contentTypeLabel, date } from "@/lib/format";
 import { archiveContent, deleteContentBulk, sendForReReview } from "../actions";
-import { requireStaff } from "@/lib/access";
+import { staffAccess } from "@/lib/access";
+import { contentArea } from "@/lib/admin-areas";
+import { redirect } from "next/navigation";
 import { ConfirmButton } from "@/components/ConfirmButton";
 
 export const dynamic = "force-dynamic";
@@ -14,13 +16,17 @@ const FRESH: [string, string][] = [["any", "Any freshness"], ["due", "Review due
 const STATUS_BADGE: Record<string, string> = { PUBLISHED: "badge-ok", IN_REVIEW: "badge-info", DRAFT: "badge-muted", ARCHIVED: "badge-muted" };
 
 export default async function ContentPage({ searchParams }: { searchParams: { type?: string; fresh?: string; q?: string; deleted?: string } }) {
-  const user = await requireStaff();
-  const type = DIRS.some(([t]) => t === searchParams.type) ? (searchParams.type as ContentType | "") : "";
+  const user = await staffAccess();
+  // Only the directories this staff member may edit (sub-admins: their areas).
+  const mine = DIRS.filter(([t]) => !t || user.can(contentArea(t))).filter(([t], _n, all) => t || all.length > 1);
+  const allowed = mine.filter(([t]) => t).map(([t]) => t as ContentType);
+  if (!allowed.length) redirect("/admin?denied=content");
+  const type = mine.some(([t]) => t === searchParams.type) ? (searchParams.type as ContentType | "") : "";
   const fresh = FRESH.some(([f]) => f === searchParams.fresh) ? searchParams.fresh! : "any";
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 86_400_000);
   const where: Prisma.ContentItemWhereInput = {
-    ...(type ? { contentType: type } : {}),
+    contentType: type || { in: allowed },
     ...(searchParams.q ? { title: { contains: searchParams.q, mode: "insensitive" } } : {}),
     ...(fresh === "over" ? { nextReviewDueAt: { lt: now } } : {}),
     ...(fresh === "due" ? { nextReviewDueAt: { gte: now, lt: in30 } } : {}),
@@ -39,7 +45,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       {searchParams.deleted ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-semibold text-brand-dark">Deleted {searchParams.deleted}. It has been removed from the database.</p> : null}
 
       <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
-        {DIRS.map(([t, l]) => (
+        {mine.map(([t, l]) => (
           <Link key={t} role="tab" aria-selected={type === t} href={"?" + new URLSearchParams({ ...(t ? { type: t } : {}), fresh }).toString()} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${type === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>
         ))}
       </div></div>
@@ -53,7 +59,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
           <span className="text-ink-muted">With selected:</span>
           <button formAction={sendForReReview} className="btn-outline min-h-[44px] px-3">Send for re-review</button>
           <button formAction={archiveContent} className="btn-outline min-h-[44px] px-3">Archive</button>
-          {user.role === "ADMIN" ? <ConfirmButton action={deleteContentBulk} title="Delete the selected pages?" message="The ticked pages and everything attached to them will be removed from the database." className="h-[38px]">Delete</ConfirmButton> : null}
+          {user.superAdmin ? <ConfirmButton action={deleteContentBulk} title="Delete the selected pages?" message="The ticked pages and everything attached to them will be removed from the database." className="h-[38px]">Delete</ConfirmButton> : null}
         </div>
         <div className="overflow-x-auto">
           <table className="table-base min-w-[880px]">

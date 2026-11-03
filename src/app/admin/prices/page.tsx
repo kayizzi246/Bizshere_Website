@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { date, isOlderThan, moneyRange } from "@/lib/format";
 import { addMarket, addObservation, addProduct } from "./actions";
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Prices" };
 
 export default async function AdminPricesPage({ searchParams }: { searchParams: { error?: string; added?: string } }) {
+  await requireArea("prices");
   const [markets, products, districts, recent] = await Promise.all([
     prisma.market.findMany({ include: { location: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({ orderBy: { name: "asc" } }),
