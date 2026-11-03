@@ -89,13 +89,16 @@
   .table-base tbody tr { @apply transition-colors hover:bg-page/60; }
   .table-base tbody tr:first-child td { @apply border-t-0; }
   .marquee-viewport { mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); }
-  .marquee-track { animation: marquee var(--marquee-duration, 40s) linear infinite; }
+  .marquee-track { animation: marquee var(--marquee-duration, 40s) linear infinite; will-change: transform; backface-visibility: hidden; }
+  /* Hero ribbon: a wider fade at both ends, so items glide in and out instead of being cut off. */
+  .marquee-wide .marquee-viewport { mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
   .marquee:hover .marquee-track,
   .marquee:focus-within .marquee-track { animation-play-state: paused; }
 }
 
 @keyframes marquee {
-  to { transform: translateX(-50%); }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
 }
 
 

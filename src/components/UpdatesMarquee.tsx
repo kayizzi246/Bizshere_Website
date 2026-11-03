@@ -8,7 +8,8 @@ type Update = { id: string; message: string; href: string | null };
  * Pure CSS: the list is rendered twice and slid left by half its width, so it loops
  * without a jump. Pauses on hover or keyboard focus; with reduced motion it stops
  * and becomes a row you can scroll by hand.
- * `dark` is the homepage hero version: a slim news ribbon of plain text on deep brand blue, no band around it.
+ * `dark` is the homepage hero version: a full-width glass ribbon of plain text on the navy hero, no label,
+ * fading out at both ends.
  */
 export function UpdatesMarquee({ updates, live = null, dark = false }: { updates: Update[]; live?: { title: string | null } | null; dark?: boolean }) {
   const all: (Update & { live?: boolean })[] = live
@@ -18,7 +19,8 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   // Repeat short lists so one copy is always wider than the screen.
   const copies = Math.ceil(6 / all.length);
   const row = Array.from({ length: copies }, () => all).flat();
-  const seconds = Math.max(30, row.length * 8);
+  // A steady reading speed (about 45px a second) whatever the number or length of the items.
+  const seconds = Math.max(30, Math.round(row.reduce((n, u) => n + u.message.length + 6, 0) * 0.16));
 
   // Dark: plain text with an orange dot before each item (no chips). Light: chips.
   const chip = dark
@@ -59,17 +61,10 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
     </div>
   );
 
-  // Hero: a slim news ribbon. Orange edge on the left, a megaphone and "WHAT'S NEW" label, a hairline divider, then the text.
-  // No right edge: the ribbon (border, glass and text) fades into the hero towards its end. On wide screens it runs into the gap beside the column.
+  // Hero: a full-width ribbon, no label; items glide in and out through soft fades at both ends.
   if (dark) {
     return (
-      <div role="region" aria-label="Latest updates" className="marquee flex h-10 w-full items-center overflow-hidden rounded-l-lg border-y border-l-[3px] border-white/10 border-l-accent bg-gradient-to-r from-navy/60 to-transparent backdrop-blur-sm [mask-image:linear-gradient(to_right,#000_70%,transparent)] xl:w-[calc(100%+96px)]">
-        <span className="flex h-full shrink-0 items-center gap-2 border-r border-white/10 pl-3 pr-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-          <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
-          </svg>
-          What&apos;s new
-        </span>
+      <div role="region" aria-label="Latest updates" className="marquee marquee-wide flex h-11 w-full items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
         {track}
       </div>
     );
