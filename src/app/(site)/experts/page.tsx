@@ -74,7 +74,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
       <header className="under-header bg-navy text-white">
         <div className="container-site flex flex-col gap-6 py-10 sm:py-14">
           <div className="flex max-w-3xl flex-col gap-3">
-            <h1 className="text-page-title">Find the right expert</h1>
+            <h1 className="text-hero text-[38px] sm:text-[52px] xl:text-[60px]">Find the right expert</h1>
             <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{d.text}</p>
           </div>
 

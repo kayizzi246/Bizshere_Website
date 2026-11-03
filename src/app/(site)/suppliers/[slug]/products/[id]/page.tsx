@@ -60,7 +60,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
             <ArrowLeft aria-hidden className="h-4 w-4" />All products from {supplierName}
           </Link>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
-            <div className="mx-auto w-full max-w-[520px] md:sticky md:top-24 md:max-w-none">
+            <div className="mx-auto w-full max-w-[520px] md:max-w-none">
               <ProductGallery images={product.imageUrl ? [{ src: product.imageUrl, alt: name }] : []} icon="supplier" />
             </div>
 

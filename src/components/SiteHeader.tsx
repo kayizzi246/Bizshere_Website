@@ -12,7 +12,7 @@ import { WishlistLink } from "./Wishlist";
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 const WIDE_ONLY = "/experts";
 
-// Links inside the centre pill: soft until hovered, then a white chip.
+// Navigation links in Manrope (style guide); buttons (Log in, Get started) in Inter.
 const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
@@ -73,7 +73,7 @@ export async function SiteHeader() {
 
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <WishlistLink className="rounded-full" />
-          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 font-display text-[14px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
+          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[14px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
           {/* The one call to action; on phones and tablets it is in the menu */}
           <span className="hidden lg:contents"><AccessButton viewer={viewer} /></span>
 
@@ -113,7 +113,7 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
   const size = mobile ? "h-11 justify-center text-[15px]" : "h-10 text-[14px]";
   if (viewer.isMember) {
     return (
-      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-tint px-4 font-display font-bold text-brand-dark ${size}`}>
+      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-tint px-4 font-semibold text-brand-dark ${size}`}>
         <Icon name="check" className="h-4 w-4" /> Full access
       </span>
     );
@@ -121,7 +121,7 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
     // Signed in: straight to the payment pop-up (data-pay), wherever they are.
-    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand pl-4 pr-1.5 font-display font-semibold text-white transition hover:bg-brand-dark hover:text-white ${size}`}>
+    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand pl-4 pr-1.5 font-semibold text-white transition hover:bg-brand-dark hover:text-white ${size}`}>
       {label}
       <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition group-hover:translate-x-0.5">→</span>
     </Link>

@@ -43,7 +43,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
             </div>
           </nav>
         ) : null}
-        <h1 className="max-w-3xl font-hero text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[40px] xl:text-[46px]">{title}</h1>
+        <h1 className="text-hero max-w-4xl text-[38px] sm:text-[52px] xl:text-[60px]">{title}</h1>
         <p className="max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-[17px]">{intro}</p>
         {/* One inline search bar: words, category, sort and the button. Wraps to two rows on phones. */}
         <form role="search" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}

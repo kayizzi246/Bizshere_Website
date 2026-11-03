@@ -153,7 +153,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               <ArrowLeft aria-hidden className="h-4 w-4" />All business ideas
             </Link>
             <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
-              <div className="mx-auto w-full max-w-[520px] md:sticky md:top-24 md:max-w-none">
+              <div className="mx-auto w-full max-w-[520px] md:max-w-none">
                 <ProductGallery images={images} videos={videos} icon="idea" />
               </div>
 
@@ -204,8 +204,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </div>
         </section>
 
-        {/* Section tabs: stay under the site header while reading */}
-        <nav aria-label="On this page" className="sticky top-[var(--hh)] z-30 border-y border-line bg-white/90 backdrop-blur-xl">
+        {/* Section tabs: jump links; they scroll with the page (nothing sticky on detail pages) */}
+        <nav aria-label="On this page" className="border-y border-line bg-white">
           <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
             {tabs.map(([id, label]) => (
               <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>

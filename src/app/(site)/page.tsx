@@ -5,7 +5,6 @@ import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
-import { GradientMesh } from "@/components/ui/gradient-mesh";
 import { HomeSearch } from "@/components/HomeSearch";
 import { RecentStrip } from "@/components/Recent";
 import { ChevronRight } from "lucide-react";
@@ -23,33 +22,26 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: deep navy (bg-navy) with a soft blue glow. Left: the "What's new" ticker, the call ("What do you want to start, find or
-          solve?"), one sentence, search, every directory as a dotted pill, two actions.
+      {/* ── Hero: one solid deep navy (bg-navy), the same colour as every other hero. Left: the "What's new"
+          ticker, "B2B Information Portal", one sentence of what is here, search, every directory as a
+          dotted pill, two actions.
           Right (wide screens): the "How it works" card. One column below xl: minmax(0,1fr) keeps the wide
           ticker from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden bg-navy text-white">
-        <GradientMesh />
         <div className="container-site relative grid grid-cols-[minmax(0,1fr)] items-center gap-8 pb-10 pt-6 sm:pb-12 sm:pt-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] xl:gap-12">
           <div className="hero-rise flex min-w-0 flex-col items-start gap-4 sm:gap-5">
             {/* Updates ticker (managed at /admin/updates) */}
             <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
-            <h1 className="max-w-3xl font-display text-[34px] font-extrabold leading-[1.05] tracking-[-0.035em] text-white sm:text-[48px] xl:text-[54px] 2xl:text-[60px]">
+            {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
+            <h1 className="text-hero max-w-4xl text-[46px] text-white sm:text-[68px] xl:text-[76px] 2xl:text-[88px]">
               <span className="sr-only">Bizsphere-UG: </span>
-              What do you want to{" "}
-              {/* "start," kept together so the comma never wraps onto its own line */}
-              <span className="whitespace-nowrap">
-                <span className="relative inline-block">
-                  start
-                  <span aria-hidden className="absolute inset-x-0 -bottom-1 h-[5px] rounded-full bg-accent sm:h-[6px]" />
-                </span>
-                ,
-              </span>{" "}
-              find or solve?
+              <span className="text-accent">B2B</span> Information Portal
             </h1>
 
             <p className="max-w-2xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
-              Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
+              Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
+              <span className="font-semibold text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />
@@ -110,23 +102,26 @@ export default async function HomePage() {
 
       {/* ── Directories ─────────────────────────────────── */}
       <section id="directories" className="scroll-mt-24 bg-white">
-        <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
+        <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14 lg:py-16">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
-          <RecentStrip title="Welcome back · pick up where you left off" className="-mt-6 sm:-mt-10" />
-          {/* Short and simple: a label and one clear title */}
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-accent-tint px-3.5 py-1.5 text-[12px] font-bold uppercase tracking-[0.12em] text-accent-dark">
-              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {DIRECTORIES.length} directories in one place
-            </span>
-            <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[42px] lg:text-[50px]">
-              Everything you need to <span className="text-brand">start and grow</span> your business
-            </h2>
+          <RecentStrip title="Welcome back · pick up where you left off" className="-mt-2 sm:-mt-4" />
+          {/* Section header, left-aligned: label and title on the left, one line and search on the right */}
+          <div className="flex flex-col gap-4 border-b border-line pb-6 md:flex-row md:items-end md:justify-between md:gap-10">
+            <div className="flex max-w-2xl flex-col gap-2.5">
+              <span className="inline-flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-brand">
+                <span aria-hidden className="h-[3px] w-6 rounded-full bg-accent" />
+                {DIRECTORIES.length} directories
+              </span>
+              <h2 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[36px] lg:text-[40px]">
+                Everything to start <span className="text-brand">and grow your business</span>
+              </h2>
+            </div>
+            <p className="text-[15px] leading-relaxed text-ink-muted md:max-w-xs md:text-right">Free to browse. Pick one to start.</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
-              <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-7">
+              <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-6">
                 <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
                 <h3 className="font-display text-[17px] font-extrabold sm:mt-5 sm:text-[19px] leading-tight tracking-[-0.025em] text-heading">{d.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-sm">{d.text}</p>
@@ -134,16 +129,17 @@ export default async function HomePage() {
               </Link>
             ))}
             {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
-            <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-xl bg-brand-deep p-6 text-white sm:col-span-2 sm:p-8">
+            {/* Same look as the hero: navy, rounded search bar, orange button */}
+            <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-2xl bg-navy p-5 text-white sm:col-span-2 sm:p-6">
               <div className="flex flex-col gap-1">
-                <span className="font-display text-[24px] font-bold tracking-[-0.02em]">Looking for something specific?</span>
+                <span className="font-display text-[22px] font-extrabold tracking-[-0.02em] sm:text-[24px]">Looking for something specific?</span>
                 <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
               </div>
-              <label className="flex items-center gap-2 rounded-lg bg-white p-1.5 pl-3 text-ink-muted">
+              <label className="flex items-center gap-2 rounded-full bg-white p-1.5 pl-4 text-ink-muted">
                 <Icon name="search" className="h-4 w-4 shrink-0" />
                 <span className="sr-only">Search all directories</span>
-                <input name="q" type="search" placeholder="e.g. maize mill" className="min-h-[48px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
-                <button className="btn min-h-[44px] shrink-0 bg-accent px-4 text-ink hover:bg-accent/90 hover:text-ink">Search</button>
+                <input name="q" type="search" placeholder="e.g. maize mill" className="min-h-[44px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
+                <button className="inline-flex h-11 shrink-0 items-center rounded-full bg-accent px-5 text-[15px] font-semibold text-ink hover:bg-white hover:text-ink">Search</button>
               </label>
             </form>
           </div>
@@ -154,7 +150,6 @@ export default async function HomePage() {
   );
 }
 
-/** Section heading: dark title, optional one-line intro. */
 /**
  * Shown in the hero's window while there is no video: one idea and the machine, supplier and
  * funding it links to, as small example cards. Illustrative only (marked "Example"); no real records.

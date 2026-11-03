@@ -149,7 +149,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { typ
     <div className="bg-[#0A0B0D] text-white">
       <div className="container-site flex flex-col gap-4 py-6 sm:py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-[28px] font-extrabold tracking-[-0.03em] text-white sm:text-[34px]">Markets and Prices</h1>
+          <h1 className="text-hero text-[38px] text-white sm:text-[52px] xl:text-[60px]">Markets and Prices</h1>
           <p className="text-[14px] text-white/55">Latest dated prices from markets across Uganda. Tap a product to see every market.</p>
         </div>
 

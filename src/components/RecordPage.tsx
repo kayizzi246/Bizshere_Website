@@ -12,7 +12,7 @@ import { FieldSections, fieldCount, visibleGroups } from "./FieldSections";
 import { Expand, ReadMore, RecentStrip, RememberVisit } from "./Recent";
 import { ChildSections, loadChildSections } from "./ChildSections";
 import { Icon } from "./Icon";
-import { ProductAction, ProductCard, productFormat, type Product } from "./ProductCard";
+import { ProductCard, type Product } from "./ProductCard";
 import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
 import { videoId } from "@/lib/youtube";
@@ -103,9 +103,6 @@ export async function RecordPage({
     ["evidence", "Checks"],
     ["related", "Related"],
   ];
-  const bar = product && (product.href || product.locked) ? "product"
-    : contact !== undefined && (contact === "locked" || contact.phone || contact.email) ? "contact"
-    : locked ? "unlock" : null;
   const unlock = (label = "Unlock", cls = "") => (
     <Link href={back} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}>
       <LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}
@@ -232,16 +229,16 @@ export async function RecordPage({
                 </section>
               </div>
 
-              {/* Gallery: on top on phones; the left column from tablet width, pinned while the details scroll */}
-              <div className="order-first mx-auto w-full max-w-[520px] md:sticky md:top-24 md:max-w-none">
+              {/* Gallery: on top on phones; the left column from tablet width */}
+              <div className="order-first mx-auto w-full max-w-[520px] md:max-w-none">
                 <ProductGallery images={images} videos={videos} icon={icon} />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Section tabs: stay under the site header while reading */}
-        <nav aria-label="On this page" className="sticky top-[var(--hh)] z-30 border-y border-line bg-white/90 backdrop-blur-xl">
+        {/* Section tabs: jump links; they scroll with the page (nothing sticky on detail pages) */}
+        <nav aria-label="On this page" className="border-y border-line bg-white">
           <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
             {productTabs.map(([id, label]) => (
               <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
@@ -306,21 +303,6 @@ export async function RecordPage({
           </div>
         </div>
 
-        {/* Phones: the main action stays one tap away at the bottom of the screen */}
-        <div aria-hidden className="h-24 lg:hidden" />
-        <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
-          <div className="flex items-center gap-3">
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{locked ? (planInfo.monthly ? `${planInfo.monthly} a month` : "Members") : "Price"}</span>
-              <span className="truncate text-[13px] font-semibold text-heading">{!locked && priceRow && !empty(priceRow.value) ? priceRow.value : name}</span>
-            </span>
-            {locked ? (
-              <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
-            ) : (
-              <a href="#contact" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact seller</a>
-            )}
-          </div>
-        </div>
       </OnboardingGate>
     );
   }
@@ -378,8 +360,8 @@ export async function RecordPage({
         </div>
       </header>
 
-      {/* Section tabs: stay under the site header while reading */}
-      <nav aria-label="On this page" className="sticky top-[var(--hh)] z-30 border-b border-line bg-white/90 backdrop-blur-xl">
+      {/* Section tabs: jump links; they scroll with the page (nothing sticky on detail pages) */}
+      <nav aria-label="On this page" className="border-b border-line bg-white">
         <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
           {tabs.map(([id, label]) => (
             <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
@@ -431,7 +413,7 @@ export async function RecordPage({
         {/* ── 5–6. Action and connected resources ──
             On phones the aside dissolves (display: contents): the actions move up under the
             header, and connected resources stay at the end. */}
-        <aside className="contents lg:sticky lg:top-36 lg:flex lg:flex-col lg:gap-4 lg:self-start">
+        <aside className="contents lg:flex lg:flex-col lg:gap-4 lg:self-start">
           <div className="order-first flex flex-col gap-4 lg:order-none">
           {picture && shownRows.length ? <Facts rows={shownRows} unlock={unlock} /> : null}
           {product ? <ProductCard product={product} back={back} price={planInfo.monthly} /> : null}
@@ -507,57 +489,6 @@ export async function RecordPage({
         {/* What they looked at before: easy to go back to, and the site feels like theirs */}
         <div className="container-site pb-10"><RecentStrip exclude={back} title="You looked at these recently" /></div>
       </div>
-
-      {/* Phones: the download stays one tap away at the bottom of the screen */}
-      {bar === "product" && product ? (
-        <>
-          <div aria-hidden className="h-20 lg:hidden" />
-          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
-            <div className="flex items-center gap-3">
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{productFormat(product)} · {product.kind}</span>
-                <span className="truncate text-[13px] font-semibold text-heading">{product.title}</span>
-              </span>
-              <span className="w-44 shrink-0"><ProductAction product={product} back={back} className="h-11" /></span>
-            </div>
-          </div>
-        </>
-      ) : bar === "contact" && contact !== undefined ? (
-        // Phones: getting in touch stays one tap away at the bottom of the screen.
-        <>
-          <div aria-hidden className="h-24 lg:hidden" />
-          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
-            <div className="flex items-center gap-3">
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Contact</span>
-                <span className="truncate text-[13px] font-semibold text-heading">{title}</span>
-              </span>
-              {contact === "locked" ? (
-                <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock contact</Link>
-              ) : (
-                <span className="flex shrink-0 gap-2">
-                  {contact.phone ? <a href={`tel:${contact.phone.replace(/\s/g, "")}`} className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Call</a> : null}
-                  {contact.email ? <a href={`mailto:${contact.email}`} aria-label="Email" className={`inline-flex h-11 items-center gap-2 rounded-xl border border-line-strong text-sm font-bold text-heading hover:border-brand hover:text-brand ${contact.phone ? "w-11 justify-center" : "px-4"}`}><Mail aria-hidden className="h-4 w-4" />{contact.phone ? null : "Email"}</a> : null}
-                </span>
-              )}
-            </div>
-          </div>
-        </>
-      ) : bar === "unlock" ? (
-        // Phones: what's hidden and how to see it, always in reach.
-        <>
-          <div aria-hidden className="h-24 lg:hidden" />
-          <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
-            <div className="flex items-center gap-3">
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{planInfo.monthly ? `${planInfo.monthly} a month` : "Members"}</span>
-                <span className="truncate text-[13px] font-semibold text-heading">{title}</span>
-              </span>
-              <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
-            </div>
-          </div>
-        </>
-      ) : null}
     </OnboardingGate>
   );
 }
