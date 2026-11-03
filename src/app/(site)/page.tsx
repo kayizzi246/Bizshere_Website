@@ -32,8 +32,8 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            48px above and 64px below (raised from 35/46); 12–16px between the elements; 68px headline. One column below xl. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[64px] pt-[48px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+            64px above and 80px below (raised from 35/46, then 48/64); 12–16px between the elements; 68px headline. One column below xl. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[80px] pt-[64px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
