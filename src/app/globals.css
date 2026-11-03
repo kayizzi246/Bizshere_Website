@@ -70,7 +70,7 @@
   /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
      section title 24→32 / 700 · card title 20→24 / 600 */
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
-  .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.045em; line-height: 0.98; }
+  .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 0.98; }
   .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[36px] lg:text-[44px]; }
   .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[24px]; }

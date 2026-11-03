@@ -18,6 +18,7 @@ export const runtime = "nodejs";
  * idea page and downloadable (?download=1). It holds everything the page shows, for the plan size
  * picked on the page (?scenario=LOW|STANDARD|HIGHER, default the medium plan). Gated like the
  * page: visitors get the free preview (first budget lines and steps, no totals); members everything.
+ * With ?items=id:qty,… (the cost calculator's "Download my plan") the budget is the visitor's own picks.
  */
 export async function GET(req: Request, { params }: { params: { slug: string } }) {
   const viewer = await getViewer();
@@ -33,6 +34,11 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
   const wanted = PLAN_ORDER.find((l) => l === new URL(req.url).searchParams.get("scenario"));
   const main = scenarios.find((s) => s.level === wanted) ?? scenarios.find((s) => s.level === "STANDARD") ?? scenarios[0];
   const shownPlans = main ? [main] : [];
+  // The visitor's own picks from the cost calculator: "id:qty,id:qty" (at most 200, quantities 1–100000).
+  const itemsParam = new URL(req.url).searchParams.get("items");
+  const mine = itemsParam
+    ? new Map(itemsParam.split(",").slice(0, 200).map((p) => p.split(":")).filter(([id, q]) => id && /^\d{1,6}$/.test(q ?? "") && Number(q) > 0).map(([id, q]) => [id, Math.min(100000, Number(q))] as [string, number]))
+    : null;
 
   const keyPoints = points(idea.keyRequirements);
   const allLines = main?.lines ?? [];
@@ -94,6 +100,27 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
     requirementTotal: keyPoints.length + allLines.length,
     budgets: shownPlans.map((s) => {
       const lines = gated ? s.lines.slice(0, FREE_PREVIEW.budgetLines) : s.lines;
+      // "My plan": the items and quantities picked in the cost calculator (?items=id:qty,…), only from
+      // the lines this viewer may see, with their own total.
+      if (mine) {
+        const picked = lines.filter((l) => mine.has(l.id));
+        const sum = picked.reduce((t, l) => t + (l.unitCost === null ? 0 : Number(l.unitCost) * mine.get(l.id)!), 0);
+        const unpriced = picked.filter((l) => l.unitCost === null).length;
+        return {
+          label: `My plan (${PLAN_LABEL[s.level].toLowerCase()} business)`,
+          place: `${s.location?.name ?? "Uganda"} · ${s.estimateDate ? `prices as of ${date(s.estimateDate)}` : "estimate date pending"}`,
+          lines: picked.map((l) => ({
+            item: l.description,
+            group: l.costCategory || "Other",
+            qty: `${mine.get(l.id)!.toLocaleString("en-UG")}${l.unit ? ` ${l.unit}` : ""}`,
+            price: l.unitCost === null ? "-" : money(l.unitCost, s.currency),
+            amount: l.unitCost === null ? (l.unknownReason ?? "To be confirmed") : money(Number(l.unitCost) * mine.get(l.id)!, s.currency),
+          })),
+          hidden: 0,
+          total: `${money(sum, s.currency)}${unpriced ? ` + ${unpriced} not priced` : ""}`,
+          assumptions: s.assumptions,
+        };
+      }
       const total = gated ? null : budgetTotal(s.lines);
       return {
         label: `${PLAN_LABEL[s.level]} plan`,
@@ -116,7 +143,7 @@ export async function GET(req: Request, { params }: { params: { slug: string } }
   };
 
   const pdf = await renderToBuffer(<IdeaPdf d={data} />);
-  const file = `${item.slug}-business-plan.pdf`;
+  const file = `${item.slug}-${mine ? "my-plan" : "business-plan"}.pdf`;
   const download = new URL(req.url).searchParams.has("download");
   return new Response(new Uint8Array(pdf), {
     headers: {

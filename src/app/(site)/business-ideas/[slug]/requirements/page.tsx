@@ -52,16 +52,9 @@ export default async function RequirementsPage({ params, searchParams }: { param
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="bg-page">
         <header className="border-b border-line bg-white">
-          <div className="container-site flex flex-col items-center gap-4 py-10 text-center sm:py-12">
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-ink-muted">
-              <Link href="/business-ideas" className="inline-flex items-center gap-1 text-ink-muted hover:text-brand"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />Business Ideas</Link>
-              <span aria-hidden>›</span>
-              <Link href={overview} className="text-ink-muted hover:text-brand">{name}</Link>
-              <span aria-hidden>›</span>
-              <span className="font-semibold text-heading">Requirements</span>
-            </nav>
-            <h1 className="text-page-title max-w-3xl text-heading">What you need to start a {name.toLowerCase()} business</h1>
-            <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Each item with its price. Add the ones you need to see your own cost.</p>
+          <div className="container-site flex flex-col items-center gap-3 py-5 text-center sm:py-6">
+            <Link href={overview} className="inline-flex items-center gap-1 text-[13px] font-semibold text-ink-muted hover:text-brand"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />{name}</Link>
+            <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.03em] text-heading sm:text-[34px]">Startup budget</h1>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
               <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Business details</Link>
               <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Startup budget</span>
@@ -69,18 +62,19 @@ export default async function RequirementsPage({ params, searchParams }: { param
           </div>
         </header>
 
-        <div className="container-site flex flex-col gap-12 py-10">
+        <div className="container-site flex flex-col gap-6 py-4 sm:py-5">
           <section id="calculator" aria-label="Requirements and cost calculator" className="scroll-mt-24">
             {scenarios.length ? (
               <BudgetCalculator name={name} plans={plans} initial={scenario!.level} gated={gated} unlockHref={path}
-                hidden={Object.fromEntries(scenarios.map((s) => [s.level, gated ? Math.max(0, s.lines.length - FREE_PREVIEW.budgetLines) : 0]))} />
+                hidden={Object.fromEntries(scenarios.map((s) => [s.level, gated ? Math.max(0, s.lines.length - FREE_PREVIEW.budgetLines) : 0]))}
+                pdfHref={`/business-ideas/${item.slug}/pdf`} />
             ) : (
               <p className="rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center text-sm text-ink-muted">The requirements for this idea are being prepared. <Link href={overview} className="font-semibold">See the overview</Link></p>
             )}
           </section>
 
           {more.length ? (
-            <section aria-labelledby="similar" className="flex flex-col gap-5 -mx-2 rounded-2xl border border-line bg-page px-2 py-4 sm:mx-0 sm:rounded-3xl sm:p-8">
+            <section aria-labelledby="similar" className="flex flex-col gap-3">
               <div className="flex items-end justify-between gap-3">
                 <h2 id="similar" className="text-block-title text-heading">Similar businesses</h2>
                 <Link href={inCategory && item.primaryCategory ? `/business-ideas?category=${item.primaryCategory.id}` : "/business-ideas"} className="shrink-0 text-sm font-semibold">View all →</Link>

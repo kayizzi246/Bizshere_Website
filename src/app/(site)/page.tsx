@@ -28,18 +28,20 @@ export default async function HomePage() {
           Right (wide screens): the "How it works" card. One column below xl: minmax(0,1fr) keeps the wide
           ticker from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden bg-navy text-white">
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] items-center gap-8 pb-10 pt-6 sm:pb-12 sm:pt-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] xl:gap-12">
-          <div className="hero-rise flex min-w-0 flex-col items-start gap-4 sm:gap-5">
+        {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
+            35px above and 46px below; 12–16px between the elements. One column below xl. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[46px] pt-[35px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+          <div className="hero-rise flex min-w-0 flex-col items-start">
             {/* Updates ticker (managed at /admin/updates) */}
             <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
-            <h1 className="text-hero max-w-4xl text-[46px] text-white sm:text-[68px] xl:text-[76px] 2xl:text-[88px]">
+            <h1 className="text-hero mb-3 mt-4 text-[46px] text-white sm:text-[68px] xl:text-[86px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal
             </h1>
 
-            <p className="max-w-2xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
+            <p className="mb-4 max-w-2xl text-[16px] leading-[1.5] text-white/80 sm:text-[18px]">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className="font-semibold text-white">Start exploring now.</span>
             </p>
@@ -47,7 +49,7 @@ export default async function HomePage() {
             <HomeSearch />
 
             {/* Every directory as a pill with a dotted border; they wrap to fit any screen */}
-            <ul aria-label="Directories" className="flex max-w-[680px] flex-wrap gap-2">
+            <ul aria-label="Directories" className="mt-4 flex max-w-[680px] flex-wrap gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
                   <Link href={d.href} className="group inline-flex min-h-[40px] items-center gap-2 rounded-full border-2 border-dotted border-white/50 bg-white/[0.04] px-3.5 py-1.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:text-[15px]">
@@ -58,7 +60,7 @@ export default async function HomePage() {
               ))}
             </ul>
 
-            <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
+            <div className="mt-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Link href="/signup" className="group inline-flex h-12 items-center justify-center gap-1.5 rounded-full bg-accent px-7 text-[15px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
               <Link href="/business-ideas" className="inline-flex h-12 items-center justify-center rounded-full border border-white/30 px-7 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Browse business ideas</Link>
             </div>
@@ -66,8 +68,8 @@ export default async function HomePage() {
 
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
-          <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center xl:flex">
-            <div className="mesh-float w-full max-w-[460px] rounded-[26px] border border-white/20 bg-white/10 p-2 backdrop-blur-xl">
+          <div id="watch" className="rise-late hidden scroll-mt-28 flex-col xl:mt-[120px] xl:flex">
+            <div className="w-full rounded-[26px] border border-white/20 bg-white/10 p-2 backdrop-blur-xl">
             <div className="rounded-[20px] bg-white p-4 text-ink">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
@@ -105,18 +107,20 @@ export default async function HomePage() {
         <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14 lg:py-16">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
           <RecentStrip title="Welcome back · pick up where you left off" className="-mt-2 sm:-mt-4" />
-          {/* Section header, left-aligned: label and title on the left, one line and search on the right */}
-          <div className="flex flex-col gap-4 border-b border-line pb-6 md:flex-row md:items-end md:justify-between md:gap-10">
-            <div className="flex max-w-2xl flex-col gap-2.5">
-              <span className="inline-flex items-center gap-2 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-brand">
-                <span aria-hidden className="h-[3px] w-6 rounded-full bg-accent" />
-                {DIRECTORIES.length} directories
+          {/* Section header: a short, upbeat call, centred, with the same orange underline as the hero */}
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-tint px-3.5 py-1.5 text-[13px] font-semibold text-brand-dark">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {DIRECTORIES.length} directories · Free to browse
+            </span>
+            <h2 className="font-display text-[34px] font-extrabold leading-[1.05] tracking-[-0.03em] text-heading sm:text-[46px] lg:text-[54px]">
+              Find it. Price it.{" "}
+              <span className="relative inline-block whitespace-nowrap text-brand">
+                Start it.
+                <span aria-hidden className="absolute inset-x-0 -bottom-1 h-[5px] rounded-full bg-accent" />
               </span>
-              <h2 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[36px] lg:text-[40px]">
-                Everything to start <span className="text-brand">and grow your business</span>
-              </h2>
-            </div>
-            <p className="text-[15px] leading-relaxed text-ink-muted md:max-w-xs md:text-right">Free to browse. Pick one to start.</p>
+            </h2>
+            <p className="max-w-xl text-[16px] leading-relaxed text-ink-muted sm:text-[17px]">Pick a directory and explore. Every page is checked by our team.</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
