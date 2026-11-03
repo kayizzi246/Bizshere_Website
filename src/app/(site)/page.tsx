@@ -115,14 +115,22 @@ export default async function HomePage() {
         <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14 lg:py-16">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
           <RecentStrip title="Welcome back · pick up where you left off" className="-mt-2 sm:-mt-4" />
-          {/* Section header: plain and left-aligned, like a working portal; a search link on the right */}
-          <div className="flex flex-col gap-3 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex max-w-2xl flex-col gap-1.5">
-              <span className="text-[13px] font-semibold uppercase tracking-[0.12em] text-accent-dark">{DIRECTORIES.length} directories</span>
-              <h2 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] text-heading sm:text-[34px]">Browse the directories</h2>
-              <p className="text-[15px] leading-relaxed text-ink-muted sm:text-[16px]">Prices, suppliers, machines, funding and more for doing business in Uganda. Every listing is checked by our team.</p>
-            </div>
-            <Link href="/search" className="inline-flex w-fit shrink-0 items-center gap-1 text-[15px] font-semibold text-brand hover:text-brand-dark">Search everything<ChevronRight aria-hidden className="h-4 w-4" /></Link>
+          {/* Section header, centred: the count between two hairlines, the heading, one line of what is here,
+              and a check-mark note that the team reviews every listing */}
+          <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
+            <span className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.16em] text-accent-dark sm:text-[13px]">
+              <span aria-hidden className="h-px w-8 bg-accent/60 sm:w-12" />
+              {DIRECTORIES.length} directories
+              <span aria-hidden className="h-px w-8 bg-accent/60 sm:w-12" />
+            </span>
+            <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-heading sm:text-[40px]">
+              Browse the <span className="text-brand">directories</span>
+            </h2>
+            <p className="max-w-xl text-[15px] leading-relaxed text-ink-muted sm:text-[17px]">Prices, suppliers, machines, funding and more for doing business in Uganda.</p>
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-page px-3.5 py-1.5 text-[13px] font-medium text-ink-soft">
+              <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4 text-[#12805C]" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              Every listing is checked by our team
+            </span>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
