@@ -144,9 +144,10 @@ export default async function PricesPage({ searchParams }: { searchParams: { typ
 
   const select = "h-11 w-full cursor-pointer appearance-none bg-transparent pl-9 pr-3 text-[14px] font-semibold text-white outline-none";
 
-  // One dark page from the header down: title, tabs and the board share the same background.
+  // One dark page from the very top: title, tabs and the board share the same background.
   return (
-    <div className="bg-[#0A0B0D] text-white">
+    // under-header: the black runs up behind the floating header to the top of the screen.
+    <div className="under-header bg-[#0A0B0D] text-white">
       <div className="container-site flex flex-col gap-4 py-6 sm:py-8">
         <div className="flex flex-col gap-1">
           <h1 className="text-hero text-[38px] text-white sm:text-[52px] xl:text-[60px]">Markets and Prices</h1>
