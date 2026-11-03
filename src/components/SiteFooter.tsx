@@ -44,7 +44,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 py-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-6">
             <Link href="/" aria-label="BizSphere-Ug home" className="w-fit">
-              <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-12 w-auto" />
+              <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-16 w-auto" />
             </Link>
             <p className="max-w-xs text-[13px] leading-relaxed text-ink-muted">{site.tagline}</p>
             {contact.length ? (
