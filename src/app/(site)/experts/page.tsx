@@ -122,7 +122,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search or another district. <Link href="/contact" className="font-semibold">Tell our team who you need</Link> and we&apos;ll help you find them.</p>
             </div>
           ) : (
-            <ul className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
               {/* Two a row on phones (compact cards), four from laptop width */}
               {people.map((c) => {
                 const name = c.fullName || c.contentItem.title;
