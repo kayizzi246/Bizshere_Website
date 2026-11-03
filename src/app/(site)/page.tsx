@@ -46,19 +46,19 @@ export default async function HomePage() {
               <span className="text-accent">B2B</span> Information Portal
             </h1>
 
-            <p className="mb-4 max-w-2xl text-[16px] leading-[1.5] text-white/80 sm:text-[18px]">
+            <p className="mb-4 max-w-2xl text-[14px] leading-[1.55] text-white/80 sm:text-[18px]">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className="font-semibold text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />
 
-            {/* Every directory as a quiet link tile (hairline border, small radius); they wrap to fit any screen */}
-            <ul aria-label="Directories" className="mt-4 flex max-w-[680px] flex-wrap gap-2">
+            {/* Every directory as a link tile: on phones bigger tiles with a dotted border, two to a row, from sm a quiet hairline tile */}
+            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-white/15 bg-white/[0.05] px-3 py-2 text-[14px] font-medium leading-tight text-white/90 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:min-h-[38px] sm:py-1.5">
-                    <Icon name={d.icon} className="h-4 w-4 shrink-0 text-accent" />
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-lg border-2 border-dotted border-white/50 bg-white/[0.05] px-3 py-2.5 text-[15px] font-medium leading-tight text-white/90 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[38px] sm:border sm:border-solid sm:border-white/15 sm:px-3 sm:py-1.5 sm:text-[14px]">
+                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4" />
                     {d.title}
                   </Link>
                 </li>
