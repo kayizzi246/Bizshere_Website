@@ -27,7 +27,7 @@ export default async function HomePage() {
           dotted pill, two actions.
           Right (wide screens): the "How it works" card. One column below xl: minmax(0,1fr) keeps the wide
           ticker from stretching the page past the screen on phones. ── */}
-      <section className="under-header relative isolate overflow-hidden bg-navy text-white">
+      <section className="under-header relative isolate overflow-hidden hero-glow bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             35px above and 46px below; 12–16px between the elements. One column below xl. */}
         <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[46px] pt-[35px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
@@ -52,8 +52,8 @@ export default async function HomePage() {
             <ul aria-label="Directories" className="mt-4 flex max-w-[680px] flex-wrap gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group inline-flex min-h-[40px] items-center gap-2 rounded-full border-2 border-dotted border-white/50 bg-white/[0.04] px-3.5 py-1.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:text-[15px]">
-                    <Icon name={d.icon} className="h-4 w-4 shrink-0 text-white/90 group-hover:text-ink" />
+                  <Link href={d.href} className="group inline-flex min-h-[46px] items-center gap-1.5 rounded-full border-2 border-dotted border-white/50 bg-white/[0.04] px-3 py-2 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:min-h-[40px] sm:gap-2 sm:px-3.5 sm:py-1.5 sm:text-[15px]">
+                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-white/90 group-hover:text-ink sm:h-4 sm:w-4" />
                     {d.title}
                   </Link>
                 </li>
