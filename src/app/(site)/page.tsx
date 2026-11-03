@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
 import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
-import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { HomeSearch } from "@/components/HomeSearch";
 import { RecentStrip } from "@/components/Recent";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
@@ -22,26 +20,24 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const viewer = await getViewer();
-  const [updates, yt, prices] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember)]);
+  const [yt, prices] = await Promise.all([homeVideo(), marketSnapshot(viewer.isMember)]);
 
   return (
     <>
       {/* ── Hero: deep navy (bg-navy) with the same light as every other hero, held still here (hero-still)
-          and with no entrance animations: a calm, working front page. Left: the "What's new" ticker,
+          and with no entrance animations: a calm, working front page. Left:
           "B2B Information Portal", one sentence of what is here, search, every directory as a quiet link
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
-          minmax(0,1fr) keeps the wide ticker from stretching the page past the screen on phones. ── */}
+          minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             48px above and 64px below (raised from 35/46); 12–16px between the elements; 68px headline. One column below xl. */}
         <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[64px] pt-[48px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
-            {/* Updates ticker (managed at /admin/updates) */}
-            <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
-            <h1 className="text-hero mb-3 mt-4 text-[38px] text-white sm:text-[54px] xl:text-[68px]">
+            <h1 className="text-hero mb-3 text-[38px] text-white sm:text-[54px] xl:text-[68px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal
             </h1>
@@ -74,7 +70,7 @@ export default async function HomePage() {
           {/* Right panel: the live stream while we're live on YouTube; otherwise today's market prices (with
               the latest video as a link under them); with no prices yet, the latest video (set at /admin/video)
               or the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
-          <div id="watch" className="hidden scroll-mt-28 flex-col xl:mt-[72px] xl:flex">
+          <div id="watch" className="hidden scroll-mt-28 flex-col xl:mt-[24px] xl:flex">
             {!yt.video?.live && prices.rows.length ? (
               <PricePanel {...prices} video={yt.video ? { id: yt.video.id, title: yt.video.title } : null} />
             ) : (
@@ -115,23 +111,10 @@ export default async function HomePage() {
         <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14 lg:py-16">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
           <RecentStrip title="Welcome back · pick up where you left off" className="-mt-2 sm:-mt-4" />
-          {/* Section header, centred: the count between two hairlines, the heading, one line of what is here,
-              and a check-mark note that the team reviews every listing */}
-          <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
-            <span className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.16em] text-accent-dark sm:text-[13px]">
-              <span aria-hidden className="h-px w-8 bg-accent/60 sm:w-12" />
-              {DIRECTORIES.length} directories
-              <span aria-hidden className="h-px w-8 bg-accent/60 sm:w-12" />
-            </span>
-            <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-heading sm:text-[40px]">
-              Browse the <span className="text-brand">directories</span>
-            </h2>
-            <p className="max-w-xl text-[15px] leading-relaxed text-ink-muted sm:text-[17px]">Prices, suppliers, machines, funding and more for doing business in Uganda.</p>
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-page px-3.5 py-1.5 text-[13px] font-medium text-ink-soft">
-              <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4 text-[#12805C]" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-              Every listing is checked by our team
-            </span>
-          </div>
+          {/* Section header: one bold, centred two-line line, the last words in brand blue */}
+          <h2 className="mx-auto max-w-[680px] text-balance text-center font-display text-[26px] font-extrabold leading-[1.3] tracking-[-0.02em] text-heading sm:text-[34px]">
+            Built for traders, farmers and growing businesses. <span className="text-brand">All in one place.</span>
+          </h2>
 
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
