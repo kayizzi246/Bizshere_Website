@@ -12,6 +12,7 @@ const config: Config = {
       colors: {
         // Client style guide: blue #157EC2 and orange #F28C28.
         // Blue is the main colour (buttons, links); orange is the accent.
+        navy: "#071A33", // deep navy behind every hero (client request, Nov 2026)
         brand: {
           DEFAULT: "#157EC2",
           dark: v("brand-dark"), // hover and blue text; white text on it 7:1 in light mode

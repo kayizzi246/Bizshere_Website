@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
+import { cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
-import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
@@ -10,7 +8,6 @@ import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { GradientMesh } from "@/components/ui/gradient-mesh";
 import { HomeSearch } from "@/components/HomeSearch";
 import { RecentStrip } from "@/components/Recent";
-import { getViewer } from "@/lib/access";
 import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -20,55 +17,49 @@ export const dynamic = "force-dynamic";
  * No invented customer logos, testimonials or user counts.
  */
 
-const TYPE_ICON: Record<string, string> = { GUIDE: "guide", TOOL: "tool", NEWS: "news", RECIPE: "recipe" };
-
 
 export default async function HomePage() {
-  const [viewer, guides, updates, yt] = await Promise.all([
-    getViewer(),
-    cachedRecentGuides(),
-    cachedSiteUpdates(),
-    homeVideo(),
-  ]);
-  const [lead, ...more] = guides;
+  const [updates, yt] = await Promise.all([cachedSiteUpdates(), homeVideo()]);
 
   return (
     <>
-      {/* ── Hero: blue animated gradient mesh. The floating header sits on it (.under-header).
-          Left: the "What's new" ticker, the headline, one sentence, search, popular directories, two actions and
-          what people worry about before paying (free search, mobile money, cancel any time).
-          Right (wide screens): the "How it works" card in a frosted frame. ── */}
-      <section className="under-header relative isolate overflow-hidden text-white">
+      {/* ── Hero: deep navy (bg-navy) with a soft blue glow. Left: the "What's new" ticker, the call ("What do you want to start, find or
+          solve?"), one sentence, search, every directory as a dotted pill, two actions.
+          Right (wide screens): the "How it works" card. One column below xl: minmax(0,1fr) keeps the wide
+          ticker from stretching the page past the screen on phones. ── */}
+      <section className="under-header relative isolate overflow-hidden bg-navy text-white">
         <GradientMesh />
-        <div className="container-site relative grid items-center gap-8 pb-8 pt-5 sm:pb-10 sm:pt-7 xl:grid-cols-[1.25fr_1fr] xl:gap-12 2xl:gap-20">
-          <div className="hero-rise flex flex-col items-start gap-3.5 sm:gap-4">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] items-center gap-8 pb-10 pt-6 sm:pb-12 sm:pt-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] xl:gap-12">
+          <div className="hero-rise flex min-w-0 flex-col items-start gap-4 sm:gap-5">
             {/* Updates ticker (managed at /admin/updates) */}
             <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
-            {/* "B2B INFORMATION PORTAL" in Inter Black (900; Manrope stops at 800): "B2B" in orange,
-                "PORTAL" in a sky-to-white gradient. The site name stays in the heading for screen readers and search. */}
-            <h1 className="flex flex-col font-sans font-black uppercase leading-[0.92] tracking-[-0.04em] text-white">
-              <span className="sr-only">Bizsphere-UG – </span>
-              <span className="text-[30px] sm:text-[46px] xl:text-[48px] 2xl:text-[58px]">
-                <span className="text-accent">B2B</span> Information
-              </span>
-              <span className="bg-gradient-to-r from-sky-300 via-cyan-100 to-white bg-clip-text pb-1 text-[42px] text-transparent sm:text-[62px] xl:text-[60px] 2xl:text-[72px]">
-                Portal
-              </span>
+
+            <h1 className="max-w-3xl font-display text-[34px] font-extrabold leading-[1.05] tracking-[-0.035em] text-white sm:text-[48px] xl:text-[54px] 2xl:text-[60px]">
+              <span className="sr-only">Bizsphere-UG: </span>
+              What do you want to{" "}
+              {/* "start," kept together so the comma never wraps onto its own line */}
+              <span className="whitespace-nowrap">
+                <span className="relative inline-block">
+                  start
+                  <span aria-hidden className="absolute inset-x-0 -bottom-1 h-[5px] rounded-full bg-accent sm:h-[6px]" />
+                </span>
+                ,
+              </span>{" "}
+              find or solve?
             </h1>
 
-            <p className="max-w-2xl text-[14px] leading-relaxed text-white/75 sm:text-[16px]">
-              Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
-              <span className="font-semibold text-white">Start exploring now.</span>
+            <p className="max-w-2xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
+              Pick a business idea, see its dated start-up budget, find the machines and suppliers to equip it, check funding that fits, and save everything you need to act.
             </p>
 
             <HomeSearch />
 
-            {/* Every directory as a chip, right under the search: a tidy grid of equal, compact chips */}
-            <ul aria-label="Directories" className="grid w-full max-w-[660px] grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {/* Every directory as a pill with a dotted border; they wrap to fit any screen */}
+            <ul aria-label="Directories" className="flex max-w-[680px] flex-wrap gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[40px] items-center gap-2 rounded-lg border border-white/20 bg-white/[0.08] px-2.5 py-1 backdrop-blur-sm text-[13px] font-semibold leading-tight text-white/90 transition-colors hover:border-accent hover:bg-accent hover:text-ink sm:text-[14px]">
-                    <Icon name={d.icon} className="h-4 w-4 shrink-0 text-accent group-hover:text-ink" />
+                  <Link href={d.href} className="group inline-flex min-h-[40px] items-center gap-2 rounded-full border-2 border-dotted border-white/50 bg-white/[0.04] px-3.5 py-1.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:text-[15px]">
+                    <Icon name={d.icon} className="h-4 w-4 shrink-0 text-white/90 group-hover:text-ink" />
                     {d.title}
                   </Link>
                 </li>
@@ -76,10 +67,9 @@ export default async function HomePage() {
             </ul>
 
             <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
-              <Link href="/signup" className="group inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
-              <Link href="/business-ideas" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/25 bg-white/[0.08] px-6 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:border-white/60 hover:bg-white/15 hover:text-white">Browse business ideas</Link>
+              <Link href="/signup" className="group inline-flex h-12 items-center justify-center gap-1.5 rounded-full bg-accent px-7 text-[15px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
+              <Link href="/business-ideas" className="inline-flex h-12 items-center justify-center rounded-full border border-white/30 px-7 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Browse business ideas</Link>
             </div>
-
           </div>
 
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
@@ -160,59 +150,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-
-      {/* ── Recently reviewed: bento on deep brand blue, so it stands apart from the white directories above and the
-          footer below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
-      {/* Members only: visitors and signed-in non-payers don't see this section at all */}
-      {lead && viewer.isMember ? (
-        <section className="bg-brand-deep text-white">
-          <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="flex max-w-2xl flex-col gap-3">
-                <h2 className="text-section-title text-white">Recently reviewed</h2>
-                <p className="text-[15px] leading-relaxed text-white/70 sm:text-base">Guides, tools and news our editors have checked lately. Every page shows the date.</p>
-              </div>
-              <Link href="/guides" className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-white/25 px-5 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white hover:text-ink">All guides <Icon name="arrow" className="h-4 w-4" /></Link>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-4 lg:grid-rows-2">
-              {/* Newest */}
-              <Link href={itemHref(lead)} className="group relative isolate flex min-h-[320px] flex-col justify-between overflow-hidden rounded-3xl bg-brand p-7 text-white hover:text-white lg:col-span-2 lg:row-span-2 lg:p-9">
-                <Icon name={TYPE_ICON[lead.contentType] ?? "guide"} className="absolute -bottom-10 -right-8 -z-10 h-56 w-56 text-white/10" strokeWidth={1.25} />
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-heading">{contentTypeLabel[lead.contentType]}</span>
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">Reviewed {date(lead.lastReviewedAt ?? lead.publishedAt)}</span>
-                </span>
-                <span className="flex max-w-lg flex-col gap-4">
-                  <span className="font-display text-[28px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[36px]">{lead.title}</span>
-                  {lead.shortSummary ? <span className="line-clamp-3 text-[15px] leading-relaxed text-white/90 sm:text-base">{lead.shortSummary}</span> : null}
-                  <span className="inline-flex w-fit items-center gap-2 rounded-[10px] bg-white px-4 py-2.5 text-sm font-semibold text-heading transition group-hover:bg-accent group-hover:text-ink">
-                    Read the guide <Icon name="arrow" className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                  </span>
-                </span>
-              </Link>
-
-              {/* Four more */}
-              {more.slice(0, 4).map((g) => (
-                <Link key={g.id} href={itemHref(g)} className="group flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.05] p-6 text-white transition-colors hover:border-accent hover:bg-white/[0.08] hover:text-white">
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-accent transition-colors group-hover:bg-accent group-hover:text-ink"><Icon name={TYPE_ICON[g.contentType] ?? "guide"} className="h-5 w-5" /></span>
-                    <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/70">{date(g.lastReviewedAt ?? g.publishedAt)}</span>
-                  </span>
-                  <span className="flex flex-1 flex-col gap-1.5">
-                    <span className="text-[13px] font-semibold text-accent">{contentTypeLabel[g.contentType]}</span>
-                    <span className="font-display text-[19px] font-bold leading-tight tracking-[-0.01em] text-white">{g.title}</span>
-                  </span>
-                  <span className="flex items-center justify-between border-t border-white/10 pt-3 text-[15px] font-semibold text-white">
-                    Read
-                    <span aria-hidden className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white transition group-hover:border-accent group-hover:bg-accent group-hover:text-ink">→</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
     </>
   );
 }

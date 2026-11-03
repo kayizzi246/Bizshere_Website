@@ -31,6 +31,10 @@ export function QuickLinks({ services }: { services: Service[] }) {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
+  // Like the desktop rail: not on single items (it covered their buttons) or account pages; the header
+  // menu lists every directory anyway.
+  if (hideQuickLinks(path)) return null;
+
   return (
     <div className="lg:hidden">
       <button type="button" data-quick-services="" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
@@ -97,7 +101,7 @@ export function ServiceRail({ services }: { services: Service[] }) {
   // Search has its own filter column in that corner.
   if (path.startsWith("/search")) return null;
   // Out of the way on single items (it covered product photos and forms) and on account pages.
-  if (path.split("/").filter(Boolean).length >= 2 || ["/supplier", "/account", "/membership"].includes(path)) return null;
+  if (hideQuickLinks(path)) return null;
   // White outline so the buttons stay distinct over the blue hero and over white sections alike.
   const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 
@@ -122,4 +126,9 @@ export function ServiceRail({ services }: { services: Service[] }) {
       })}
     </nav>
   );
+}
+
+/** Single items (/machines/x, /suppliers/x/products/y) and account pages keep the screen for their content. */
+function hideQuickLinks(path: string) {
+  return path.split("/").filter(Boolean).length >= 2 || ["/supplier", "/account", "/membership"].includes(path);
 }

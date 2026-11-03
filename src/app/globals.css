@@ -197,9 +197,9 @@ body:has([data-sticky-search]) [data-site-header] { position: relative; }
    floating Services button above it. */
 body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 
-/* The header (SiteHeader) is a full-width bar. --hh is its height: 64px on phones, 72px from laptop
-   width. A dark hero marked .under-header runs up behind it (the transparent top border shows the
-   hero's own background), so nothing shows between the bar and the hero. */
+/* The header (SiteHeader) is one floating rounded bar. --hh is its full height, gap included:
+   8px + 56px bar on phones, 12px + 64px from laptop width. A dark hero marked .under-header runs up
+   behind it to the top of the screen (the transparent top border shows the hero's own background). */
 :root { --hh: 64px; }
-@media (min-width: 1024px) { :root { --hh: 72px; } }
+@media (min-width: 1024px) { :root { --hh: 76px; } }
 .under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }

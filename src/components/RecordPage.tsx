@@ -329,7 +329,7 @@ export async function RecordPage({
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
       {/* ── 1–2. Identity and key facts: a deep deep brand blue band like the homepage hero. Title and
           access on the left; the photo (or, without one, the key facts) on the right. ── */}
-      <header className="under-header bg-brand-deep text-white">
+      <header className="under-header bg-navy text-white">
         <div className="container-site flex flex-col gap-4 py-4 sm:gap-7 sm:py-8 lg:py-12">
           {/* Phones: one clear way back. Wider screens: the full trail. */}
           <Link href={trail[0]} className="inline-flex min-h-[40px] w-fit items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white sm:hidden">

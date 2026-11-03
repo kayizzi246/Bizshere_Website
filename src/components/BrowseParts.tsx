@@ -32,7 +32,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
 }) {
   const select = "h-11 w-full min-w-0 cursor-pointer appearance-none bg-transparent pl-9 pr-8 text-[14px] font-semibold text-heading outline-none";
   return (
-    <header className="under-header relative isolate overflow-hidden bg-brand-deep text-white">
+    <header className="under-header relative isolate overflow-hidden bg-navy text-white">
       <div className="hero-rise container-site flex flex-col items-center gap-3 py-7 text-center sm:py-9">
         {tabs ? (
           <nav aria-label="Sections" className="max-w-full overflow-x-auto [scrollbar-width:none]">

@@ -75,7 +75,7 @@ export function ListingHeader({ title, intro, tabs, active, overlap = false }: {
   overlap?: boolean;
 }) {
   return (
-    <header className="under-header bg-brand-deep text-white">
+    <header className="under-header bg-navy text-white">
       <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-12 ${overlap ? "pb-20 sm:pb-24" : "pb-9 sm:pb-12"}`}>
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
