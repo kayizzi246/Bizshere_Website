@@ -29,8 +29,8 @@ export default async function HomePage() {
           ticker from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            35px above and 46px below; 12–16px between the elements; 68px headline. One column below xl. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[46px] pt-[35px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+            48px above and 64px below (raised from 35/46); 12–16px between the elements; 68px headline. One column below xl. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[64px] pt-[48px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="hero-rise flex min-w-0 flex-col items-start">
             {/* Updates ticker (managed at /admin/updates) */}
             <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
@@ -69,21 +69,20 @@ export default async function HomePage() {
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
           <div id="watch" className="rise-late hidden scroll-mt-28 flex-col xl:mt-[120px] xl:flex">
-            <div className="w-full rounded-[26px] border border-white/20 bg-white/10 p-2 backdrop-blur-xl">
-            <div className="rounded-[20px] bg-white p-4 text-ink">
+            <div className="w-full rounded-3xl border border-white/15 bg-white/[0.06] p-5 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl">
               <div className="flex items-center gap-3 pb-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center gap-2 font-display text-[15px] font-bold leading-tight tracking-[-0.01em] text-heading">
+                  <span className="flex items-center gap-2 font-display text-[16px] font-extrabold leading-tight tracking-[-0.01em] text-white">
                     {yt.video?.live ? (
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-bold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
                     ) : null}
                     <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How Bizsphere-Ug works")}</span>
                   </span>
-                  <span className="text-[12px] text-ink-muted">See how we help you from idea to action.</span>
+                  <span className="text-[12px] text-white/60">From idea to action in four steps.</span>
                 </span>
                 {yt.channelId ? (
-                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-brand-tint px-3 py-1.5 text-[13px] font-semibold text-brand hover:bg-brand hover:text-white">
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 text-[13px] font-semibold text-white hover:border-accent hover:bg-accent hover:text-ink">
                     <Icon name="video" className="h-4 w-4" />{yt.video ? "Subscribe" : "Watch on YouTube"}
                   </a>
                 ) : null}
@@ -95,7 +94,6 @@ export default async function HomePage() {
               ) : (
                 <Showcase />
               )}
-            </div>
             </div>
           </div>
         </div>
@@ -155,50 +153,38 @@ export default async function HomePage() {
 }
 
 /**
- * Shown in the hero's window while there is no video: one idea and the machine, supplier and
- * funding it links to, as small example cards. Illustrative only (marked "Example"); no real records.
+ * Shown in the hero's card while there is no video: starting a bakery as a four-step journey
+ * (idea, machine, supplier, funding), one row per step joined by a line. Illustrative only
+ * (marked "Example"); each row opens that directory.
  */
 function Showcase() {
-  // Each linked record with its own colour, as in the design: machines orange, suppliers green, funding purple.
-  const linked: [string, string, string, string, string, string][] = [
-    ["/machines", "machine", "Deck oven", "Machine", "Price for members", "bg-accent-tint text-accent-dark"],
-    ["/suppliers", "supplier", "Flour wholesaler", "Supplier", "Contact checked", "bg-[#E3F6EC] text-[#12805C]"],
-    ["/funding", "funding", "SME loan", "Funding source", "Round open", "bg-[#EFEBFF] text-[#6B4EE6]"],
+  // [href, icon, step, example, badge, icon tile colour]
+  const steps: [string, string, string, string, string, string][] = [
+    ["/business-ideas", "idea", "Pick an idea", "Bakery business", "Small · Medium · Large", "bg-[#2E6BFF]/20 text-[#8FB0FF]"],
+    ["/machines", "machine", "Get the machine", "Deck oven", "Price for members", "bg-accent/20 text-accent"],
+    ["/suppliers", "supplier", "Find a supplier", "Flour wholesaler", "Contact checked", "bg-[#12B76A]/20 text-[#5BE3A1]"],
+    ["/funding", "funding", "Fund it", "SME loan", "Round open", "bg-[#8B6CFF]/20 text-[#B9A6FF]"],
   ];
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-page p-3 xl:p-4">
-      <span className="w-fit rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-heading">Example: starting a bakery</span>
-      <div className="grid grid-cols-[1.1fr_1fr] gap-2.5 2xl:gap-3">
-        {/* The plan */}
-        <div className="flex flex-col gap-2.5 rounded-2xl bg-white p-3.5 xl:p-4">
-          <span className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-white"><Icon name="idea" className="h-3.5 w-3.5" /></span>
-            <span className="whitespace-nowrap rounded-md bg-brand-tint px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-dark">Business plan</span>
-            <ChevronRight aria-hidden className="ml-auto h-4 w-4 text-ink-muted" />
-          </span>
-          <span className="font-display text-[15px] font-semibold leading-tight tracking-[-0.01em] text-heading">Bakery business</span>
-          <span className="flex-1 text-[12px] leading-relaxed text-ink-muted">Budget, steps, staff and risks.</span>
-          <span className="flex flex-wrap gap-1.5">
-            {["Small", "Medium", "Large"].map((l) => <span key={l} className="rounded-md bg-page px-2 py-0.5 text-[11px] font-medium text-ink-soft">{l}</span>)}
-          </span>
-        </div>
-        {/* What it links to */}
-        <div className="flex flex-col gap-2.5">
-          {linked.map(([href, icon, name, kind, note, tone]) => (
-            <Link key={kind} href={href} className="group flex flex-1 items-center gap-3 rounded-2xl bg-white px-3.5 py-2.5 text-ink hover:text-ink">
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tone}`}><Icon name={icon} className="h-4 w-4" /></span>
-              <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="truncate font-display text-[13px] font-bold leading-tight text-heading">{name}</span>
-                <span className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] text-ink-muted">{kind}</span>
-                  <span className={`rounded px-1.5 py-px text-[10px] font-semibold ${tone}`}>{note}</span>
-                </span>
+    <div className="flex flex-col gap-3">
+      <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[12px] font-semibold text-white/80">Example: starting a bakery</span>
+      <ol className="relative flex flex-col gap-2">
+        {/* The line joining the steps, behind the icon tiles */}
+        <span aria-hidden className="absolute bottom-7 left-[30px] top-7 w-px bg-gradient-to-b from-white/30 via-white/15 to-white/30" />
+        {steps.map(([href, icon, step, example, badge, tone], n) => (
+          <li key={href}>
+            <Link href={href} className="group relative flex items-center gap-3 rounded-2xl border border-white/10 bg-navy/60 px-3 py-2.5 text-white transition-colors hover:border-accent/60 hover:bg-navy/80 hover:text-white">
+              <span className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tone}`}><Icon name={icon} className="h-4 w-4" /></span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">{n + 1}. {step}</span>
+                <span className="truncate font-display text-[15px] font-bold leading-tight text-white">{example}</span>
               </span>
-              <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand" />
+              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/75">{badge}</span>
+              <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-accent" />
             </Link>
-          ))}
-        </div>
-      </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

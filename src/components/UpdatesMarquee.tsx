@@ -60,9 +60,10 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   );
 
   // Hero: a slim news ribbon. Orange edge on the left, a megaphone and "WHAT'S NEW" label, a hairline divider, then the text.
+  // No right edge: the ribbon (border, glass and text) fades into the hero towards its end. On wide screens it runs into the gap beside the column.
   if (dark) {
     return (
-      <div role="region" aria-label="Latest updates" className="marquee flex h-10 w-full max-w-[660px] items-center overflow-hidden rounded-lg border border-white/10 border-l-[3px] border-l-accent bg-navy/50 backdrop-blur-sm">
+      <div role="region" aria-label="Latest updates" className="marquee flex h-10 w-full items-center overflow-hidden rounded-l-lg border-y border-l-[3px] border-white/10 border-l-accent bg-gradient-to-r from-navy/60 to-transparent backdrop-blur-sm [mask-image:linear-gradient(to_right,#000_70%,transparent)] xl:w-[calc(100%+96px)]">
         <span className="flex h-full shrink-0 items-center gap-2 border-r border-white/10 pl-3 pr-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
           <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
             <path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
