@@ -174,6 +174,8 @@ select {
   background-position: 108% -18rem, 16% 135%, -14rem 120%;
   animation: hero-glow 16s ease-in-out infinite; }
 @keyframes hero-glow { 50% { background-position: 96% -10rem, 30% 118%, -6rem 105%; } }
+/* The homepage hero keeps the light but holds it still: calmer for a page people open every day. */
+.hero-still { animation: none; }
 
 @keyframes mesh-drift-1 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
