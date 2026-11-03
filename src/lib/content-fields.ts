@@ -105,6 +105,7 @@ export const DIRECTORIES: Directory[] = [
       e("supplierType", "Type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
       t("country", "Country", MAIN), l("items", "Items supplied", MAIN),
       t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
+      { ...u("pictureUrl", "Photo (shop, products or logo)", MAIN), upload: "image" }, t("pictureCredit", "Photo credit", MAIN, "e.g. Photo: supplier, or Jane Doe, CC BY-SA 4.0"),
       i("yearsEstablished", "Year established (only if confirmed)", "Profile"), l("brandsSupplied", "Brands supplied", "Products"),
       t("minimumOrder", "Minimum order", "Commercial terms"), b("sellsWholesale", "Sells wholesale", "Commercial terms"), b("sellsRetail", "Sells retail", "Commercial terms"),
       l("paymentMethods", "Payment methods", "Commercial terms"), ta("deliveryAreas", "Delivery areas", "Commercial terms"), t("leadTime", "Lead time", "Commercial terms"), ta("returnsPolicy", "Returns policy", "Commercial terms"),

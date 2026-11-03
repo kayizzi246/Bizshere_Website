@@ -140,7 +140,7 @@ function FieldInput({ f: raw, value, error, member }: { f: Field; value: string;
 function Section({ id, title, note, children }: { id: string; title: string; note?: string; children: React.ReactNode }) {
   return (
     <section id={id} className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-      <div className="flex flex-col gap-0.5"><h2 className="text-base font-bold text-heading">{title}</h2>{note ? <p className="text-[13px] text-ink-muted">{note}</p> : null}</div>
+      <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">{title}</h2>{note ? <p className="text-[13px] text-ink-muted">{note}</p> : null}</div>
       {children}
     </section>
   );

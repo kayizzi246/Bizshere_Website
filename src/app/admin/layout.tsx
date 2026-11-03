@@ -21,15 +21,18 @@ const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireStaff();
-  const [pending, corrections, pendingPayments] = await Promise.all([
+  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
     prisma.payment.count({ where: { status: "PENDING" } }),
+    prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
+    prisma.consultantReview.count({ where: { moderation: "PENDING" } }),
   ]);
   const theme = cookies().get("admin-theme")?.value === "dark" ? "dark" : "light";
   const items: NavItem[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet" },
+    { href: "/admin/plans", label: "Membership prices", icon: "prices" },
     { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox" },
     { href: "/admin/corrections", label: "Corrections", badge: corrections, icon: "flag" },
     { section: "Content" },
@@ -38,6 +41,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/prices", label: "Markets and Prices", icon: "prices" },
     { section: "People and site" },
     { href: "/admin/users", label: "Users and businesses", icon: "users" },
+    { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier" },
+    { href: "/admin/seller-products", label: "Seller products", badge: sellerProducts, icon: "supplier" },
+    { href: "/admin/expert-reviews", label: "Expert reviews", badge: pendingReviews, icon: "expert" },
     { href: "/admin/updates", label: "Homepage updates", icon: "megaphone" },
     { href: "/admin/video", label: "Homepage video", icon: "video" },
   ];

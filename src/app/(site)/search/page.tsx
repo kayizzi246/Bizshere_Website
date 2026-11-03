@@ -10,13 +10,13 @@ import {
   advancedSearch, CONDITIONS, FUNDING_TYPES, GROUPS, hasAdvanced, PAGE_SIZE, parseSearch, PRICES_GROUP,
   searchChoices, SORTS, STAGES, TOPICS, UPDATED, type ResultRow, type SearchParams,
 } from "@/lib/advanced-search";
-import { saveSearch, toggleSave } from "@/app/actions/member";
+import { saveSearch } from "@/app/actions/member";
 import { AutoSubmit } from "@/components/AutoSubmit";
 import { Gate } from "@/components/Gate";
 import { Icon } from "@/components/Icon";
 import { IdeaPhoto } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
-import { SaveButton } from "@/components/SaveButton";
+import { WishlistHeart } from "@/components/Wishlist";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Search" };
@@ -85,6 +85,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const advancedOpen = hasAdvanced(p) || p.advanced || Object.keys(searchParams).length === 0;
   const plan = {
     name: memberPlan?.name ?? "Member",
+    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
     monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
     yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
   };
@@ -135,7 +136,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
             <div data-manual="" className="mt-4 hidden rounded-2xl border border-line bg-white group-has-[#adv-toggle:checked]/adv:block">
               <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4 sm:px-6">
-                <h2 className="text-base font-bold text-heading">Advanced search</h2>
+                <h2 className="text-base font-extrabold text-heading">Advanced search</h2>
                 <p className="text-[13px] text-ink-muted">Combine words, directories and filters</p>
               </div>
               <div className="flex flex-col gap-4 p-5 sm:p-6">
@@ -233,7 +234,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <section className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
+              <h2 className="text-xl font-extrabold text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
               <p className="mt-0.5 text-sm text-ink-muted">{count.toLocaleString()} {count === 1 ? "result" : "results"}{pages > 1 ? ` · page ${p.page} of ${pages}` : ""}</p>
             </div>
             {!pricesOnly ? (
@@ -387,7 +388,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2.5 sm:gap-1 sm:p-3">
         <span className={`font-display text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
-        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
+        <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
         {check && (r.supplier || r.consultant) ? <span className="badge-ok self-start whitespace-normal"><Icon name="check" className="h-3 w-3 shrink-0" />Contact checked {date(check.checkedAt)}</span> : null}
         {round ? <span className="badge self-start whitespace-normal bg-accent-tint text-accent-dark"><span className="live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />Open{round.isRolling ? " · rolling" : round.closesAt ? ` · closes ${date(round.closesAt)}` : ""}</span> : null}
         {r.investmentOpportunity?.deadline ? <span className="badge-warn self-start">Deadline {date(r.investmentOpportunity.deadline)}</span> : null}
@@ -402,7 +403,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
 
         <div className="mt-auto flex items-center gap-1.5 pt-2 sm:gap-2">
           <Link href={href} className="btn-primary min-h-[38px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
-          <SaveButton id={r.id} back={back} saved={saved} action={toggleSave} />
+          <WishlistHeart id={r.id} className="h-[38px] w-[38px] shrink-0 rounded-lg border border-line" />
         </div>
       </div>
     </article>
@@ -426,7 +427,7 @@ function PriceTable({ prices, member, more }: { prices: Price[]; member: boolean
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-        <h3 className="font-display text-sm font-bold text-heading">Markets and Prices</h3>
+        <h3 className="font-display text-sm font-extrabold text-heading">Markets and Prices</h3>
         {more ? <Link href={more} className="text-[13px] font-semibold">See all prices</Link> : null}
       </div>
       <div className="overflow-x-auto">

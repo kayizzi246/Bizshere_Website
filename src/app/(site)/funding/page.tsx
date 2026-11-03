@@ -18,5 +18,5 @@ async function meta(ids: string[]) {
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/funding");
-  return <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" meta={meta} variant="table" title={d.title} intro={d.text} />;
 }

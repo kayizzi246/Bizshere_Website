@@ -58,7 +58,7 @@ export function SubscribeModal({ title, onClose }: { title: string; onClose: () 
           <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-xl text-white">×</button>
         </div>
         <div className="flex flex-col gap-4 p-7">
-          <h2 id="gate-title" className="text-[26px] font-bold tracking-tight">{title}</h2>
+          <h2 id="gate-title" className="text-[26px] font-extrabold tracking-tight">{title}</h2>
           <ul className="flex flex-col gap-2.5 text-[15px]">
             {["Full business plans and startup budgets", "Supplier and expert contact details", "Full funding terms with deadline alerts", "Price history, templates and downloads"].map((t) => (
               <li key={t} className="flex gap-2.5"><Check /> {t}</li>

@@ -12,7 +12,7 @@ type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
 
 // Avatar colours for people without a photo, picked from the name so each person keeps theirs.
-const TONES = ["bg-brand text-white", "bg-accent text-ink", "bg-[#0F766E] text-white", "bg-[#7C3AED] text-white", "bg-[#071A33] text-white", "bg-[#BE185D] text-white"];
+const TONES = ["bg-brand text-white", "bg-accent text-ink", "bg-[#0F766E] text-white", "bg-[#7C3AED] text-white", "bg-brand-deep text-white", "bg-[#BE185D] text-white"];
 const toneOf = (name: string) => TONES[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % TONES.length];
 const initials = (name: string) => name.replace(/^sample\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
@@ -70,14 +70,10 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
 
   return (
     <>
-      {/* ── Header: navy band with the search front and centre ── */}
-      <header className="under-header bg-[#071A33] text-white">
+      {/* ── Header: deep brand blue band with the search front and centre ── */}
+      <header className="under-header bg-brand-deep text-white">
         <div className="container-site flex flex-col gap-6 py-10 sm:py-14">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[13px] text-white/60">
-            <Link href="/" className="text-white/60 hover:text-white">Home</Link><span aria-hidden>/</span><span className="text-white/90">Business experts</span>
-          </nav>
           <div className="flex max-w-3xl flex-col gap-3">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white/90"><Users aria-hidden className="h-3.5 w-3.5 text-accent" />{all.length} {all.length === 1 ? "expert" : "experts"} listed</span>
             <h1 className="text-page-title">Find the right expert</h1>
             <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{d.text}</p>
           </div>

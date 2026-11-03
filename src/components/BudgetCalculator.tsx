@@ -125,7 +125,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
         <div className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           {plans.length > 1 ? (
             <div className="flex flex-col gap-2.5">
-              <h3 className="text-center font-display text-[15px] font-bold text-heading">Business size</h3>
+              <h3 className="text-center font-display text-[15px] font-extrabold text-heading">Business size</h3>
               <div role="radiogroup" aria-label="Business size" className="grid gap-2" style={{ gridTemplateColumns: `repeat(${plans.length}, minmax(0, 1fr))` }}>
                 {plans.map((p) => (
                   <button key={p.level} type="button" role="radio" aria-checked={p.level === plan.level} onClick={() => switchTo(p.level)}
@@ -178,7 +178,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
           {/* Each category: its name, then must-have items before optional ones */}
           {sections.map(({ c, shown }) => (
             <section key={c} id={slug(c)} data-cat={c} aria-label={c} className="flex flex-col gap-3">
-              <h4 className="flex items-baseline gap-2 font-display text-xl font-bold text-heading">{c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span></h4>
+              <h4 className="flex items-baseline gap-2 font-display text-xl font-extrabold text-heading">{c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span></h4>
               {[...shown.filter((l) => !l.optional), ...shown.filter((l) => l.optional)].map((l) => (
                 <RequirementCard key={l.id} l={l} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />
               ))}
@@ -211,7 +211,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
       {/* ── My list: the visitor's own selection and total (beside the list on wide screens) ── */}
       <aside aria-label="My requirements list"
         className={`flex-col rounded-2xl border border-line bg-white lg:sticky lg:inset-auto lg:top-36 lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
-        <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[15px] font-bold text-heading">
+        <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[15px] font-extrabold text-heading">
           <span className="flex items-center gap-2">My requirements list{picked.length ? <span className="rounded-full bg-brand px-2 text-xs text-white">{picked.length}</span> : null}</span>
           <button type="button" onClick={() => setListOpen(false)} aria-label="Close my list" className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-soft hover:bg-page lg:hidden"><X className="h-4 w-4" /></button>
         </h3>
@@ -265,7 +265,7 @@ function RequirementCard({ l, currency, added, onToggle }: { l: CalcLine; curren
       <div className="flex min-w-0 flex-1 items-start gap-3.5">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><I aria-hidden className="h-5 w-5" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-col gap-1">
-          <h5 className="font-display text-[17px] font-bold leading-tight text-heading">
+          <h5 className="font-display text-[17px] font-extrabold leading-tight text-heading">
             {l.item}{l.optional ? <span className="ml-2 align-middle text-xs font-semibold text-accent-dark">Optional</span> : null}
           </h5>
           {l.details ? <p className="line-clamp-2 text-sm leading-relaxed text-ink-muted">{l.details}</p> : null}

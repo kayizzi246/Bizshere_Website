@@ -37,7 +37,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-[22px] font-bold tracking-tight text-heading">Payments</h1>
+          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Payments</h1>
           <p className="text-sm text-ink-muted">Membership payments made on the website, newest first.</p>
         </div>
         <a href={exportHref} className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-line bg-surface px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">

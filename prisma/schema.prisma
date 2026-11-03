@@ -205,6 +205,7 @@ enum PlanAudience {
 }
 
 enum BillingPeriod {
+  DAILY
   MONTHLY
   YEARLY
 }
@@ -265,6 +266,8 @@ model User {
   email        String?   @unique
   phone        String?   @unique // international format, e.g. +256700123456
   passwordHash String?
+  /// Sellers sign in with a 4-digit PIN (stored in passwordHash). True after the team sends one by SMS: the seller must choose their own before using the portal.
+  pinMustChange Boolean   @default(false)
   role         Role      @default(USER)
   isSuspended  Boolean   @default(false)
   lastActiveAt DateTime?
@@ -882,6 +885,9 @@ model Supplier {
   sparePartsLocal    Boolean?
   exportCapability   Boolean?
   listingClaimed     Boolean       @default(false)
+  /// Photo for the supplier card and page (shop front, products or logo), set in the admin or the supplier portal.
+  pictureUrl         String?
+  pictureCredit      String?
 
   contentItem  ContentItem              @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
   organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -958,6 +964,10 @@ model SupplierProductListing {
   currency             String    @default("UGX")
   quotedAt             DateTime?
   validUntil           DateTime?
+  /// Product catalog (supplier page grid): photo, and whether it shows on the site. Suppliers add these in /supplier.
+  imageUrl             String?
+  status               PublicationStatus @default(PUBLISHED)
+  createdAt            DateTime          @default(now())
 
   supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   product  Product? @relation(fields: [productId], references: [id])
@@ -1624,6 +1634,7 @@ model MembershipPlan {
   code         String       @unique // free, member, business_basic, business_featured...
   name         String
   audience     PlanAudience
+  priceDaily   Decimal?     @db.Decimal(14, 2) // a day pass; NULL until the client confirms prices
   priceMonthly Decimal?     @db.Decimal(14, 2) // NULL until the client confirms prices
   priceYearly  Decimal?     @db.Decimal(14, 2)
   currency     String       @default("UGX")

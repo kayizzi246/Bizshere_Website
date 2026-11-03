@@ -11,7 +11,13 @@ async function meta(ids: string[]) {
   return Object.fromEntries(rows.map((w) => [w.contentItemId, [w.siteType, w.mainFunction].filter(Boolean).join(" · ")]));
 }
 
+// Each row goes straight to the website (only https or http addresses).
+async function links(ids: string[]) {
+  const rows = await prisma.usefulWebsite.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, canonicalUrl: true } });
+  return Object.fromEntries(rows.filter((w) => /^https?:\/\//.test(w.canonicalUrl)).map((w) => [w.contentItemId, w.canonicalUrl]));
+}
+
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/websites");
-  return <DirectoryList path="/websites" searchParams={searchParams} types={["WEBSITE"]} tabs={GUIDE_TABS} active="/websites" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/websites" searchParams={searchParams} types={["WEBSITE"]} tabs={GUIDE_TABS} active="/websites" meta={meta} links={links} variant="table" title={d.title} intro={d.text} />;
 }

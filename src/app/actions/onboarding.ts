@@ -3,6 +3,7 @@
 import { z } from "zod";
 import type { BillingPeriod, PaymentMethod } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { periodEnd } from "@/lib/billing";
 import { audit } from "@/lib/audit";
 import { getViewer } from "@/lib/access";
 import { getSession } from "@/lib/auth";
@@ -30,7 +31,7 @@ export async function accessState() {
 const simulate = () => process.env.PAYMENT_SIMULATE === "true";
 
 const checkoutInput = z.object({
-  period: z.enum(["MONTHLY", "YEARLY"]),
+  period: z.enum(["DAILY", "MONTHLY", "YEARLY"]),
   method: z.enum(["MTN_MOMO", "AIRTEL_MONEY", "CARD"]),
   phone: z.string().trim().optional(),
 });
@@ -58,7 +59,7 @@ export async function startMembership(input: { period: BillingPeriod; method: Pa
 
   const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
   if (!plan) return { status: "error", message: "Membership is not available yet." };
-  const price = period === "YEARLY" ? plan.priceYearly : plan.priceMonthly;
+  const price = period === "YEARLY" ? plan.priceYearly : period === "DAILY" ? plan.priceDaily : plan.priceMonthly;
   if (price === null && !simulate()) {
     return { status: "error", message: "Membership prices haven't been set yet. Please check back soon." };
   }
@@ -77,9 +78,7 @@ export async function startMembership(input: { period: BillingPeriod; method: Pa
   });
 
   if (simulate()) {
-    const end = new Date();
-    if (period === "YEARLY") end.setFullYear(end.getFullYear() + 1);
-    else end.setMonth(end.getMonth() + 1);
+    const end = periodEnd(new Date(), period);
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCEEDED", paidAt: new Date(), providerRef: `simulated-${payment.id}` } }),
       prisma.subscription.update({ where: { id: sub.id }, data: { status: "ACTIVE", period, currentPeriodEnd: end } }),

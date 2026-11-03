@@ -13,13 +13,15 @@ export default async function AccountPage() {
   if (!viewer.userId) redirect("/login?callbackUrl=/account");
   const userId = viewer.userId;
 
-  const [user, saved, collections, searches, alerts, calculations] = await Promise.all([
+  const [user, saved, collections, searches, alerts, calculations, supplierOf] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { subscriptions: { include: { plan: true }, orderBy: { startedAt: "desc" }, take: 1 } } }),
     prisma.savedItem.findMany({ where: { userId }, include: { contentItem: true }, orderBy: { createdAt: "desc" } }),
     prisma.collection.findMany({ where: { userId }, include: { items: { include: { contentItem: true } } }, orderBy: { createdAt: "asc" } }),
     prisma.savedSearch.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
     prisma.alert.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 20 }),
     prisma.toolCalculation.findMany({ where: { userId }, include: { toolVersion: { include: { tool: { include: { contentItem: true } } } } }, orderBy: { createdAt: "desc" }, take: 10 }),
+    // Linked to a supplier by the team: show the way into the supplier portal.
+    prisma.supplier.findFirst({ where: { organization: { members: { some: { userId } } } }, select: { contentItem: { select: { title: true } } } }),
   ]);
   const sub = user.subscriptions[0];
   const unread = alerts.filter((a) => !a.readAt).length;
@@ -40,9 +42,16 @@ export default async function AccountPage() {
         </div>
       </div>
 
+      {supplierOf ? (
+        <Link href="/supplier" className="card flex flex-wrap items-center justify-between gap-3 border-brand/40 px-5 py-4 text-ink hover:border-brand hover:text-ink">
+          <span className="flex flex-col"><span className="font-bold">Supplier portal</span><span className="text-sm text-ink-muted">Add products and a photo to {supplierOf.contentItem.title}</span></span>
+          <span className="font-semibold text-brand">Open →</span>
+        </Link>
+      ) : null}
+
       <section className="card flex flex-col gap-3 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-bold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
+          <h2 className="text-lg font-extrabold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
           {unread ? <form action={markAlertsRead}><button className="btn-outline min-h-[44px] px-3">Mark all read</button></form> : null}
         </div>
         {alerts.length === 0 ? <p className="text-sm text-ink-muted">No alerts yet. Save funding programmes or searches to get deadline and update alerts.</p> : alerts.map((a) => (
@@ -55,8 +64,8 @@ export default async function AccountPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="card flex min-w-0 flex-[2_1_520px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-bold">Saved ({saved.length})</h2>
-          {saved.length === 0 ? <p className="text-sm text-ink-muted">Use ☆ Save on any page to keep it here.</p> : saved.map((s) => (
+          <h2 id="wishlist" className="scroll-mt-28 text-lg font-extrabold">Wishlist ({saved.length})</h2>
+          {saved.length === 0 ? <p className="text-sm text-ink-muted">Tap the ♡ on any business, machine, supplier or other listing to keep it here.</p> : saved.map((s) => (
             <div key={s.contentItemId} className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
               <span className="flex flex-col">
                 <Link href={itemHref(s.contentItem)} className="font-bold">{s.contentItem.title}</Link>
@@ -77,7 +86,7 @@ export default async function AccountPage() {
         </section>
 
         <section className="card flex min-w-0 flex-[1_1_340px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-bold">Collections</h2>
+          <h2 className="text-lg font-extrabold">Collections</h2>
           <p className="text-sm text-ink-muted">Group what you need for one plan, e.g. &ldquo;Bakery in Mukono&rdquo;.</p>
           <form action={createCollection} className="flex gap-2">
             <input name="name" required maxLength={80} placeholder="New collection name" aria-label="New collection name" className="input min-h-[44px] flex-1" />
@@ -102,7 +111,7 @@ export default async function AccountPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="card flex min-w-0 flex-[1_1_420px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-bold">Saved searches</h2>
+          <h2 className="text-lg font-extrabold">Saved searches</h2>
           {searches.length === 0 ? <p className="text-sm text-ink-muted">Run a search and choose &ldquo;Save this search&rdquo;.</p> : searches.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 border-t border-line pt-3">
               <Link href={savedSearchHref(s.query, s.filters)} className="font-bold">{s.query || "All content"}</Link>
@@ -111,7 +120,7 @@ export default async function AccountPage() {
           ))}
         </section>
         <section className="card flex min-w-0 flex-[1_1_420px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-bold">Saved calculations</h2>
+          <h2 className="text-lg font-extrabold">Saved calculations</h2>
           {calculations.length === 0 ? <p className="text-sm text-ink-muted">Results you save from calculators appear here, tied to the rule version used.</p> : calculations.map((c) => (
             <div key={c.id} className="flex justify-between gap-3 border-t border-line pt-3 text-sm">
               <Link href={itemHref(c.toolVersion.tool.contentItem)} className="font-bold">{c.label ?? c.toolVersion.tool.contentItem.title}</Link>

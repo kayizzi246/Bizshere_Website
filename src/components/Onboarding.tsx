@@ -6,6 +6,7 @@ import { Check, CreditCard, Download, Landmark, LockKeyhole, Phone, Smartphone, 
 import { accessState, startMembership, type CheckoutOutcome } from "@/app/actions/onboarding";
 import { PhoneSignIn } from "./PhoneSignIn";
 import { site } from "@/config/site";
+import { OPEN_PATHS } from "@/config/directories";
 
 /**
  * Onboarding pop-up for directory cards: sign in with a phone number (or Google)
@@ -15,15 +16,16 @@ import { site } from "@/config/site";
  * open the pop-up instead of navigating, unless the viewer already has full access.
  * The link still works normally without JavaScript or when opened in a new tab.
  *
- * With `paths` (the site-wide gate in the (site) layout), it instead catches every link into
- * those paths, wherever it sits: header, footer, chips, cards, search results. Links marked
+ * With `paths` (the site-wide gate in the (site) layout), it instead catches every link to a single
+ * item under those paths, wherever it sits: header, footer, chips, cards, search results. Links to
+ * the list pages themselves (e.g. /business-ideas) open for everyone. Links marked
  * `data-onboard` are left to the page's own gate so only one pop-up opens.
  *
  * Links marked `data-pay` (Subscribe, Get full access) open the pop-up straight away on any page,
  * at the payment step, or at sign-in first for visitors without an account. `data-next` is where
  * to go afterwards. Their href (?onboard=pay) does the same on a full page load.
  */
-type Plan = { name: string; monthly: string | null; yearly: string | null };
+type Plan = { name: string; daily?: string | null; monthly: string | null; yearly: string | null };
 type Step = "account" | "pay" | "done";
 
 export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan, paths }: {
@@ -52,7 +54,8 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     if (paths) {
       if (a.hasAttribute("data-onboard")) return;
       const url = new URL(a.href, location.href);
-      if (url.origin !== location.origin || !paths.some((p) => url.pathname === p || url.pathname.startsWith(`${p}/`))) return;
+      // Only single items (/business-ideas/small-bakery); the lists themselves (/business-ideas) open for everyone
+      if (url.origin !== location.origin || OPEN_PATHS.includes(url.pathname) || /\/(pdf|file)$/.test(url.pathname) || !paths.some((p) => url.pathname.startsWith(`${p}/`))) return;
     } else if (!a.hasAttribute("data-onboard")) return;
     e.preventDefault();
     setNext(a.getAttribute("href") ?? "/");
@@ -142,10 +145,10 @@ const WHY = [
   { icon: Download, title: "Prices and downloads", text: "Price history, machine prices, tools and templates." },
 ];
 
-/** Left panel: why an account and membership are worth it. Navy like the hero; trimmed on phones. */
+/** Left panel: why an account and membership are worth it. Deep brand blue like the hero; trimmed on phones. */
 function WhyPanel({ plan }: { plan: Plan }) {
   return (
-    <div className="bg-[#071A33] px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
+    <div className="bg-brand-deep px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
       <p className="text-[12px] font-semibold text-white/60">BizSphere-Ug membership</p>
       <p className="mt-2 font-display text-[24px] font-extrabold leading-[1.12] tracking-[-0.02em] sm:mt-3 sm:text-[28px] md:text-[30px]">See the full budget before you spend a shilling.</p>
       <p className="mt-3 hidden text-[13px] leading-relaxed text-white/70 sm:block">Anyone can read a preview. Members get the whole page:</p>
@@ -219,12 +222,12 @@ function networkOf(p: string): "MTN_MOMO" | "AIRTEL_MONEY" | null {
 }
 
 function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
-  const [period, setPeriod] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
+  const [period, setPeriod] = useState<"DAILY" | "MONTHLY" | "YEARLY">("MONTHLY");
   const [method, setMethod] = useState<(typeof METHODS)[number]["id"]>("MTN_MOMO");
   const [payPhone, setPayPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckoutOutcome | null>(null);
-  const price = period === "MONTHLY" ? plan.monthly : plan.yearly;
+  const price = period === "MONTHLY" ? plan.monthly : period === "DAILY" ? (plan.daily ?? null) : plan.yearly;
 
   // After the mobile money prompt: check every few seconds whether the payment went through
   // (the gateway's webhook grants access), and carry on by itself, for up to 5 minutes.
@@ -276,12 +279,12 @@ function PayStep({ plan, onDone }: { plan: Plan; onDone: () => void }) {
         <div className="flex items-center justify-between gap-3">
           <span className="text-[13px] font-semibold text-ink-soft">{plan.name}</span>
           <div role="group" aria-label="Billing period" className="flex rounded-lg border border-line bg-white p-0.5 text-[12px] font-semibold">
-            {(["MONTHLY", "YEARLY"] as const).map((p) => (
-              <button key={p} type="button" onClick={() => setPeriod(p)} aria-pressed={period === p} className={`rounded-md px-3 py-1 transition-colors ${period === p ? "bg-brand text-white" : "text-ink-muted hover:text-ink"}`}>{p === "MONTHLY" ? "Monthly" : "Yearly"}</button>
+            {(["DAILY", "MONTHLY", "YEARLY"] as const).map((p) => (
+              <button key={p} type="button" onClick={() => setPeriod(p)} aria-pressed={period === p} className={`rounded-md px-3 py-1 transition-colors ${period === p ? "bg-brand text-white" : "text-ink-muted hover:text-ink"}`}>{p === "MONTHLY" ? "Monthly" : p === "DAILY" ? "Daily" : "Yearly"}</button>
             ))}
           </div>
         </div>
-        <p className="mt-2 font-display text-[20px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : "year"}</span> : null}</p>
+        <p className="mt-2 font-display text-[20px] font-bold tracking-tight text-heading">{price ?? <span className="text-[15px] font-semibold text-ink-muted">Price to be confirmed</span>}{price ? <span className="ml-1 text-[13px] font-medium text-ink-muted">/ {period === "MONTHLY" ? "month" : period === "DAILY" ? "day" : "year"}</span> : null}</p>
       </div>
 
       <fieldset className="flex flex-col gap-2">

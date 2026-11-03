@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { trackView } from "@/components/DetailParts";
 import { extLink, RecordPage, list } from "@/components/RecordPage";
+import { ExpertReviewForm } from "@/components/ExpertReviewForm";
 
 export const dynamic = "force-dynamic";
 
 // Client fields: Consultant Name, Profile, Category, Specialty, Country, District,
 // Email, Phone, Website
-export default async function ExpertPage({ params }: { params: { slug: string } }) {
+export default async function ExpertPage({ params, searchParams }: { params: { slug: string }; searchParams: { review?: string } }) {
   const viewer = await getViewer();
   const item = await prisma.contentItem.findFirst({
     where: { slug: params.slug, contentType: "CONSULTANT", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
@@ -42,6 +43,9 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
       item={item}
       back={path}
       gateTitle="Subscribe to contact experts"
-    />
+    >
+      {/* Users write reviews here; the team approves them before they show under "Client reviews". */}
+      <ExpertReviewForm consultantId={c.id} back={path} signedIn={Boolean(viewer.userId)} status={searchParams.review} />
+    </RecordPage>
   );
 }

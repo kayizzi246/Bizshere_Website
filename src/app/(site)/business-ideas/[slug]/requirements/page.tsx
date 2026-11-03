@@ -43,6 +43,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
   const plans = calcPlans(scenarios, gated);
   const plan = {
     name: memberPlan?.name ?? "Member",
+    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
     monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
     yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
   };
@@ -62,8 +63,8 @@ export default async function RequirementsPage({ params, searchParams }: { param
             <h1 className="text-page-title max-w-3xl text-heading">What you need to start a {name.toLowerCase()} business</h1>
             <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">Each item with its price. Add the ones you need to see your own cost.</p>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
-              <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Overview</Link>
-              <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Requirements</span>
+              <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Business details</Link>
+              <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Startup budget</span>
             </nav>
           </div>
         </header>

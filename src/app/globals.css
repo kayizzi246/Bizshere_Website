@@ -47,7 +47,7 @@
 
   /* Manrope for headings and titles; Inter (the body font) everywhere else. */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display font-extrabold; /* 800 for every heading */
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
@@ -70,8 +70,8 @@
   /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
      section title 24→32 / 700 · card title 20→24 / 600 */
   .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[36px] lg:text-[44px]; }
-  .text-section-title { @apply font-display text-[24px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
-  .text-block-title { @apply font-display text-[20px] font-semibold leading-tight tracking-[-0.02em] sm:text-[24px]; }
+  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
+  .text-block-title { @apply font-display text-[20px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[24px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
@@ -160,7 +160,27 @@ select {
   transform: scaleX(0); transform-origin: 0 50%;
 }
 
+/* Homepage hero: blue gradient mesh (src/components/ui/gradient-mesh.tsx). Soft blobs drift slowly. */
+@keyframes mesh-drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(7%, -9%, 0) scale(1.16); }
+  66% { transform: translate3d(-6%, 7%, 0) scale(0.9); }
+}
+@keyframes mesh-drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  40% { transform: translate3d(-9%, 8%, 0) scale(0.88); }
+  75% { transform: translate3d(6%, -5%, 0) scale(1.2); }
+}
+@keyframes mesh-drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  50% { transform: translate3d(9%, -7%, 0) scale(1.18); }
+}
+@keyframes mesh-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.mesh-blob { animation: var(--mesh-anim) var(--mesh-dur) ease-in-out infinite; animation-delay: var(--mesh-delay); will-change: transform; }
+.mesh-float { animation: mesh-float 7s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
+  .mesh-blob, .mesh-float { animation: none; }
   .marquee-track { animation: none; }
   .marquee-viewport { overflow-x: auto; scrollbar-width: none; }
   .marquee-dup { display: none; }
@@ -177,9 +197,9 @@ body:has([data-sticky-search]) [data-site-header] { position: relative; }
    floating Services button above it. */
 body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 
-/* The floating header (SiteHeader) is a rounded bar with a gap around it. --hh is its full height:
-   8px gap + 64px bar on phones, 12px + 72px from laptop width. A dark hero marked .under-header runs
-   up behind it (the transparent top border shows the hero's own background), so the bar floats on it. */
-:root { --hh: 72px; }
-@media (min-width: 1024px) { :root { --hh: 84px; } }
+/* The header (SiteHeader) is a full-width bar. --hh is its height: 64px on phones, 72px from laptop
+   width. A dark hero marked .under-header runs up behind it (the transparent top border shows the
+   hero's own background), so nothing shows between the bar and the hero. */
+:root { --hh: 64px; }
+@media (min-width: 1024px) { :root { --hh: 72px; } }
 .under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }

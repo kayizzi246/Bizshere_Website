@@ -16,7 +16,13 @@ async function meta(ids: string[]) {
   ].filter(Boolean).join(" · ")]));
 }
 
+// Card photos: the supplier's photo, or their organisation logo.
+async function images(ids: string[]) {
+  const rows = await prisma.supplier.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, pictureUrl: true, organization: { select: { logoUrl: true } } } });
+  return Object.fromEntries(rows.flatMap((s) => { const src = s.pictureUrl ?? s.organization.logoUrl; return src ? [[s.contentItemId, src]] : []; }));
+}
+
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/suppliers");
-  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} title={d.title} intro={d.text} />;
+  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} images={images} title={d.title} intro={d.text} />;
 }

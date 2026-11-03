@@ -29,6 +29,26 @@ export async function toggleSave(form: FormData) {
   revalidatePath("/account");
 }
 
+/** Wishlist heart on cards (src/components/Wishlist.tsx): adds or removes without a page reload. */
+export async function toggleWishlist(contentItemId: string, path: string): Promise<{ saved: boolean } | { signIn: true }> {
+  const session = await getSession();
+  if (!session?.user?.id) return { signIn: true };
+  const id = z.string().min(1).max(64).parse(contentItemId);
+  const key = { userId_contentItemId: { userId: session.user.id, contentItemId: id } };
+  let saved: boolean;
+  if (await prisma.savedItem.findUnique({ where: key })) {
+    await prisma.savedItem.delete({ where: key });
+    saved = false;
+  } else {
+    if (!(await prisma.contentItem.findUnique({ where: { id }, select: { id: true } }))) return { saved: false };
+    await prisma.savedItem.create({ data: { userId: session.user.id, contentItemId: id } });
+    await prisma.usageEvent.create({ data: { userId: session.user.id, event: "save", contentItemId: id, path: path.slice(0, 300) } });
+    saved = true;
+  }
+  revalidatePath("/account");
+  return { saved };
+}
+
 export async function createCollection(form: FormData) {
   const user = await requireUser();
   const name = z.string().trim().min(1).max(80).safeParse(form.get("name"));

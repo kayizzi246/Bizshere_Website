@@ -39,11 +39,30 @@ export function visibleGroups(type: ContentType, record: Rec, skip: string[] = [
 /** How many filled fields the groups hold, for the "All details" count. */
 export const fieldCount = (groups: ReturnType<typeof visibleGroups>) => groups.reduce((n, [, fields]) => n + fields.length, 0);
 
-/** `bare`: just the groups, for a page that puts them inside its own section (RecordPage's "All details"). */
-export function FieldSections({ type, record, gated, skip, back, bare = false }: { type: ContentType; record: Rec; gated: boolean; skip?: string[]; back: string; bare?: boolean }) {
+/**
+ * `bare`: just the groups, for a page that puts them inside its own section (RecordPage's "All details").
+ * `table`: one plain two-column table, rows in alternating colours, no group headings (the product page).
+ */
+export function FieldSections({ type, record, gated, skip, back, bare = false, table = false }: { type: ContentType; record: Rec; gated: boolean; skip?: string[]; back: string; bare?: boolean; table?: boolean }) {
   const groups = visibleGroups(type, record, skip);
   if (!groups.length) return null;
   const currency = typeof record.currency === "string" ? record.currency : "UGX";
+
+  if (table) {
+    const fields = groups.flatMap(([, fs]) => fs);
+    return (
+      <dl className="overflow-hidden rounded-xl border border-line">
+        {fields.map((f, n) => (
+          <div key={f.name} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${n % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
+            <dt className="text-ink-muted">{f.label}</dt>
+            <dd className="min-w-0 break-words font-semibold text-heading">
+              {gated && isMemberOnly(type, f) ? <Locked back={back} /> : <Value f={f} v={record[f.name]} currency={currency} />}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
 
   // Groups pack two to a row; a group with long text takes the full width.
   const body = (
@@ -53,7 +72,7 @@ export function FieldSections({ type, record, gated, skip, back, bare = false }:
           const long = fields.filter((f) => f.kind === "textarea" || f.kind === "json");
           return (
             <div key={group} className={`flex flex-col gap-3 rounded-2xl ${bare ? "bg-page p-4 sm:p-5" : "border border-line bg-white p-6"} ${long.length ? "md:col-span-2" : ""}`}>
-              <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-muted">{group}</h3>
+              <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-ink-muted">{group}</h3>
               {short.length ? (
                 <dl className={`grid divide-y divide-line ${long.length ? "sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0" : ""}`}>
                   {short.map((f) => (
@@ -68,7 +87,7 @@ export function FieldSections({ type, record, gated, skip, back, bare = false }:
               ) : null}
               {long.map((f) => (
                 <div key={f.name} className={`flex flex-col gap-1.5 rounded-xl p-4 ${bare ? "bg-white" : "bg-page"}`}>
-                  <h4 className="text-xs font-semibold text-ink-muted">{f.label}</h4>
+                  <h4 className="text-xs font-extrabold text-ink-muted">{f.label}</h4>
                   {gated && isMemberOnly(type, f) ? <Locked back={back} /> : <Value f={f} v={record[f.name]} currency={currency} />}
                 </div>
               ))}
@@ -80,7 +99,7 @@ export function FieldSections({ type, record, gated, skip, back, bare = false }:
   if (bare) return body;
   return (
     <section id="details" className="flex scroll-mt-36 flex-col gap-4">
-      <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">Full details</h2>
+      <h2 className="font-display text-xl font-extrabold tracking-[-0.01em] text-heading">Full details</h2>
       {body}
     </section>
   );

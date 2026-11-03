@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import type { Viewer } from "@/lib/access";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
-import { toggleSave } from "@/app/actions/member";
+import { WishlistButton } from "./Wishlist";
 
 /**
  * Building blocks for detail pages. Every detail page follows the blueprint (16) order:
@@ -46,7 +46,7 @@ export function Facts({ items }: { items: [string, React.ReactNode][] }) {
 export function Card({ title, children, className = "" }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`card flex flex-col gap-3 p-7 ${className}`}>
-      {title ? <h2 className="text-lg font-bold">{title}</h2> : null}
+      {title ? <h2 className="text-lg font-extrabold">{title}</h2> : null}
       {children}
     </section>
   );
@@ -81,7 +81,7 @@ export function TwoColumn({ main, aside }: { main: React.ReactNode; aside: React
   );
 }
 
-/** 4. Evidence: sources, dates and freshness. Also hosts the Save and Report actions. */
+/** 4. Evidence: sources, dates and freshness. Also hosts the Wishlist and Report actions. */
 export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt, viewer, back, extra }: {
   contentItemId: string;
   lastReviewedAt: Date | null;
@@ -90,10 +90,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
   back: string;
   extra?: React.ReactNode;
 }) {
-  const [sources, saved] = await Promise.all([
-    prisma.evidenceLink.findMany({ where: { contentItemId }, include: { source: true } }),
-    viewer.userId ? prisma.savedItem.findUnique({ where: { userId_contentItemId: { userId: viewer.userId, contentItemId } } }) : null,
-  ]);
+  const sources = await prisma.evidenceLink.findMany({ where: { contentItemId }, include: { source: true } });
   const overdue = Boolean(nextReviewDueAt && nextReviewDueAt < new Date());
   // One short line people can trust at a glance; the source list and dates are one tap away.
   return (
@@ -101,7 +98,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
       <div className="flex items-center gap-3">
         <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold ${overdue ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`} aria-hidden>{overdue ? "!" : "✓"}</span>
         <span className="flex min-w-0 flex-col">
-          <h2 className="font-display text-base font-bold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
+          <h2 className="font-display text-base font-extrabold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
           <span className="text-[13px]">Last checked {date(lastReviewedAt)}</span>
         </span>
       </div>
@@ -130,11 +127,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
         </details>
       ) : null}
       <div className="grid grid-cols-2 gap-2">
-        <form action={toggleSave}>
-          <input type="hidden" name="contentItemId" value={contentItemId} />
-          <input type="hidden" name="back" value={back} />
-          <button className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border text-sm font-bold ${saved ? "border-brand bg-brand-tint text-brand" : "border-line text-ink hover:border-brand hover:text-brand"}`}>{saved ? "★ Saved" : "☆ Save for later"}</button>
-        </form>
+        <WishlistButton id={contentItemId} />
         <Link href={`/corrections?item=${contentItemId}`} className="inline-flex h-12 items-center justify-center rounded-xl border border-line text-sm font-semibold text-ink-soft hover:border-brand hover:text-brand">Report a mistake</Link>
       </div>
     </section>
@@ -156,8 +149,8 @@ export async function Connected({ contentItemId, title = "Connected resources" }
   ]);
   const items = [...from.map((r) => r.toItem), ...to.map((r) => r.fromItem)].filter((v, i, a) => a.findIndex((x) => x.id === v.id) === i);
   return (
-    <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-6">
-      <h2 className="mb-1 font-display text-sm font-bold text-heading">{title}</h2>
+    <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-4 sm:p-5">
+      <h2 className="mb-1 font-display text-sm font-extrabold text-heading">{title}</h2>
       {items.length === 0 ? <p className="text-[13px] text-ink-muted">Linked resources coming soon.</p> : null}
       {items.map((i) => (
         <Link key={i.id} href={itemHref(i)} className="group -mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-ink hover:bg-page hover:text-ink">

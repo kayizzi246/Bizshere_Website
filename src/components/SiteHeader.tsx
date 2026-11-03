@@ -1,26 +1,25 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { HeaderSearch } from "./HeaderSearch";
 import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { site } from "@/config/site";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
 import { MobileMenu } from "./MobileMenu";
+import { WishlistLink } from "./Wishlist";
 
 // Shown as plain links next to the "Directories" menu on desktop. The full names are long, so the last one
 // waits for wide screens (1536px+) to keep the call to action in view at 1280px; it is always in the menu.
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 const WIDE_ONLY = "/experts";
 
-// 2026 SaaS header: links centred as soft pills, search as a rounded field, one solid call to action.
+// 2026 SaaS header: links centred as soft pills, the wishlist, one solid call to action.
 const link = "whitespace-nowrap rounded-full px-2.5 py-1.5 font-display text-[13px] font-medium text-ink-soft xl:px-3.5 xl:text-[14px] transition-colors hover:bg-page hover:text-heading";
-const searchBtn = "inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-line bg-page px-3.5 font-display text-[13px] font-medium text-ink-muted xl:w-36 2xl:w-52 transition hover:border-brand/40 hover:bg-white hover:text-heading";
 
 /**
  * Header: a blue contact bar that scrolls away, then a light frosted bar that stays at the top:
- * small full logo, the main links grouped in one pill, search and the call to action on the right.
+ * small full logo, the main links grouped in one pill, the wishlist and the call to action on the right.
+ * No search box here: search is in the Directories menu ("Search everything") and in each page's hero.
  * No sign-in or sign-out: people stay signed in on their device (see authOptions.session),
  * and staff sign in at their private link.
  */
@@ -31,10 +30,10 @@ export async function SiteHeader() {
   return (
     <>
     <TopBar />
-    {/* A floating bar with rounded ends that sits over the page (the dark heroes run under it, see
-        .under-header in globals.css). Flat: a hairline border, no shadow. */}
-    <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 lg:px-16 lg:pt-3">
-      <div className="relative mx-auto flex h-16 max-w-[calc(theme(maxWidth.site)-8rem)] items-center gap-2 rounded-2xl border border-line bg-white/95 pl-2 pr-2 backdrop-blur-xl lg:h-[72px] lg:gap-4 lg:pl-3 lg:pr-3">
+    {/* A full-width bar, edge to edge (the dark heroes start right under it, see .under-header in
+        globals.css). Flat: a hairline bottom border, no shadow. */}
+    <header data-site-header="" className="sticky top-0 z-[45] border-b border-line bg-white/95 backdrop-blur-xl">
+      <div className="container-site relative flex h-16 items-center gap-2 lg:h-[72px] lg:gap-4">
         <Logo full />
 
         {/* Links centred between the logo and the actions */}
@@ -76,20 +75,15 @@ export async function SiteHeader() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
-          {/* useSearchParams needs a Suspense boundary on static pages */}
-          <Suspense fallback={<Link href="/search" aria-label="Search" className={searchBtn}><Icon name="search" className="h-4 w-4" /></Link>}>
-            <HeaderSearch className={searchBtn} />
-          </Suspense>
+          <WishlistLink />
           {/* Back on a new phone or computer: the sign-in page (signed-out visitors only) */}
           {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-xl px-3 font-display text-[14px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
           {/* The one call to action, on every page; narrower than 1280px it is in the menu */}
           <span className="hidden xl:contents"><AccessButton viewer={viewer} /></span>
         </div>
 
-        {/* Phones: search, a short "Start free" (it is what we want people to do), then the menu */}
-        <Suspense fallback={null}>
-          <HeaderSearch label={false} className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl border border-line text-ink lg:hidden" />
-        </Suspense>
+        {/* Phones: the wishlist, a short "Start free" (it is what we want people to do), then the menu */}
+        <WishlistLink className="ml-auto lg:hidden" />
         {!viewer.isMember ? (
           <Link href={viewer.userId ? "/membership?onboard=pay&next=%2Fbusiness-ideas" : "/signup"} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas"
             className="inline-flex h-10 items-center whitespace-nowrap rounded-xl bg-brand px-3.5 font-display text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white lg:hidden">
@@ -134,9 +128,9 @@ function TopBar() {
   ].filter(Boolean) as { icon: string; text: string; href?: string }[];
 
   return (
-    // Same navy as the heroes, so the top of the page reads as one calm block. One short piece of news,
+    // Same deep brand blue as the heroes, so the top of the page reads as one calm block. One short piece of news,
     // centred; contact and company links on the right from tablet width.
-    <div className="bg-[#071A33] text-[12px] text-white/80">
+    <div className="bg-brand-deep text-[12px] text-white/80">
       <div className="container-site flex h-9 items-center justify-center gap-6 md:justify-between">
         <span className="hidden min-w-0 items-center gap-5 lg:flex">
           {items.length ? items.map((i) => (

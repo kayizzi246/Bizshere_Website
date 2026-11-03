@@ -67,7 +67,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
             ) : (
               <>
                 <Rows rows={[["Financial evidence available", o.financialEvidence], ["Assumptions", o.assumptions], ["Independent evidence", o.independentEvidence]]} />
-                {o.risks ? <><h3 className="font-bold">Risks</h3><Prose text={o.risks} /></> : null}
+                {o.risks ? <><h3 className="font-extrabold">Risks</h3><Prose text={o.risks} /></> : null}
                 {o.promoterReturnClaim ? (
                   <div className="rounded-xl border border-line bg-page p-4 text-sm">
                     <span className="badge-warn mb-2">Promoter claim</span>
@@ -85,7 +85,7 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
             {gated ? <Gate compact button="Show process and contact" modalTitle="Subscribe to see full opportunity terms" /> : (
               <>
                 <Prose text={o.applicationProcess} />
-                {o.requiredDocuments.length ? <><h3 className="font-bold">Documents</h3><ul className="list-disc pl-5 text-sm text-ink-soft">{o.requiredDocuments.map((d) => <li key={d}>{d}</li>)}</ul></> : null}
+                {o.requiredDocuments.length ? <><h3 className="font-extrabold">Documents</h3><ul className="list-disc pl-5 text-sm text-ink-soft">{o.requiredDocuments.map((d) => <li key={d}>{d}</li>)}</ul></> : null}
                 <Prose text={o.contactNotes} />
               </>
             )}

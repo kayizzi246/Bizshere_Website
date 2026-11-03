@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { cachedHomeStats, cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
+import { cachedRecentGuides, cachedSiteUpdates } from "@/lib/cached";
 import { DIRECTORIES } from "@/config/directories";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { homeVideo } from "@/lib/youtube";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
+import { GradientMesh } from "@/components/ui/gradient-mesh";
 import { HomeSearch } from "@/components/HomeSearch";
 import { RecentStrip } from "@/components/Recent";
 import { getViewer } from "@/lib/access";
@@ -23,41 +24,39 @@ const TYPE_ICON: Record<string, string> = { GUIDE: "guide", TOOL: "tool", NEWS: 
 
 
 export default async function HomePage() {
-  const [viewer, guides, updates, yt, stats] = await Promise.all([
+  const [viewer, guides, updates, yt] = await Promise.all([
     getViewer(),
     cachedRecentGuides(),
     cachedSiteUpdates(),
     homeVideo(),
-    cachedHomeStats(),
   ]);
   const [lead, ...more] = guides;
 
   return (
     <>
-      {/* ── Hero: flat navy, no glows. The floating header sits on it (.under-header).
-          Left: a trust line, the headline, one sentence, search, popular directories, two actions and
+      {/* ── Hero: blue animated gradient mesh. The floating header sits on it (.under-header).
+          Left: the "What's new" ticker, the headline, one sentence, search, popular directories, two actions and
           what people worry about before paying (free search, mobile money, cancel any time).
-          Right (wide screens): the "How it works" card. ── */}
-      <section className="under-header relative isolate overflow-hidden bg-[#071A33] text-white">
-        <div className="container-site relative grid items-center gap-12 pb-14 pt-10 sm:pb-20 sm:pt-16 xl:grid-cols-[1.15fr_1fr] xl:gap-16 2xl:gap-20">
-          <div className="hero-rise flex flex-col items-start gap-5 sm:gap-6">
-            <Link href="/methodology" className="max-w-full truncate text-[13px] font-medium text-white/70 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white">
-              Every page checked by our team{stats.lastChecked ? `, most recently ${date(stats.lastChecked)}` : ""}
-            </Link>
-            {/* The client's main message, word for word, in two tiers: the name large (with "-UG" in orange),
-                then "B2B INFORMATION PORTAL" with B2B as an orange badge. The dash is for screen readers only. */}
-            <h1 className="flex flex-col gap-3 font-hero font-extrabold uppercase text-white sm:gap-4">
-              <span className="text-[40px] leading-[0.95] tracking-[-0.035em] sm:text-[60px] xl:text-[58px] 2xl:text-[70px]">
-                BIZSPHERE<span className="text-accent">-UG</span>
+          Right (wide screens): the "How it works" card in a frosted frame. ── */}
+      <section className="under-header relative isolate overflow-hidden text-white">
+        <GradientMesh />
+        <div className="container-site relative grid items-center gap-8 pb-8 pt-5 sm:pb-10 sm:pt-7 xl:grid-cols-[1.25fr_1fr] xl:gap-12 2xl:gap-20">
+          <div className="hero-rise flex flex-col items-start gap-3.5 sm:gap-4">
+            {/* Updates ticker (managed at /admin/updates) */}
+            <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
+            {/* "B2B INFORMATION PORTAL" in Inter Black (900; Manrope stops at 800): "B2B" in orange,
+                "PORTAL" in a sky-to-white gradient. The site name stays in the heading for screen readers and search. */}
+            <h1 className="flex flex-col font-sans font-black uppercase leading-[0.92] tracking-[-0.04em] text-white">
+              <span className="sr-only">Bizsphere-UG – </span>
+              <span className="text-[30px] sm:text-[46px] xl:text-[48px] 2xl:text-[58px]">
+                <span className="text-accent">B2B</span> Information
               </span>
-              <span className="sr-only"> – </span>
-              <span className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[20px] leading-none tracking-[0.04em] text-white/90 sm:text-[28px] 2xl:text-[32px]">
-                <span className="rounded-lg bg-accent px-2.5 py-1.5 text-ink sm:px-3">B2B</span>
-                INFORMATION PORTAL
+              <span className="bg-gradient-to-r from-sky-300 via-cyan-100 to-white bg-clip-text pb-1 text-[42px] text-transparent sm:text-[62px] xl:text-[60px] 2xl:text-[72px]">
+                Portal
               </span>
             </h1>
 
-            <p className="max-w-2xl text-[15px] leading-relaxed text-white/75 sm:text-[17px]">
+            <p className="max-w-2xl text-[14px] leading-relaxed text-white/75 sm:text-[16px]">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className="font-semibold text-white">Start exploring now.</span>
             </p>
@@ -65,10 +64,10 @@ export default async function HomePage() {
             <HomeSearch />
 
             {/* Every directory as a chip, right under the search: a tidy grid of equal, compact chips */}
-            <ul aria-label="Directories" className="grid w-full max-w-[580px] grid-cols-2 gap-2">
+            <ul aria-label="Directories" className="grid w-full max-w-[660px] grid-cols-2 gap-1.5 sm:grid-cols-3">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[44px] items-center gap-2 rounded-xl border-2 border-dotted border-white/45 bg-white/[0.04] px-3 py-1.5 text-[14px] font-semibold leading-tight text-white/90 transition-colors hover:border-solid hover:border-accent hover:bg-accent hover:text-ink sm:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[40px] items-center gap-2 rounded-lg border border-white/20 bg-white/[0.08] px-2.5 py-1 backdrop-blur-sm text-[13px] font-semibold leading-tight text-white/90 transition-colors hover:border-accent hover:bg-accent hover:text-ink sm:text-[14px]">
                     <Icon name={d.icon} className="h-4 w-4 shrink-0 text-accent group-hover:text-ink" />
                     {d.title}
                   </Link>
@@ -76,13 +75,9 @@ export default async function HomePage() {
               ))}
             </ul>
 
-            <div className="flex w-full flex-col gap-3">
-              <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
-                <Link href="/signup" className="group inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-accent px-6 text-[16px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
-                <Link href="/business-ideas" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/25 px-6 text-[16px] font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white">Browse business ideas</Link>
-              </div>
-              {/* What stops people paying, answered before they ask */}
-              <p className="text-[13px] text-white/70">Searching is free. Members pay with MTN MoMo or Airtel Money and can cancel any time.</p>
+            <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:gap-3">
+              <Link href="/signup" className="group inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" /></Link>
+              <Link href="/business-ideas" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/25 bg-white/[0.08] px-6 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:border-white/60 hover:bg-white/15 hover:text-white">Browse business ideas</Link>
             </div>
 
           </div>
@@ -90,7 +85,8 @@ export default async function HomePage() {
           {/* How it works: the live stream while we're live on YouTube, otherwise the latest video (set at
               /admin/video), otherwise the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
           <div id="watch" className="rise-late hidden scroll-mt-28 flex-col items-center xl:flex">
-            <div className="w-full max-w-[560px] rounded-[20px] border border-white/15 bg-white p-4 text-ink">
+            <div className="mesh-float w-full max-w-[460px] rounded-[26px] border border-white/20 bg-white/10 p-2 backdrop-blur-xl">
+            <div className="rounded-[20px] bg-white p-4 text-ink">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -116,21 +112,27 @@ export default async function HomePage() {
                 <Showcase />
               )}
             </div>
+            </div>
           </div>
         </div>
 
       </section>
-
-      {/* ── Updates marquee (managed at /admin/updates) ── */}
-      <UpdatesMarquee updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
 
       {/* ── Directories ─────────────────────────────────── */}
       <section id="directories" className="scroll-mt-24 bg-white">
         <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
           {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
           <RecentStrip title="Welcome back · pick up where you left off" className="-mt-6 sm:-mt-10" />
-          <Heading title="What you'll find here"
-            text="The directories link to each other. Look up “bakery” and you get the plan, the oven, who sells flour and who lends." />
+          {/* Short and simple: a label and one clear title */}
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-tint px-3.5 py-1.5 text-[12px] font-bold uppercase tracking-[0.12em] text-accent-dark">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+              {DIRECTORIES.length} directories in one place
+            </span>
+            <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[42px] lg:text-[50px]">
+              Everything you need to <span className="text-brand">start and grow</span> your business
+            </h2>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {DIRECTORIES.map((d) => (
@@ -159,11 +161,11 @@ export default async function HomePage() {
       </section>
 
 
-      {/* ── Recently reviewed: bento on navy, so it stands apart from the white directories above and the
+      {/* ── Recently reviewed: bento on deep brand blue, so it stands apart from the white directories above and the
           footer below. The newest guide as a large blue card, four more as outlined dark cards. ── */}
       {/* Members only: visitors and signed-in non-payers don't see this section at all */}
       {lead && viewer.isMember ? (
-        <section className="bg-[#071A33] text-white">
+        <section className="bg-brand-deep text-white">
           <div className="container-site flex flex-col gap-8 py-14 sm:gap-10 sm:py-20 lg:py-24">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="flex max-w-2xl flex-col gap-3">
@@ -216,15 +218,6 @@ export default async function HomePage() {
 }
 
 /** Section heading: dark title, optional one-line intro. */
-function Heading({ title, text }: { title: React.ReactNode; text?: string }) {
-  return (
-    <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-      <h2 className="font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.025em] text-heading sm:text-[40px] lg:text-[46px]">{title}</h2>
-      {text ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-muted sm:text-[18px]">{text}</p> : null}
-    </div>
-  );
-}
-
 /**
  * Shown in the hero's window while there is no video: one idea and the machine, supplier and
  * funding it links to, as small example cards. Illustrative only (marked "Example"); no real records.

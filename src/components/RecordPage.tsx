@@ -14,6 +14,9 @@ import { ChildSections, loadChildSections } from "./ChildSections";
 import { Icon } from "./Icon";
 import { ProductAction, ProductCard, productFormat, type Product } from "./ProductCard";
 import { OnboardingGate } from "./Onboarding";
+import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
+import { videoId } from "@/lib/youtube";
+import { WishlistButton } from "./Wishlist";
 
 /**
  * One layout for every directory detail page, following the blueprint's detail-page order:
@@ -31,8 +34,16 @@ export type ContactInfo = { email?: string | null; phone?: string | null; websit
 const empty = (v: React.ReactNode) => v === null || v === undefined || v === "" || (Array.isArray(v) && v.length === 0);
 
 export async function RecordPage({
-  trail, eyebrow, title, brief, picture, pictureCredit, rows, texts = [], links = [], contact, children, viewer, item, back, details, product,
+  trail, eyebrow, title, brief, picture, pictureCredit, rows, texts = [], links = [], contact, children, viewer, item, back, details, product, layout = "default", catalog, catalogLabel = "Products", hideSections = [],
 }: {
+  /** "product": shop-style page (gallery, price, where to buy, then specifications), used for machines. */
+  layout?: "default" | "product";
+  /** Full-width block under the section tabs, e.g. a supplier's product catalog (gets a "Products" tab). */
+  catalog?: React.ReactNode;
+  /** The tab name for `catalog`. */
+  catalogLabel?: string;
+  /** Child sections to leave out because `catalog` already shows them (e.g. "listings"). */
+  hideSections?: string[];
   trail: [string, string];
   eyebrow: string;
   title: string;
@@ -61,6 +72,7 @@ export async function RecordPage({
   const plan = await cachedMemberPlan();
   const planInfo = {
     name: plan?.name ?? "Member",
+    daily: plan?.priceDaily != null ? money(plan.priceDaily, plan.currency) : null,
     monthly: plan?.priceMonthly != null ? money(plan.priceMonthly, plan.currency) : null,
     yearly: plan?.priceYearly != null ? money(plan.priceYearly, plan.currency) : null,
   };
@@ -78,11 +90,12 @@ export async function RecordPage({
   const shownTexts = texts.filter((t) => t.locked || t.text);
   const shownLinks = links.filter((l) => l.locked || l.href);
   // Offers, listings, rounds, fees, services and the rest (src/lib/child-tables.ts).
-  const sections = details && details.record.id
+  const sections = (details && details.record.id
     ? await loadChildSections(details.type, { record: String(details.record.id), item: item.id, org: typeof details.record.organizationId === "string" && details.type === "SUPPLIER" ? details.record.organizationId : null })
-    : [];
+    : []).filter((x) => !hideSections.includes(x.table.key));
   const detailCount = details ? fieldCount(visibleGroups(details.type, details.record, details.skip)) : 0;
   const tabs: [string, string][] = [
+    ...(catalog ? [["catalog", catalogLabel] as [string, string]] : []),
     ...(shownTexts.length || children ? [["overview", "About"] as [string, string]] : []),
     ...sections.filter((x) => x.table.layout !== "gallery").map((x) => [`c-${x.table.key}`, x.table.label] as [string, string]),
     ...(detailCount ? [["details", "All details"] as [string, string]] : []),
@@ -99,11 +112,224 @@ export async function RecordPage({
     </Link>
   );
 
+  if (layout === "product") {
+    // ── Shop-style product page: photo gallery on the left; details on the right (price, key facts,
+    //    actions, then where to buy); the full specifications follow as you scroll. ──
+    const priceRow = rows.find((r) => r.label === "Price");
+    const whereRow = rows.find((r) => r.label === "Source");
+    const facts = shownRows.filter((r) => r !== priceRow && r !== whereRow);
+    const media = await prisma.mediaAsset.findMany({
+      where: { contentItemId: item.id, mediaType: "image", ...(viewer.isMember ? {} : { accessLevel: "PUBLIC" as const }) },
+      orderBy: { displayOrder: "asc" },
+    });
+    const images: GalleryImage[] = [
+      ...(picture ? [{ src: picture, alt: title, credit: pictureCredit }] : []),
+      ...media.map((m) => ({ src: m.fileLocation, alt: m.altText || m.caption || title, credit: m.credit })),
+    ];
+    // Videos play inside the gallery: YouTube links in its player, video files with the browser controls.
+    const videos: GalleryVideo[] = shownLinks.filter((l) => !l.locked && l.href && l.icon === "video").map((l) => ({ label: l.label, href: l.href!, youtubeId: videoId(l.href!) }));
+    const otherLinks = shownLinks.filter((l) => !(l.icon === "video" && l.href && !l.locked));
+    const listSections = sections.filter((x) => x.table.layout !== "gallery");
+    const productTabs: [string, string][] = [
+      ...(catalog ? [["catalog", catalogLabel] as [string, string]] : []),
+      ...((details && detailCount) || facts.length ? [["specs", "Specifications"] as [string, string]] : []),
+      ...(shownTexts.length || children ? [["overview", "Description"] as [string, string]] : []),
+      ...listSections.map((x) => [`c-${x.table.key}`, x.table.label] as [string, string]),
+      ["related", "Related"],
+    ];
+    const hasContact = contact !== undefined && (contact === "locked" || contact.phone || contact.email || contact.website);
+    const name = title.replace(/^Sample:\s*/i, "");
+
+    return (
+      <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
+        <section className="bg-white">
+          <div className="container-site flex flex-col gap-3 py-3 sm:gap-4 sm:py-5">
+            <Link href={trail[0]} className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
+              <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
+            </Link>
+
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
+              {/* Details */}
+              <div className="flex min-w-0 flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-bold text-brand-dark">
+                    <Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}
+                  </span>
+                  <h1 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[36px]">{name}</h1>
+                  {brief ? <p className="text-[15px] leading-relaxed text-ink-soft sm:text-base">{brief}</p> : null}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Checked {date(item.lastReviewedAt)}</span>
+                    {viewer.isMember ? <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-tint px-3 py-1 font-bold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
+                  </div>
+                </div>
+
+                {/* Price */}
+                {priceRow ? (
+                  <div className="flex flex-col gap-1 border-y border-line py-4">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Price</span>
+                    {priceRow.locked ? (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span aria-hidden className="select-none font-display text-[28px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
+                        {unlock("See the price", "text-sm")}
+                      </div>
+                    ) : (
+                      <span className="font-display text-[28px] font-extrabold tracking-[-0.02em] text-brand-dark sm:text-[32px]">{empty(priceRow.value) ? <span className="text-lg font-semibold text-ink-muted">Price not added yet</span> : priceRow.value}</span>
+                    )}
+                  </div>
+                ) : null}
+
+                {/* Actions */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {locked ? (
+                    <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
+                  ) : (
+                    <a href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
+                  )}
+                  <WishlistButton id={item.id} />
+                </div>
+
+                {/* Contact and where to buy, right under the details */}
+                <section id="contact" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl bg-page p-4 sm:p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
+                    {locked ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
+                  </div>
+                  {whereRow?.locked || contact === "locked" ? (
+                    <div aria-hidden className="flex flex-col gap-2">
+                      <ContactRow icon={<Icon name="supplier" className="h-4 w-4" />} label="Seller" value="Seller name, Kampala" blurred />
+                      <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value="+256 7•• ••• •••" blurred />
+                    </div>
+                  ) : whereRow && !empty(whereRow.value) ? (
+                    <div className="rounded-xl border border-line bg-white p-3 text-sm leading-relaxed text-heading">{whereRow.value}</div>
+                  ) : null}
+                  {hasContact && contact !== "locked" && contact ? (
+                    <div className="flex flex-col gap-2">
+                      {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
+                      {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
+                      {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
+                    </div>
+                  ) : null}
+                  {listSections.some((x) => x.table.key === "offers") ? (
+                    <a href="#c-offers" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark">See supplier offers <span aria-hidden>↓</span></a>
+                  ) : null}
+                  {locked ? (
+                    <Link href={back} data-onboard="" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-brand bg-white text-sm font-bold text-brand hover:bg-brand hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock sellers and contacts</Link>
+                  ) : !whereRow?.value && !hasContact ? (
+                    <p className="text-sm text-ink-muted">Sellers not added yet.</p>
+                  ) : (
+                    <p className="text-xs leading-relaxed text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
+                  )}
+                  {otherLinks.length ? (
+                    <div className="flex flex-col gap-2 border-t border-line pt-3">
+                      {otherLinks.map((l) => l.locked ? (
+                        <Link key={l.label} href={back} data-onboard="" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-brand"><LockKeyhole aria-hidden className="h-4 w-4" />{l.label}</Link>
+                      ) : (
+                        <a key={l.label} href={l.href!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark"><Icon name={l.icon ?? "link"} className="h-4 w-4" />{l.label} ↗</a>
+                      ))}
+                    </div>
+                  ) : null}
+                </section>
+              </div>
+
+              {/* Gallery: on top on phones; the left column from tablet width, pinned while the details scroll */}
+              <div className="order-first mx-auto w-full max-w-[520px] md:sticky md:top-24 md:max-w-none">
+                <ProductGallery images={images} videos={videos} icon={icon} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section tabs: stay under the site header while reading */}
+        <nav aria-label="On this page" className="sticky top-[var(--hh)] z-30 border-y border-line bg-white/90 backdrop-blur-xl">
+          <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
+            {productTabs.map(([id, label]) => (
+              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
+            ))}
+          </div>
+        </nav>
+
+        <div className="bg-page">
+          <div className="container-site flex flex-col gap-4 py-4 sm:py-5">
+            {catalog ? <div id="catalog" className="scroll-mt-36">{catalog}</div> : null}
+            {/* Two to a row from laptop width: specifications, description and the child sections */}
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2">
+            {/* Specifications: one plain table, rows in alternating colours */}
+            {(details && detailCount) || facts.length ? (
+              <section id="specs" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+                <h2 className="font-display text-lg font-extrabold text-heading">Specifications</h2>
+                {/* The key facts first (they used to sit beside the photo), then every other field */}
+                {facts.length ? (
+                  <dl className="overflow-hidden rounded-xl border border-line">
+                    {facts.map((f, i) => (
+                      <div key={f.label} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${i % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
+                        <dt className="text-ink-muted">{f.label}</dt>
+                        <dd className="min-w-0 break-words font-semibold text-heading">{f.locked ? unlock("Members only", "text-sm") : f.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                {details && detailCount ? <FieldSections table type={details.type} record={details.record} gated={details.gated && !viewer.isMember} skip={details.skip} back={back} /> : null}
+              </section>
+            ) : null}
+
+            {shownTexts.length || children ? (
+              <section id="overview" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+                {shownTexts.map((t) => (
+                  <div key={t.label} className="flex flex-col gap-1.5">
+                    <h2 className="font-display text-base font-extrabold text-heading">{t.label}</h2>
+                    {t.locked ? (
+                      <p className="flex items-center gap-3 text-sm text-ink-muted">For members. {unlock("Unlock")}</p>
+                    ) : (
+                      <ReadMore text={t.text!} />
+                    )}
+                  </div>
+                ))}
+                {children}
+              </section>
+            ) : null}
+
+            <ChildSections compact sections={listSections} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
+            </div>
+            <ChildSections sections={sections.filter((x) => x.table.layout === "gallery")} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
+
+            {/* Checks: one short line instead of a panel */}
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+              <span className="inline-flex items-center gap-1.5"><BadgeCheck aria-hidden className="h-4 w-4 text-brand" />Checked {date(item.lastReviewedAt)}</span>
+              <span aria-hidden>·</span>
+              <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
+            </p>
+            <div id="related" className="scroll-mt-36">
+              <Connected contentItemId={item.id} title="Related" />
+            </div>
+            <RecentStrip exclude={back} title="You looked at these recently" />
+          </div>
+        </div>
+
+        {/* Phones: the main action stays one tap away at the bottom of the screen */}
+        <div aria-hidden className="h-24 lg:hidden" />
+        <div data-sticky-bar className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+          <div className="flex items-center gap-3">
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{locked ? (planInfo.monthly ? `${planInfo.monthly} a month` : "Members") : "Price"}</span>
+              <span className="truncate text-[13px] font-semibold text-heading">{!locked && priceRow && !empty(priceRow.value) ? priceRow.value : name}</span>
+            </span>
+            {locked ? (
+              <Link href={back} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
+            ) : (
+              <a href="#contact" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact seller</a>
+            )}
+          </div>
+        </div>
+      </OnboardingGate>
+    );
+  }
+
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
-      {/* ── 1–2. Identity and key facts: a deep navy band like the homepage hero. Title and
+      {/* ── 1–2. Identity and key facts: a deep deep brand blue band like the homepage hero. Title and
           access on the left; the photo (or, without one, the key facts) on the right. ── */}
-      <header className="under-header bg-[#071A33] text-white">
+      <header className="under-header bg-brand-deep text-white">
         <div className="container-site flex flex-col gap-4 py-4 sm:gap-7 sm:py-8 lg:py-12">
           {/* Phones: one clear way back. Wider screens: the full trail. */}
           <Link href={trail[0]} className="inline-flex min-h-[40px] w-fit items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white sm:hidden">
@@ -161,6 +387,9 @@ export async function RecordPage({
         </div>
       </nav>
 
+      {/* Full-width block under the tabs (a supplier's product catalog) */}
+      {catalog ? <div className="bg-page"><div id="catalog" className="container-site scroll-mt-36 pt-6 sm:pt-8">{catalog}</div></div> : null}
+
       <div className="bg-page"><div className="container-site grid grid-cols-[minmax(0,1fr)] gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8 lg:py-10">
         <div className="flex min-w-0 flex-col gap-6">
           {/* ── 3. Practical detail ── */}
@@ -168,7 +397,7 @@ export async function RecordPage({
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5 sm:p-6">
-                  <h2 className="font-display text-lg font-bold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
+                  <h2 className="font-display text-lg font-extrabold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -222,7 +451,7 @@ export async function RecordPage({
           {contact !== undefined ? (
             <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-display text-lg font-bold text-heading">Contact</h2>
+                <h2 className="font-display text-lg font-extrabold text-heading">Contact</h2>
                 {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
               </div>
               {contact === "locked" ? (
@@ -251,7 +480,7 @@ export async function RecordPage({
 
           {shownLinks.length ? (
             <section className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-              <h2 className="mb-0.5 font-display text-sm font-bold text-heading">Useful links</h2>
+              <h2 className="mb-0.5 font-display text-sm font-extrabold text-heading">Useful links</h2>
               {/* Same pill buttons as the download card, full width and thumb-sized on phones */}
               {shownLinks.map((l) =>
                 l.locked ? (

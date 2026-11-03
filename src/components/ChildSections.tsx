@@ -27,18 +27,19 @@ export async function loadChildSections(type: ContentType, p: ParentIds) {
   return loaded.filter((x) => x.rows.length > 0);
 }
 
-export function ChildSections({ sections, gated, back }: { sections: Awaited<ReturnType<typeof loadChildSections>>; gated: boolean; back: string }) {
+/** `compact`: each section as one white card with its items listed inside (the product page grid). */
+export function ChildSections({ sections, gated, back, compact = false }: { sections: Awaited<ReturnType<typeof loadChildSections>>; gated: boolean; back: string; compact?: boolean }) {
   if (!sections.length) return null;
   return (
     <>
       {sections.map(({ table, rows }) => (
-        <section key={table.key} id={`c-${table.key}`} className="flex scroll-mt-36 flex-col gap-3">
-          <h2 className="font-display text-xl font-bold tracking-[-0.01em] text-heading">{table.label}</h2>
+        <section key={table.key} id={`c-${table.key}`} className={`flex scroll-mt-36 flex-col gap-3 ${compact ? "rounded-2xl border border-line bg-white p-4" : ""}`}>
+          <h2 className={`font-display font-extrabold tracking-[-0.01em] text-heading ${compact ? "text-lg" : "text-xl"}`}>{table.label}</h2>
           {table.layout === "steps" ? <Steps table={table} rows={rows} />
             : table.layout === "gallery" ? <Gallery rows={rows} gated={gated} back={back} />
             : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {rows.map((row) => <Card key={String(row.id)} table={table} row={row} gated={gated} back={back} />)}
+              <div className={compact ? "flex flex-col gap-2" : "grid gap-3 sm:grid-cols-2"}>
+                {rows.map((row) => <Card key={String(row.id)} table={table} row={row} gated={gated} back={back} compact={compact} />)}
               </div>
             )}
         </section>
@@ -47,7 +48,7 @@ export function ChildSections({ sections, gated, back }: { sections: Awaited<Ret
   );
 }
 
-function Card({ table, row, gated, back }: { table: ChildTable; row: Row; gated: boolean; back: string }) {
+function Card({ table, row, gated, back, compact = false }: { table: ChildTable; row: Row; gated: boolean; back: string; compact?: boolean }) {
   const head = table.fields.find((f) => f.name === table.heading);
   const link = head?.kind === "ref" ? refLabel(head, row) : null;
   const title = table.key === "reviews" ? `${"★".repeat(Number(row.rating))}${"☆".repeat(5 - Number(row.rating))}`
@@ -59,7 +60,7 @@ function Card({ table, row, gated, back }: { table: ChildTable; row: Row; gated:
   const currency = typeof row.currency === "string" ? row.currency : "UGX";
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6">
+    <div className={`flex flex-col rounded-2xl border border-line bg-white ${compact ? "gap-2 border-0 bg-page p-3" : "gap-3 p-6"}`}>
       {title ? (
         link?.href ? <Link href={link.href} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand">{title}</Link>
           : <span className={`font-display text-[15px] font-bold leading-tight ${table.key === "reviews" ? "text-accent" : "text-heading"}`}>{title}</span>

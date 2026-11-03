@@ -14,7 +14,8 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "media-src 'self' blob: https:",
-  "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
+  // 'self': the business plan PDF viewer on idea pages (/business-ideas/[slug]/pdf).
+  "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com",
   // Admin uploads go from the browser straight to Vercel Blob (src/components/UploadButton.tsx).
   `connect-src 'self' https://blob.vercel-storage.com${dev ? " ws: wss:" : ""}`,
   "object-src 'none'",
@@ -50,8 +51,28 @@ const nextConfig = {
         source,
         headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }],
       })),
+      // The business plan PDF and guide PDFs are shown inside their pages, so only these paths may be
+      // framed, and only by the site itself. Listed last: these values replace the ones above.
+      {
+        source: "/guides/:slug/file",
+        headers: [
+          { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'self'" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
+        source: "/business-ideas/:slug/pdf",
+        headers: [
+          { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'self'" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
     ];
   },
+  // The PDF renderer (src/lib/idea-pdf.tsx) runs as plain Node code, not bundled.
+  experimental: { serverComponentsExternalPackages: ["@react-pdf/renderer"] },
 };
 
 export default nextConfig;

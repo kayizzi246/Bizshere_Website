@@ -104,16 +104,17 @@ export const CHILD_TABLES: ChildTable[] = [
     heading: "machineId", orderBy: { quotedAt: "desc" }, publicWhere: { status: "PUBLISHED" }, displayOnly: true,
   },
   {
-    key: "listings", model: "supplierProductListing", label: "Products supplied", item: "product listing", parents: ["SUPPLIER"],
-    intro: "For a machine, add a supplier offer on the machine's page instead.",
+    key: "listings", model: "supplierProductListing", label: "Product catalog", item: "product", parents: ["SUPPLIER"],
+    intro: "The supplier's products, shown as a grid on their page. Suppliers can also add these themselves at /supplier. For a machine, add a supplier offer on the machine's page instead.",
     scope: (p) => ({ supplierId: p.record }), link: (p) => ({ supplierId: p.record }),
     fields: [
-      t("productName", "Product", { required: true }), ref("productId", "Linked product (market prices)", "product"),
+      t("productName", "Product", { required: true }), { ...u("imageUrl", "Photo"), upload: "image" }, ref("productId", "Linked product (market prices)", "product"),
       ta("specifications", "Specifications"), t("unit", "Unit"), d("minimumOrderQuantity", "Minimum order quantity"), t("availability", "Availability"),
       d("priceMin", "Price from", { member: true, help: MONEY }), d("priceMax", "Price to", { member: true }), t("currency", "Currency"),
       dt("quotedAt", "Quoted on"), dt("validUntil", "Valid until"),
+      e("status", "Show on the site", ["PUBLISHED", "IN_REVIEW", "ARCHIVED"], { internal: true, help: "PUBLISHED shows it; anything else hides it" }),
     ],
-    heading: "productName", orderBy: { productName: "asc" },
+    heading: "productName", orderBy: { createdAt: "desc" }, publicWhere: { status: "PUBLISHED" },
   },
   {
     key: "branches", model: "organizationLocation", label: "Locations and branches", item: "location", parents: ["SUPPLIER"],

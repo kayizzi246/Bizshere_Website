@@ -4,12 +4,13 @@ import path from "node:path";
 import { NextResponse, type NextRequest } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { FILE_TYPES, MAX_CLOUD_BYTES, MAX_LOCAL_BYTES } from "@/lib/uploads";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Admin uploads (images and PDFs/documents) for the content forms.
+ * Admin uploads (images and PDFs/documents) for the content forms, and suppliers' product photos.
  *
  * With BLOB_READ_WRITE_TOKEN set (Vercel → Storage → Blob), the browser uploads straight to
  * Vercel Blob: this route only hands out a short-lived upload token, after checking that the
@@ -17,9 +18,12 @@ export const dynamic = "force-dynamic";
  * Without it, in local development only, files are saved to public/uploads/.
  */
 const cloud = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// Staff, and suppliers adding photos to their own catalog in /supplier (members of a supplier organisation).
 const isStaff = async () => {
   const s = await getSession();
-  return Boolean(s?.user && ["EDITOR", "ADMIN"].includes(s.user.role));
+  if (!s?.user) return false;
+  if (["EDITOR", "ADMIN"].includes(s.user.role)) return true;
+  return Boolean(await prisma.organizationMember.findFirst({ where: { userId: s.user.id, organization: { supplier: { isNot: null } } }, select: { userId: true } }));
 };
 
 /** Which way the upload button should send the file. */

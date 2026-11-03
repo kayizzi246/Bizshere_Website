@@ -6,6 +6,7 @@ import { Icon } from "./Icon";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip, SeenBadge } from "./Recent";
+import { WishlistHeart } from "./Wishlist";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
 export type BrowseListing = {
@@ -20,6 +21,8 @@ export type BrowseListing = {
   order: number;
   /** Everything the search looks in, lower case */
   text: string;
+  /** An outside address (useful websites): the table row goes straight there. */
+  external?: string | null;
 };
 
 const PER_PAGE = 24;
@@ -49,7 +52,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   unit: [string, string];
   tabs?: [string, string][];
   active?: string;
-  variant: "cards" | "documents";
+  /** "table": one row per listing (funding, useful websites) instead of cards. */
+  variant: "cards" | "documents" | "table";
   /** Photo cards (machines, suppliers) instead of icon cards */
   photos: boolean;
   initial: { q: string; category: string; sort: string; page: number };
@@ -83,8 +87,6 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   return (
     <>
       <BrowseHero
-        crumb={title}
-        badge={[all.length, `${all.length === 1 ? unit[0] : unit[1]} listed`]}
         title={title}
         intro={intro}
         tabs={tabs}
@@ -95,18 +97,25 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         hint={hint}
         label={`Search ${title.toLowerCase()}`}
         popular={examples.slice(0, 4)}
+        cats={cats}
+        category={category}
+        onCategory={(id) => { setCategory(id); setPage(1); }}
+        sort={sort}
+        sorts={SORTS}
+        onSort={(v) => { setSort(v); setPage(1); }}
       />
 
       <div className="bg-page">
-        <div className="container-site flex flex-col gap-8 py-8 sm:py-10">
+        <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-6">
           <RecentStrip only={path} />
           <CategoryChips cats={cats} total={all.length} chosen={category} onChoose={(id) => { setCategory(id); setPage(1); }} />
 
           <section ref={listTop} aria-labelledby="listings" className="flex scroll-mt-4 flex-col gap-5">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div className="flex flex-col gap-1">
-                <h2 id="listings" className="text-section-title text-heading">
-                  {q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ?? `All ${title.toLowerCase()}`}
+                {/* A title only when it says something: the search or the chosen category */}
+                <h2 id="listings" className={q.trim() || chosenName ? "text-block-title text-heading" : "sr-only"}>
+                  {q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ?? title}
                 </h2>
                 <p className="text-sm text-ink-muted" aria-live="polite">
                   <strong className="font-semibold text-ink-soft">{items.length} {items.length === 1 ? unit[0] : unit[1]}</strong>{pages > 1 ? ` · page ${current} of ${pages}` : ""}
@@ -121,13 +130,15 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 <p className="text-sm font-semibold text-heading">{all.length ? "Nothing matches this search. Try other words or another category." : "Nothing published here yet."}</p>
                 {all.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
+            ) : variant === "table" ? (
+              <ListingTable rows={shown} />
             ) : variant === "documents" ? (
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-                {shown.map((i) => <li key={i.id} id={i.slug}><DocumentCard i={i} icon={icon} /></li>)}
+                {shown.map((i) => <li key={i.id} id={i.slug} className="relative"><DocumentCard i={i} icon={icon} /><WishlistHeart id={i.id} className="absolute right-2 top-2" /></li>)}
               </ul>
             ) : (
-              <ul className={`grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 ${photos ? "grid-cols-2 gap-2.5" : "gap-4"}`}>
-                {shown.map((i) => <li key={i.id} id={i.slug} className="flex"><ListingCard i={i} icon={icon} photos={photos} /></li>)}
+              <ul className={`grid sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5 ${photos ? "grid-cols-2 gap-2.5" : "gap-3"}`}>
+                {shown.map((i) => <li key={i.id} id={i.slug} className="relative flex"><ListingCard i={i} icon={icon} photos={photos} /><WishlistHeart id={i.id} className="absolute right-2 top-2 sm:right-3 sm:top-3" /></li>)}
               </ul>
             )}
 
@@ -149,7 +160,7 @@ function DocumentCard({ i, icon }: { i: BrowseListing; icon: string }) {
   return (
     <Link href={i.href} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition-colors hover:border-brand hover:text-ink">
       <span className="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-brand-tint to-white">
-        <SeenBadge href={i.href} className="absolute right-2 top-2" />
+        <SeenBadge href={i.href} className="absolute left-2 top-2" />
         <span className="relative flex h-[72px] w-[58px] flex-col items-center justify-end rounded-lg border border-line bg-white pb-2 transition group-hover:-translate-y-1">
           <span aria-hidden className="absolute right-0 top-0 h-4 w-4 rounded-bl-md bg-brand-tint" />
           <Icon name={icon} className="absolute top-3 h-5 w-5 text-brand" strokeWidth={1.75} />
@@ -172,30 +183,75 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
         <span className="relative block overflow-hidden bg-page">
           {i.picture ? (
             // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
-            <img src={i.picture} alt={i.title} loading="lazy" className="block aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+            <img src={i.picture} alt={i.title} loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
           ) : (
-            <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
+            <span className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
           {i.primaryCategory ? <span className="absolute left-2 top-2 max-w-[85%] truncate rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-heading backdrop-blur sm:left-3 sm:top-3 sm:max-w-[80%] sm:px-2.5 sm:py-1 sm:text-[11px]">{i.primaryCategory.name}</span> : null}
-          <SeenBadge href={i.href} className="absolute bottom-2 right-2 sm:bottom-auto sm:right-3 sm:top-3" />
+          <SeenBadge href={i.href} className="absolute bottom-2 right-2" />
         </span>
       ) : null}
-      <span className={`flex flex-1 flex-col ${compact(photos, "gap-1.5 p-3 sm:gap-2 sm:p-5", "gap-2 p-5")}`}>
+      <span className={`flex flex-1 flex-col ${compact(photos, "gap-1 p-2.5 sm:gap-1.5 sm:p-3.5", "gap-2 p-4")}`}>
         {!photos ? (
-          <span className="flex items-center gap-2.5">
+          <span className="flex items-center gap-2.5 pr-9">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-[18px] w-[18px]" /></span>
             <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
             <SeenBadge href={i.href} className="ml-auto shrink-0 bg-brand-tint" />
           </span>
         ) : null}
-        <span className={`font-display font-bold leading-tight tracking-tight text-heading group-hover:text-brand ${compact(photos, "line-clamp-2 text-[14px] sm:line-clamp-none sm:text-base", "text-base")}`}>{i.title}</span>
-        {i.summary ? <span className={`text-[13px] leading-relaxed text-ink-muted ${compact(photos, "hidden sm:line-clamp-2", "line-clamp-2")}`}>{i.summary}</span> : null}
-        {i.extra ? <span className={`w-fit rounded-lg bg-page px-2.5 py-1.5 text-xs font-medium text-ink-soft ${compact(photos, "hidden sm:line-clamp-2", "line-clamp-2")}`}>{i.extra}</span> : null}
-        <span className={`mt-auto flex items-center justify-between text-ink-muted ${compact(photos, "pt-1.5 text-[11px] sm:pt-3 sm:text-xs", "pt-3 text-xs")}`}>
+        <span className={`font-display font-bold leading-tight tracking-tight text-heading group-hover:text-brand ${compact(photos, "line-clamp-2 text-[14px] sm:text-[15px]", "text-base")}`}>{i.title}</span>
+        {i.summary ? <span className={`text-[13px] leading-snug text-ink-muted ${compact(photos, "hidden sm:line-clamp-1", "line-clamp-2")}`}>{i.summary}</span> : null}
+        <span className={`mt-auto flex items-center justify-between text-ink-muted ${compact(photos, "pt-1 text-[11px] sm:pt-1.5 sm:text-xs", "pt-2 text-xs")}`}>
           <span className="inline-flex min-w-0 items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" /><span className="truncate">Checked {i.reviewed}</span></span>
-          <span aria-hidden className={`flex shrink-0 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white ${compact(photos, "h-7 w-7 sm:h-8 sm:w-8", "h-8 w-8")}`}>→</span>
+          <span aria-hidden className={`flex shrink-0 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white ${compact(photos, "h-7 w-7", "h-8 w-8")}`}>→</span>
         </span>
       </span>
     </Link>
+  );
+}
+
+/**
+ * Table view (funding, useful websites): name, detail, category and check date in columns, the
+ * wishlist heart at the end. A row with an outside address opens that website directly.
+ * Phones get the same rows stacked.
+ */
+function ListingTable({ rows }: { rows: BrowseListing[] }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-white">
+      <table className="w-full text-left text-[14px]">
+        <thead className="hidden bg-brand-deep text-xs text-white/85 md:table-header-group">
+          <tr>
+            <th className="px-4 py-3 font-semibold">Name</th>
+            <th className="px-4 py-3 font-semibold">Details</th>
+            <th className="px-4 py-3 font-semibold">Category</th>
+            <th className="px-4 py-3 font-semibold">Checked</th>
+            <th className="w-12 px-2 py-3"><span className="sr-only">Wishlist</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, n) => {
+            const label = name(r.title);
+            const link = r.external ? (
+              <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
+            ) : (
+              <Link href={r.href} className="font-semibold text-heading hover:text-brand">{label}</Link>
+            );
+            return (
+              <tr key={r.id} id={r.slug} className={`flex flex-col gap-0.5 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                <td className="md:px-4 md:py-3">
+                  {link}
+                  {r.summary ? <span className="mt-0.5 block text-[12px] leading-snug text-ink-muted md:hidden">{r.summary}</span> : null}
+                  {r.external ? <span className="block truncate text-[12px] text-ink-muted">{r.external.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span> : null}
+                </td>
+                <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.extra ?? <span className="hidden md:inline">—</span>}</td>
+                <td className="text-[13px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
+                <td className="whitespace-nowrap text-[12px] text-ink-muted md:px-4 md:py-3">Checked {r.reviewed}</td>
+                <td className="md:px-2 md:py-3"><WishlistHeart id={r.id} className="border border-line" /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

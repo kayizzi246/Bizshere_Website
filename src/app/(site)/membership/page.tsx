@@ -12,7 +12,8 @@ const FEATURES: Record<string, string[]> = {
 };
 
 export default async function MembershipPage({ searchParams }: { searchParams: { period?: string } }) {
-  const yearly = searchParams.period === "yearly";
+  // Free, then the member plan by the day, month or year.
+  const period = (["daily", "monthly", "yearly"] as const).find((p) => p === searchParams.period) ?? "monthly";
   const plans = await prisma.membershipPlan.findMany({ where: { isActive: true, audience: "MEMBER" }, orderBy: { sortOrder: "asc" } });
 
   return (
@@ -22,18 +23,19 @@ export default async function MembershipPage({ searchParams }: { searchParams: {
         <h1 className="text-page-title">Everything you need to start, in one membership</h1>
         <p className="text-lg text-ink-soft">Browse previews for free. Subscribe to unlock full plans, contacts, funding terms, price history and downloads.</p>
         <div className="flex gap-1 rounded-xl bg-[#E9E7E4] p-1">
-          <Link href="?period=monthly" className={`rounded-lg px-5 py-2.5 text-[15px] ${!yearly ? "bg-white font-bold text-heading" : "text-ink-soft"}`}>Monthly</Link>
-          <Link href="?period=yearly" className={`rounded-lg px-5 py-2.5 text-[15px] ${yearly ? "bg-white font-bold text-heading" : "text-ink-soft"}`}>Yearly</Link>
+          {([["daily", "Daily"], ["monthly", "Monthly"], ["yearly", "Yearly"]] as const).map(([k, label]) => (
+            <Link key={k} href={`?period=${k}`} scroll={false} className={`rounded-lg px-5 py-2.5 text-[15px] ${period === k ? "bg-white font-bold text-heading" : "text-ink-soft"}`}>{label}</Link>
+          ))}
         </div>
       </div>
       <div className="flex w-full flex-wrap justify-center gap-5">
         {plans.map((p) => {
           const featured = p.code === "member";
-          const price = yearly ? p.priceYearly : p.priceMonthly;
+          const price = p.code === "free" ? 0 : period === "yearly" ? p.priceYearly : period === "daily" ? p.priceDaily : p.priceMonthly;
           return (
             <div key={p.id} className={`flex flex-[1_1_320px] max-w-md flex-col gap-4 rounded-[20px] p-8 ${featured ? "bg-ink text-white" : "card"}`}>
               <span className="text-lg font-bold">{p.name}</span>
-              <span className="text-3xl font-bold">{money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{yearly ? "per year" : "per month"}</span> : null}</span>
+              <span className="text-3xl font-bold">{p.code === "free" ? "Free" : money(price, p.currency, "Price coming soon")}{price !== null && Number(price) > 0 ? <span className="ml-1 text-base font-normal opacity-80">{period === "yearly" ? "per year" : period === "daily" ? "per day" : "per month"}</span> : null}</span>
               {/* Subscribe opens the payment pop-up right here (sign-in first if needed): no extra page */}
               <Link href={p.code === "free" ? "/signup" : "/membership?onboard=pay&next=%2Fbusiness-ideas"} data-pay={p.code === "free" ? undefined : ""} data-next="/business-ideas"
                 className={featured ? "btn min-h-[50px] bg-white font-bold text-heading hover:text-heading" : "btn-outline min-h-[50px]"}>

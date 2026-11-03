@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { trackView } from "@/components/DetailParts";
 import { RecordPage } from "@/components/RecordPage";
+import { GuideViewer } from "@/components/GuideViewer";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,8 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         locked: gated,
         facts: [["Type", g.resourceType], ["Language", g.language], ["Version", g.version], ["Issued by", g.issuingBody ?? g.responsibleAuthority]],
       } : undefined}
+      catalogLabel="Read the guide"
+      catalog={g.downloadUrl && /\.pdf($|[?#])/i.test(g.downloadUrl) ? <GuideViewer file={`${path}/file`} title={item.title} locked={gated} back={path} /> : undefined}
       details={{ type: "GUIDE", record: g as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}

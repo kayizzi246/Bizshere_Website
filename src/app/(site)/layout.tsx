@@ -6,6 +6,8 @@ import { NavProgress } from "@/components/NavProgress";
 import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
+import { WishlistProvider } from "@/components/Wishlist";
+import { prisma } from "@/lib/prisma";
 import { DIRECTORIES, PAID_PATHS } from "@/config/directories";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -17,8 +19,13 @@ const SERVICES = DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, nav: d.ti
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [viewer, memberPlan] = await Promise.all([getViewer(), cachedMemberPlan()]);
+  // The viewer's wishlist ids, shared with every heart on the page (src/components/Wishlist.tsx)
+  const wishlist = viewer.userId
+    ? (await prisma.savedItem.findMany({ where: { userId: viewer.userId }, select: { contentItemId: true } })).map((s) => s.contentItemId)
+    : [];
   const plan = {
     name: memberPlan?.name ?? "Member",
+    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
     monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
     yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
   };
@@ -26,6 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   // Every link into a paid directory, from anywhere on the site, opens sign-up → payment for non-members.
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan} paths={PAID_PATHS}>
+      <WishlistProvider initial={wishlist} signedIn={Boolean(viewer.userId)}>
       <div className="flex min-h-screen flex-col">
         <Suspense fallback={null}><NavProgress /></Suspense>
         <SiteHeader />
@@ -37,6 +45,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <ServiceRail services={SERVICES} />
         <CookieNotice />
       </div>
+      </WishlistProvider>
     </OnboardingGate>
   );
 }

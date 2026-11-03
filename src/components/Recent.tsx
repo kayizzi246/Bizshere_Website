@@ -113,7 +113,7 @@ export function RecentStrip({ exclude, only, title = "Pick up where you left off
   return (
     <section aria-label={title} className={`flex flex-col gap-3 ${className}`}>
       <div className="flex items-center justify-between gap-3">
-        <h2 className="inline-flex items-center gap-2 font-display text-base font-bold text-heading sm:text-lg">
+        <h2 className="inline-flex items-center gap-2 font-display text-base font-extrabold text-heading sm:text-lg">
           <History aria-hidden className="h-[18px] w-[18px] text-accent" />{title}
         </h2>
         <button type="button" onClick={() => write([])} className="inline-flex items-center gap-1 text-xs font-semibold text-ink-muted hover:text-brand">

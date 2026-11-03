@@ -51,7 +51,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
             className="onboard-pop relative max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-8 pt-3">
             <span aria-hidden className="mx-auto mb-4 block h-1.5 w-10 rounded-full bg-line-strong" />
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 id="quick-links-title" className="font-display text-lg font-bold text-heading">All services</h2>
+              <h2 id="quick-links-title" className="font-display text-lg font-extrabold text-heading">All services</h2>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-heading">
                 <Icon name="close" className="h-4 w-4" />
@@ -96,6 +96,8 @@ export function ServiceRail({ services }: { services: Service[] }) {
   const n = items.length;
   // Search has its own filter column in that corner.
   if (path.startsWith("/search")) return null;
+  // Out of the way on single items (it covered product photos and forms) and on account pages.
+  if (path.split("/").filter(Boolean).length >= 2 || ["/supplier", "/account", "/membership"].includes(path)) return null;
   // White outline so the buttons stay distinct over the blue hero and over white sections alike.
   const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 

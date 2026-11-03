@@ -1,3 +1,4 @@
+import { periodEnd } from "@/lib/billing";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyWebhook } from "@/lib/payments";
@@ -29,9 +30,7 @@ export async function POST(req: Request) {
   if (event.status === "SUCCEEDED") {
     const sub = payment.subscription;
     const from = sub.currentPeriodEnd && sub.currentPeriodEnd > new Date() ? sub.currentPeriodEnd : new Date();
-    const end = new Date(from);
-    if (sub.period === "YEARLY") end.setFullYear(end.getFullYear() + 1);
-    else end.setMonth(end.getMonth() + 1);
+    const end = periodEnd(from, sub.period);
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCEEDED", paidAt: event.paidAt ? new Date(event.paidAt) : new Date() } }),
       prisma.subscription.update({ where: { id: sub.id }, data: { status: "ACTIVE", currentPeriodEnd: end } }),

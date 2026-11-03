@@ -35,13 +35,13 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
     <>
       <div className="flex flex-col gap-1.5">
         <span className="text-sm text-ink-muted"><Link href="/admin/review">Review queue</Link> / {s.type.replace("_", " ").toLowerCase()}</span>
-        <h1 className="font-display text-[22px] font-bold tracking-tight text-heading">{org?.legalName ?? s.supplierOffer?.machine.contentItem.title ?? s.contentItem?.title ?? "Submission"}</h1>
+        <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">{org?.legalName ?? s.supplierOffer?.machine.contentItem.title ?? s.contentItem?.title ?? "Submission"}</h1>
         <span className="text-sm text-ink-muted">Submitted {date(s.createdAt)} by {s.submittedBy?.name ?? "—"} · status {s.status.toLowerCase()}</span>
       </div>
 
       {org ? (
         <section className="card flex flex-col gap-3 p-6">
-          <h2 className="text-lg font-bold">Business details</h2>
+          <h2 className="text-lg font-extrabold">Business details</h2>
           <dl className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 text-sm">
             <Item k="Account type" v={org.accountType.toLowerCase().replace("_", " ")} />
             <Item k="Registration number" v={org.registrationNumber ?? "—"} />
@@ -59,7 +59,7 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
 
       {s.supplierOffer ? (
         <section className="card flex flex-col gap-2 p-6 text-sm">
-          <h2 className="text-lg font-bold">Offer</h2>
+          <h2 className="text-lg font-extrabold">Offer</h2>
           <span>{s.supplierOffer.supplier.organization.legalName} · {s.supplierOffer.condition.toLowerCase()}</span>
           <span className="font-bold">{moneyRange(s.supplierOffer.priceMin, s.supplierOffer.priceMax, s.supplierOffer.currency)}</span>
           <span className="text-ink-muted">Quoted {date(s.supplierOffer.quotedAt)} · valid to {date(s.supplierOffer.validUntil)} · warranty {s.supplierOffer.warrantyMonths ?? "—"} months</span>
@@ -70,7 +70,7 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
         <input type="hidden" name="id" value={s.id} />
         {checks.length ? (
           <section className="card flex flex-col gap-3.5 p-6">
-            <div><h2 className="text-lg font-bold">Verification checks</h2><p className="text-sm text-ink-muted">Each result is saved with today&apos;s date, your name and the evidence. Only passed checks are shown publicly.</p></div>
+            <div><h2 className="text-lg font-extrabold">Verification checks</h2><p className="text-sm text-ink-muted">Each result is saved with today&apos;s date, your name and the evidence. Only passed checks are shown publicly.</p></div>
             {checks.map((c) => (
               <fieldset key={c.type} className="flex flex-col gap-3 rounded-2xl border border-line p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -94,7 +94,7 @@ export default async function ReviewItem({ params, searchParams }: { params: { i
         ) : null}
 
         <section className="card flex flex-col gap-3.5 p-6">
-          <h2 className="text-lg font-bold">Decision</h2>
+          <h2 className="text-lg font-extrabold">Decision</h2>
           <label className="label">Message to the business<textarea name="note" rows={3} placeholder="Required if you request changes or reject" className="input py-3" /></label>
           {searchParams.error === "note" ? <p role="alert" className="text-sm font-semibold text-bad-fg">Add a message so the business knows what to change.</p> : null}
           <div className="flex flex-wrap justify-end gap-2.5">

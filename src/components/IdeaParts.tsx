@@ -1,6 +1,7 @@
 import type { Prisma, ScenarioLevel } from "@prisma/client";
 import Link from "next/link";
-import { ClipboardList, Info, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
+import { WishlistHeart } from "./Wishlist";
 import { compactRange } from "@/lib/format";
 import { Icon } from "./Icon";
 import { SeenBadge } from "./Recent";
@@ -54,38 +55,30 @@ export function requirementCount(idea: { keyRequirements: string | null; scenari
 }
 
 /**
- * A business idea as a card: photo with the requirement count and category, name, requirement and
- * starting-capital boxes, and links to its overview and requirements.
+ * A business idea as a card: photo with the category, name, one line with the requirement count and
+ * starting capital, and links to its business details and startup budget.
  */
 export function IdeaCard({ idea }: { idea: CardIdea }) {
   const name = idea.title.replace(/^Sample:\s*/i, "");
   const bi = idea.businessIdea;
-  const reqs = bi ? requirementCount(bi) : 0;
   const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:border-brand">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:border-brand">
+      <WishlistHeart id={idea.id} className="absolute right-2 top-2 sm:right-3 sm:top-3" />
       <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden">
         <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[16/9] transition duration-500 group-hover:scale-[1.03]" />
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-xs font-bold text-heading"><ClipboardList className="h-3.5 w-3.5 text-brand" />{reqs}</span>
         <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2 sm:left-3 sm:top-3" />
-        {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-[#071A33]/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
+        {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-brand-deep/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
       </Link>
-      {/* Phones show two cards a row, so below sm the card uses tight padding: stats and buttons stacked */}
-      <div className="flex flex-1 flex-col gap-2 px-2 pb-2 pt-2.5 sm:gap-4 sm:p-5">
-        <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand sm:text-lg">{name}</Link>
-        <dl className="grid gap-2 sm:grid-cols-2 sm:gap-2.5">
-          <div className="flex flex-col-reverse justify-end gap-0.5 rounded-lg bg-page px-2 py-1.5 sm:rounded-xl sm:px-3 sm:py-2.5">
-            <dt className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">Requirements</dt>
-            <dd className="inline-flex items-center gap-1.5 font-display text-base font-bold text-heading"><ClipboardList aria-hidden className="h-4 w-4 text-brand" />{reqs}</dd>
-          </div>
-          <div className="flex flex-col gap-0.5 rounded-lg bg-page px-2 py-1.5 sm:rounded-xl sm:px-3 sm:py-2.5">
-            <dt className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-muted"><Wallet aria-hidden className="h-3.5 w-3.5 text-accent" />Capital</dt>
-            <dd className="text-[13px] font-bold text-heading">{cost ?? <span className="font-medium text-ink-muted">Being priced</span>}</dd>
-          </div>
-        </dl>
+      {/* Simple: name, a brief description, the starting capital, two buttons. Phones show two cards a
+          row, so below sm the buttons stack. */}
+      <div className="flex flex-1 flex-col gap-2 p-2.5 sm:gap-2.5 sm:p-3">
+        <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[14px] font-bold leading-tight text-heading hover:text-brand sm:text-[15px]">{name}</Link>
+        {idea.shortSummary ? <p className="line-clamp-2 text-[12px] leading-snug text-ink-muted sm:text-[13px]">{idea.shortSummary}</p> : null}
+        <p className="text-[12px] text-ink-muted"><span className="inline-flex items-center gap-1"><Wallet aria-hidden className="h-3.5 w-3.5 text-accent" />{cost ? <strong className="font-semibold text-heading">{cost}</strong> : "Being priced"}</span></p>
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-line text-[13px] font-semibold sm:h-11 sm:text-sm text-heading hover:border-brand hover:text-brand"><Info aria-hidden className="hidden h-4 w-4 sm:block" />Overview</Link>
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-11 flex-[1.6] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-brand text-[15px] font-bold sm:order-none sm:h-11 sm:text-[15px] text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="hidden h-4 w-4 sm:block" />Requirements<span aria-hidden className="hidden sm:inline"> →</span></Link>
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center whitespace-nowrap rounded-lg border border-line px-1.5 text-[12px] font-semibold text-heading hover:border-brand hover:text-brand">Business details</Link>
+          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-9 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-brand px-1.5 text-[12px] font-bold text-white hover:bg-brand-dark hover:text-white sm:order-none">Startup budget</Link>
         </div>
       </div>
     </div>

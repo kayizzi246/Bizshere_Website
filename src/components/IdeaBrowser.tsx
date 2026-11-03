@@ -74,8 +74,6 @@ export function IdeaBrowser({ ideas, intro, initial }: {
   return (
     <>
       <BrowseHero
-        crumb="Business Ideas"
-        badge={[ideas.length, "business plans with start-up budgets"]}
         title="Business ideas to start in Uganda"
         intro={intro}
         q={q}
@@ -84,18 +82,25 @@ export function IdeaBrowser({ ideas, intro, initial }: {
         hint={hint}
         label="Search business ideas"
         popular={examples.slice(0, 4)}
+        cats={cats}
+        category={category}
+        onCategory={(id) => { setCategory(id); setPage(1); }}
+        sort={sort}
+        sorts={SORTS}
+        onSort={(v) => { setSort(v); setPage(1); }}
       />
 
       <div className="bg-page">
-        <div className="container-site flex flex-col gap-8 py-8 sm:py-10">
+        <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-6">
           <RecentStrip only="/business-ideas" />
           <CategoryChips cats={cats} total={ideas.length} chosen={category} onChoose={(id) => { setCategory(id); setPage(1); }} />
 
           <section ref={listTop} aria-labelledby="ideas" className="flex scroll-mt-4 flex-col gap-5">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div className="flex flex-col gap-1">
-                <h2 id="ideas" className="text-section-title text-heading">
-                  {q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Top business ideas in Uganda"}
+                {/* A title only when it says something: the search or the chosen category */}
+                <h2 id="ideas" className={q.trim() || chosenName ? "text-block-title text-heading" : "sr-only"}>
+                  {q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Business ideas"}
                 </h2>
                 <p className="text-sm text-ink-muted" aria-live="polite">
                   <strong className="font-semibold text-ink-soft">{items.length} {items.length === 1 ? "business" : "businesses"} available</strong>{pages > 1 ? ` · page ${current} of ${pages}` : ""}
@@ -110,7 +115,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
                 {ideas.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
             ) : (
-              <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+              <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
                 {shown.map((i) => <li key={i.id} id={i.slug}><IdeaCard idea={i} /></li>)}
               </ul>
             )}

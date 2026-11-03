@@ -8,7 +8,6 @@ import { z } from "zod";
 import type { Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { audit } from "./audit";
-import { normalizePhone } from "./phone";
 import { isTestPhone, phoneKey, verifyCode } from "./phone-codes";
 
 // `identifier` is an email address or a phone number. `email` is still accepted
@@ -56,7 +55,8 @@ export const authOptions: NextAuthOptions = {
         if (!parsed.success) return null;
         const id = parsed.data.identifier ?? parsed.data.email;
         if (!id) return null;
-        const phone = id.includes("@") ? null : normalizePhone(id);
+        // Same phone lookup as the code sign-in (accepts 0772…, +256…, and the local test number).
+        const phone = id.includes("@") ? null : phoneKey(id);
         const key = (phone ?? id).toLowerCase();
         // Too many wrong passwords recently: refuse without checking, so guessing is slow.
         if ((await recentFailures(key)) >= MAX_FAILED_LOGINS) {

@@ -17,5 +17,5 @@ export function StaticPage({ title, intro, children, draft = false }: { title: s
 }
 
 export function H2({ children }: { children: React.ReactNode }) {
-  return <h2 className="pt-2 text-xl font-bold text-ink">{children}</h2>;
+  return <h2 className="pt-2 text-xl font-extrabold text-ink">{children}</h2>;
 }
