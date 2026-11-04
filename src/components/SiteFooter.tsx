@@ -41,7 +41,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 py-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:gap-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 pb-4 pt-10 sm:pb-6 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-6">
             <Link href="/" aria-label="BizSphere-Ug home" className="w-fit">
               <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-16 w-auto" />
@@ -78,9 +78,9 @@ export function SiteFooter() {
           ))}
         </div>
 
-        {/* Big wordmark across the footer on one line, sized to the screen width, fading out at the bottom */}
+        {/* Big wordmark across the footer on one line, sized to the screen width: brand blue, lightening only slightly towards the bottom so the whole word stays readable */}
         <div aria-hidden className="select-none overflow-hidden">
-          <div className="-mb-[0.18em] whitespace-nowrap bg-gradient-to-b from-brand to-brand/10 bg-clip-text text-center font-hero text-[clamp(44px,16vw,236px)] font-extrabold leading-none tracking-[-0.05em] text-transparent">
+          <div className="-mb-[0.18em] whitespace-nowrap bg-gradient-to-b from-brand to-brand/45 bg-clip-text text-center font-hero text-[clamp(44px,16vw,236px)] font-extrabold leading-none tracking-[-0.05em] text-transparent">
             Bizsphere
           </div>
         </div>
