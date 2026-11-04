@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, Calculator, Check, ClipboardList, ExternalLink, FileDown, LockKeyhole } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Calculator, Check, ClipboardList, Clock, ExternalLink, FileDown, GraduationCap, LockKeyhole, MapPin, Store, TrendingUp, Wallet } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
-import { compactRange, date, money, moneyRange } from "@/lib/format";
+import { compactRange, date, itemHref, money, moneyRange } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
 import { budgetTotal } from "@/lib/costing";
 import { Connected, trackView } from "@/components/DetailParts";
 import { Icon } from "@/components/Icon";
@@ -19,6 +20,9 @@ import { ProductGallery, type GalleryImage, type GalleryVideo } from "@/componen
 import { WishlistButton } from "@/components/Wishlist";
 import { videoId } from "@/lib/youtube";
 import { popupPlan } from "@/lib/billing";
+
+/** Icons for the key facts beside the photo. */
+const FACT_ICON: Record<string, typeof Check> = { Requirements: ClipboardList, "Time to set up": Clock, "Profit potential": TrendingUp, "Skill level": GraduationCap, "Business size": Store, "Best locations": MapPin };
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +46,16 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const path = `/business-ideas/${item.slug}`;
   const reqPath = requirementsPath(item.slug);
   await trackView(viewer, item.id, path);
-  const [media, { inCategory, list: more }] = await Promise.all([
+  const [media, { inCategory, list: more }, linked] = await Promise.all([
     loadChildSections("BUSINESS_IDEA", { record: idea.id, item: item.id, org: null }),
     moreIdeas(item),
+    // For the gallery: photos of the machines and suppliers this idea is linked to (Related, set in the admin)
+    prisma.relatedContent.findMany({
+      where: { fromItemId: item.id, toItem: { publicationStatus: "PUBLISHED", contentType: { in: ["MACHINE", "SUPPLIER"] } } },
+      orderBy: { displayOrder: "asc" },
+      take: 8,
+      select: { toItem: { select: { title: true, slug: true, contentType: true, machine: { select: { pictureUrl: true, pictureCredit: true } }, supplier: { select: { pictureUrl: true, pictureCredit: true } } } } },
+    }),
   ]);
 
   const scenarios = plansOf(idea);
@@ -109,7 +120,14 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const mediaRows = media.filter((s) => s.table.key === "media").flatMap((s) => s.rows).filter((r) => !gated || r.accessLevel === "PUBLIC");
   const images: GalleryImage[] = [
     ...(idea.pictureUrl ? [{ src: idea.pictureUrl, alt: name, credit: idea.pictureCredit }] : []),
-    ...mediaRows.filter((r) => r.mediaType === "image").map((r) => ({ src: String(r.fileLocation), alt: String(r.altText || r.caption || name), credit: (r.credit as string) ?? null })),
+    ...mediaRows.filter((r) => r.mediaType === "image").map((r) => ({ src: String(r.fileLocation), alt: String(r.altText || r.caption || name), credit: (r.credit as string) ?? null, label: (r.caption as string) || null })),
+    // Then what it takes, with a way to open each: the machines and suppliers it is linked to
+    ...linked.flatMap(({ toItem: t }) => {
+      const pic = t.machine ?? t.supplier;
+      if (!pic?.pictureUrl) return [];
+      const kind = t.contentType === "MACHINE" ? "Machine" : "Supplier";
+      return [{ src: pic.pictureUrl, alt: t.title, credit: pic.pictureCredit, label: `${kind} · ${t.title.replace(/^Sample:s*/i, "")}`, href: itemHref(t) }];
+    }),
   ];
   const videos: GalleryVideo[] = mediaRows.filter((r) => r.mediaType === "video").map((r, n) => ({ label: String(r.caption || `Video ${n + 1}`), href: String(r.fileLocation), youtubeId: videoId(String(r.fileLocation)) }));
   // Documents stay in their own list; photos and videos are in the gallery.
@@ -169,21 +187,31 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   </div>
                 </div>
 
-                {/* Starting capital, shown like a price */}
-                <div className="flex flex-col gap-0.5 border-y border-line py-3">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Starting capital</span>
-                  <span className="font-display text-[28px] font-extrabold tracking-[-0.02em] text-brand-dark sm:text-[32px]">{capitalFull ?? <span className="text-lg font-semibold text-ink-muted">Being priced</span>}</span>
-                  <span className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}{idea.capitalNotes ? ` · ${idea.capitalNotes}` : ""}</span>
+                {/* Starting capital, shown like a price, on a tinted card */}
+                <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-[linear-gradient(120deg,#E8F2FA,#FFF4E8)] p-4 sm:p-5">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-accent-dark shadow-sm"><Wallet aria-hidden className="h-6 w-6" /></span>
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">Starting capital</span>
+                    <span className="font-display text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-brand-dark sm:text-[30px]">{capitalFull ?? <span className="text-lg font-semibold text-ink-soft">Being priced</span>}</span>
+                    <span className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}{idea.capitalNotes ? ` · ${idea.capitalNotes}` : ""}</span>
+                  </span>
                 </div>
 
+                {/* Key facts as tiles with icons */}
                 {facts.length ? (
-                  <dl className="flex flex-col divide-y divide-line overflow-hidden rounded-2xl border border-line">
-                    {facts.map(([k, v], n) => (
-                      <div key={k} className={`flex flex-col gap-0.5 px-4 py-2.5 sm:flex-row sm:gap-4 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
-                        <dt className="shrink-0 text-[13px] text-ink-muted sm:w-36">{k}</dt>
-                        <dd className="min-w-0 text-[14px] font-semibold text-heading">{v}</dd>
-                      </div>
-                    ))}
+                  <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {facts.map(([k, v]) => {
+                      const FactIcon = FACT_ICON[k] ?? Check;
+                      return (
+                        <div key={k} className={`flex items-start gap-2.5 rounded-2xl border border-line bg-white p-3 ${k === "Best locations" ? "col-span-2 sm:col-span-3" : ""}`}>
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><FactIcon aria-hidden className="h-4 w-4" /></span>
+                          <span className="flex min-w-0 flex-col">
+                            <dt className="text-[11px] font-medium text-ink-muted">{k}</dt>
+                            <dd className="text-[14px] font-bold leading-snug text-heading">{v}</dd>
+                          </span>
+                        </div>
+                      );
+                    })}
                   </dl>
                 ) : null}
 

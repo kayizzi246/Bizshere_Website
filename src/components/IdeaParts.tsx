@@ -63,22 +63,32 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
   const bi = idea.businessIdea;
   const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition hover:-translate-y-0.5 hover:border-brand">
-      <WishlistHeart id={idea.id} className="absolute right-2 top-2 sm:right-3 sm:top-3" />
-      <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden">
-        <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[16/9] transition duration-500 group-hover:scale-[1.03]" />
-        <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2 sm:left-3 sm:top-3" />
-        {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-brand-deep/80 px-2.5 py-0.5 text-[11px] font-semibold sm:bottom-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs text-white backdrop-blur">{idea.primaryCategory.name}</span> : null}
-      </Link>
-      {/* Simple: name, a brief description, the starting capital, two buttons. Phones show two cards a
-          row, so below sm the buttons stack. */}
-      <div className="flex flex-1 flex-col gap-2 p-2.5 sm:gap-2.5 sm:p-3">
-        <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[14px] font-bold leading-tight text-heading hover:text-brand sm:text-[15px]">{name}</Link>
+    // The photo sits inset in the card with its own rounded corners; the cost has its own tinted panel.
+    <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
+      <div className="relative">
+        <WishlistHeart id={idea.id} className="absolute right-2 top-2" />
+        <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden rounded-[14px]">
+          <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[4/3] transition duration-500 group-hover:scale-[1.04] sm:aspect-[16/10]" />
+          <span aria-hidden className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" />
+          <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2" />
+          {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{idea.primaryCategory.name}</span> : null}
+        </Link>
+      </div>
+      {/* Name, a brief description, the starting capital, two buttons. Phones show two cards a row, so
+          below sm the buttons stack, and are a little taller there to be easy to tap. */}
+      <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">
+        <Link href={`/business-ideas/${idea.slug}`} className="font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name}</Link>
         {idea.shortSummary ? <p className="line-clamp-2 text-[12px] leading-snug text-ink-muted sm:text-[13px]">{idea.shortSummary}</p> : null}
-        <p className="text-[12px] text-ink-muted"><span className="inline-flex items-center gap-1"><Wallet aria-hidden className="h-3.5 w-3.5 text-accent" />{cost ? <strong className="font-semibold text-heading">{cost}</strong> : "Being priced"}</span></p>
-        <div className="mt-auto flex flex-col gap-2 sm:flex-row">
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-9 flex-1 items-center justify-center whitespace-nowrap rounded-lg border border-line px-1.5 text-[12px] font-semibold text-heading hover:border-brand hover:text-brand">Business details</Link>
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-9 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-brand px-1.5 text-[12px] font-bold text-white hover:bg-brand-dark hover:text-white sm:order-none">Startup budget</Link>
+        <p className="flex items-center gap-2 rounded-xl bg-page px-2.5 py-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Wallet aria-hidden className="h-3.5 w-3.5" /></span>
+          <span className="flex min-w-0 flex-col leading-tight">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-ink-muted">Start-up capital</span>
+            {cost ? <strong className="truncate text-[13px] font-bold text-heading">{cost}</strong> : <span className="text-[12px] font-medium text-ink-soft">Being priced</span>}
+          </span>
+        </p>
+        <div className="mt-auto flex flex-col gap-2 pt-1 sm:flex-row">
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line-strong px-2 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand sm:h-9 sm:text-[12px]">Business details</Link>
+          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-10 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-brand px-2 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:order-none sm:h-9 sm:text-[12px]">Startup budget<span aria-hidden className="transition group-hover:translate-x-0.5">→</span></Link>
         </div>
       </div>
     </div>

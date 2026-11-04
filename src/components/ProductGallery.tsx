@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Play } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Expand, Play, X } from "lucide-react";
 import { Icon } from "./Icon";
 import { YouTubePlayer } from "./YouTubePlayer";
 
-export type GalleryImage = { src: string; alt: string; credit?: string | null };
+/**
+ * A photo in the gallery. `label` and `href`: a photo of something linked to this page (e.g. the
+ * machine a business idea needs), named on the photo and opening that page.
+ */
+export type GalleryImage = { src: string; alt: string; credit?: string | null; label?: string | null; href?: string | null };
 /** A video in the gallery: a YouTube id, a direct video file, or any other link. */
 export type GalleryVideo = { label: string; href: string; youtubeId?: string | null };
 
@@ -14,26 +19,56 @@ type Slide = ({ kind: "image" } & GalleryImage) | ({ kind: "video" } & GalleryVi
 const isFile = (href: string) => /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(href);
 
 /**
- * Product-page gallery (RecordPage layout="product"): one large slot and a row of thumbnails
- * underneath. Photos and videos share the slot: tapping a video thumbnail plays it right there
- * (YouTube in its player, video files with the browser's controls), never on another page.
- * Without any photo it shows a plain panel with the directory icon.
+ * Detail-page gallery (business ideas, directory records, supplier products): one large slot with
+ * arrows, swipe on phones and a counter, a scrolling row of thumbnails underneath, and a full-screen
+ * view on tap. Photos and videos share the slot: a video plays right there (YouTube in its player,
+ * video files with the browser's controls), never on another page. Without any photo it shows a
+ * plain panel with the directory icon.
  */
 export function ProductGallery({ images, videos = [], icon }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string }) {
   const slides: Slide[] = [...images.map((i) => ({ kind: "image" as const, ...i })), ...videos.map((v) => ({ kind: "video" as const, ...v }))];
   const [current, setCurrent] = useState(0);
+  const [full, setFull] = useState(false);
   const shown = slides[current];
+  const many = slides.length > 1;
+  const go = useCallback((step: number) => setCurrent((c) => (c + step + slides.length) % slides.length), [slides.length]);
+
+  // Swipe left or right on the main photo (phones)
+  const start = useRef<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => { start.current = e.touches[0].clientX; };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (start.current === null || !many) return;
+    const dx = e.changedTouches[0].clientX - start.current;
+    start.current = null;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+  };
+
+  // Keep the picked thumbnail in view in the scrolling row
+  const thumbs = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    thumbs.current?.children[current]?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+  }, [current]);
+
+  const arrow = (dir: -1 | 1, big = false) => (
+    <button type="button" onClick={(e) => { e.stopPropagation(); go(dir); }} aria-label={dir < 0 ? "Previous photo" : "Next photo"}
+      className={`absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-heading shadow-sm ring-1 ring-black/5 transition hover:bg-white ${big ? "h-12 w-12" : "h-9 w-9 opacity-90 sm:opacity-0 sm:group-hover:opacity-100"} ${dir < 0 ? (big ? "left-4" : "left-2.5") : big ? "right-4" : "right-2.5"}`}>
+      {dir < 0 ? <ChevronLeft aria-hidden className="h-5 w-5" /> : <ChevronRight aria-hidden className="h-5 w-5" />}
+    </button>
+  );
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <figure className="flex flex-col gap-1">
-        <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-line bg-page">
+    <div className="flex flex-col gap-3">
+      <figure className="flex flex-col gap-1.5">
+        <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          className="group relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-line bg-page">
           {!shown ? (
             <Icon name={icon} className="h-16 w-16 text-brand/40" strokeWidth={1.25} />
           ) : shown.kind === "image" ? (
-            // Editor-entered addresses; no Next image domain list to maintain.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={shown.src} src={shown.src} alt={shown.alt} className="h-full w-full object-cover" />
+            <button type="button" onClick={() => setFull(true)} aria-label="View photo full screen" className="absolute inset-0 cursor-zoom-in">
+              {/* Editor-entered addresses; no Next image domain list to maintain. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img key={shown.src} src={shown.src} alt={shown.alt} className="gallery-fade h-full w-full object-cover" />
+            </button>
           ) : shown.youtubeId ? (
             <div key={shown.href} className="absolute inset-0 bg-black"><YouTubePlayer id={shown.youtubeId} title={shown.label} live={false} /></div>
           ) : isFile(shown.href) ? (
@@ -46,20 +81,33 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
               <a href={shown.href} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark hover:text-white">Watch on that site ↗</a>
             </div>
           )}
-          {slides.length > 1 && shown?.kind === "image" ? (
-            <span className="absolute bottom-3 right-3 rounded-full bg-heading/75 px-2.5 py-1 text-[11px] font-semibold text-white">{current + 1} / {slides.length}</span>
+
+          {shown?.kind === "image" ? (
+            <>
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+              {shown.label ? (
+                shown.href ? (
+                  <Link href={shown.href} className="absolute bottom-3 left-3 z-10 inline-flex max-w-[70%] items-center gap-1 truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading hover:text-brand">{shown.label} <span aria-hidden>→</span></Link>
+                ) : <span className="absolute bottom-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading">{shown.label}</span>
+              ) : null}
+              <span className="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-1.5">
+                {many ? <span className="rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">{current + 1} / {slides.length}</span> : null}
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white"><Expand aria-hidden className="h-3.5 w-3.5" /></span>
+              </span>
+            </>
           ) : null}
+          {many ? <>{arrow(-1)}{arrow(1)}</> : null}
         </div>
         {shown?.kind === "image" && shown.credit ? <figcaption className="text-[11px] text-ink-muted">{shown.credit}</figcaption> : null}
       </figure>
 
-      {slides.length > 1 ? (
-        <ul className="flex flex-wrap gap-2">
+      {many ? (
+        <ul ref={thumbs} className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {slides.map((s, n) => (
-            <li key={s.kind === "image" ? s.src : s.href}>
+            <li key={s.kind === "image" ? s.src : s.href} className="snap-start">
               <button type="button" onClick={() => setCurrent(n)} aria-pressed={n === current}
-                aria-label={s.kind === "image" ? `Show photo ${n + 1}` : `Play ${s.label.toLowerCase()}`}
-                className={`relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border-2 bg-white transition sm:h-16 sm:w-16 ${n === current ? "border-brand" : "border-line hover:border-brand/50"}`}>
+                aria-label={s.kind === "image" ? `Show photo ${n + 1}${s.label ? `: ${s.label}` : ""}` : `Play ${s.label.toLowerCase()}`}
+                className={`relative flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition sm:h-[72px] sm:w-24 ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}>
                 {s.kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={s.src} alt="" loading="lazy" className="h-full w-full object-cover" />
@@ -72,11 +120,51 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
                     <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white"><Play className="ml-0.5 h-3.5 w-3.5 fill-current" /></span>
                   </>
                 )}
+                {s.kind === "image" && s.label ? <span className="absolute inset-x-0 bottom-0 truncate bg-black/55 px-1 py-0.5 text-[9px] font-semibold text-white">{s.label.replace(/^.*?·\s*/, "")}</span> : null}
               </button>
             </li>
           ))}
         </ul>
       ) : null}
+
+      {full && shown?.kind === "image" ? <Lightbox slide={shown} index={current} count={slides.length} onStep={many ? go : null} onClose={() => setFull(false)} /> : null}
+    </div>
+  );
+}
+
+/** The photo full screen: arrows (and ← → keys) through the photos, × or Escape to close. */
+function Lightbox({ slide, index, count, onStep, onClose }: { slide: GalleryImage; index: number; count: number; onStep: ((n: number) => void) | null; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      else if (onStep && e.key === "ArrowRight") onStep(1);
+      else if (onStep && e.key === "ArrowLeft") onStep(-1);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose, onStep]);
+
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Photo" className="fixed inset-0 z-[85] flex flex-col bg-black/95 text-white">
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <span className="text-[13px] text-white/70">{count > 1 ? `${index + 1} / ${count}` : ""}</span>
+        <button type="button" onClick={onClose} aria-label="Close" autoFocus className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><X aria-hidden className="h-5 w-5" /></button>
+      </div>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-16">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img key={slide.src} src={slide.src} alt={slide.alt} className="gallery-fade max-h-full max-w-full rounded-lg object-contain" />
+        {onStep ? (
+          <>
+            <button type="button" onClick={() => onStep(-1)} aria-label="Previous photo" className="absolute left-3 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><ChevronLeft aria-hidden className="h-6 w-6" /></button>
+            <button type="button" onClick={() => onStep(1)} aria-label="Next photo" className="absolute right-3 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><ChevronRight aria-hidden className="h-6 w-6" /></button>
+          </>
+        ) : null}
+      </div>
+      <div className="flex flex-col items-center gap-1 px-4 py-4 text-center">
+        {slide.label ? (slide.href ? <Link href={slide.href} onClick={onClose} className="text-[14px] font-bold text-white hover:text-accent">{slide.label} →</Link> : <span className="text-[14px] font-bold">{slide.label}</span>) : null}
+        {slide.credit ? <span className="text-[11px] text-white/60">{slide.credit}</span> : null}
+      </div>
     </div>
   );
 }
