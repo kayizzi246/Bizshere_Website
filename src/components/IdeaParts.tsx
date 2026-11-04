@@ -62,6 +62,8 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
   const name = idea.title.replace(/^Sample:\s*/i, "");
   const bi = idea.businessIdea;
   const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
+  // A costed budget: at least one budget plan with items in it
+  const hasBudget = Boolean(bi?.scenarios.some((sc) => sc._count.lines > 0));
   return (
     // The photo sits inset in the card with its own rounded corners; the cost has its own tinted panel.
     <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
@@ -88,10 +90,15 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
         </p>
         {/* Side by side when the card is wide enough, otherwise one under the other: each button needs
             at least 8.5rem, so in a narrow card (phones, the "more ideas" row) they wrap instead of
-            running past the edge. Startup budget comes first. */}
+            running past the edge. Business details first, on a tinted background; the budget button
+            says "Budget unavailable" (and isn't a link) while the idea has no costed budget yet. */}
         <div className="mt-auto flex flex-wrap gap-2 pt-1">
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9 sm:text-[12px]">Startup budget<span aria-hidden className="transition group-hover:translate-x-0.5">→</span></Link>
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line-strong px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand sm:h-9 sm:text-[12px]">Business details</Link>
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center whitespace-nowrap rounded-full bg-brand-tint px-3 text-[13px] font-semibold text-brand-dark hover:bg-brand/15 hover:text-brand-dark sm:h-9 sm:text-[12px]">Business details</Link>
+          {hasBudget ? (
+            <Link href={`/business-ideas/${idea.slug}/requirements`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9 sm:text-[12px]">Startup budget<span aria-hidden className="transition group-hover:translate-x-0.5">→</span></Link>
+          ) : (
+            <span aria-disabled="true" title="No start-up budget for this business yet" className="inline-flex h-10 min-w-[8.5rem] flex-1 cursor-not-allowed items-center justify-center whitespace-nowrap rounded-full bg-page px-3 text-[13px] font-semibold text-ink-muted ring-1 ring-line sm:h-9 sm:text-[12px]">Budget unavailable</span>
+          )}
         </div>
       </div>
     </div>

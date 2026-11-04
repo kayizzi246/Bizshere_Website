@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, MapPin, X } from "lucide-react";
 
-export type BoardRow = { id: string; name: string; initial: string; tone: string; sub: string; price: string | null; change: number | null };
+/** `locked`: this market's price is member detail (a visitor picked a market beyond the free preview). */
+export type BoardRow = { id: string; name: string; initial: string; tone: string; sub: string; price: string | null; change: number | null; locked?: boolean };
 export type MarketPrice = { id: string; market: string; place: string; observed: string; range: string; stale: boolean };
 
 /**
@@ -34,7 +35,7 @@ export function PriceBoard({ rows, details, unitLabel }: { rows: BoardRow[]; det
           <span className="truncate text-[12px] text-white/45">{r.sub}</span>
         </span>
         <span className="flex shrink-0 flex-col items-end">
-          <span className="font-display text-[16px] font-semibold tabular-nums sm:text-[22px]">{r.price ?? <span className="text-white/40">No price yet</span>}</span>
+          <span className="font-display text-[16px] font-semibold tabular-nums sm:text-[22px]">{r.price ?? (r.locked ? <span className="text-[13px] font-semibold text-accent sm:text-[15px]">Members only</span> : <span className="text-white/40">No price yet</span>)}</span>
           <span className={`inline-flex items-center gap-0.5 text-[12px] font-semibold tabular-nums sm:text-[13px] ${up ? "text-[#27AD75]" : down ? "text-[#F0616D]" : "text-white/35"}`}>
             {up ? <ArrowUpRight aria-hidden className="h-3.5 w-3.5" /> : down ? <ArrowDownLeft aria-hidden className="h-3.5 w-3.5" /> : null}
             {r.change === null ? "--" : `${Math.abs(r.change).toFixed(2)}%`}

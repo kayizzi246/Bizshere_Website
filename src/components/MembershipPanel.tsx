@@ -58,7 +58,7 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
         {isStaff || (isMember && !end) ? null : isMember || ended ? (
           <Link href={`/membership?onboard=renew&period=${sub?.period ?? "MONTHLY"}`} data-renew="" data-period={sub?.period ?? "MONTHLY"}
             className={`inline-flex min-h-[46px] items-center gap-2 rounded-full px-5 text-[15px] font-bold transition ${isMember ? "bg-white text-heading hover:bg-brand-tint hover:text-heading" : "bg-brand text-white hover:bg-brand-dark hover:text-white"}`}>
-            <RefreshCw aria-hidden className="h-4 w-4" /> {isMember ? "Renew early" : "Renew now"}
+            <RefreshCw aria-hidden className="h-4 w-4" /> {isMember ? "Renew or change plan" : "Renew now"}
           </Link>
         ) : (
           <Link href="/membership?onboard=pay&next=%2Faccount" data-pay="" data-next="/account" className="btn-primary min-h-[46px] rounded-full px-5">Get full access</Link>

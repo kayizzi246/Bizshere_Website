@@ -294,6 +294,12 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
 }) {
   const available = PERIODS.filter((p) => plan.amounts[p] !== null);
   const [period, setPeriod] = useState<Period>(available.includes(initialPeriod) ? initialPeriod : available[0] ?? "MONTHLY");
+  // Renewing: the member's current plan, marked "Your plan" (any other plan can be picked instead)
+  const [currentPeriod, setCurrentPeriod] = useState<Period | null>(null);
+  useEffect(() => {
+    if (!renew) return;
+    accessState().then((s) => { if (s.memberPeriod) setCurrentPeriod(s.memberPeriod as Period); }).catch(() => {});
+  }, [renew]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<{ url: string; paymentId: string } | null>(null);
@@ -406,8 +412,8 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
     <form onSubmit={start} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         {renew ? null : <StepBar n={2} />}
-        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]`}>{renew ? "Renew your membership" : "Choose your plan"}</h2>
-        <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Time you buy now is added to the end of your current membership." : "One membership opens every directory. You're in the moment you pay."}</p>
+        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]`}>{renew ? "Renew or change plan" : "Choose your plan"}</h2>
+        <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "One membership opens every directory. You're in the moment you pay."}</p>
       </div>
 
       {available.length ? (
@@ -416,6 +422,7 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
           {available.map((p) => {
             const on = period === p;
             const badge = p === "MONTHLY" ? "Most popular" : p === "YEARLY" && saving ? `Save ${saving}%` : null;
+            const mine = renew && p === currentPeriod;
             return (
               <label key={p} className={`relative flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3.5 transition ${on ? "border-brand bg-brand-tint/50 ring-2 ring-brand" : "border-line hover:border-line-strong"}`}>
                 <input type="radio" name="period" value={p} checked={on} onChange={() => setPeriod(p)} className="sr-only" />
@@ -423,6 +430,7 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold text-heading">
                     {OPTIONS[p].title}
+                    {mine ? <span className="rounded-full bg-heading px-2 py-0.5 text-[11px] font-bold text-white">Your plan</span> : null}
                     {badge ? <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${p === "YEARLY" ? "bg-accent-tint text-accent-dark" : "bg-brand text-white"}`}>{badge}</span> : null}
                   </span>
                   <span className="text-[12px] text-ink-muted">{OPTIONS[p].note}</span>

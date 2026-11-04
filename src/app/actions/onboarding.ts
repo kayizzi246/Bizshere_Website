@@ -24,15 +24,15 @@ export async function requestCode(phone: string): Promise<SendResult> {
   return sendCode(phone);
 }
 
-/** `phone` fills in Pesapal's form; `memberUntil` is shown on the welcome screen. */
+/** `phone` fills in Pesapal's form; `memberUntil` is shown on the welcome screen; `memberPeriod` marks "Your plan" when renewing. */
 export async function accessState() {
   const viewer = await getViewer();
-  if (!viewer.userId) return { signedIn: false, isMember: false, phone: null, memberUntil: null };
+  if (!viewer.userId) return { signedIn: false, isMember: false, phone: null, memberUntil: null, memberPeriod: null };
   const [user, sub] = await Promise.all([
     prisma.user.findUnique({ where: { id: viewer.userId }, select: { phone: true } }),
-    prisma.subscription.findFirst({ where: { userId: viewer.userId, status: "ACTIVE", plan: { code: "member" } }, orderBy: { currentPeriodEnd: { sort: "desc", nulls: "first" } }, select: { currentPeriodEnd: true } }),
+    prisma.subscription.findFirst({ where: { userId: viewer.userId, status: "ACTIVE", plan: { code: "member" } }, orderBy: { currentPeriodEnd: { sort: "desc", nulls: "first" } }, select: { currentPeriodEnd: true, period: true } }),
   ]);
-  return { signedIn: true, isMember: viewer.isMember, phone: user?.phone ?? null, memberUntil: sub?.currentPeriodEnd?.toISOString() ?? null };
+  return { signedIn: true, isMember: viewer.isMember, phone: user?.phone ?? null, memberUntil: sub?.currentPeriodEnd?.toISOString() ?? null, memberPeriod: sub?.period ?? null };
 }
 
 /** Simulated payments for demos. Never set PAYMENT_SIMULATE on the live server. */

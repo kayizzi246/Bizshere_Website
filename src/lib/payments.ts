@@ -88,9 +88,14 @@ async function authToken() {
   return token.value;
 }
 
-/** The IPN id for /api/payments/webhook: from .env, else an existing registration, else a new one. */
-async function notificationId() {
-  if (setting("PESAPAL_IPN_ID")) return setting("PESAPAL_IPN_ID");
+/**
+ * The IPN id for /api/payments/webhook: from .env, else an existing registration, else a new one.
+ * `fresh`: ignore PESAPAL_IPN_ID, which Pesapal refused (it belongs to other keys or the other server).
+ */
+let envIpnRefused = false;
+async function notificationId(fresh = false) {
+  if (fresh) { envIpnRefused = true; ipnId = null; }
+  if (setting("PESAPAL_IPN_ID") && !envIpnRefused) return setting("PESAPAL_IPN_ID");
   if (!ipnId) ipnId = (await registerIpn()).ipnId;
   return ipnId;
 }
@@ -112,14 +117,14 @@ export async function registerIpn(url = `${site.url}/api/payments/webhook`) {
 /** Submits the order and returns Pesapal's payment page (shown in the pop-up's iframe). */
 export async function startCheckout(req: CheckoutRequest): Promise<CheckoutResult> {
   const [first, ...rest] = (req.name ?? "").trim().split(/\s+/);
-  const res = await call<{ order_tracking_id?: string; redirect_url?: string }>("/api/Transactions/SubmitOrderRequest", {
+  const submit = async (notification_id: string) => call<{ order_tracking_id?: string; redirect_url?: string }>("/api/Transactions/SubmitOrderRequest", {
     body: {
       id: req.paymentId,
       currency: req.currency,
       amount: req.amount,
       description: req.description.slice(0, 100),
       callback_url: `${site.url}/payments/return`,
-      notification_id: await notificationId(),
+      notification_id,
       billing_address: {
         email_address: req.email ?? "",
         phone_number: req.phone ? req.phone.replace(/^\+256/, "0") : "",
@@ -128,6 +133,12 @@ export async function startCheckout(req: CheckoutRequest): Promise<CheckoutResul
         last_name: rest.join(" "),
       },
     },
+  });
+  const res = await submit(await notificationId()).catch(async (e: Error) => {
+    // "Invalid IPN URL ID": the id doesn't belong to these keys. Register the right one and try once more.
+    if (!/ipn/i.test(e.message)) throw e;
+    console.error(`pesapal: PESAPAL_IPN_ID was refused (${e.message}). Using this account's own IPN registration instead; update or remove PESAPAL_IPN_ID (npm run pesapal:ipn).`);
+    return submit(await notificationId(true));
   });
   if (!res.order_tracking_id || !res.redirect_url) throw new Error("pesapal: order not accepted");
   return { url: res.redirect_url, providerRef: res.order_tracking_id };

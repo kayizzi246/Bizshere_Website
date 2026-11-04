@@ -216,7 +216,12 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 ) : null}
 
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <Link href={reqPath} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
+                  {/* No costed budget yet: say so instead of opening an empty page */}
+                  {scenarios.some((sc) => sc.lines.length) ? (
+                    <Link href={reqPath} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
+                  ) : (
+                    <span aria-disabled="true" className="inline-flex h-12 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-page px-5 text-[15px] font-semibold text-ink-muted ring-1 ring-line"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget unavailable</span>
+                  )}
                   <WishlistButton id={item.id} />
                 </div>
                 <a href={pdfDownload} className="-mt-1 inline-flex h-11 w-fit items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Download business plan (PDF)</a>
