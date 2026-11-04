@@ -64,7 +64,7 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   // Hero: a full-width ribbon, no label; items glide in and out through soft fades at both ends.
   if (dark) {
     return (
-      <div role="region" aria-label="Latest updates" className="marquee marquee-wide flex h-11 w-full items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+      <div role="region" aria-label="Latest updates" className="marquee marquee-wide flex h-9 w-full items-center sm:h-11 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
         {track}
       </div>
     );

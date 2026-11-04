@@ -35,11 +35,11 @@ export default async function HomePage() {
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             64px above and 80px below (raised from 35/46, then 48/64); 12–16px between the elements; 68px headline. One column below xl. */}
-        {/* Updates ribbon across the whole width (managed at /admin/updates), no label */}
-        <div className="container-site relative pt-[40px]">
+        {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
+        <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[80px] pt-[36px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[80px] pt-2 sm:pt-[36px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}

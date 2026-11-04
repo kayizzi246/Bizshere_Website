@@ -26,6 +26,7 @@
     "sms:test": "tsx --env-file=.env scripts/sms-test.ts",
     "plans:test-prices": "tsx --env-file=.env scripts/plan-prices.ts",
     "pesapal:ipn": "tsx --env-file=.env scripts/pesapal-ipn.ts",
+    "admin:create": "tsx --env-file=.env scripts/create-admin.ts",
     "docs:db": "tsx scripts/data-dictionary.ts",
     "postinstall": "prisma generate",
     "theme:prime": "node scripts/prime-theme.mjs"
