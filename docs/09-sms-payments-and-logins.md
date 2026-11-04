@@ -43,8 +43,8 @@ Used for: phone sign-in codes, seller and expert PINs, forgotten-PIN codes, paym
 ### Set up
 
 1. Create an account at [comms.egosms.co](https://comms.egosms.co) and top up credit.
-2. Get the API username and password: **Settings → API Settings**.
-3. Optional: request a **Sender ID** (e.g. `BizSphere`). Until it's approved, leave it empty; messages come from `EgoSMS`.
+2. Get the API username and password: on the newer portal, **Settings → API Settings**. On the older egosms.co portal (menu: Payments, Send sms, Contact Manager…) there is no such page: use the account's **User Name** (shown under View Profile) and its login password.
+3. Optional: a **Sender ID**, the name shown as the sender on people's phones (e.g. `BizSphere`, usually at most 11 letters or digits, no spaces). It isn't set in the portal: ask Pahappa to approve it (info@pahappa.com, 0788 200 915 / 0707 811 113). Until they confirm, leave `EGOSMS_SENDER_ID` empty, so messages come from `EgoSMS`. An unapproved sender ID can get messages rejected.
 4. Add to `.env`:
 
    ```env
