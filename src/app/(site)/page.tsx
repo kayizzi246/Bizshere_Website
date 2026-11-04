@@ -45,7 +45,8 @@ export default async function HomePage() {
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             <h1 className="text-hero mb-3 text-[34px] text-white sm:text-[48px] xl:text-[60px]">
               <span className="sr-only">Bizsphere-UG: </span>
-              <span className="text-accent">B2B</span> Information Portal
+              {/* "Portal" always on its own second line */}
+              <span className="text-accent">B2B</span> Information<br />Portal
             </h1>
 
             <p className="mb-4 max-w-2xl text-[14px] leading-[1.55] text-white/80 sm:text-[18px]">
