@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { PLAN_PERIODS, popupPlan, yearlySaving } from "@/lib/billing";
 import { date, money } from "@/lib/format";
+import { pesapalSandbox } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pricing", description: "One membership, four lengths. Members get full budgets, contacts, funding terms and downloads, by the day, week, month or year." };
@@ -51,7 +52,7 @@ export default async function MembershipPage() {
   ]);
   const plan = popupPlan(memberPlan);
   const saving = yearlySaving(plan.amounts);
-  const sandbox = process.env.PESAPAL_ENV === "sandbox" || process.env.PAYMENT_SIMULATE === "true";
+  const sandbox = pesapalSandbox() || process.env.PAYMENT_SIMULATE === "true";
   const memberUntil = viewer.isMember ? sub?.currentPeriodEnd ?? null : null;
 
   /** Subscribe or renew: opens the plans and payment pop-up in place (src/components/Onboarding.tsx). */

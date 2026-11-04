@@ -17,9 +17,14 @@
  */
 import { site } from "@/config/site";
 
-const BASE = () => (process.env.PESAPAL_ENV === "sandbox" ? "https://cybqa.pesapal.com/pesapalv3" : "https://pay.pesapal.com/v3");
+// A value pasted into a host's settings often keeps its quotes or a stray space: drop them.
+const setting = (name: string) => (process.env[name] ?? "").trim().replace(/^(["'])(.*)\1$/, "$2").trim();
+const sandbox = () => setting("PESAPAL_ENV").toLowerCase() === "sandbox";
+/** True when payments go to the Pesapal sandbox (test money only). */
+export const pesapalSandbox = sandbox;
+const BASE = () => (sandbox() ? "https://cybqa.pesapal.com/pesapalv3" : "https://pay.pesapal.com/v3");
 
-export const pesapalConfigured = () => Boolean(process.env.PESAPAL_CONSUMER_KEY && process.env.PESAPAL_CONSUMER_SECRET);
+export const pesapalConfigured = () => Boolean(setting("PESAPAL_CONSUMER_KEY") && setting("PESAPAL_CONSUMER_SECRET"));
 
 export type CheckoutRequest = {
   paymentId: string; // our merchant reference
@@ -70,7 +75,12 @@ async function authToken() {
   if (!pesapalConfigured()) throw new Error("Pesapal is not configured: set PESAPAL_CONSUMER_KEY and PESAPAL_CONSUMER_SECRET");
   const res = await call<{ token?: string; expiryDate?: string }>("/api/Auth/RequestToken", {
     auth: false,
-    body: { consumer_key: process.env.PESAPAL_CONSUMER_KEY, consumer_secret: process.env.PESAPAL_CONSUMER_SECRET },
+    body: { consumer_key: setting("PESAPAL_CONSUMER_KEY"), consumer_secret: setting("PESAPAL_CONSUMER_SECRET") },
+  }).catch((e: Error) => {
+    // Sandbox keys only work on the sandbox server and live keys only on the live one: say which was tried.
+    throw /invalid_consumer_key/i.test(e.message)
+      ? new Error(`${e.message}. Tried the ${sandbox() ? "SANDBOX" : "LIVE"} server: ${sandbox() ? "these must be sandbox keys (developer.pesapal.com), or remove PESAPAL_ENV for live keys" : "these must be live keys, or set PESAPAL_ENV=sandbox for sandbox/demo keys"}`)
+      : e;
   });
   if (!res.token) throw new Error("pesapal: no token returned");
   const expires = res.expiryDate ? Date.parse(res.expiryDate) : NaN;
@@ -80,7 +90,7 @@ async function authToken() {
 
 /** The IPN id for /api/payments/webhook: from .env, else an existing registration, else a new one. */
 async function notificationId() {
-  if (process.env.PESAPAL_IPN_ID) return process.env.PESAPAL_IPN_ID;
+  if (setting("PESAPAL_IPN_ID")) return setting("PESAPAL_IPN_ID");
   if (!ipnId) ipnId = (await registerIpn()).ipnId;
   return ipnId;
 }

@@ -6,7 +6,7 @@
  *   npm run pesapal:ipn                                         address from NEXTAUTH_URL
  *   npm run pesapal:ipn -- https://bizsphere.ug/api/payments/webhook
  */
-import { pesapalConfigured, registerIpn } from "../src/lib/payments";
+import { pesapalConfigured, pesapalSandbox, registerIpn } from "../src/lib/payments";
 import { site } from "../src/config/site";
 
 async function main() {
@@ -16,7 +16,7 @@ async function main() {
     console.warn(`Warning: ${url} is not a public https address, so Pesapal can't reach it. Payments still work (the pop-up checks them itself),\nbut for the live site pass the real address: npm run pesapal:ipn -- https://<your domain>/api/payments/webhook\n`);
   }
   const r = await registerIpn(url);
-  console.log(`${r.existing ? "Already registered" : "Registered"} on Pesapal ${process.env.PESAPAL_ENV === "sandbox" ? "sandbox" : "live"}: ${r.url}\n\nPut this in .env (and in the host's environment variables):\n\nPESAPAL_IPN_ID="${r.ipnId}"`);
+  console.log(`${r.existing ? "Already registered" : "Registered"} on Pesapal ${pesapalSandbox() ? "sandbox" : "live"}: ${r.url}\n\nPut this in .env (and in the host's environment variables):\n\nPESAPAL_IPN_ID="${r.ipnId}"`);
 }
 
 main().catch((e) => { console.error(e.message); process.exit(1); });
