@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import { SORTS, UPDATED, type Advanced, type Filter } from "@/lib/directory-search";
 import { AutoSubmit } from "./AutoSubmit";
+import { GlassSelect } from "./GlassSelect";
 import { Icon } from "./Icon";
 
 /**
@@ -44,13 +45,11 @@ export function ServiceSearch({ path, label, q, filters, values, count, adv, adv
   };
   const id = path.replace(/\W/g, "");
   const select = (name: string, text: string, options: { value: string; label: string }[], value: string, any = "Any") => (
-    <label key={name} className="flex min-w-0 flex-col gap-1 text-xs font-semibold text-ink-muted">
-      {text}
-      <select name={name} defaultValue={value} className={`min-h-[44px] w-full rounded-xl border px-3 text-sm font-medium outline-none focus:border-brand ${value ? "border-brand bg-brand-tint text-brand-dark" : "border-line bg-white text-ink"}`}>
-        <option value="">{any}</option>
-        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-    </label>
+    <div key={name} className="flex min-w-0 flex-col gap-1 text-xs font-semibold text-ink-muted">
+      <span aria-hidden>{text}</span>
+      <GlassSelect name={name} label={text} defaultValue={value} options={[{ value: "", label: any }, ...options]}
+        className={`min-h-[44px] rounded-xl border px-3 text-sm font-medium ${value ? "border-brand bg-brand-tint text-brand-dark" : "border-line bg-white text-ink hover:border-brand"}`} />
+    </div>
   );
 
   return (

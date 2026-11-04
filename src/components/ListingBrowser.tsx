@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { LockKeyhole } from "lucide-react";
 import { Icon } from "./Icon";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
@@ -23,6 +24,14 @@ export type BrowseListing = {
   text: string;
   /** An outside address (useful websites): the table row goes straight there. */
   external?: string | null;
+  /** Where it comes from or who sells it (machines: their sources). `null` with `locked`: member detail. */
+  source?: string | null;
+  /** Price as text, e.g. "UGX 8M – 15M". */
+  price?: string | null;
+  /** Source and price are member detail and this viewer isn't a member: say so instead. */
+  locked?: boolean;
+  /** A longer description for cards without a photo (tools), e.g. the overview. */
+  description?: string | null;
 };
 
 const PER_PAGE = 24;
@@ -138,7 +147,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
               </ul>
             ) : (
               <ul className={`grid sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5 ${photos ? "grid-cols-2 gap-2.5" : "gap-3"}`}>
-                {shown.map((i) => <li key={i.id} id={i.slug} className="relative flex"><ListingCard i={i} icon={icon} photos={photos} /><WishlistHeart id={i.id} className="absolute right-2 top-2 sm:right-3 sm:top-3" /></li>)}
+                {shown.map((i) => <li key={i.id} id={i.slug} className="flex"><ListingCard i={i} icon={icon} photos={photos} /></li>)}
               </ul>
             )}
 
@@ -176,37 +185,61 @@ function DocumentCard({ i, icon }: { i: BrowseListing; icon: string }) {
   );
 }
 
+/**
+ * A directory card. The photo (or, without photos, a big icon) is clean: category and wishlist heart
+ * sit in the text area, which reads top to bottom: name, source, price, then a highlighted
+ * "View details" button. Source and price show only when the directory sends them (machines), and
+ * as "Members only" for visitors: they are member detail.
+ */
 function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; photos: boolean }) {
+  const hasFacts = i.source !== undefined || i.price !== undefined || i.locked;
   return (
-    <Link href={i.href} className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">
+    <div className="group flex w-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand/60">
       {photos ? (
-        <span className="relative block overflow-hidden bg-page">
+        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block overflow-hidden bg-page">
           {i.picture ? (
             // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
-            <img src={i.picture} alt={i.title} loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+            <img src={i.picture} alt="" loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
           ) : (
             <span className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
-          {i.primaryCategory ? <span className="absolute left-2 top-2 max-w-[85%] truncate rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-heading backdrop-blur sm:left-3 sm:top-3 sm:max-w-[80%] sm:px-2.5 sm:py-1 sm:text-[11px]">{i.primaryCategory.name}</span> : null}
           <SeenBadge href={i.href} className="absolute bottom-2 right-2" />
-        </span>
+        </Link>
       ) : null}
-      <span className={`flex flex-1 flex-col ${compact(photos, "gap-1 p-2.5 sm:gap-1.5 sm:p-3.5", "gap-2 p-4")}`}>
-        {!photos ? (
-          <span className="flex items-center gap-2.5 pr-9">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-[18px] w-[18px]" /></span>
-            <span className="truncate text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
-            <SeenBadge href={i.href} className="ml-auto shrink-0 bg-brand-tint" />
+      <div className={`flex flex-1 flex-col ${compact(photos, "gap-1.5 p-3 sm:gap-2 sm:p-4", "gap-2.5 p-4 sm:p-5")}`}>
+        {/* Category and wishlist, in the content area */}
+        <div className="flex items-center gap-2">
+          {!photos ? <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-tint text-brand"><Icon name={icon} className="h-7 w-7" strokeWidth={1.75} /></span> : null}
+          <span className="min-w-0 flex-1">
+            <span className={`block w-fit max-w-full truncate rounded-full ${photos ? "bg-brand-tint px-2.5 py-0.5 text-[11px] font-semibold text-brand-dark" : "text-xs font-semibold text-accent-dark"}`}>{i.primaryCategory?.name ?? "General"}</span>
+            {!photos ? <SeenBadge href={i.href} className="mt-1 bg-brand-tint" /> : null}
           </span>
+          <WishlistHeart id={i.id} className="shrink-0 border border-line" />
+        </div>
+
+        <Link href={i.href} className={`font-display font-bold leading-tight tracking-tight text-heading hover:text-brand ${compact(photos, "line-clamp-2 text-[15px] sm:text-[16px]", "text-[17px]")}`}>{i.title}</Link>
+        {photos
+          ? (i.summary ? <p className="hidden text-[13px] leading-snug text-ink-muted sm:line-clamp-2">{i.summary}</p> : null)
+          : (i.description || i.summary ? <p className="line-clamp-4 text-[13px] leading-relaxed text-ink-muted">{i.description || i.summary}</p> : null)}
+
+        {hasFacts ? (
+          <dl className="flex flex-col gap-1 rounded-xl bg-page px-3 py-2 text-[12px]">
+            {i.locked ? (
+              <div className="flex items-center gap-1.5 font-semibold text-accent-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Source and price: members only</div>
+            ) : (
+              <>
+                <div className="flex gap-2"><dt className="w-12 shrink-0 text-ink-muted">Source</dt><dd className="min-w-0 truncate font-medium text-ink-soft">{i.source || "Not added yet"}</dd></div>
+                <div className="flex gap-2"><dt className="w-12 shrink-0 text-ink-muted">Price</dt><dd className="min-w-0 truncate font-bold text-heading">{i.price || "Being priced"}</dd></div>
+              </>
+            )}
+          </dl>
         ) : null}
-        <span className={`font-display font-bold leading-tight tracking-tight text-heading group-hover:text-brand ${compact(photos, "line-clamp-2 text-[14px] sm:text-[15px]", "text-base")}`}>{i.title}</span>
-        {i.summary ? <span className={`text-[13px] leading-snug text-ink-muted ${compact(photos, "hidden sm:line-clamp-1", "line-clamp-2")}`}>{i.summary}</span> : null}
-        <span className={`mt-auto flex items-center justify-between text-ink-muted ${compact(photos, "pt-1 text-[11px] sm:pt-1.5 sm:text-xs", "pt-2 text-xs")}`}>
-          <span className="inline-flex min-w-0 items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" /><span className="truncate">Checked {i.reviewed}</span></span>
-          <span aria-hidden className={`flex shrink-0 items-center justify-center rounded-full border border-line text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white ${compact(photos, "h-7 w-7", "h-8 w-8")}`}>→</span>
-        </span>
-      </span>
-    </Link>
+
+        <Link href={i.href} className="mt-auto inline-flex h-10 w-full items-center justify-center gap-1 rounded-full bg-brand px-3.5 text-[13px] font-bold text-white transition hover:bg-brand-dark hover:text-white">
+          View details<span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
+        </Link>
+      </div>
+    </div>
   );
 }
 

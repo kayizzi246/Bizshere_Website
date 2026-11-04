@@ -1,19 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, MapPin, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, LockKeyhole, MapPin, X } from "lucide-react";
 
-/** `locked`: this market's price is member detail (a visitor picked a market beyond the free preview). */
-export type BoardRow = { id: string; name: string; initial: string; tone: string; sub: string; price: string | null; change: number | null; locked?: boolean };
-export type MarketPrice = { id: string; market: string; place: string; observed: string; range: string; stale: boolean };
+/** One price cell: the price as text, or `locked` (member detail: a market beyond the visitor's free preview). */
+export type BoardPrice = { value: string | null; locked: boolean };
+export type BoardRow = {
+  id: string; name: string; initial: string; tone: string;
+  /** "per kg · Wholesale · 3 markets" */
+  sub: string;
+  price: BoardPrice;
+  change: number | null;
+  updated: string | null;
+};
+export type MarketPrice = { id: string; market: string; place: string; type: string; observed: string; range: string; stale: boolean };
+
+// Product on the left, one price column on the right, the same in the header and every row.
+const GRID = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4";
 
 /**
- * The price board's list (src/app/(site)/prices/page.tsx). Tapping a product opens a pop-up:
- * members get that product's latest price in every market; everyone else gets the sign-up and
- * payment pop-up (a data-pay link, caught by the site-wide OnboardingGate), like every other
- * directory item. `details` is only sent for members, so visitors never receive market prices.
+ * The price table (src/app/(site)/prices/page.tsx): one row per product, with one price column:
+ * the price, and under it the change and when it was last updated. Tapping a product opens a pop-up: members get
+ * its latest price in every market; everyone else gets the sign-up and payment pop-up (a data-pay
+ * link, caught by the site-wide OnboardingGate). `details` is only sent for members, so visitors
+ * never receive market prices.
  */
-export function PriceBoard({ rows, details, unitLabel }: { rows: BoardRow[]; details: Record<string, MarketPrice[]> | null; unitLabel: string }) {
+export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Record<string, MarketPrice[]> | null }) {
   const [open, setOpen] = useState<BoardRow | null>(null);
 
   useEffect(() => {
@@ -24,41 +36,63 @@ export function PriceBoard({ rows, details, unitLabel }: { rows: BoardRow[]; det
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
-  const rowCls = "flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left text-white transition-colors hover:bg-white/[0.06] hover:text-white sm:gap-4 sm:px-3 sm:py-3.5";
-  const body = (r: BoardRow) => {
-    const up = (r.change ?? 0) > 0, down = (r.change ?? 0) < 0;
+  const cell = (p: BoardPrice) => p.value
+    ? <span className="font-display text-[17px] font-semibold tabular-nums text-white sm:text-[20px]">{p.value}</span>
+    : p.locked
+      ? <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-accent"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span>
+      : <span className="text-[13px] text-white/30">—</span>;
+
+  const change = (c: number | null) => {
+    const up = (c ?? 0) > 0, down = (c ?? 0) < 0;
     return (
-      <>
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold text-white sm:h-10 sm:w-10 ${r.tone}`}>{r.initial}</span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-display text-[17px] font-semibold sm:text-[22px]">{r.name}</span>
-          <span className="truncate text-[12px] text-white/45">{r.sub}</span>
-        </span>
-        <span className="flex shrink-0 flex-col items-end">
-          <span className="font-display text-[16px] font-semibold tabular-nums sm:text-[22px]">{r.price ?? (r.locked ? <span className="text-[13px] font-semibold text-accent sm:text-[15px]">Members only</span> : <span className="text-white/40">No price yet</span>)}</span>
-          <span className={`inline-flex items-center gap-0.5 text-[12px] font-semibold tabular-nums sm:text-[13px] ${up ? "text-[#27AD75]" : down ? "text-[#F0616D]" : "text-white/35"}`}>
-            {up ? <ArrowUpRight aria-hidden className="h-3.5 w-3.5" /> : down ? <ArrowDownLeft aria-hidden className="h-3.5 w-3.5" /> : null}
-            {r.change === null ? "--" : `${Math.abs(r.change).toFixed(2)}%`}
-            <span className="sr-only">{up ? "up" : down ? "down" : ""} since the previous price</span>
-          </span>
-        </span>
-      </>
+      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[12px] font-semibold tabular-nums ${up ? "bg-[#27AD75]/15 text-[#27AD75]" : down ? "bg-[#F0616D]/15 text-[#F0616D]" : "text-white/35"}`}>
+        {up ? <ArrowUpRight aria-hidden className="h-3.5 w-3.5" /> : down ? <ArrowDownLeft aria-hidden className="h-3.5 w-3.5" /> : null}
+        {c === null ? "--" : `${Math.abs(c).toFixed(1)}%`}
+        <span className="sr-only">{up ? "up" : down ? "down" : ""} since the previous price</span>
+      </span>
     );
   };
 
+  const body = (r: BoardRow) => (
+    <>
+      {/* Product */}
+      <span className="flex min-w-0 items-center gap-3">
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold text-white ${r.tone}`}>{r.initial}</span>
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate font-display text-[16px] font-semibold sm:text-[18px]">{r.name}</span>
+          <span className="truncate text-[12px] text-white/45">{r.sub}</span>
+        </span>
+      </span>
+      {/* Price: the price, then the change and the date under it */}
+      <span className="flex flex-col items-end gap-1 text-right">
+        {cell(r.price)}
+        <span className="flex items-center gap-2">
+          {change(r.change)}
+          {r.updated ? <span className="hidden text-[11px] text-white/45 sm:inline">{r.updated}</span> : null}
+        </span>
+      </span>
+    </>
+  );
+
+  const rowCls = `w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
+
   return (
     <>
-      <ul className="flex flex-col">
+      <div role="table" aria-label="Prices" className="flex flex-col gap-2">
+        <div role="row" className={`px-4 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/40 ${GRID}`}>
+          <span role="columnheader">Product</span>
+          <span role="columnheader" className="text-right">Price</span>
+        </div>
         {rows.map((r) => (
-          <li key={r.id}>
+          <div key={r.id} role="row">
             {details ? (
               <button type="button" onClick={() => setOpen(r)} className={rowCls}>{body(r)}</button>
             ) : (
               <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" className={rowCls}>{body(r)}</a>
             )}
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {open && details ? (
         <div role="dialog" aria-modal="true" aria-labelledby="price-title" onClick={() => setOpen(null)}
@@ -68,7 +102,7 @@ export function PriceBoard({ rows, details, unitLabel }: { rows: BoardRow[]; det
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold ${open.tone}`}>{open.initial}</span>
               <span className="flex min-w-0 flex-1 flex-col">
                 <span id="price-title" className="truncate font-display text-lg font-bold">{open.name}</span>
-                <span className="text-[12px] text-white/50">{unitLabel} · {open.sub}</span>
+                <span className="text-[12px] text-white/50">{open.sub}</span>
               </span>
               <button type="button" onClick={() => setOpen(null)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"><X className="h-4 w-4" /></button>
             </div>
@@ -76,7 +110,10 @@ export function PriceBoard({ rows, details, unitLabel }: { rows: BoardRow[]; det
               {(details[open.id] ?? []).map((m) => (
                 <li key={m.id} className="flex items-center justify-between gap-3 rounded-2xl px-3 py-3 hover:bg-white/[0.04]">
                   <span className="flex min-w-0 flex-col">
-                    <span className="truncate font-semibold">{m.market}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="truncate font-semibold">{m.market}</span>
+                      <span className="shrink-0 rounded-full bg-white/10 px-2 py-px text-[11px] font-semibold text-white/70">{m.type}</span>
+                    </span>
                     <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-white/50">
                       <span className="inline-flex items-center gap-1"><MapPin aria-hidden className="h-3 w-3" />{m.place}</span>
                       <span className="inline-flex items-center gap-1"><CalendarDays aria-hidden className="h-3 w-3" />{m.observed}</span>

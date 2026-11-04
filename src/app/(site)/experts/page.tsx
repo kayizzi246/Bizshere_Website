@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GlassSelect } from "@/components/GlassSelect";
 import { BadgeCheck, Languages, MapPin, MonitorSmartphone, Search, Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { directory } from "@/config/directories";
@@ -84,14 +85,11 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
               <span className="sr-only">Search experts</span>
               <input name="q" type="search" defaultValue={q} placeholder="Name, skill or town, e.g. “tax Kampala”" className="min-h-[48px] w-full min-w-0 bg-transparent text-base outline-none placeholder:text-ink-muted" />
             </label>
-            <label className="flex items-center gap-2 border-t border-line px-3 pt-2 sm:border-l sm:border-t-0 sm:pt-0">
-              <MapPin aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />
-              <span className="sr-only">District</span>
-              <select name="district" defaultValue={district} className="min-h-[48px] w-full bg-transparent text-sm font-medium outline-none sm:w-40">
-                <option value="">Any district</option>
-                {districts.map(([name]) => <option key={name} value={name}>{name}</option>)}
-              </select>
-            </label>
+            <div className="border-t border-line px-1 pt-2 sm:w-48 sm:border-l sm:border-t-0 sm:pt-0">
+              <GlassSelect name="district" label="District" defaultValue={district} icon={<MapPin className="h-4 w-4 text-ink-muted" />}
+                className="min-h-[48px] rounded-xl px-2 text-sm font-medium text-heading" panelClassName="right-0 left-auto"
+                options={[{ value: "", label: "Any district" }, ...districts.map(([name]) => ({ value: name, label: name }))]} />
+            </div>
             {specialty ? <input type="hidden" name="specialty" value={specialty} /> : null}
             {online ? <input type="hidden" name="online" value="1" /> : null}
             <button className="btn-primary min-h-[48px] px-7 text-base">Search</button>

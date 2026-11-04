@@ -11,7 +11,7 @@ import type { SearchParams } from "@/lib/directory-search";
  * (ListingBrowser): hero with the search box, category chips, sort and a paged grid. Searching and
  * filtering happen on the page itself, so visitors never leave it.
  */
-export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links }: {
+export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, facts }: {
   /** This page's address; the address bar keeps the search here. */
   path: string;
   searchParams: SearchParams;
@@ -28,6 +28,8 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   images?: (ids: string[]) => Promise<Record<string, string>>;
   /** Outside address per item (useful websites): table rows link straight to it. */
   links?: (ids: string[]) => Promise<Record<string, string>>;
+  /** Source and price for the cards (machines). Member detail: the page sends `locked` for visitors. */
+  facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean }>>;
 }) {
   const rows = await prisma.contentItem.findMany({
     where: { contentType: { in: types }, publicationStatus: "PUBLISHED" },
@@ -38,6 +40,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   const extra = meta ? await meta(rows.map((i) => i.id)) : {};
   const pictures = images ? await images(rows.map((i) => i.id)) : null;
   const outside = links ? await links(rows.map((i) => i.id)) : {};
+  const cardFacts = facts ? await facts(rows.map((i) => i.id)) : {};
   const dir = DIRECTORIES.find((d) => d.type === types[0]);
   const icon = dir?.icon ?? (types[0] === "INVESTMENT_OPPORTUNITY" ? "funding" : "link");
   const items: BrowseListing[] = rows.map((i, order) => ({
@@ -46,6 +49,9 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
     extra: extra[i.id] || null,
     picture: pictures?.[i.id] ?? null,
     external: outside[i.id] ?? null,
+    ...(cardFacts[i.id] ?? {}),
+    // Cards without a photo (tools) show the longer overview, cut to a few lines
+    description: i.overview ? i.overview.slice(0, 400) : null,
     reviewed: date(i.lastReviewedAt),
     reviewedAt: i.lastReviewedAt?.getTime() ?? 0,
     order,

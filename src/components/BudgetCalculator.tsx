@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { GlassSelect } from "./GlassSelect";
 import {
   Boxes, Check, ClipboardList, FileDown, FileText, LockKeyhole, Megaphone, Minus, Monitor, Plus, Scale, Search, ShoppingCart, Store, Wallet, Wrench, X,
   type LucideIcon,
@@ -111,11 +112,11 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
               <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search items" className="input w-full pl-9" />
             </label>
-            <label className="flex items-center gap-2 text-sm text-ink-muted">Show
-              <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="input">
-                <option value="all">All</option><option value="essential">Must-have</option><option value="optional">Optional</option>
-              </select>
-            </label>
+            <div className="flex items-center gap-2 text-sm text-ink-muted"><span aria-hidden>Show</span>
+              <GlassSelect label="Show" value={kind} onChange={(v) => setKind(v as typeof kind)} panelClassName="right-0 left-auto"
+                className="h-11 min-w-[9rem] rounded-xl border border-line bg-white px-3 text-sm font-medium text-heading hover:border-brand"
+                options={[{ value: "all", label: "All" }, { value: "essential", label: "Must-have" }, { value: "optional", label: "Optional" }]} />
+            </div>
           </div>
 
           {/* Each category: its name, then must-have items before optional ones */}

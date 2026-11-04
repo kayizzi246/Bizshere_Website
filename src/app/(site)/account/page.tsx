@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { MembershipPanel } from "@/components/MembershipPanel";
+import { GlassSelect } from "@/components/GlassSelect";
 import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, toggleSave } from "@/app/actions/member";
 
 export const dynamic = "force-dynamic";
@@ -72,7 +73,7 @@ export default async function AccountPage() {
                 {collections.length ? (
                   <form action={addToCollection} className="flex gap-1.5">
                     <input type="hidden" name="contentItemId" value={s.contentItemId} />
-                    <select name="collectionId" aria-label="Collection" className="input min-h-[44px] text-sm">{collections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+                    <GlassSelect name="collectionId" label="Collection" defaultValue={collections[0].id} className="h-11 min-w-[9rem] rounded-xl border border-line bg-white px-3 text-sm font-medium text-heading hover:border-brand" options={collections.map((c) => ({ value: c.id, label: c.name }))} />
                     <button className="btn-outline min-h-[44px] px-3">Add</button>
                   </form>
                 ) : null}

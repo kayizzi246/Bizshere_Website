@@ -170,6 +170,10 @@ select {
 .celebrate-rise:nth-child(6) { animation-delay: 0.75s; }
 @keyframes celebrate-fade { from { opacity: 0; } }
 
+/* Dropdowns (src/components/GlassSelect.tsx): the frosted list drops in from just above */
+.glass-drop { animation: glass-drop 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: top; }
+@keyframes glass-drop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+
 /* Gallery (src/components/ProductGallery.tsx): each photo fades in as you move between them */
 .gallery-fade { animation: celebrate-fade 0.3s ease-out both; }
 
@@ -226,7 +230,7 @@ select {
   .marquee-dup { display: none; }
   .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
-  .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop, .celebrate-in, .celebrate-rise, .drawer-in, .drawer-out, .drawer-fade, .drawer-fade-out, .gallery-fade { animation: none; }
+  .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop, .celebrate-in, .celebrate-rise, .drawer-in, .drawer-out, .drawer-fade, .drawer-fade-out, .gallery-fade, .glass-drop { animation: none; }
 }
 
 /* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GlassSelect } from "@/components/GlassSelect";
 import { LockKeyhole, SlidersHorizontal } from "lucide-react";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -143,29 +144,16 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <Field label="Directory">
-                    <select name="dir" defaultValue={dir} className="input w-full">
-                      <option value="">All directories</option>
-                      {GROUPS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
-                      <option value={PRICES_GROUP.id}>{PRICES_GROUP.label}</option>
-                    </select>
+<GlassSelect name="dir" label="Directory" defaultValue={dir} className="h-11 rounded-xl border border-line bg-white px-3 text-[14px] font-medium text-heading hover:border-brand" options={[{ value: "", label: "All directories" }, ...GROUPS.map((g) => ({ value: g.id, label: g.label })), { value: PRICES_GROUP.id, label: PRICES_GROUP.label }]} />
                   </Field>
                   <Field label="Industry">
-                    <select name="category" defaultValue={p.category} className="input w-full">
-                      <option value="">Any industry</option>
-                      {choices.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+<GlassSelect name="category" label="Industry" defaultValue={p.category ?? ""} className="h-11 rounded-xl border border-line bg-white px-3 text-[14px] font-medium text-heading hover:border-brand" options={[{ value: "", label: "Any industry" }, ...choices.categories.map((c) => ({ value: c.id, label: c.name }))]} />
                   </Field>
                   <Field label="District">
-                    <select name="district" defaultValue={p.district} className="input w-full">
-                      <option value="">Any district</option>
-                      {choices.districts.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+<GlassSelect name="district" label="District" defaultValue={p.district ?? ""} className="h-11 rounded-xl border border-line bg-white px-3 text-[14px] font-medium text-heading hover:border-brand" options={[{ value: "", label: "Any district" }, ...choices.districts.map((c) => ({ value: c.id, label: c.name }))]} />
                   </Field>
                   <Field label="Business stage">
-                    <select name="stage" defaultValue={p.stage ?? ""} className="input w-full">
-                      <option value="">Any stage</option>
-                      {STAGES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-                    </select>
+<GlassSelect name="stage" label="Business stage" defaultValue={p.stage ?? ""} className="h-11 rounded-xl border border-line bg-white px-3 text-[14px] font-medium text-heading hover:border-brand" options={[{ value: "", label: "Any stage" }, ...STAGES.map(([k, l]) => ({ value: k, label: l }))]} />
                   </Field>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -177,9 +165,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                     <input name="budgetMax" inputMode="numeric" defaultValue={viewer.isMember ? p.budgetMax ?? "" : ""} disabled={!viewer.isMember} placeholder={viewer.isMember ? "e.g. 10,000,000" : "Members only"} className="input w-full disabled:bg-page" />
                   </Field>
                   <Field label="Updated within">
-                    <select name="updated" defaultValue={p.updated} className="input w-full">
-                      {UPDATED.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-                    </select>
+<GlassSelect name="updated" label="Updated within" defaultValue={p.updated ?? ""} className="h-11 rounded-xl border border-line bg-white px-3 text-[14px] font-medium text-heading hover:border-brand" options={UPDATED.map(([k, l]) => ({ value: k, label: l }))} />
                   </Field>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-3 pt-1">
@@ -234,12 +220,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
               <p className="mt-0.5 text-sm text-ink-muted">{count.toLocaleString()} {count === 1 ? "result" : "results"}{pages > 1 ? ` · page ${p.page} of ${pages}` : ""}</p>
             </div>
             {!pricesOnly ? (
-              <label className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
-                Sort by
-                <select name="sort" defaultValue={p.sort} className="input min-h-[40px] bg-white py-0 text-sm">
-                  {SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-                </select>
-              </label>
+              <div className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
+                <span aria-hidden>Sort by</span>
+                <GlassSelect name="sort" label="Sort by" defaultValue={p.sort ?? ""} panelClassName="right-0 left-auto" className="h-10 min-w-[10rem] rounded-xl border border-line bg-white px-3 text-sm font-semibold text-heading hover:border-brand" options={SORTS.map(([k, l]) => ({ value: k, label: l }))} />
+              </div>
             ) : null}
           </div>
 

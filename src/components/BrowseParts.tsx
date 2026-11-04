@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
+import { ArrowUpDown, ChevronLeft, ChevronRight, LayoutGrid, Search, X } from "lucide-react";
+import { GlassSelect } from "./GlassSelect";
 
 /**
  * Shared pieces of the in-page directory browsers (IdeaBrowser, ListingBrowser): the compact
@@ -30,9 +31,10 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
   sorts: readonly { value: T; label: string }[];
   onSort: (v: T) => void;
 }) {
-  const select = "h-11 w-full min-w-0 cursor-pointer appearance-none bg-transparent pl-9 pr-8 text-[14px] font-semibold text-heading outline-none";
+  const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-heading";
   return (
-    <header className="under-header relative isolate overflow-hidden hero-glow bg-navy text-white">
+    // overflow-x-clip (not overflow-hidden) and z-20: the search bar's dropdowns open below the band, over the cards.
+    <header className="under-header relative isolate z-20 overflow-x-clip hero-glow bg-navy text-white">
       <div className="hero-rise container-site flex flex-col items-center gap-3 py-7 text-center sm:py-9">
         {tabs ? (
           <nav aria-label="Sections" className="max-w-full overflow-x-auto [scrollbar-width:none]">
@@ -65,24 +67,14 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
             ) : null}
           </div>
           {cats.length ? (
-            <label className="relative rounded-xl bg-page sm:w-44 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent">
-              <span className="sr-only">Category</span>
-              <LayoutGrid aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
-              <select value={category} onChange={(e) => onCategory(e.target.value)} className={select}>
-                <option value="">All categories</option>
-                {cats.map(([id, c]) => <option key={id} value={id}>{c.name} ({c.n})</option>)}
-              </select>
-              <ChevronDown aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-            </label>
+            <div className="relative rounded-xl bg-page sm:w-44 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent">
+              <GlassSelect label="Category" value={category} onChange={onCategory} className={select} icon={<LayoutGrid className="h-4 w-4 text-brand" />}
+                options={[{ value: "", label: "All categories" }, ...cats.map(([id, c]) => ({ value: id, label: `${c.name} (${c.n})` }))]} />
+            </div>
           ) : null}
-          <label className={`relative rounded-xl bg-page sm:w-44 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent ${cats.length ? "" : "col-span-2"}`}>
-            <span className="sr-only">Sort by</span>
-            <ArrowUpDown aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
-            <select value={sort} onChange={(e) => onSort(e.target.value as T)} className={select}>
-              {sorts.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-            <ChevronDown aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-          </label>
+          <div className={`relative rounded-xl bg-page sm:w-44 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent ${cats.length ? "" : "col-span-2"}`}>
+            <GlassSelect label="Sort by" value={sort} onChange={(v) => onSort(v as T)} className={select} icon={<ArrowUpDown className="h-4 w-4 text-brand" />} options={[...sorts]} />
+          </div>
           <button className="btn-primary col-span-2 h-11 shrink-0 rounded-xl px-6 text-[15px] font-semibold sm:ml-1">Search</button>
         </form>
         {popular.length ? (
@@ -130,12 +122,11 @@ export function countCategories(items: { primaryCategory: { id: string; name: st
 
 export function SortSelect<T extends string>({ value, options, onChange }: { value: T; options: readonly { value: T; label: string }[]; onChange: (v: T) => void }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-ink-muted">
-      <span className="sr-only sm:not-sr-only">Sort by</span>
-      <select value={value} onChange={(e) => onChange(e.target.value as T)} className="h-11 rounded-lg border border-line bg-white px-3 pr-8 text-sm font-semibold text-heading hover:border-brand focus:border-brand focus:outline-none">
-        {options.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-      </select>
-    </label>
+    <div className="flex items-center gap-2 text-sm text-ink-muted">
+      <span aria-hidden className="hidden sm:inline">Sort by</span>
+      <GlassSelect label="Sort by" value={value} onChange={(v) => onChange(v as T)} options={[...options]} panelClassName="right-0 left-auto"
+        className="h-11 min-w-[11rem] rounded-lg border border-line bg-white px-3 text-sm font-semibold text-heading hover:border-brand" />
+    </div>
   );
 }
 
