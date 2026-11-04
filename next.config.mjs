@@ -14,8 +14,9 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "media-src 'self' blob: https:",
-  // 'self': the business plan PDF viewer on idea pages (/business-ideas/[slug]/pdf).
-  "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com",
+  // 'self': the business plan PDF viewer on idea pages (/business-ideas/[slug]/pdf) and the payment
+  // return page. Pesapal: its payment page, shown inside the membership pop-up (src/lib/payments.ts).
+  "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://pay.pesapal.com https://cybqa.pesapal.com",
   // Admin uploads go from the browser straight to Vercel Blob (src/components/UploadButton.tsx).
   `connect-src 'self' https://blob.vercel-storage.com${dev ? " ws: wss:" : ""}`,
   "object-src 'none'",
@@ -59,6 +60,15 @@ const nextConfig = {
           { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'self'" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      // Pesapal loads this inside the pop-up's iframe after payment (src/app/payments/return).
+      {
+        source: "/payments/return",
+        headers: [
+          { key: "Content-Security-Policy", value: csp.replace("frame-ancestors 'none'", "frame-ancestors 'self'") },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cache-Control", value: "no-store, max-age=0" },
         ],
       },
       {

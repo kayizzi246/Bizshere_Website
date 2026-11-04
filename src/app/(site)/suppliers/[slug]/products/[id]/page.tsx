@@ -9,6 +9,7 @@ import { date, money, moneyRange } from "@/lib/format";
 import { OnboardingGate } from "@/components/Onboarding";
 import { ProductGallery } from "@/components/ProductGallery";
 import { SupplierCatalog, type CatalogItem } from "@/components/SupplierCatalog";
+import { popupPlan } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -35,12 +36,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
   const name = product.productName.replace(/^Sample:\s*/i, "");
   const price = product.priceMin === null && product.priceMax === null ? null : moneyRange(product.priceMin, product.priceMax, product.currency);
   const plan = await cachedMemberPlan();
-  const planInfo = {
-    name: plan?.name ?? "Member",
-    daily: plan?.priceDaily != null ? money(plan.priceDaily, plan.currency) : null,
-    monthly: plan?.priceMonthly != null ? money(plan.priceMonthly, plan.currency) : null,
-    yearly: plan?.priceYearly != null ? money(plan.priceYearly, plan.currency) : null,
-  };
+  const planInfo = popupPlan(plan);
   const more: CatalogItem[] = s.listings.filter((l) => l.id !== product.id).map((l) => ({
     id: l.id, name: l.productName, image: l.imageUrl, unit: l.unit, availability: l.availability, text: l.specifications,
     price: gated || (l.priceMin === null && l.priceMax === null) ? null : moneyRange(l.priceMin, l.priceMax, l.currency),

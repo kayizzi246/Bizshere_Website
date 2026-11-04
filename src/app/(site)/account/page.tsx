@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
+import { MembershipPanel } from "@/components/MembershipPanel";
 import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, toggleSave } from "@/app/actions/member";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +14,8 @@ export default async function AccountPage() {
   if (!viewer.userId) redirect("/login?callbackUrl=/account");
   const userId = viewer.userId;
 
-  const [user, saved, collections, searches, alerts, calculations, supplierOf] = await Promise.all([
-    prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { subscriptions: { include: { plan: true }, orderBy: { startedAt: "desc" }, take: 1 } } }),
+  const [user, saved, collections, searches, alerts, calculations, supplierOf, payments] = await Promise.all([
+    prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { subscriptions: { where: { plan: { code: "member" } }, orderBy: { startedAt: "desc" }, take: 1 } } }),
     prisma.savedItem.findMany({ where: { userId }, include: { contentItem: true }, orderBy: { createdAt: "desc" } }),
     prisma.collection.findMany({ where: { userId }, include: { items: { include: { contentItem: true } } }, orderBy: { createdAt: "asc" } }),
     prisma.savedSearch.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
@@ -22,8 +23,9 @@ export default async function AccountPage() {
     prisma.toolCalculation.findMany({ where: { userId }, include: { toolVersion: { include: { tool: { include: { contentItem: true } } } } }, orderBy: { createdAt: "desc" }, take: 10 }),
     // Linked to a supplier by the team: show the way into the supplier portal.
     prisma.supplier.findFirst({ where: { organization: { members: { some: { userId } } } }, select: { contentItem: { select: { title: true } } } }),
+    prisma.payment.findMany({ where: { subscription: { userId } }, orderBy: { createdAt: "desc" }, take: 10 }),
   ]);
-  const sub = user.subscriptions[0];
+  const sub = user.subscriptions[0] ?? null;
   const unread = alerts.filter((a) => !a.readAt).length;
 
   return (
@@ -33,14 +35,9 @@ export default async function AccountPage() {
           <h1 className="text-page-title">My account</h1>
           <p className="text-ink-muted">{user.name} · {user.email ?? user.phone}</p>
         </div>
-        <div className="card flex items-center gap-4 px-5 py-3">
-          <span className="flex flex-col text-sm">
-            <span className="font-bold">{viewer.isMember ? "Member" : "Free account"}{sub ? ` · ${sub.plan.name}` : ""}</span>
-            <span className="text-ink-muted">{sub?.currentPeriodEnd ? `Renews or ends ${date(sub.currentPeriodEnd)}` : viewer.isMember ? "" : "Previews only"}</span>
-          </span>
-          {!viewer.isMember ? <Link href="/membership" className="btn-primary">Upgrade</Link> : null}
-        </div>
       </div>
+
+      <MembershipPanel isMember={viewer.isMember} isStaff={viewer.isStaff} sub={sub} payments={payments} />
 
       {supplierOf ? (
         <Link href="/supplier" className="card flex flex-wrap items-center justify-between gap-3 border-brand/40 px-5 py-4 text-ink hover:border-brand hover:text-ink">

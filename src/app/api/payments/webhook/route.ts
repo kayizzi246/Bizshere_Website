@@ -1,43 +1,34 @@
-import { periodEnd } from "@/lib/billing";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyWebhook } from "@/lib/payments";
-import { audit } from "@/lib/audit";
+import { settlePayment } from "@/lib/membership";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Payment gateway callback. Access is granted ONLY here, never from the browser
- * redirect after checkout (see src/lib/payments.ts).
+ * Pesapal IPN: called when an order's status changes, as a POST with a JSON body (or a GET with
+ * the same fields as query parameters). The call itself is not trusted: settlePayment asks
+ * Pesapal for the order's status before anything changes (see src/lib/payments.ts).
  *
- * Expected body once a gateway is chosen (adapt the parsing to the gateway):
- *   { providerRef: string, status: "SUCCEEDED" | "FAILED", paidAt?: string }
+ * Pesapal expects this reply, with status 200 once handled (500 makes it try again later).
  */
-export async function POST(req: Request) {
-  const raw = await req.text();
-  let ok = false;
+async function handle(fields: { OrderTrackingId?: string; OrderMerchantReference?: string; OrderNotificationType?: string }) {
+  const { OrderTrackingId: trackingId, OrderMerchantReference: reference = "", OrderNotificationType: type = "IPNCHANGE" } = fields;
+  const reply = (status: 200 | 500) =>
+    NextResponse.json({ orderNotificationType: type, orderTrackingId: trackingId ?? "", orderMerchantReference: reference, status });
+  if (!trackingId) return reply(500);
   try {
-    ok = await verifyWebhook(raw, req.headers.get("x-signature"));
-  } catch {
-    return NextResponse.json({ error: "Payment provider not configured" }, { status: 501 });
+    await settlePayment({ trackingId });
+    return reply(200);
+  } catch (e) {
+    console.error(`pesapal ipn: ${(e as Error).message}`);
+    return reply(500);
   }
-  if (!ok) return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+}
 
-  const event = JSON.parse(raw) as { providerRef?: string; status?: string; paidAt?: string };
-  if (!event.providerRef) return NextResponse.json({ error: "Missing providerRef" }, { status: 400 });
-  const payment = await prisma.payment.findFirst({ where: { providerRef: event.providerRef }, include: { subscription: true } });
-  if (!payment) return NextResponse.json({ error: "Unknown payment" }, { status: 404 });
-  if (payment.status === "SUCCEEDED") return NextResponse.json({ ok: true, duplicate: true });
+export async function POST(req: Request) {
+  const body = (await req.json().catch(() => ({}))) as Record<string, string>;
+  return handle(body);
+}
 
-  if (event.status === "SUCCEEDED") {
-    const sub = payment.subscription;
-    const from = sub.currentPeriodEnd && sub.currentPeriodEnd > new Date() ? sub.currentPeriodEnd : new Date();
-    const end = periodEnd(from, sub.period);
-    await prisma.$transaction([
-      prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCEEDED", paidAt: event.paidAt ? new Date(event.paidAt) : new Date() } }),
-      prisma.subscription.update({ where: { id: sub.id }, data: { status: "ACTIVE", currentPeriodEnd: end } }),
-    ]);
-  } else {
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-  }
-  await audit(null, `payment.${String(event.status).toLowerCase()}`, "payment", payment.id);
-  return NextResponse.json({ ok: true });
+export async function GET(req: Request) {
+  return handle(Object.fromEntries(new URL(req.url).searchParams));
 }

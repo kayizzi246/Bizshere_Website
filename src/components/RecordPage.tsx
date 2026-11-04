@@ -5,7 +5,7 @@ import type { Viewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cachedMemberPlan } from "@/lib/cached";
-import { date, money } from "@/lib/format";
+import { date } from "@/lib/format";
 import { DIRECTORIES } from "@/config/directories";
 import { Connected, Evidence } from "./DetailParts";
 import { FieldSections, fieldCount, visibleGroups } from "./FieldSections";
@@ -17,6 +17,7 @@ import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
 import { videoId } from "@/lib/youtube";
 import { WishlistButton } from "./Wishlist";
+import { popupPlan } from "@/lib/billing";
 
 /**
  * One layout for every directory detail page, following the blueprint's detail-page order:
@@ -70,12 +71,7 @@ export async function RecordPage({
   gateTitle?: string;
 }) {
   const plan = await cachedMemberPlan();
-  const planInfo = {
-    name: plan?.name ?? "Member",
-    daily: plan?.priceDaily != null ? money(plan.priceDaily, plan.currency) : null,
-    monthly: plan?.priceMonthly != null ? money(plan.priceMonthly, plan.currency) : null,
-    yearly: plan?.priceYearly != null ? money(plan.priceYearly, plan.currency) : null,
-  };
+  const planInfo = popupPlan(plan);
 
   const icon = DIRECTORIES.find((d) => d.href === trail[0])?.icon ?? "link";
   // Empty facts are left out: "Not added yet" rows are just more to read.

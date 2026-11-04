@@ -12,8 +12,8 @@ import { DIRECTORIES, PAID_PATHS } from "@/config/directories";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { cachedMemberPlan } from "@/lib/cached";
-import { money } from "@/lib/format";
 import { Suspense } from "react";
+import { popupPlan } from "@/lib/billing";
 
 const SERVICES = DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, nav: d.title }));
 
@@ -23,12 +23,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const wishlist = viewer.userId
     ? (await prisma.savedItem.findMany({ where: { userId: viewer.userId }, select: { contentItemId: true } })).map((s) => s.contentItemId)
     : [];
-  const plan = {
-    name: memberPlan?.name ?? "Member",
-    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
-    monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
-    yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
-  };
+  const plan = popupPlan(memberPlan);
 
   // Every link into a paid directory, from anywhere on the site, opens sign-up → payment for non-members.
   return (

@@ -51,8 +51,8 @@ export function Gate({
 
 export function SubscribeModal({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 px-4 pt-24" onClick={onClose}>
-      <div className="w-full max-w-[540px] overflow-hidden rounded-[20px] bg-white" onClick={(e) => e.stopPropagation()}>
+    <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 px-4 pt-24">
+      <div className="w-full max-w-[540px] overflow-hidden rounded-[20px] bg-white">
         <div className="flex items-center justify-between bg-ink px-7 py-5">
           <span className="flex items-center gap-2.5 text-sm font-bold text-brand-mint"><Lock /> Members only</span>
           <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-xl text-white">×</button>
@@ -64,7 +64,8 @@ export function SubscribeModal({ title, onClose }: { title: string; onClose: () 
               <li key={t} className="flex gap-2.5"><Check /> {t}</li>
             ))}
           </ul>
-          <Link href="/membership" className="btn-primary min-h-[52px] text-base">See membership plans</Link>
+          {/* data-pay: the site-wide OnboardingGate opens the plans and payment right here, on top of this page */}
+          <Link href="/membership?onboard=pay" data-pay="" data-next={typeof window === "undefined" ? undefined : window.location.pathname} onClick={onClose} className="btn-primary min-h-[52px] text-base">See membership plans</Link>
           <div className="flex flex-wrap justify-between gap-2 text-sm">
             <span className="text-ink-muted">Pay with mobile money or card</span>
             <Link href="/login" className="font-bold">Already subscribed? Get your access back</Link>

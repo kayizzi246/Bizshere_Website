@@ -92,9 +92,10 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
   const size = mobile ? "h-11 justify-center text-[15px]" : "h-10 text-[14px]";
   if (viewer.isMember) {
     return (
-      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-tint px-4 font-semibold text-brand-dark ${size}`}>
-        <Icon name="check" className="h-4 w-4" /> Full access
-      </span>
+      // The member badge: opens "My membership" (time left, renew, payments) on the account page
+      <Link href="/account#membership" title="Your membership" className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-tint pl-1.5 pr-4 font-semibold text-brand-dark ring-1 ring-brand/20 transition hover:bg-brand hover:text-white ${size}`}>
+        <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white"><Icon name="check" className="h-4 w-4" /></span> Member
+      </Link>
     );
   }
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];

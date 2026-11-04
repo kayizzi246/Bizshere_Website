@@ -224,6 +224,7 @@ enum PaymentMethod {
   CARD
   BANK_TRANSFER
   MANUAL
+  PESAPAL // paid through Pesapal before its page reported which method was used
 }
 
 enum PaymentStatus {
@@ -231,6 +232,7 @@ enum PaymentStatus {
   SUCCEEDED
   FAILED
   REFUNDED
+  CANCELLED // a Pesapal order cancelled before it was paid (plan changed or pop-up closed)
 }
 
 enum SubmissionType {
@@ -1675,6 +1677,10 @@ model Subscription {
   startedAt        DateTime           @default(now())
   currentPeriodEnd DateTime?
   cancelledAt      DateTime?
+  /// Renewal reminders by SMS/email before currentPeriodEnd (src/lib/jobs.ts). Off: no reminders, the membership just ends.
+  autoRenew        Boolean            @default(true)
+  /// Reminders already sent for the current period ("3d", "1d", "ended"). Cleared on every successful payment.
+  remindersSent    String[]           @default([])
 
   user         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -1691,6 +1697,9 @@ model Payment {
   amount         Decimal       @db.Decimal(14, 2)
   currency       String        @default("UGX")
   method         PaymentMethod
+  /// What this payment buys. Set on new payments; older ones use the subscription's period.
+  period         BillingPeriod?
+  /// Pesapal: the order_tracking_id, needed to check or cancel the order
   providerRef    String?
   status         PaymentStatus @default(PENDING)
   paidAt         DateTime?
@@ -1698,6 +1707,7 @@ model Payment {
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 
+  @@index([providerRef])
   @@map("payments")
 }
 

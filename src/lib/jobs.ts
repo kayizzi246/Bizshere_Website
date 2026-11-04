@@ -7,6 +7,7 @@
  *   - Vercel Cron:       GET /api/cron/daily, scheduled in vercel.json
  */
 import { prisma } from "./prisma";
+import { notifyMember } from "./membership";
 
 // Set at the start of every run, so a long-lived server never uses a stale date.
 let now = new Date();
@@ -43,6 +44,37 @@ const jobs: Record<string, () => Promise<string>> = {
   async staleOffers() {
     const r = await prisma.supplierOffer.updateMany({ where: { status: "PUBLISHED", validUntil: { lt: now } }, data: { status: "IN_REVIEW" } });
     return `offers: ${r.count} expired quotes sent back to review`;
+  },
+
+  /**
+   * Renewal reminders for monthly and yearly members with reminders on: 3 days and 1 day before the
+   * membership ends, and once when it has ended. By SMS to members who signed up with a phone, by
+   * email to those with an email (both if they have both), plus an alert in /account. Each links to
+   * the renewal pop-up. A day pass is too short for reminders. Each reminder goes once per period:
+   * a payment clears the list (settlePayment in src/lib/membership.ts).
+   */
+  async renewals() {
+    const subs = await prisma.subscription.findMany({
+      where: { autoRenew: true, userId: { not: null }, period: { not: "DAILY" }, status: { in: ["ACTIVE", "PAST_DUE"] }, currentPeriodEnd: { gt: days(-3), lte: days(3) }, plan: { code: "member" } },
+      select: { id: true, userId: true, period: true, currentPeriodEnd: true, remindersSent: true },
+    });
+    let sent = 0;
+    for (const s of subs) {
+      const end = s.currentPeriodEnd!;
+      const stage = end <= now ? "ended" : end <= days(1) ? "1d" : "3d";
+      // Ran late: never send the earlier reminder after the later one
+      if (s.remindersSent.includes(stage) || (stage === "3d" && s.remindersSent.includes("1d")) || (stage !== "ended" && s.remindersSent.includes("ended"))) continue;
+      // The pricing page is open to everyone: signed out, the pop-up asks them to sign in first
+      const link = `/membership?onboard=renew&period=${s.period}`;
+      const when = end.toLocaleDateString("en-UG", { weekday: "long", day: "numeric", month: "long" });
+      const msg = stage === "ended"
+        ? { title: "Your membership has ended", text: `Your BizSphere-Ug membership ended on ${when}. Renew to open full budgets, contacts and funding terms again.`, link }
+        : { title: stage === "1d" ? "Your membership renews tomorrow" : "Your membership renews in 3 days", text: `Your BizSphere-Ug membership is due for renewal on ${when}. Renew now with MoMo, Airtel Money or card to keep full access.`, link };
+      await notifyMember(s.userId!, msg).catch((e: Error) => console.error(`renewals: ${s.id}: ${e.message}`));
+      await prisma.subscription.update({ where: { id: s.id }, data: { remindersSent: { push: stage } } });
+      sent++;
+    }
+    return `renewals: ${sent} reminders sent`;
   },
 
   /** Subscriptions past their period end without renewal become EXPIRED. */

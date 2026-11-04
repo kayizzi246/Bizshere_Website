@@ -5,12 +5,12 @@ import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
-import { money } from "@/lib/format";
 import { calcPlans, getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
 import { trackView } from "@/components/DetailParts";
 import { IdeaCard, PLAN_ORDER } from "@/components/IdeaParts";
 import { BudgetCalculator } from "@/components/BudgetCalculator";
 import { OnboardingGate } from "@/components/Onboarding";
+import { popupPlan } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -41,12 +41,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
   const scenario = scenarios.find((s) => s.level === wanted) ?? scenarios.find((s) => s.level === "STANDARD") ?? scenarios[0];
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const plans = calcPlans(scenarios, gated);
-  const plan = {
-    name: memberPlan?.name ?? "Member",
-    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
-    monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
-    yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
-  };
+  const plan = popupPlan(memberPlan);
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>

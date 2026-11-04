@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { contentTypeLabel, itemHref } from "@/lib/format";
 
 /** Actions for signed-in users: saved items, collections, saved searches, alerts, corrections. */
 
@@ -47,6 +48,36 @@ export async function toggleWishlist(contentItemId: string, path: string): Promi
   }
   revalidatePath("/account");
   return { saved };
+}
+
+export type WishlistEntry = { id: string; title: string; type: string; summary: string | null; href: string; picture: string | null; savedAt: string };
+
+/** The signed-in viewer's wishlist for the drawer (src/components/Wishlist.tsx), newest first. */
+export async function wishlistItems(): Promise<WishlistEntry[]> {
+  const session = await getSession();
+  if (!session?.user?.id) return [];
+  const saved = await prisma.savedItem.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    include: {
+      contentItem: {
+        select: {
+          id: true, title: true, slug: true, contentType: true, shortSummary: true,
+          businessIdea: { select: { pictureUrl: true } }, machine: { select: { pictureUrl: true } }, supplier: { select: { pictureUrl: true } },
+        },
+      },
+    },
+  });
+  return saved.map(({ contentItem: c, createdAt }) => ({
+    id: c.id,
+    title: c.title,
+    type: contentTypeLabel[c.contentType] ?? "Saved item",
+    summary: c.shortSummary,
+    href: itemHref(c),
+    picture: c.businessIdea?.pictureUrl ?? c.machine?.pictureUrl ?? c.supplier?.pictureUrl ?? null,
+    savedAt: createdAt.toISOString(),
+  }));
 }
 
 export async function createCollection(form: FormData) {
@@ -133,4 +164,11 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
     },
   });
   return { ok: true };
+}
+
+/** Renewal reminders on or off (account page). Off: no SMS or email before it ends, and no renewal. */
+export async function setAutoRenew(form: FormData) {
+  const user = await requireUser("/account#membership");
+  await prisma.subscription.updateMany({ where: { userId: user.id, plan: { code: "member" } }, data: { autoRenew: form.get("on") === "true" } });
+  revalidatePath("/account");
 }

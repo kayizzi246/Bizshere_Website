@@ -24,6 +24,7 @@
     "db:studio": "prisma studio",
     "jobs": "tsx scripts/jobs.ts",
     "sms:test": "tsx --env-file=.env scripts/sms-test.ts",
+    "plans:test-prices": "tsx --env-file=.env scripts/plan-prices.ts",
     "docs:db": "tsx scripts/data-dictionary.ts",
     "postinstall": "prisma generate",
     "theme:prime": "node scripts/prime-theme.mjs"
@@ -37,6 +38,7 @@
     "@vercel/blob": "0.27.3",
     "bcryptjs": "2.4.3",
     "lenis": "1.3.26",
+    "lottie-react": "2.4.1",
     "lucide-react": "0.454.0",
     "motion": "^12.23.12",
     "next": "14.2.35",

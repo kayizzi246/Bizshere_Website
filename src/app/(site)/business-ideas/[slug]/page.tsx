@@ -18,6 +18,7 @@ import { RememberVisit } from "@/components/Recent";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "@/components/ProductGallery";
 import { WishlistButton } from "@/components/Wishlist";
 import { videoId } from "@/lib/youtube";
+import { popupPlan } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -58,12 +59,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const hiddenLines = scenario ? scenario.lines.length - lines.length : 0;
   const steps = gated ? idea.steps.slice(0, FREE_PREVIEW.steps) : idea.steps;
   const hiddenSteps = idea.steps.length - steps.length;
-  const plan = {
-    name: memberPlan?.name ?? "Member",
-    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
-    monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
-    yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
-  };
+  const plan = popupPlan(memberPlan);
 
   const unlock = (label: string, cls = "") => (
     <Link href={path} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}</Link>

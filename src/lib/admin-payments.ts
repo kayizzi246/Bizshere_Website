@@ -3,10 +3,10 @@ import { prisma } from "./prisma";
 
 /** Payments received through the site, with the customer and plan, for the admin Payments page and its CSV export. */
 
-export const PAYMENT_STATUSES: PaymentStatus[] = ["SUCCEEDED", "PENDING", "FAILED", "REFUNDED"];
-export const PAYMENT_METHODS: PaymentMethod[] = ["MTN_MOMO", "AIRTEL_MONEY", "CARD", "BANK_TRANSFER", "MANUAL"];
-export const METHOD_LABEL: Record<PaymentMethod, string> = { MTN_MOMO: "MTN MoMo", AIRTEL_MONEY: "Airtel Money", CARD: "Card", BANK_TRANSFER: "Bank transfer", MANUAL: "Manual" };
-export const STATUS_LABEL: Record<PaymentStatus, string> = { SUCCEEDED: "Paid", PENDING: "Pending", FAILED: "Failed", REFUNDED: "Refunded" };
+export const PAYMENT_STATUSES: PaymentStatus[] = ["SUCCEEDED", "PENDING", "FAILED", "CANCELLED", "REFUNDED"];
+export const PAYMENT_METHODS: PaymentMethod[] = ["MTN_MOMO", "AIRTEL_MONEY", "CARD", "BANK_TRANSFER", "MANUAL", "PESAPAL"];
+export const METHOD_LABEL: Record<PaymentMethod, string> = { MTN_MOMO: "MTN MoMo", AIRTEL_MONEY: "Airtel Money", CARD: "Card", BANK_TRANSFER: "Bank transfer", MANUAL: "Manual", PESAPAL: "Pesapal" };
+export const STATUS_LABEL: Record<PaymentStatus, string> = { SUCCEEDED: "Paid", PENDING: "Pending", FAILED: "Failed", REFUNDED: "Refunded", CANCELLED: "Cancelled" };
 
 export type PaymentFilters = { status?: string; method?: string; q?: string };
 

@@ -17,6 +17,7 @@ import { Icon } from "@/components/Icon";
 import { IdeaPhoto } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
 import { WishlistHeart } from "@/components/Wishlist";
+import { popupPlan } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Search" };
@@ -83,12 +84,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const dir = typeof searchParams.dir === "string" ? searchParams.dir : "";
   // Open on arrival and whenever an advanced field is in use.
   const advancedOpen = hasAdvanced(p) || p.advanced || Object.keys(searchParams).length === 0;
-  const plan = {
-    name: memberPlan?.name ?? "Member",
-    daily: memberPlan?.priceDaily != null ? money(memberPlan.priceDaily, memberPlan.currency) : null,
-    monthly: memberPlan?.priceMonthly != null ? money(memberPlan.priceMonthly, memberPlan.currency) : null,
-    yearly: memberPlan?.priceYearly != null ? money(memberPlan.priceYearly, memberPlan.currency) : null,
-  };
+  const plan = popupPlan(memberPlan);
 
   return (
     <form action="/search" className="bg-page">
