@@ -141,7 +141,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="bg-page">
         {/* ── Shop-style top: photo gallery on the left; name, starting capital, key facts and actions on the right ── */}
-        <section className="bg-white">
+        {/* Its own soft background (light blue into warm peach), running up behind the floating header */}
+        <section className="under-header-pad border-b border-line bg-[radial-gradient(70%_90%_at_0%_0%,#DCEBF8_0%,transparent_60%),radial-gradient(60%_80%_at_100%_10%,#FFE8D2_0%,transparent_55%),linear-gradient(180deg,#F5F9FD,#FFFFFF)]">
           <div className="container-site flex flex-col gap-3 py-3 sm:gap-4 sm:py-5">
             <Link href="/business-ideas" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All business ideas
@@ -151,7 +152,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 <ProductGallery images={images} videos={videos} icon="idea" />
               </div>
 
-              <div className="flex min-w-0 flex-col gap-4">
+              {/* A slim gradient divider down the left of the details (desktop): blue into orange, fading out at both ends */}
+              <div className="flex min-w-0 flex-col gap-4 md:border-l-2 md:border-transparent md:pl-6 md:[border-image:linear-gradient(to_bottom,transparent,#157EC2_18%,#F28C28_82%,transparent)_1] lg:pl-8">
                 <div className="flex flex-col gap-2.5">
                   {item.primaryCategory ? (
                     <Link href={`/business-ideas?category=${item.primaryCategory.id}`} className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-bold text-brand-dark hover:text-brand">
