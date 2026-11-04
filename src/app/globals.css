@@ -246,6 +246,8 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
    behind it to the top of the screen (the transparent top border shows the hero's own background). */
 :root { --hh: 72px; }
 @media (min-width: 1024px) { :root { --hh: 84px; } }
-.under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }
+/* background-origin: border-box, so a background (a gradient especially) is drawn once from the very top
+   through the strip behind the header; from the padding box it would repeat there and show a seam. */
+.under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; background-origin: border-box; }
 /* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }

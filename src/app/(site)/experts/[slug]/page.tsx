@@ -120,8 +120,8 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      {/* ── Profile band ── */}
-      <header className="under-header relative isolate overflow-hidden bg-[linear-gradient(135deg,#071A33_0%,#0E5E94_60%,#157EC2_100%)] text-white">
+      {/* ── Profile band: the site's standard deep navy band (hero-glow), the same colours as every other page ── */}
+      <header className="under-header relative isolate overflow-hidden hero-glow bg-navy text-white">
         <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 -z-10 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/3 -z-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <div className="container-site flex flex-col gap-6 pb-20 pt-5 sm:pb-24 sm:pt-8">
