@@ -86,9 +86,12 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
             {cost ? <strong className="truncate text-[13px] font-bold text-heading">{cost}</strong> : <span className="text-[12px] font-medium text-ink-soft">Being priced</span>}
           </span>
         </p>
-        <div className="mt-auto flex flex-col gap-2 pt-1 sm:flex-row">
-          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line-strong px-2 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand sm:h-9 sm:text-[12px]">Business details</Link>
-          <Link href={`/business-ideas/${idea.slug}/requirements`} className="order-first inline-flex h-10 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-brand px-2 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:order-none sm:h-9 sm:text-[12px]">Startup budget<span aria-hidden className="transition group-hover:translate-x-0.5">→</span></Link>
+        {/* Side by side when the card is wide enough, otherwise one under the other: each button needs
+            at least 8.5rem, so in a narrow card (phones, the "more ideas" row) they wrap instead of
+            running past the edge. Startup budget comes first. */}
+        <div className="mt-auto flex flex-wrap gap-2 pt-1">
+          <Link href={`/business-ideas/${idea.slug}/requirements`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9 sm:text-[12px]">Startup budget<span aria-hidden className="transition group-hover:translate-x-0.5">→</span></Link>
+          <Link href={`/business-ideas/${idea.slug}`} className="inline-flex h-10 min-w-[8.5rem] flex-1 items-center justify-center whitespace-nowrap rounded-full border border-line-strong px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand sm:h-9 sm:text-[12px]">Business details</Link>
         </div>
       </div>
     </div>
