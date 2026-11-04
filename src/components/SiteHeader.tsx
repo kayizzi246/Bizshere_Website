@@ -44,7 +44,7 @@ export async function SiteHeader() {
             ))}
             <li className="group relative">
               <Link href="/membership" className={`${link} inline-flex`}>Pricing</Link>
-              <HoverCard href="/membership" icon="wallet" title="Pricing" text="Free to browse. Members get everything, by the day, month or year." />
+              <HoverCard href="/membership" icon="wallet" title="Pricing" text="Previews for everyone. Members get everything, by the day, week, month or year." />
             </li>
             {staff ? <li><Link href="/admin" className={link}>Admin</Link></li> : null}
           </ul>

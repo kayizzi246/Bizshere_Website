@@ -6,7 +6,7 @@ import { ArrowLeft, Check, Download, Landmark, LockKeyhole, Phone, ShieldCheck, 
 import { accessState, cancelPayment, checkPayment, startMembership } from "@/app/actions/onboarding";
 import { PhoneSignIn } from "./PhoneSignIn";
 import { Celebration } from "./Celebration";
-import { yearlySaving } from "@/lib/billing";
+import { PLAN_PERIODS, yearlySaving } from "@/lib/billing";
 import { site } from "@/config/site";
 import { OPEN_PATHS } from "@/config/directories";
 
@@ -26,23 +26,24 @@ import { OPEN_PATHS } from "@/config/directories";
  *
  * Links marked `data-pay` (Subscribe, Get full access) open the pop-up straight away on any page,
  * at the plan step, or at sign-in first for visitors without an account. `data-renew` does the same
- * for members renewing early. `data-next` is where to go afterwards, `data-period` (DAILY, MONTHLY,
- * YEARLY) the plan picked to start with. Their href (?onboard=pay or ?onboard=renew, &period=…)
+ * for members renewing early. `data-next` is where to go afterwards, `data-period` (DAILY, WEEKLY,
+ * MONTHLY, YEARLY) the plan picked to start with. Their href (?onboard=pay or ?onboard=renew, &period=…)
  * does the same on a full page load, e.g. from a renewal reminder SMS.
  *
  * The pop-up only closes with its × button or Escape, never by tapping outside it.
  */
-type Period = "DAILY" | "MONTHLY" | "YEARLY";
+type Period = (typeof PLAN_PERIODS)[number];
 type Plan = {
   name: string;
   currency: string;
   daily?: string | null;
+  weekly?: string | null;
   monthly: string | null;
   yearly: string | null;
   amounts: Record<Period, number | null>;
 };
 type Step = "account" | "pay";
-const PERIODS: Period[] = ["DAILY", "MONTHLY", "YEARLY"];
+const PERIODS: readonly Period[] = PLAN_PERIODS;
 const asPeriod = (v: string | null | undefined): Period => (PERIODS.includes(v as Period) ? (v as Period) : "MONTHLY");
 
 export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan, paths }: {
@@ -273,6 +274,7 @@ const fmt = (n: number, currency: string) => `${currency} ${n.toLocaleString("en
 
 const OPTIONS: Record<Period, { title: string; per: string; note: string }> = {
   DAILY: { title: "Day pass", per: "day", note: "24 hours of full access" },
+  WEEKLY: { title: "Weekly", per: "week", note: "7 days of full access" },
   MONTHLY: { title: "Monthly", per: "month", note: "Renews monthly, cancel any time" },
   YEARLY: { title: "Yearly", per: "year", note: "One payment for 12 months" },
 };

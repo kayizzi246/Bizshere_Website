@@ -18,7 +18,7 @@ import { date, money } from "./format";
 
 export type Settled = "SUCCEEDED" | "PENDING" | "FAILED" | "CANCELLED" | "REFUNDED";
 
-export const PERIOD_WORD: Record<BillingPeriod, string> = { DAILY: "day pass", MONTHLY: "monthly membership", YEARLY: "yearly membership" };
+export const PERIOD_WORD: Record<BillingPeriod, string> = { DAILY: "day pass", WEEKLY: "weekly membership", MONTHLY: "monthly membership", YEARLY: "yearly membership" };
 
 /** Pesapal's payment_method text → our method. */
 function methodOf(m: string | null): PaymentMethod | null {

@@ -11,7 +11,9 @@ Built from the **Database and Website Design Blueprint v1.0**
 |---|---|
 | Framework | Next.js 14 (App Router, TypeScript, server components and server actions) |
 | Database | PostgreSQL via Prisma 6 (76 tables, see [data dictionary](docs/03-database/data-dictionary.md)) |
-| Auth | NextAuth (email + password, JWT sessions, roles) |
+| Auth | NextAuth: phone + SMS code, Google, staff email + password, seller/expert PIN ([setup](docs/09-sms-payments-and-logins.md#5-logins)) |
+| Payments | Pesapal (MTN MoMo, Airtel Money, cards) in the membership pop-up ([setup](docs/09-sms-payments-and-logins.md#4-payments-pesapal)) |
+| Messages | EgoSMS (SMS) and Resend (email) ([setup](docs/09-sms-payments-and-logins.md#2-text-messages-egosms)) |
 | Styling | Tailwind CSS with brand tokens in `tailwind.config.ts` |
 
 ---
@@ -82,6 +84,8 @@ Sign in as the visitor and the member in two browsers to see the free preview vs
 | `npm run db:studio` | Browse the database in Prisma Studio |
 | `npm run jobs` | Daily jobs: close funding rounds, deadline alerts, stale quotes, expiries, link checks |
 | `npm run docs:db` | Regenerate the data dictionary after a schema change |
+| `npm run sms:test -- 0772123456` | Send one test SMS through EgoSMS |
+| `npm run plans:test-prices` | Set test membership prices (day, week, month, year) |
 
 ---
 
@@ -114,7 +118,8 @@ src/
     costing.ts           Recipe costing and budget totals
     search.ts            Full-text + advanced search
     storage.ts           Private file storage
-    payments.ts          Payment gateway stub (MTN MoMo, Airtel Money, card)
+    payments.ts          Pesapal API: orders, status, cancellation
+    membership.ts        Grants access after payment; receipts and reminders by SMS/email
     format.ts            Money, dates, labels, routes
 ```
 
@@ -159,5 +164,6 @@ npm start
 ```
 
 Set `DATABASE_URL`, `NEXTAUTH_URL` (your real domain), a strong `NEXTAUTH_SECRET` and
-`UPLOAD_DIR`. Schedule `npm run jobs` once a day. Don't run the seed in production except
+`UPLOAD_DIR`, plus the SMS, payment and login settings in
+[docs/09-sms-payments-and-logins.md](docs/09-sms-payments-and-logins.md). Schedule `npm run jobs` once a day. Don't run the seed in production except
 to create the first admin. See [docs/02-setup-and-operations.md](docs/02-setup-and-operations.md).

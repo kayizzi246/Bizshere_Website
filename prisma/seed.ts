@@ -65,7 +65,7 @@ async function main() {
   await prisma.membershipPlan.upsert({
     where: { code: "free" },
     update: {},
-    create: { code: "free", name: "Free", audience: "MEMBER", sortOrder: 0, priceDaily: 0, priceMonthly: 0, priceYearly: 0, entitlements: { fullDetail: false, save: true } },
+    create: { code: "free", name: "Free", audience: "MEMBER", sortOrder: 0, priceDaily: 0, priceWeekly: 0, priceMonthly: 0, priceYearly: 0, entitlements: { fullDetail: false, save: true } },
   });
   for (const [code, name, order, ent] of [
     ["business_basic", "Basic listing", 10, { maxListings: 3, enquiries: false }],

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import type { BillingPeriod } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { periodEnd } from "@/lib/billing";
+import { PLAN_PERIODS, PRICE_FIELD, periodEnd } from "@/lib/billing";
 import { audit } from "@/lib/audit";
 import { getViewer } from "@/lib/access";
 import { getSession } from "@/lib/auth";
@@ -37,7 +37,7 @@ export async function accessState() {
 /** Simulated payments for demos. Never set PAYMENT_SIMULATE on the live server. */
 const simulate = () => process.env.PAYMENT_SIMULATE === "true";
 
-const checkoutInput = z.object({ period: z.enum(["DAILY", "MONTHLY", "YEARLY"]) });
+const checkoutInput = z.object({ period: z.enum(PLAN_PERIODS) });
 
 export type CheckoutOutcome =
   | { status: "active" }
@@ -57,7 +57,7 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
 
   const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
   if (!plan) return { status: "error", message: "Membership is not available yet." };
-  const price = period === "YEARLY" ? plan.priceYearly : period === "DAILY" ? plan.priceDaily : plan.priceMonthly;
+  const price = plan[PRICE_FIELD[period]];
   if ((price === null || Number(price) <= 0) && !simulate()) {
     return { status: "error", message: "Membership prices haven't been set yet. Please check back soon." };
   }

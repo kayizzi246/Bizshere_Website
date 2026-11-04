@@ -81,12 +81,22 @@ async function authToken() {
 /** The IPN id for /api/payments/webhook: from .env, else an existing registration, else a new one. */
 async function notificationId() {
   if (process.env.PESAPAL_IPN_ID) return process.env.PESAPAL_IPN_ID;
-  if (ipnId) return ipnId;
-  const url = `${site.url}/api/payments/webhook`;
+  if (!ipnId) ipnId = (await registerIpn()).ipnId;
+  return ipnId;
+}
+
+/**
+ * Finds this site's IPN registration on the Pesapal account in use, or registers it. Pesapal
+ * gives a new id for each registration, so an existing one for the same address is reused.
+ * `npm run pesapal:ipn` prints the id to put in PESAPAL_IPN_ID.
+ */
+export async function registerIpn(url = `${site.url}/api/payments/webhook`) {
   const list = await call<{ url: string; ipn_id: string }[]>("/api/URLSetup/GetIpnList", { method: "GET" }).catch(() => []);
   const found = Array.isArray(list) ? list.find((i) => i.url === url) : undefined;
-  ipnId = found?.ipn_id ?? (await call<{ ipn_id: string }>("/api/URLSetup/RegisterIPN", { body: { url, ipn_notification_type: "POST" } })).ipn_id;
-  return ipnId;
+  if (found) return { ipnId: found.ipn_id, url, existing: true };
+  const res = await call<{ ipn_id?: string }>("/api/URLSetup/RegisterIPN", { body: { url, ipn_notification_type: "POST" } });
+  if (!res.ipn_id) throw new Error("pesapal: IPN not registered");
+  return { ipnId: res.ipn_id, url, existing: false };
 }
 
 /** Submits the order and returns Pesapal's payment page (shown in the pop-up's iframe). */

@@ -4,9 +4,9 @@ import { BadgeCheck, BellOff, BellRing, CalendarClock, Crown, RefreshCw, Sparkle
 import { setAutoRenew } from "@/app/actions/member";
 import { METHOD_LABEL, STATUS_LABEL } from "@/lib/admin-payments";
 import { date, money } from "@/lib/format";
+import { PERIOD_INFO } from "@/lib/billing";
 
-const PERIOD_LABEL: Record<BillingPeriod, string> = { DAILY: "Day pass", MONTHLY: "Monthly", YEARLY: "Yearly" };
-const PERIOD_DAYS: Record<BillingPeriod, number> = { DAILY: 1, MONTHLY: 30, YEARLY: 365 };
+const PERIOD_LABEL: Record<BillingPeriod, string> = { DAILY: "Day pass", WEEKLY: "Weekly", MONTHLY: "Monthly", YEARLY: "Yearly" };
 
 /**
  * "My membership" on the account page: status, time left, renewal reminders and payment history.
@@ -25,7 +25,7 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
   const active = isMember && sub?.status === "ACTIVE";
   const ended = !isMember && Boolean(sub && end && end.getTime() <= now);
   const soon = active && daysLeft !== null && daysLeft <= 3;
-  const total = sub ? PERIOD_DAYS[sub.period] : 30;
+  const total = sub ? PERIOD_INFO[sub.period].days : 30;
   const used = daysLeft !== null ? Math.min(100, Math.max(4, Math.round(((total - Math.min(daysLeft, total)) / total) * 100))) : 100;
   const history = payments.filter((p) => p.status !== "PENDING" || now - p.createdAt.getTime() < 3_600_000);
 
@@ -79,7 +79,7 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
             {sub!.autoRenew ? <BellRing aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand" /> : <BellOff aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-ink-muted" />}
             <span className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="text-[14px] font-semibold text-heading">Renewal reminders {sub!.autoRenew ? "on" : "off"}</span>
-              <span className="text-[12px] text-ink-muted">{sub!.autoRenew ? "We text or email you 3 days and 1 day before it renews, with a link to pay." : "No reminders: your membership simply ends on the date above."}</span>
+              <span className="text-[12px] text-ink-muted">{sub!.autoRenew ? "We text or email you before it renews (3 days and 1 day before; 1 day for a weekly plan), with a link to pay." : "No reminders: your membership simply ends on the date above."}</span>
               <input type="hidden" name="on" value={sub!.autoRenew ? "false" : "true"} />
               <button className="mt-1 self-start text-[13px] font-bold text-brand hover:text-brand-dark">{sub!.autoRenew ? "Turn off" : "Turn on"}</button>
             </span>

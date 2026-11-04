@@ -1,40 +1,44 @@
 import Link from "next/link";
 import type { BillingPeriod } from "@prisma/client";
-import { ArrowRight, BellRing, Check, CreditCard, Crown, LockKeyhole, Minus, ShieldCheck, Smartphone, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, CreditCard, Crown, ShieldCheck, Smartphone, X } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { popupPlan, yearlySaving } from "@/lib/billing";
+import { PLAN_PERIODS, popupPlan, yearlySaving } from "@/lib/billing";
 import { date, money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Pricing", description: "Browse free. Members get full budgets, contacts, funding terms and downloads, by the day, month or year." };
+export const metadata = { title: "Pricing", description: "One membership, four lengths. Members get full budgets, contacts, funding terms and downloads, by the day, week, month or year." };
 
-const MEMBER_FEATURES = ["Full business plans and start-up budgets", "Supplier and expert contacts", "Full funding terms and deadline alerts", "Price history, machine prices and downloads", "Every directory, one membership"];
+const CARDS: Record<BillingPeriod, { title: string; text: string; per: string; button: string }> = {
+  DAILY: { title: "Day pass", text: "Research one or two ideas in a single day.", per: "day", button: "Get a day pass" },
+  WEEKLY: { title: "Weekly", text: "Compare ideas, call suppliers and check funding.", per: "week", button: "Subscribe" },
+  MONTHLY: { title: "Monthly", text: "For planning and starting your business.", per: "month", button: "Subscribe" },
+  YEARLY: { title: "Yearly", text: "For running and growing it, at the lowest price.", per: "year", button: "Subscribe" },
+};
 
-const CARDS: { period: BillingPeriod; title: string; tagline: string; per: string; extra: string }[] = [
-  { period: "DAILY", title: "Day pass", tagline: "Research one idea in a day", per: "day", extra: "24 hours of full access" },
-  { period: "MONTHLY", title: "Monthly", tagline: "For planning and starting up", per: "month", extra: "Reminder before every renewal" },
-  { period: "YEARLY", title: "Yearly", tagline: "For running and growing", per: "year", extra: "One payment, twelve months" },
-];
-
-const COMPARE: [string, boolean, boolean][] = [
-  ["Search every directory", true, true],
-  ["Previews of every page", true, true],
-  ["Wishlist and collections", true, true],
-  ["Full start-up budgets, line by line", false, true],
-  ["Every step of each business plan", false, true],
-  ["Supplier and expert phone numbers", false, true],
-  ["Funding amounts, terms and deadline alerts", false, true],
-  ["Price history and machine prices", false, true],
-  ["Tools, templates and PDF downloads", false, true],
+/**
+ * What each card lists. Every plan opens the same content; only the length differs, so the
+ * crosses are real differences only: renewal reminders (src/lib/jobs.ts: none for a day pass,
+ * the day before for a week, 3 days and 1 day before for a month or a year) and the yearly saving.
+ */
+const FEATURES: { label: string; on: (p: BillingPeriod) => boolean }[] = [
+  { label: "Full business plans and budgets", on: () => true },
+  { label: "Supplier and expert contacts", on: () => true },
+  { label: "Funding amounts and terms", on: () => true },
+  { label: "Price history and machine prices", on: () => true },
+  { label: "Tools, templates and downloads", on: () => true },
+  { label: "Every directory, one membership", on: () => true },
+  { label: "Renewal reminder by SMS or email", on: (p) => p !== "DAILY" },
+  { label: "Reminders 3 days and 1 day before", on: (p) => p === "MONTHLY" || p === "YEARLY" },
+  { label: "Lowest price per month", on: (p) => p === "YEARLY" },
 ];
 
 const FAQ: [string, string][] = [
   ["How do I pay?", "Tap a plan and pay in the pop-up with MTN MoMo, Airtel Money or a Visa or Mastercard card. Payments are processed securely by Pesapal; you never leave the page."],
   ["When do I get access?", "The moment the payment goes through. For mobile money, approve the prompt on your phone with your PIN and everything opens by itself."],
-  ["How does renewal work?", "We send you an SMS (or an email, if you signed up with one) 3 days and 1 day before your membership ends, with a link to renew. Renewing early adds the new time to what you have left."],
+  ["How does renewal work?", "We send you an SMS (or an email, if you signed up with one) before your membership ends, with a link to renew. Renewing early adds the new time to what you have left."],
   ["Can I cancel?", "Yes. Turn renewal reminders off on your account page and your membership simply ends on its date. Nothing is charged without you approving it."],
-  ["Is the day pass worth it?", "If you're comparing one or two ideas, yes: 24 hours is enough to read the full budgets, call suppliers and download the plans."],
+  ["What can I see without paying?", "A preview of every page: the first lines of each budget and plan, and the names of suppliers and funders. A membership opens the rest."],
 ];
 
 export default async function MembershipPage() {
@@ -57,28 +61,33 @@ export default async function MembershipPage() {
       : { href: `/membership?onboard=pay&period=${period}&next=%2Fbusiness-ideas`, "data-pay": "", "data-period": period, "data-next": "/business-ideas" };
 
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy text-white">
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_80%_0%,rgba(21,126,194,0.55),transparent_60%),radial-gradient(40%_60%_at_0%_100%,rgba(242,140,40,0.22),transparent_60%)]" />
-        <div className="container-site relative flex flex-col items-center gap-5 pb-40 pt-16 text-center sm:pt-20">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[13px] font-semibold text-white/85 ring-1 ring-white/15"><Sparkles aria-hidden className="h-4 w-4 text-accent" />Pricing</span>
-          <h1 className="max-w-3xl font-display text-[38px] font-extrabold leading-[1.04] tracking-[-0.035em] sm:text-[54px]">Know the real cost before you start.</h1>
-          <p className="max-w-2xl text-[17px] leading-relaxed text-white/75">Browse every directory for free. Become a member to open full budgets, contacts, funding terms and downloads, by the day, the month or the year.</p>
-          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] text-white/70">
-            <li className="flex items-center gap-1.5"><Smartphone aria-hidden className="h-4 w-4 text-accent" />MoMo and Airtel Money</li>
-            <li className="flex items-center gap-1.5"><CreditCard aria-hidden className="h-4 w-4 text-accent" />Visa and Mastercard</li>
-            <li className="flex items-center gap-1.5"><BellRing aria-hidden className="h-4 w-4 text-accent" />Reminder before renewal</li>
-            <li className="flex items-center gap-1.5"><ShieldCheck aria-hidden className="h-4 w-4 text-accent" />Secured by Pesapal</li>
-          </ul>
-          {sandbox ? <span className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold text-heading">Test mode: test prices, no real money is taken</span> : null}
-        </div>
-      </section>
+    // Runs up behind the floating header to the top of the screen (.under-header-pad in globals.css)
+    <div className="under-header-pad relative isolate overflow-hidden bg-page">
+      {/* Soft colour behind the heading and cards: blurred brand shapes, no images */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]">
+        <div className="absolute -left-24 top-10 h-[420px] w-[520px] rotate-12 rounded-full bg-[#9FE7F5] opacity-60 blur-[90px]" />
+        <div className="absolute left-[38%] top-0 h-[360px] w-[300px] -rotate-12 rounded-full bg-[#C8F5C2] opacity-60 blur-[90px]" />
+        <div className="absolute -right-24 top-40 h-[460px] w-[520px] -rotate-12 rounded-full bg-[#FFF3B0] opacity-70 blur-[100px]" />
+        <div className="absolute -left-32 top-[560px] h-[320px] w-[380px] rounded-full bg-[#FFC9C2] opacity-50 blur-[100px]" />
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-page" />
+      </div>
 
-      <div className="container-site relative -mt-28 flex flex-col gap-16 pb-20">
+      <div className="container-site flex flex-col gap-16 pb-24 pt-16 sm:pt-20">
+        {/* Heading */}
+        <section className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center">
+          <h1 className="font-display text-[40px] font-extrabold leading-[1.05] tracking-[-0.04em] text-heading sm:text-[56px]">Simple pricing<br />for every plan.</h1>
+          <p className="max-w-xl text-[17px] leading-relaxed text-ink-muted">Anyone can read a preview. One membership opens full budgets, contacts, funding terms and downloads in every directory, for as long as you need it.</p>
+          <div className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-line bg-surface/80 p-1 text-[14px] backdrop-blur">
+            <span className="flex items-center gap-1.5 rounded-lg bg-surface px-3.5 py-2 font-semibold text-heading ring-1 ring-line"><Smartphone aria-hidden className="h-4 w-4 text-accent-dark" />MoMo and Airtel Money</span>
+            <span className="flex items-center gap-1.5 px-3.5 py-2 text-ink-soft"><CreditCard aria-hidden className="h-4 w-4" />Visa and Mastercard</span>
+            {saving ? <span className="rounded-full bg-accent-dark px-2.5 py-1 text-[12px] font-bold text-white">Yearly saves {saving}%</span> : null}
+          </div>
+          {sandbox ? <span className="text-[12px] font-semibold text-accent-dark">Test mode: test prices, no real money is taken</span> : null}
+        </section>
+
         {/* Member status */}
         {viewer.isMember && !viewer.isStaff ? (
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-brand/30 bg-surface px-6 py-4 shadow-[0_12px_32px_rgba(7,26,51,0.10)]">
+          <div className="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-6 py-4">
             <span className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-white"><Crown aria-hidden className="h-5 w-5" /></span>
               <span className="flex flex-col">
@@ -91,136 +100,65 @@ export default async function MembershipPage() {
         ) : null}
 
         {/* Plans */}
-        <section aria-label="Plans" className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="flex flex-col gap-5 rounded-[24px] border border-line bg-surface p-7 shadow-[0_12px_32px_rgba(7,26,51,0.06)]">
-            <div className="flex flex-col gap-1">
-              <span className="font-display text-[18px] font-extrabold text-heading">Free</span>
-              <span className="text-[13px] text-ink-muted">Look around first</span>
-            </div>
-            <div className="flex items-baseline gap-1.5"><span className="font-display text-[40px] font-extrabold tracking-[-0.03em] text-heading">UGX 0</span><span className="text-[14px] text-ink-muted">forever</span></div>
-            {viewer.userId ? (
-              <span className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-line text-[15px] font-semibold text-ink-muted">{viewer.isMember ? "Included" : "Your current plan"}</span>
-            ) : (
-              <Link href="/signup" className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-line-strong text-[15px] font-bold text-heading hover:border-brand hover:text-brand">Create free account</Link>
-            )}
-            <ul className="flex flex-col gap-2.5 border-t border-line pt-5 text-[14px] text-ink-soft">
-              {COMPARE.filter(([, free]) => free).map(([f]) => <li key={f} className="flex gap-2.5"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-brand" />{f}</li>)}
-            </ul>
-          </div>
-
-          {CARDS.map((c) => {
-            const amount = plan.amounts[c.period];
-            const featured = c.period === "MONTHLY";
-            const badge = featured ? "Most popular" : c.period === "YEARLY" && saving ? `Save ${saving}%` : null;
-            const monthlyEquivalent = c.period === "YEARLY" && amount ? money(Math.round(amount / 12), plan.currency) : null;
+        <section aria-label="Plans" className="mx-auto grid w-full max-w-[1320px] gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {PLAN_PERIODS.map((p) => {
+            const c = CARDS[p];
+            const amount = plan.amounts[p];
+            const featured = p === "MONTHLY";
             return (
-              <div key={c.period} className={`relative flex flex-col gap-5 rounded-[24px] p-7 ${featured ? "bg-[linear-gradient(160deg,#0E5E94,#157EC2_55%,#1B8FD8)] text-white shadow-[0_24px_60px_rgba(21,126,194,0.35)] ring-1 ring-white/10 xl:-my-3 xl:py-10" : "border border-line bg-surface shadow-[0_12px_32px_rgba(7,26,51,0.06)]"}`}>
-                {badge ? (
-                  <span className={`absolute right-5 top-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${featured ? "bg-accent text-heading" : "bg-accent-tint text-accent-dark"}`}>
-                    {featured ? <Zap aria-hidden className="h-3 w-3" /> : null}{badge}
-                  </span>
-                ) : null}
-                <div className="flex flex-col gap-1">
-                  <span className={`font-display text-[18px] font-extrabold ${featured ? "" : "text-heading"}`}>{c.title}</span>
-                  <span className={`text-[13px] ${featured ? "text-white/75" : "text-ink-muted"}`}>{c.tagline}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="flex flex-wrap items-baseline gap-1.5">
-                    <span className={`font-display text-[40px] font-extrabold tracking-[-0.03em] ${featured ? "" : "text-heading"}`}>{amount ? money(amount, plan.currency) : "Soon"}</span>
-                    {amount ? <span className={`text-[14px] ${featured ? "text-white/75" : "text-ink-muted"}`}>/ {c.per}</span> : null}
-                  </span>
-                  <span className={`text-[12px] ${featured ? "text-white/70" : "text-ink-muted"}`}>{monthlyEquivalent ? `That's ${monthlyEquivalent} a month` : c.extra}</span>
-                </div>
+              <div key={p} className={`relative flex flex-col rounded-2xl bg-surface p-7 ${featured ? "border-[3px] border-accent" : "border border-line"}`}>
+                {featured ? <span className="absolute -top-3.5 right-6 rounded-full bg-accent-dark px-3 py-1 text-[12px] font-bold text-white">Most popular</span> : null}
+                <span className="flex items-center gap-2">
+                  <h2 className="font-display text-[24px] font-extrabold tracking-[-0.02em] text-heading">{c.title}</h2>
+                  {p === "YEARLY" && saving ? <span className="rounded-full bg-accent-tint px-2 py-0.5 text-[12px] font-bold text-accent-dark">Save {saving}%</span> : null}
+                </span>
+                <p className="mt-2 min-h-[44px] text-[15px] leading-snug text-ink-muted">{c.text}</p>
+                <p className="mt-6 flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-display text-[40px] font-extrabold leading-none tracking-[-0.04em] text-heading">{amount ? money(amount, plan.currency) : "Soon"}</span>
+                  {amount ? <span className="text-[15px] text-ink-muted">/{c.per}</span> : null}
+                </p>
+                <ul className="mt-6 flex flex-1 flex-col gap-3.5 text-[15px]">
+                  {FEATURES.map((f) => {
+                    const on = f.on(p);
+                    return (
+                      <li key={f.label} className={`flex items-start gap-3 ${on ? "text-heading" : "text-ink-muted"}`}>
+                        {on ? <Check aria-label="Included" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent-dark" strokeWidth={2.5} /> : <X aria-label="Not included" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-ink-muted" />}
+                        {f.label}
+                      </li>
+                    );
+                  })}
+                </ul>
                 {amount && !viewer.isStaff ? (
-                  <Link {...cta(c.period)}
-                    className={`group inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full text-[15px] font-bold transition ${featured ? "bg-white text-heading hover:bg-brand-tint hover:text-heading" : "bg-brand text-white hover:bg-brand-dark hover:text-white"}`}>
-                    {viewer.isMember ? "Renew with this plan" : c.period === "DAILY" ? "Get a day pass" : "Subscribe"}
-                    <ArrowRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  <Link {...cta(p)}
+                    className={`mt-8 inline-flex min-h-[50px] items-center justify-center gap-1.5 rounded-lg text-[15px] font-semibold transition ${featured ? "bg-accent-dark text-white hover:bg-accent hover:text-heading" : "border border-line bg-surface text-heading hover:border-heading hover:text-heading"}`}>
+                    {viewer.isMember ? "Renew" : c.button} <ArrowRight aria-hidden className="h-4 w-4" />
                   </Link>
                 ) : (
-                  <span className={`inline-flex min-h-[48px] items-center justify-center rounded-full text-[15px] font-semibold ${featured ? "bg-white/15 text-white/80" : "border border-line text-ink-muted"}`}>{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
+                  <span className="mt-8 inline-flex min-h-[50px] items-center justify-center rounded-lg border border-line text-[15px] font-semibold text-ink-muted">{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
                 )}
-                <ul className={`flex flex-col gap-2.5 border-t pt-5 text-[14px] ${featured ? "border-white/15 text-white/85" : "border-line text-ink-soft"}`}>
-                  {MEMBER_FEATURES.map((f) => <li key={f} className="flex gap-2.5"><Check aria-hidden className={`mt-0.5 h-4 w-4 shrink-0 ${featured ? "text-accent" : "text-brand"}`} />{f}</li>)}
-                </ul>
               </div>
             );
           })}
         </section>
 
-        {/* How paying works */}
-        <section className="grid gap-4 md:grid-cols-3">
-          {[
-            [Sparkles, "1. Pick a plan", "Day, month or year. Every plan opens every directory."],
-            [LockKeyhole, "2. Pay in the pop-up", "MoMo, Airtel Money or card, on Pesapal's secure page, without leaving the site."],
-            [BellRing, "3. In at once, reminded later", "Access opens the moment you pay. We text or email you before it renews."],
-          ].map(([I, title, text]) => {
-            const Icon = I as typeof Sparkles;
-            return (
-              <div key={title as string} className="flex gap-4 rounded-2xl bg-page p-6">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-brand shadow-sm"><Icon aria-hidden className="h-5 w-5" /></span>
-                <span className="flex flex-col gap-1"><span className="font-display text-[16px] font-extrabold text-heading">{title as string}</span><span className="text-[14px] text-ink-muted">{text as string}</span></span>
-              </div>
-            );
-          })}
-        </section>
-
-        {/* Comparison */}
-        <section className="flex flex-col gap-5">
-          <h2 className="text-center font-display text-[28px] font-extrabold tracking-[-0.03em] text-heading sm:text-[34px]">Free and member, side by side</h2>
-          <div className="overflow-hidden rounded-[20px] border border-line bg-surface">
-            <table className="w-full text-left text-[14px]">
-              <thead>
-                <tr className="bg-page">
-                  <th className="px-5 py-4 font-semibold text-ink-muted">What you get</th>
-                  <th className="w-24 px-3 py-4 text-center font-display font-extrabold text-heading sm:w-36">Free</th>
-                  <th className="w-24 px-3 py-4 text-center font-display font-extrabold text-brand sm:w-36">Member</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARE.map(([f, free, member]) => (
-                  <tr key={f} className="border-t border-line">
-                    <td className="px-5 py-3.5 text-ink-soft">{f}</td>
-                    {[free, member].map((on, n) => (
-                      <td key={n} className="px-3 py-3.5 text-center">
-                        {on ? <Check aria-label="Included" className={`mx-auto h-5 w-5 ${n ? "text-brand" : "text-ink-soft"}`} /> : <Minus aria-label="Not included" className="mx-auto h-5 w-5 text-line-strong" />}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        <p className="-mt-8 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[13px] text-ink-muted">
+          <ShieldCheck aria-hidden className="h-4 w-4 text-brand" />Payments secured by Pesapal. You pay in a pop-up on this page and get access the moment it goes through.
+        </p>
 
         {/* FAQ */}
         <section className="mx-auto flex w-full max-w-3xl flex-col gap-5">
           <h2 className="text-center font-display text-[28px] font-extrabold tracking-[-0.03em] text-heading sm:text-[34px]">Questions</h2>
-          <div className="flex flex-col divide-y divide-line rounded-[20px] border border-line bg-surface">
+          <div className="flex flex-col divide-y divide-line rounded-2xl border border-line bg-surface">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group px-6 py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[16px] font-bold text-heading [&::-webkit-details-marker]:hidden">
-                  {q}<span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-page text-brand transition group-open:rotate-45">+</span>
+                  {q}<span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-page text-accent-dark transition group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-3 text-[14px] leading-relaxed text-ink-muted">{a}</p>
               </details>
             ))}
           </div>
-        </section>
-
-        {/* Closing call to action */}
-        <section className="relative overflow-hidden rounded-[28px] bg-navy px-7 py-12 text-center text-white sm:px-12">
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_90%_at_50%_0%,rgba(21,126,194,0.5),transparent_70%)]" />
-          <div className="relative flex flex-col items-center gap-4">
-            <h2 className="max-w-2xl font-display text-[28px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[36px]">{viewer.isMember ? "Thanks for being a member." : "Start with the full picture."}</h2>
-            <p className="max-w-xl text-[15px] text-white/75">{viewer.isMember ? "Keep going: every budget, contact and funding term is open to you." : `Monthly membership${plan.monthly && plan.amounts.MONTHLY ? ` is ${plan.monthly}` : ""}. Pay with MoMo, Airtel Money or card.`}</p>
-            {viewer.isMember ? (
-              <Link href="/business-ideas" className="inline-flex min-h-[50px] items-center gap-2 rounded-full bg-white px-6 text-[15px] font-bold text-heading hover:bg-brand-tint hover:text-heading">Browse business ideas <ArrowRight aria-hidden className="h-4 w-4" /></Link>
-            ) : plan.amounts.MONTHLY ? (
-              <Link {...cta("MONTHLY")} className="inline-flex min-h-[50px] items-center gap-2 rounded-full bg-white px-6 text-[15px] font-bold text-heading hover:bg-brand-tint hover:text-heading">Become a member <ArrowRight aria-hidden className="h-4 w-4" /></Link>
-            ) : null}
-            <p className="text-[13px] text-white/60">Want your business listed? <Link href="/contact" className="font-bold text-white underline">Contact our team</Link>.</p>
-          </div>
+          <p className="text-center text-[13px] text-ink-muted">Want your business listed? <Link href="/contact" className="font-bold">Contact our team</Link>.</p>
         </section>
       </div>
     </div>

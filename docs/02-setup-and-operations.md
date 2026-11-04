@@ -49,7 +49,7 @@ Alternatives: `npm run db:up` (Docker, see `docker-compose.yml`) or any PostgreS
 | `NEXTAUTH_SECRET` | yes | Long random string. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | for seeding | First admin account |
 | `UPLOAD_DIR` | no (default `uploads`) | Private file storage folder |
-| `PAYMENT_*` | when payments go live | Gateway keys, see below |
+| `PESAPAL_*` | when payments go live | Pesapal keys, see [09](09-sms-payments-and-logins.md#4-payments-pesapal) |
 
 ## Database changes
 
@@ -84,11 +84,9 @@ replace `readStoredFile()` in `src/lib/storage.ts`.
 
 ## Payments
 
-`src/lib/payments.ts` is a stub until a gateway that supports MTN Mobile Money, Airtel
-Money and cards in Uganda is chosen. Implement `startCheckout()` and `verifyWebhook()`.
-The webhook route `/api/payments/webhook` already marks the payment as paid and extends
-the subscription. Access is only granted from the webhook, never from the browser
-redirect. Until configured, the webhook answers 501.
+Payments go through Pesapal (MTN MoMo, Airtel Money, cards), inside the membership pop-up.
+Access is granted only after the server confirms the order with Pesapal (`src/lib/membership.ts`).
+Setup, sandbox testing and going live: [09-sms-payments-and-logins.md](09-sms-payments-and-logins.md#4-payments-pesapal).
 
 ## Health check
 

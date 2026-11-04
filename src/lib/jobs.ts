@@ -47,8 +47,8 @@ const jobs: Record<string, () => Promise<string>> = {
   },
 
   /**
-   * Renewal reminders for monthly and yearly members with reminders on: 3 days and 1 day before the
-   * membership ends, and once when it has ended. By SMS to members who signed up with a phone, by
+   * Renewal reminders for weekly, monthly and yearly members with reminders on: 3 days and 1 day
+   * before the membership ends (weekly: only the day before), and once when it has ended. By SMS to members who signed up with a phone, by
    * email to those with an email (both if they have both), plus an alert in /account. Each links to
    * the renewal pop-up. A day pass is too short for reminders. Each reminder goes once per period:
    * a payment clears the list (settlePayment in src/lib/membership.ts).
@@ -62,6 +62,7 @@ const jobs: Record<string, () => Promise<string>> = {
     for (const s of subs) {
       const end = s.currentPeriodEnd!;
       const stage = end <= now ? "ended" : end <= days(1) ? "1d" : "3d";
+      if (stage === "3d" && s.period === "WEEKLY") continue;
       // Ran late: never send the earlier reminder after the later one
       if (s.remindersSent.includes(stage) || (stage === "3d" && s.remindersSent.includes("1d")) || (stage !== "ended" && s.remindersSent.includes("ended"))) continue;
       // The pricing page is open to everyone: signed out, the pop-up asks them to sign in first

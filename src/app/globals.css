@@ -240,3 +240,5 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 :root { --hh: 64px; }
 @media (min-width: 1024px) { :root { --hh: 76px; } }
 .under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }
+/* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
+.under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }

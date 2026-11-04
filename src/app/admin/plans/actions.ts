@@ -6,6 +6,7 @@ import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { audit } from "@/lib/audit";
 import { SITE_DATA } from "@/lib/cached";
+import { PLAN_PERIODS, PRICE_FIELD } from "@/lib/billing";
 
 /** Admin sets the member plan's prices. An empty box means "not set yet" (shown as "Price coming soon"). */
 export async function savePlanPrices(form: FormData) {
@@ -16,7 +17,8 @@ export async function savePlanPrices(form: FormData) {
     const n = Number(v);
     return Number.isFinite(n) && n >= 0 ? n : NaN;
   };
-  const data = { priceDaily: price("daily"), priceMonthly: price("monthly"), priceYearly: price("yearly") };
+  // One box per plan length, named by its period (DAILY, WEEKLY, MONTHLY, YEARLY)
+  const data = Object.fromEntries(PLAN_PERIODS.map((k) => [PRICE_FIELD[k], price(k)])) as Record<(typeof PRICE_FIELD)[keyof typeof PRICE_FIELD], number | null>;
   if (Object.values(data).some((v) => Number.isNaN(v))) redirect("/admin/plans?error=1");
   await prisma.membershipPlan.update({ where: { id: String(form.get("id")) }, data });
   await audit(user.id, "plan.prices_updated", "membership_plan", String(form.get("id")), data);
