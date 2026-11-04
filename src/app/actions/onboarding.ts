@@ -72,7 +72,7 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
   if (sub.status !== "ACTIVE" && sub.status !== "PAST_DUE") await prisma.subscription.update({ where: { id: sub.id }, data: { status: "PAST_DUE" } });
 
   // An earlier order left open (plan changed, pop-up closed): cancel it so it can't be paid later.
-  const open = await prisma.payment.findMany({ where: { subscriptionId: sub.id, status: "PENDING" } });
+  const open = await prisma.payment.findMany({ where: { subscriptionId: sub.id, status: { in: ["PENDING", "FAILED"] }, providerRef: { not: null } } });
   for (const p of open) await dropPayment(p.id, p.providerRef);
 
   const payment = await prisma.payment.create({
@@ -139,8 +139,9 @@ export async function cancelPayment(paymentId: string): Promise<Settled> {
 
 async function dropPayment(id: string, trackingId: string | null): Promise<Settled> {
   const now = trackingId ? await settlePayment({ paymentId: id }).catch(() => "PENDING" as const) : "PENDING";
-  if (now !== "PENDING") return now;
+  // Paid in the meantime: keep it. Pending or failed: cancel the order so no later retry can be charged.
+  if (now !== "PENDING" && now !== "FAILED") return now;
   if (trackingId) await cancelOrder(trackingId);
-  await prisma.payment.updateMany({ where: { id, status: "PENDING" }, data: { status: "CANCELLED" } });
+  await prisma.payment.updateMany({ where: { id, status: { in: ["PENDING", "FAILED"] } }, data: { status: "CANCELLED" } });
   return "CANCELLED";
 }

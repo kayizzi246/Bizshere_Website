@@ -299,6 +299,8 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
   const [order, setOrder] = useState<{ url: string; paymentId: string } | null>(null);
   const [frameReady, setFrameReady] = useState(false);
   const [slow, setSlow] = useState(false);
+  const [attemptFailed, setAttemptFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const amount = plan.amounts[period];
   const price = amount !== null ? fmt(amount, plan.currency) : null;
   const saving = yearlySaving(plan.amounts);
@@ -309,7 +311,10 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
   const settle = useCallback(async (paymentId: string) => {
     const s = await checkPayment(paymentId).catch(() => "PENDING" as const);
     if (s === "SUCCEEDED") { done.current(); return true; }
-    if (s === "FAILED" || s === "CANCELLED") {
+    // One attempt failed (prompt timed out, wrong PIN, low balance): keep Pesapal's page open to retry
+    // the same order, and keep checking, since a retry that succeeds still counts.
+    if (s === "FAILED") { setAttemptFailed(true); return false; }
+    if (s === "CANCELLED" || s === "REFUNDED") {
       pending.current = null;
       setOrder(null);
       onCheckout(false);
@@ -349,6 +354,7 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
       pending.current = res.paymentId;
       setFrameReady(false);
       setSlow(false);
+      setAttemptFailed(false);
       setOrder({ url: res.url, paymentId: res.paymentId });
       onCheckout(true);
     } else setError(res.message);
@@ -376,13 +382,22 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
               Opening the secure payment page…
             </div>
           ) : null}
-          <iframe src={order.url} title="Pesapal secure payment" onLoad={() => setFrameReady(true)} allow="payment"
+          {/* key: "Try again" reloads Pesapal's page for the same order */}
+          <iframe key={attempt} src={order.url} title="Pesapal secure payment" onLoad={() => setFrameReady(true)} allow="payment"
             className="relative block h-[min(640px,calc(100dvh-11rem))] w-full bg-white" />
         </div>
-        <p role="status" className="flex items-start gap-2 rounded-lg bg-brand-tint px-3 py-2 text-[12px] font-medium text-brand-dark">
-          <span aria-hidden className="mt-0.5 h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-          {slow ? "Still waiting for the payment. If you approved it, it can take a minute to arrive." : "Choose MoMo, Airtel Money or card above. For mobile money, approve the prompt on your phone with your PIN. This closes by itself when the payment goes through."}
-        </p>
+        {attemptFailed ? (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-warn-bg px-3 py-2 text-[12px] font-medium text-warn-fg">
+            <span>That attempt didn&apos;t go through and no money was taken. Check the number and that you have enough balance, then try again.</span>
+            <button type="button" onClick={() => { setAttemptFailed(false); setFrameReady(false); setAttempt((n) => n + 1); }}
+              className="rounded-full bg-white px-3 py-1 font-bold text-heading ring-1 ring-line hover:bg-page">Try again</button>
+          </div>
+        ) : (
+          <p role="status" className="flex items-start gap-2 rounded-lg bg-brand-tint px-3 py-2 text-[12px] font-medium text-brand-dark">
+            <span aria-hidden className="mt-0.5 h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+            {slow ? "Still waiting for the payment. If you approved it, it can take a minute to arrive." : "Choose MoMo, Airtel Money or card above, then Proceed. For mobile money, a prompt comes to your phone: enter your PIN to approve. This closes by itself when the payment goes through."}
+          </p>
+        )}
       </div>
     );
   }

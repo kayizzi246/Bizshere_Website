@@ -6,7 +6,7 @@
  * (checkPayment in src/app/actions/onboarding.ts) all call it, and it always asks Pesapal for the
  * order's real status first. Safe to call any number of times: a payment is applied once.
  */
-import type { BillingPeriod, PaymentMethod } from "@prisma/client";
+import type { BillingPeriod, PaymentMethod, PaymentStatus } from "@prisma/client";
 import { prisma } from "./prisma";
 import { periodEnd } from "./billing";
 import { orderStatus } from "./payments";
@@ -29,19 +29,26 @@ function methodOf(m: string | null): PaymentMethod | null {
   return null;
 }
 
+const RETRYABLE: PaymentStatus[] = ["PENDING", "FAILED"];
+
 export async function settlePayment(where: { paymentId: string } | { trackingId: string }): Promise<Settled> {
   const payment = await prisma.payment.findFirst({
     where: "paymentId" in where ? { id: where.paymentId } : { providerRef: where.trackingId },
     include: { subscription: true },
   });
   if (!payment) return "FAILED";
-  if (payment.status !== "PENDING" || !payment.providerRef) return payment.status;
+  // A failed attempt is not the end: on Pesapal's page the person can try again on the same order
+  // (e.g. the MoMo prompt timed out), so FAILED orders are checked again too. Paid, cancelled and
+  // refunded ones are final.
+  if (!RETRYABLE.includes(payment.status) || !payment.providerRef) return payment.status;
 
   const s = await orderStatus(payment.providerRef);
   if (s.status === "PENDING") return "PENDING";
   if (s.status !== "SUCCEEDED") {
-    await prisma.payment.updateMany({ where: { id: payment.id, status: "PENDING" }, data: { status: s.status } });
-    await audit(payment.subscription.userId, `payment.${s.status.toLowerCase()}`, "payment", payment.id, { method: s.method });
+    if (payment.status !== s.status) {
+      await prisma.payment.updateMany({ where: { id: payment.id, status: { in: RETRYABLE } }, data: { status: s.status } });
+      await audit(payment.subscription.userId, `payment.${s.status.toLowerCase()}`, "payment", payment.id, { method: s.method });
+    }
     return s.status;
   }
   // The order must be ours and for the full amount before it opens anything.
@@ -56,9 +63,9 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
   const from = sub.currentPeriodEnd && sub.currentPeriodEnd > new Date() && sub.status === "ACTIVE" ? sub.currentPeriodEnd : new Date();
   const end = periodEnd(from, period);
   const applied = await prisma.$transaction(async (tx) => {
-    // Only one caller wins the PENDING → SUCCEEDED change, so the period is never added twice.
+    // Only one caller wins the change to SUCCEEDED, so the period is never added twice.
     const won = await tx.payment.updateMany({
-      where: { id: payment.id, status: "PENDING" },
+      where: { id: payment.id, status: { in: RETRYABLE } },
       data: { status: "SUCCEEDED", paidAt: s.paidAt ?? new Date(), method: methodOf(s.method) ?? payment.method },
     });
     if (!won.count) return false;
