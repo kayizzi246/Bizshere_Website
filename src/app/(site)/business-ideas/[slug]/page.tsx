@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, Calculator, Check, ClipboardList, Clock, ExternalLink, FileDown, GraduationCap, LockKeyhole, MapPin, Store, TrendingUp, Wallet } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ClipboardList, ExternalLink, FileDown, LockKeyhole, Wallet } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
@@ -9,9 +9,8 @@ import { googleEnabled } from "@/lib/auth";
 import { compactRange, date, itemHref, money, moneyRange } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { budgetTotal } from "@/lib/costing";
-import { Connected, trackView } from "@/components/DetailParts";
+import { trackView } from "@/components/DetailParts";
 import { Icon } from "@/components/Icon";
-import { FieldSections } from "@/components/FieldSections";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaCard, PLAN_LABEL, PLAN_ORDER, points, titleCase } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
@@ -21,23 +20,18 @@ import { WishlistButton } from "@/components/Wishlist";
 import { videoId } from "@/lib/youtube";
 import { popupPlan } from "@/lib/billing";
 
-/** Icons for the key facts beside the photo. */
-const FACT_ICON: Record<string, typeof Check> = { Requirements: ClipboardList, "Time to set up": Clock, "Profit potential": TrendingUp, "Skill level": GraduationCap, "Business size": Store, "Best locations": MapPin };
-
 export const dynamic = "force-dynamic";
 
 // Client business idea template (Oct 2026): Business Idea, Size, Category, Description, Key
 // Requirements, Best Location, Starting Capital, Special Requirements, Target Market, Success
 // Factor, Profit Potential, Key Skills, Time to Setup, and the Start-up Budget as a sub-table
-// (Item, Qty, Price, Amount). Each row can carry notes.
+// (Sn, Item, Qty, Price (est), Amount, Remarks). Each row can carry notes.
 //
-// Laid out like a shop product page: photo gallery on the left; name, starting capital (shown like
-// a price), key facts and actions on the right. Then, as you scroll: overview, the first
-// requirements, the start-up budget, the steps, the template as a business profile table,
-// related items and more ideas in the same category. Only facts the plan has are shown.
+// Kept simple and in the document's order: photo gallery, name, starting capital and actions at the
+// top; then the template table (S/N, Name, Details, Notes, all 14 rows), the Start-up Budget
+// sub-table, the business plan PDF, and more ideas. The steps and the full detail are in the PDF.
 //
-// Gating happens here on the server: visitors receive only the first budget lines and steps, and
-// no totals. Every "Unlock" opens the onboarding pop-up.
+// Gating happens here on the server: visitors receive only the first budget lines, and no totals. Every "Unlock" opens the onboarding pop-up.
 export default async function IdeaPage({ params, searchParams }: { params: { slug: string }; searchParams: { scenario?: string } }) {
   const viewer = await getViewer();
   const [item, memberPlan] = await Promise.all([getIdea(params.slug, viewer.isStaff), cachedMemberPlan()]);
@@ -68,23 +62,14 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const lines = scenario ? (gated ? scenario.lines.slice(0, FREE_PREVIEW.budgetLines) : scenario.lines) : [];
   const hiddenLines = scenario ? scenario.lines.length - lines.length : 0;
-  const steps = gated ? idea.steps.slice(0, FREE_PREVIEW.steps) : idea.steps;
-  const hiddenSteps = idea.steps.length - steps.length;
   const plan = popupPlan(memberPlan);
 
   const unlock = (label: string, cls = "") => (
     <Link href={path} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}</Link>
   );
 
-  // Requirements: the plan's key requirements, then the costed items of the chosen budget plan
-  // (by cost category). Visitors see the free preview of the costed items; counts are public.
+  // Key requirements, one per line in the admin, for the template's "Key Requirements" row.
   const keyPoints = points(idea.keyRequirements);
-  const allLines = scenario?.lines ?? [];
-  const requirementCount = allLines.length + keyPoints.length;
-  const checklist = [
-    ...keyPoints.map((p) => ({ id: `k-${p}`, name: p, group: "Key requirement", isKey: true })),
-    ...lines.map((l) => ({ id: l.id, name: l.description, group: l.costCategory || "Other", isKey: false })),
-  ];
 
   // The template's own figures.
   const name = item.title.replace(/^Sample:\s*/i, "");
@@ -92,29 +77,29 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const capitalFull = idea.capitalMin != null || idea.capitalMax != null ? moneyRange(idea.capitalMin, idea.capitalMax, idea.currency).replace("–", " – ") : null;
   const profit = titleCase(idea.profitPotential);
   const size = titleCase(idea.businessSize);
-  const experience = titleCase(idea.experienceLevel);
   const locations = points(idea.locationRequirements);
   const skills = points(idea.requiredSkills);
   const special = points(idea.licencesToInvestigate);
 
-  // The template as a table: name, details, notes. Empty rows are left out.
-  const profile = ([
-    ["Business idea", name, null],
-    ["Business size", size, null],
-    ["Business category", [item.primaryCategory?.name, idea.businessType].filter(Boolean).filter((v, n, a) => a.indexOf(v) === n).join(" · ") || null, null],
-    ["Business description", item.shortSummary ?? item.overview, null],
-    ["Key requirements", keyPoints.length ? keyPoints.join(", ") : null, null],
-    ["Best location", locations.length ? locations.join(", ") : null, idea.locationNotes],
-    ["Starting capital", capitalFull, idea.capitalNotes],
-    ["Special requirements", special.length ? special.join(", ") : null, null],
-    ["Target market", idea.targetCustomers, null],
-    ["Success factors", idea.successFactors ? points(idea.successFactors).join(", ") : null, null],
-    ["Profit potential", profit, null],
-    ["Key skills", skills.length ? skills.join(", ") : null, null],
-    ["Time to set up", idea.setupTime, null],
-    ["Start-up budget", scenarios.length ? <a href="#budget" className="font-semibold">{allLines.length} items in the {PLAN_LABEL[scenario!.level].toLowerCase()} plan, see below ↓</a> : null, null],
-    ["Remarks", idea.remarks, null],
-  ] as [string, React.ReactNode, string | null][]).filter(([, v]) => Boolean(v));
+  // The client's template (BUSINESS IDEA TEMPLATE), word for word: S/N, Name, Details, Notes.
+  // All 14 rows always show, in the document's order; an empty one says "—".
+  const join = (xs: string[]) => (xs.length ? xs.join(", ") : null);
+  const template: [string, React.ReactNode, string | null][] = [
+    ["Business Idea", name, null],
+    ["Business Size", size, null],
+    ["Business Category", [item.primaryCategory?.name, idea.businessType].filter(Boolean).filter((v, n, a) => a.indexOf(v) === n).join(" · ") || null, null],
+    ["Business Description", item.shortSummary ?? item.overview, null],
+    ["Key Requirements", join(keyPoints), null],
+    ["Best Location", join(locations), idea.locationNotes],
+    ["Starting Capital", capitalFull, idea.capitalNotes],
+    ["Special Requirements", join(special), null],
+    ["Target Market", idea.targetCustomers, null],
+    ["Success Factor", idea.successFactors ? join(points(idea.successFactors)) : null, null],
+    ["Profit Potential", profit, null],
+    ["Key Skills", join(skills), null],
+    ["Time to setup", idea.setupTime, null],
+    ["Startup Budget", scenarios.length ? <a href="#budget" className="font-semibold text-brand">See the start-up budget below ↓</a> : null, null],
+  ];
 
   // Gallery: the main photo, then extra photos and videos added under "Photos and media".
   const mediaRows = media.filter((s) => s.table.key === "media").flatMap((s) => s.rows).filter((r) => !gated || r.accessLevel === "PUBLIC");
@@ -135,25 +120,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     .map((s) => (s.table.key === "media" ? { ...s, rows: s.rows.filter((r) => r.mediaType !== "image" && r.mediaType !== "video") } : s))
     .filter((s) => s.rows.length);
 
-  // Key facts beside the photo: only what this plan has.
-  const facts = ([
-    ["Requirements", requirementCount ? `${requirementCount} items` : null],
-    ["Time to set up", idea.setupTime],
-    ["Profit potential", profit],
-    ["Skill level", experience],
-    ["Business size", size],
-    ["Best locations", locations.length ? locations.join(", ") : null],
-  ] as [string, string | null][]).filter(([, v]) => v);
-
-  const tabs: [string, string][] = [
-    ...(item.overview || item.shortSummary ? [["overview", "Overview"] as [string, string]] : []),
-    ["requirements", "Requirements"],
-    ["budget", "Start-up budget"],
-    ...(idea.steps.length ? [["steps", "How to start"] as [string, string]] : []),
-    ["profile", "Business profile"],
-    ["plan-pdf", "PDF"],
-    ["related", "Related"],
-  ];
   const card = "flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4";
   const h2 = "font-display text-lg font-extrabold text-heading";
 
@@ -197,24 +163,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   </span>
                 </div>
 
-                {/* Key facts as tiles with icons */}
-                {facts.length ? (
-                  <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {facts.map(([k, v]) => {
-                      const FactIcon = FACT_ICON[k] ?? Check;
-                      return (
-                        <div key={k} className={`flex items-start gap-2.5 rounded-2xl border border-line bg-white p-3 ${k === "Best locations" ? "col-span-2 sm:col-span-3" : ""}`}>
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><FactIcon aria-hidden className="h-4 w-4" /></span>
-                          <span className="flex min-w-0 flex-col">
-                            <dt className="text-[11px] font-medium text-ink-muted">{k}</dt>
-                            <dd className="text-[14px] font-bold leading-snug text-heading">{v}</dd>
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </dl>
-                ) : null}
-
                 <div className="grid gap-2 sm:grid-cols-2">
                   {/* No costed budget yet: say so instead of opening an empty page */}
                   {scenarios.some((sc) => sc.lines.length) ? (
@@ -233,37 +181,33 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </div>
         </section>
 
-        {/* Section tabs: jump links; they scroll with the page (nothing sticky on detail pages) */}
-        <nav aria-label="On this page" className="border-y border-line bg-white">
-          <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
-            {tabs.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
-            ))}
-          </div>
-        </nav>
-
-        <div className="container-site flex flex-col gap-4 py-4 sm:py-5">
-          {item.overview || item.shortSummary ? (
-            <section id="overview" className={card}>
-              <h2 className={h2}>Overview</h2>
-              <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{item.overview ?? item.shortSummary}</p>
-            </section>
-          ) : null}
-
-          {/* ── Requirements: the first few, the full checklist on its own page ── */}
-          <section id="requirements" className={card}>
-            <div className="flex items-center justify-between gap-3">
-              <h2 className={h2}>Requirements</h2>
-              {requirementCount ? <Link href={reqPath} className="text-[13px] font-semibold">View all {requirementCount} →</Link> : null}
+        <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
+          {/* ── 1. The template, as in the client's document: S/N, Name, Details, Notes ── */}
+          <section id="template" className={card}>
+            <h2 className={h2}>Business idea</h2>
+            <div className="overflow-x-auto rounded-xl border border-line">
+              <table className="w-full min-w-[560px] text-left text-[13px] sm:text-sm">
+                <thead className="bg-brand-deep text-xs text-white/90">
+                  <tr><th className="w-12 px-3 py-2.5 font-semibold">S/N</th><th className="w-48 px-3 py-2.5 font-semibold">Name</th><th className="px-3 py-2.5 font-semibold">Details</th><th className="w-[30%] px-3 py-2.5 font-semibold">Notes</th></tr>
+                </thead>
+                <tbody>
+                  {template.map(([k, v, note], n) => (
+                    <tr key={k} className={`border-t border-line align-top ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                      <td className="px-3 py-2.5 text-ink-muted">{n + 1}</td>
+                      <td className="px-3 py-2.5 font-medium text-ink-soft">{k}</td>
+                      <td className="whitespace-pre-line break-words px-3 py-2.5 font-semibold text-heading">{v || <span className="font-normal text-ink-muted">—</span>}</td>
+                      <td className="whitespace-pre-line break-words px-3 py-2.5 text-ink-muted">{note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            {checklist.length ? <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line">{checklist.slice(0, 5).map((r) => <Requirement key={r.id} {...r} />)}</ul>
-              : <p className="text-sm text-ink-muted">Being prepared.</p>}
           </section>
 
-          {/* ── Start-up budget for one size; the calculator is on the requirements page ── */}
+          {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
           <section id="budget" className={card}>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className={h2}>Start-up budget</h2>
+              <h2 className={h2}>Start-up Budget</h2>
               {scenarios.length > 1 ? (
                 <nav aria-label="Business size" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
                   {scenarios.map((s) => (
@@ -274,83 +218,47 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               ) : null}
             </div>
             {scenario ? (
-              <>
-                <div className="overflow-x-auto rounded-xl border border-line">
-                  <table className="w-full min-w-[480px] text-left text-[13px] sm:text-sm">
-                    <thead className="bg-brand-deep text-xs text-white/85">
-                      <tr><th className="px-3 py-2.5 font-semibold">Item</th><th className="px-3 py-2.5 text-right font-semibold">Qty</th><th className="px-3 py-2.5 text-right font-semibold">Price</th><th className="px-3 py-2.5 text-right font-semibold">Amount</th></tr>
-                    </thead>
-                    <tbody>
-                      {lines.map((l, n) => (
-                        <tr key={l.id} className={n % 2 ? "bg-white" : "bg-brand-tint/40"}>
-                          <td className="px-3 py-2.5 align-top text-heading">{l.description}<span className="block text-xs text-ink-muted">{l.costCategory || "Other"}{l.isOptional ? " · optional" : ""}</span></td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right align-top">{Number(l.quantity).toLocaleString("en-UG")}{l.unit ? ` ${l.unit}` : ""}</td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right align-top">{l.unitCost === null ? <span className="text-ink-muted">—</span> : money(l.unitCost, scenario.currency)}</td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right align-top font-semibold">{l.unitCost === null ? <span className="font-normal text-ink-muted">{l.unknownReason ?? "To be confirmed"}</span> : money(Number(l.unitCost) * Number(l.quantity), scenario.currency)}</td>
-                        </tr>
-                      ))}
-                      {hiddenLines > 0 ? (
-                        <tr><td colSpan={4} className="bg-page px-3 py-2.5">
-                          <span className="flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-ink-muted">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total</span>{unlock("Unlock the full budget", "text-sm")}</span>
-                        </td></tr>
-                      ) : null}
-                    </tbody>
-                    {!gated ? (
-                      <tfoot>
-                        <tr className="border-t-2 border-heading">
-                          <td colSpan={3} className="px-3 py-2.5 font-bold">Total</td>
-                          <td className="whitespace-nowrap px-3 py-2.5 text-right font-bold">{(() => { const t = budgetTotal(scenario.lines); return t === null ? "Some costs pending" : money(t, scenario.currency); })()}</td>
-                        </tr>
-                      </tfoot>
+              <div className="overflow-x-auto rounded-xl border border-line">
+                <table className="w-full min-w-[640px] text-left text-[13px] sm:text-sm">
+                  <thead className="bg-brand-deep text-xs text-white/90">
+                    <tr>
+                      <th className="w-12 px-3 py-2.5 font-semibold">Sn</th><th className="px-3 py-2.5 font-semibold">Item</th>
+                      <th className="px-3 py-2.5 text-right font-semibold">Qty</th><th className="px-3 py-2.5 text-right font-semibold">Price (est)</th>
+                      <th className="px-3 py-2.5 text-right font-semibold">Amount</th><th className="px-3 py-2.5 font-semibold">Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lines.map((l, n) => (
+                      <tr key={l.id} className={`border-t border-line align-top ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                        <td className="px-3 py-2.5 text-ink-muted">{n + 1}</td>
+                        <td className="px-3 py-2.5 font-semibold text-heading">{l.description}</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-right">{Number(l.quantity).toLocaleString("en-UG")}{l.unit ? ` ${l.unit}` : ""}</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-right">{l.unitCost === null ? <span className="text-ink-muted">—</span> : money(l.unitCost, scenario.currency)}</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-right font-semibold">{l.unitCost === null ? <span className="font-normal text-ink-muted">—</span> : money(Number(l.unitCost) * Number(l.quantity), scenario.currency)}</td>
+                        <td className="px-3 py-2.5 text-ink-muted">{[l.unitCost === null ? (l.unknownReason ?? "Price to be confirmed") : null, l.isOptional ? "Optional" : null, l.details].filter(Boolean).join(" · ") || null}</td>
+                      </tr>
+                    ))}
+                    {hiddenLines > 0 ? (
+                      <tr className="border-t border-line"><td colSpan={6} className="bg-page px-3 py-2.5">
+                        <span className="flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-ink-muted">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total</span>{unlock("Unlock the full budget", "text-sm")}</span>
+                      </td></tr>
                     ) : null}
-                  </table>
-                </div>
-                <Link href={`${reqPath}#calculator`} className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold"><Calculator aria-hidden className="h-4 w-4" />Work out your own cost →</Link>
-              </>
+                  </tbody>
+                  {!gated ? (
+                    <tfoot>
+                      <tr className="border-t-2 border-heading">
+                        <td colSpan={4} className="px-3 py-2.5 font-bold">Total</td>
+                        <td className="whitespace-nowrap px-3 py-2.5 text-right font-bold">{(() => { const t = budgetTotal(scenario.lines); return t === null ? "Some costs pending" : money(t, scenario.currency); })()}</td>
+                        <td />
+                      </tr>
+                    </tfoot>
+                  ) : null}
+                </table>
+              </div>
             ) : <p className="text-sm text-ink-muted">Being prepared.</p>}
           </section>
 
-          {idea.steps.length ? (
-            <section id="steps" className={card}>
-              <h2 className={h2}>How to start</h2>
-              <ol className="flex flex-col">
-                {steps.map((s, n) => (
-                  <li key={s.id} className="flex gap-3">
-                    <span className="flex flex-col items-center">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">{s.stepNumber}</span>
-                      {n < steps.length - 1 || hiddenSteps > 0 ? <span aria-hidden className="w-0.5 flex-1 bg-line" /> : null}
-                    </span>
-                    <span className="flex flex-col gap-0.5 pb-4">
-                      <strong className="pt-0.5 text-[14px] font-bold text-heading">{s.title}</strong>
-                      {s.description ? <span className="text-[13px] leading-relaxed text-ink-soft">{s.description}</span> : null}
-                    </span>
-                  </li>
-                ))}
-                {hiddenSteps > 0 ? (
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-line-strong text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" /></span>
-                    <span className="text-sm text-ink-muted">{hiddenSteps} more {hiddenSteps === 1 ? "step" : "steps"}</span>{unlock("Unlock", "text-sm")}
-                  </li>
-                ) : null}
-              </ol>
-            </section>
-          ) : null}
-
-          {/* ── The client's template as a plain table, rows in alternating colours ── */}
-          <section id="profile" className={card}>
-            <h2 className={h2}>Business profile</h2>
-            <dl className="overflow-hidden rounded-xl border border-line">
-              {profile.map(([k, v, note], n) => (
-                <div key={k} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
-                  <dt className="text-ink-muted">{k}</dt>
-                  <dd className="min-w-0 whitespace-pre-line break-words font-semibold text-heading">{v}{note ? <span className="mt-0.5 block text-xs font-normal text-ink-muted">{note}</span> : null}</dd>
-                </div>
-              ))}
-            </dl>
-            <FieldSections table type="BUSINESS_IDEA" record={idea as unknown as Record<string, unknown>} gated={gated} back={path} />
-          </section>
-
-          {/* ── The business plan as a designed PDF (src/lib/idea-pdf.tsx), viewed right here ── */}
+          {/* ── 3. The business plan as a designed PDF (src/lib/idea-pdf.tsx), viewed right here ── */}
           <section id="plan-pdf" className={card}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className={h2}>Business plan (PDF)</h2>
@@ -372,8 +280,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <span aria-hidden>·</span>
             <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
           </p>
-
-          <div id="related" className="scroll-mt-36"><Connected contentItemId={item.id} title="Related" /></div>
 
           {!viewer.isMember ? (
             <section className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-brand-deep p-5 text-white sm:flex-row sm:items-center">
@@ -400,15 +306,3 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   );
 }
 
-function Requirement({ name, group, isKey }: { name: string; group: string; isKey: boolean }) {
-  return (
-    <li className="flex items-center gap-3 px-4 py-2.5">
-      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${isKey ? "bg-brand text-white" : "bg-brand-tint text-brand"}`}><Check aria-hidden className="h-3.5 w-3.5" strokeWidth={3} /></span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm font-semibold text-heading">{name}</span>
-        <span className="text-xs text-ink-muted">{group}</span>
-      </span>
-      {isKey ? <span className="hidden rounded-full bg-accent-tint px-2.5 py-0.5 text-[11px] font-semibold text-accent-dark sm:inline">Key</span> : null}
-    </li>
-  );
-}
