@@ -50,7 +50,8 @@ export function QuickLinks({ services }: { services: Service[] }) {
 
       {open ? (
         <div className="fixed inset-0 z-[80] flex items-end" role="presentation">
-          <div aria-hidden className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          {/* No onClick: a tap outside doesn't close the sheet, only its × button (or picking a service) does */}
+          <div aria-hidden className="absolute inset-0 bg-black/45 backdrop-blur-sm" />
           <div role="dialog" aria-modal="true" aria-labelledby="quick-links-title"
             className="onboard-pop relative max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-8 pt-3">
             <span aria-hidden className="mx-auto mb-4 block h-1.5 w-10 rounded-full bg-line-strong" />

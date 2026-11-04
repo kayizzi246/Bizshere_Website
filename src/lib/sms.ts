@@ -3,8 +3,9 @@
  * https://developers.pahappa.com/docs/sending-sms/api-specs-and-usage/
  *
  * Needs EGOSMS_USERNAME and EGOSMS_PASSWORD in .env (Comms account → Settings → API Settings).
- * EGOSMS_SENDER_ID is optional and must be approved on the account first; EGOSMS_URL can point
- * at the sandbox for testing. Without the keys sendSms returns false and only the test number
+ * EGOSMS_SENDER_ID is optional and must be approved on the account first (default "EgoSMS").
+ * EGOSMS_URL: empty for the newer comms.egosms.co accounts; https://www.egosms.co/api/v1/json/ for
+ * accounts on the older egosms.co portal; or the sandbox address for testing. Without the keys sendSms returns false and only the test number
  * can sign in (see src/lib/phone-codes.ts). `npm run sms:test -- 0772123456` sends a test text.
  *
  * Local testing without EgoSMS: SMS_CONSOLE=true prints each text (with its sign-in code) in the
@@ -34,8 +35,9 @@ export async function sendSms(to: string, text: string): Promise<boolean> {
     return false;
   }
 
-  const message: Record<string, unknown> = { number, message: text, priority: 0 }; // 0: most urgent (codes expire)
-  if (process.env.EGOSMS_SENDER_ID) message.senderid = process.env.EGOSMS_SENDER_ID;
+  // 0: most urgent (codes expire). The older egosms.co API refuses a message without a sender ID
+  // ("Message Values Empty"), so the default one is sent until the account has its own approved.
+  const message = { number, message: text, senderid: process.env.EGOSMS_SENDER_ID || "EgoSMS", priority: "0" };
 
   try {
     const res = await fetch(process.env.EGOSMS_URL || LIVE_URL, {

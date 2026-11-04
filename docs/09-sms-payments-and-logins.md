@@ -51,7 +51,8 @@ Used for: phone sign-in codes, seller and expert PINs, forgotten-PIN codes, paym
    EGOSMS_USERNAME="your-api-username"
    EGOSMS_PASSWORD="your-api-password"
    EGOSMS_SENDER_ID=""          # only once approved on the account
-   EGOSMS_URL=""                # empty = live service; the sandbox address only for testing
+   EGOSMS_URL=""                # empty = newer comms.egosms.co accounts
+                                # older egosms.co accounts: "https://www.egosms.co/api/v1/json/"
    SMS_CONSOLE=""               # must be empty to really send
    ```
 
@@ -285,6 +286,7 @@ npm run jobs -- renewals      # only the renewal reminders
 | Problem | Likely cause | Fix |
 |---|---|---|
 | "We can't send text messages yet" | EgoSMS keys missing, wrong, or no credit | Run `npm run sms:test -- <number>` and read the reason |
+| `sms:test` says "Wrong Username or Password" though they're right | The account is on the older egosms.co portal, which has its own API address | Set `EGOSMS_URL="https://www.egosms.co/api/v1/json/"` |
 | Texts arrive from "EgoSMS", not your name | Sender ID not approved | Leave `EGOSMS_SENDER_ID` empty until EgoSMS approves it |
 | Code printed in terminal, not sent | `SMS_CONSOLE="true"` | Set it to `""` |
 | "Online payments aren't connected yet" | Pesapal keys missing | Set `PESAPAL_CONSUMER_KEY` and `PESAPAL_CONSUMER_SECRET` |
