@@ -99,30 +99,31 @@ export default async function MembershipPage() {
           </div>
         ) : null}
 
-        {/* Plans */}
-        <section aria-label="Plans" className="mx-auto grid w-full max-w-[1320px] gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {/* Plans. Phones: a swipe carousel showing 1.8 cards (the next one peeks in), running to the screen edges.
+            Tablets: two per row; wide screens: four. pt-4 leaves room for the "Most popular" tab above the card. */}
+        <section aria-label="Plans" className="-mx-5 -mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-2 pt-4 [scrollbar-width:none] md:mx-auto md:grid md:w-full md:max-w-[1320px] md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:p-0 md:pt-4 xl:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {PLAN_PERIODS.map((p) => {
             const c = CARDS[p];
             const amount = plan.amounts[p];
             const featured = p === "MONTHLY";
             return (
-              <div key={p} className={`relative flex flex-col rounded-2xl bg-surface p-7 ${featured ? "border-[3px] border-accent" : "border border-line"}`}>
-                {featured ? <span className="absolute -top-3.5 right-6 rounded-full bg-accent-dark px-3 py-1 text-[12px] font-bold text-white">Most popular</span> : null}
-                <span className="flex items-center gap-2">
-                  <h2 className="font-display text-[24px] font-extrabold tracking-[-0.02em] text-heading">{c.title}</h2>
-                  {p === "YEARLY" && saving ? <span className="rounded-full bg-accent-tint px-2 py-0.5 text-[12px] font-bold text-accent-dark">Save {saving}%</span> : null}
+              <div key={p} className={`relative flex w-[calc((100vw-2rem)/1.8)] shrink-0 snap-start flex-col rounded-2xl bg-surface p-4 md:w-auto md:p-7 ${featured ? "border-[3px] border-accent" : "border border-line"}`}>
+                {featured ? <span className="absolute -top-3 right-3 rounded-full bg-accent-dark px-2.5 py-0.5 text-[11px] md:-top-3.5 md:right-6 md:px-3 md:py-1 md:text-[12px] font-bold text-white">Most popular</span> : null}
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <h2 className="font-display text-[18px] font-extrabold md:text-[24px] tracking-[-0.02em] text-heading">{c.title}</h2>
+                  {p === "YEARLY" && saving ? <span className="rounded-full bg-accent-tint px-2 py-0.5 text-[11px] font-bold text-accent-dark md:text-[12px]">Save {saving}%</span> : null}
                 </span>
-                <p className="mt-2 min-h-[44px] text-[15px] leading-snug text-ink-muted">{c.text}</p>
-                <p className="mt-6 flex flex-wrap items-baseline gap-x-2">
-                  <span className="font-display text-[40px] font-extrabold leading-none tracking-[-0.04em] text-heading">{amount ? money(amount, plan.currency) : "Soon"}</span>
-                  {amount ? <span className="text-[15px] text-ink-muted">/{c.per}</span> : null}
+                <p className="mt-1.5 text-[12px] leading-snug text-ink-muted md:mt-2 md:min-h-[44px] md:text-[15px]">{c.text}</p>
+                <p className="mt-4 flex flex-wrap items-baseline gap-x-1.5 md:mt-6 md:gap-x-2">
+                  <span className="font-display text-[24px] md:text-[40px] font-extrabold leading-none tracking-[-0.04em] text-heading">{amount ? money(amount, plan.currency) : "Soon"}</span>
+                  {amount ? <span className="text-[12px] text-ink-muted md:text-[15px]">/{c.per}</span> : null}
                 </p>
-                <ul className="mt-6 flex flex-1 flex-col gap-3.5 text-[15px]">
+                <ul className="mt-4 flex flex-1 flex-col gap-2.5 text-[12px] leading-snug md:mt-6 md:gap-3.5 md:text-[15px] md:leading-normal">
                   {FEATURES.map((f) => {
                     const on = f.on(p);
                     return (
-                      <li key={f.label} className={`flex items-start gap-3 ${on ? "text-heading" : "text-ink-muted"}`}>
-                        {on ? <Check aria-label="Included" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent-dark" strokeWidth={2.5} /> : <X aria-label="Not included" className="mt-0.5 h-[18px] w-[18px] shrink-0 text-ink-muted" />}
+                      <li key={f.label} className={`flex items-start gap-2 md:gap-3 ${on ? "text-heading" : "text-ink-muted"}`}>
+                        {on ? <Check aria-label="Included" className="mt-px h-3.5 w-3.5 shrink-0 text-accent-dark md:mt-0.5 md:h-[18px] md:w-[18px]" strokeWidth={2.5} /> : <X aria-label="Not included" className="mt-px h-3.5 w-3.5 shrink-0 text-ink-muted md:mt-0.5 md:h-[18px] md:w-[18px]" />}
                         {f.label}
                       </li>
                     );
@@ -130,11 +131,11 @@ export default async function MembershipPage() {
                 </ul>
                 {amount && !viewer.isStaff ? (
                   <Link {...cta(p)}
-                    className={`mt-8 inline-flex min-h-[50px] items-center justify-center gap-1.5 rounded-lg text-[15px] font-semibold transition ${featured ? "bg-accent-dark text-white hover:bg-accent hover:text-heading" : "border border-line bg-surface text-heading hover:border-heading hover:text-heading"}`}>
+                    className={`mt-5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg text-[13px] md:mt-8 md:min-h-[50px] md:text-[15px] font-semibold transition ${featured ? "bg-accent-dark text-white hover:bg-accent hover:text-heading" : "border border-line bg-surface text-heading hover:border-heading hover:text-heading"}`}>
                     {viewer.isMember ? "Renew" : c.button} <ArrowRight aria-hidden className="h-4 w-4" />
                   </Link>
                 ) : (
-                  <span className="mt-8 inline-flex min-h-[50px] items-center justify-center rounded-lg border border-line text-[15px] font-semibold text-ink-muted">{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
+                  <span className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-lg border border-line text-center text-[13px] md:mt-8 md:min-h-[50px] md:text-[15px] font-semibold text-ink-muted">{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
                 )}
               </div>
             );

@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { AREA_KEYS } from "@/lib/admin-areas";
 import { phoneKey } from "@/lib/phone-codes";
+import { signOutEveryone } from "@/lib/sessions";
 
 /**
  * The admin team (/admin/team), super admin only: add sub-admins with the areas they may manage,
@@ -102,4 +103,13 @@ export async function removeStaff(form: FormData) {
   await audit(admin.id, "staff.removed", "user", user.id);
   revalidatePath("/admin/team");
   back("saved=removed");
+}
+
+/** Ends every session on every device (members, sellers, experts and staff, including you). */
+export async function signOutAllDevices(form: FormData) {
+  const admin = await requireAdmin();
+  if (form.get("confirm") !== "yes") back("error=confirm");
+  const at = await signOutEveryone();
+  await audit(admin.id, "sessions.signed_out_everyone", "system", undefined, { at });
+  back("saved=signedout");
 }

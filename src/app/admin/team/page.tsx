@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { site } from "@/config/site";
 import { AREA_GROUPS, AREAS, areaLabel } from "@/lib/admin-areas";
-import { addSubAdmin, removeStaff, saveAreas, setStaffPassword, setStaffSuspended, setSuperAdmin } from "./actions";
+import { addSubAdmin, removeStaff, saveAreas, setStaffPassword, setStaffSuspended, setSuperAdmin, signOutAllDevices } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin team" };
@@ -18,6 +18,7 @@ const SAVED: Record<string, string> = {
   restored: "Account restored.",
   role: "Role changed.",
   removed: "Admin access removed. The account is now an ordinary user.",
+  signedout: "Everyone is being signed out on every device, you too, within 5 minutes. Sign in again with the staff link.",
 };
 const ERROR: Record<string, string> = {
   invalid: "Check the name and email.",
@@ -29,6 +30,7 @@ const ERROR: Record<string, string> = {
   self: "You can't change your own account here.",
   super: "Super admins open every area. Make them a sub-admin first to choose areas.",
   missing: "That account isn't on the team any more.",
+  confirm: "Tick the box to confirm signing everyone out.",
 };
 
 /**
@@ -154,6 +156,21 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
           );
         })}
       </ul>
+
+      {/* Security: end every session at once (src/lib/sessions.ts) */}
+      <section className="flex flex-col gap-3 rounded-2xl border border-bad-fg/30 bg-surface p-5">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-extrabold text-heading">Sign everyone out</h2>
+          <p className="max-w-3xl text-sm text-ink-muted">Ends every session on every phone and computer: members, sellers, experts and staff, you too. Use it if a device was lost or a password shared. Accounts, memberships and payments are kept: people simply sign in again (members with their phone number, staff with the staff link). Takes effect within 5 minutes.</p>
+        </div>
+        <form action={signOutAllDevices} className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <input type="checkbox" name="confirm" value="yes" required className="h-4 w-4 accent-brand" />
+            I understand everyone, including me, will have to sign in again
+          </label>
+          <button className="inline-flex h-10 items-center rounded-[10px] bg-[#C7362B] px-4 text-sm font-semibold text-white hover:bg-[#A82C23]">Sign everyone out</button>
+        </form>
+      </section>
     </div>
   );
 }

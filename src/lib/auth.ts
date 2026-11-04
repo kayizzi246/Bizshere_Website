@@ -9,6 +9,7 @@ import type { Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { audit } from "./audit";
 import { isTestPhone, phoneKey, verifyCode } from "./phone-codes";
+import { sessionsValidAfter } from "./sessions";
 
 /** Same rule as src/lib/pin-accounts.ts (not imported: that module sends SMS and is not needed here). */
 const USERNAME = /^[a-z0-9](?:[a-z0-9-]{1,38})[a-z0-9]$/;
@@ -136,18 +137,25 @@ export const authOptions: NextAuthOptions = {
       const now = Date.now();
       if (user) {
         // Fresh sign-in: start the clocks.
+        token.signedInAt = now;
         token.checkedAt = now;
         token.staffUntil = isStaffRole(token.role) ? now + STAFF_SESSION_HOURS * 3_600_000 : undefined;
         return token;
       }
       if (!token.id) return token;
+      // Sessions from before sign-in times were recorded can't be checked against "Sign everyone out": end them.
+      if (!token.signedInAt) return {};
       // A staff session past its working day is ended.
       if (isStaffRole(token.role) && (!token.staffUntil || token.staffUntil < now)) return {};
       // Every few minutes, re-read the account: a suspended or deleted account is signed out,
-      // and a role change (for example an admin made an editor) takes effect.
+      // a role change (for example an admin made an editor) takes effect, and a session older than
+      // the last "Sign everyone out" (src/lib/sessions.ts) ends.
       if (!token.checkedAt || now - token.checkedAt > RECHECK_MINUTES * 60_000) {
-        const u = await prisma.user.findUnique({ where: { id: token.id }, select: { role: true, isSuspended: true } });
-        if (!u || u.isSuspended) return {};
+        const [u, cutoff] = await Promise.all([
+          prisma.user.findUnique({ where: { id: token.id }, select: { role: true, isSuspended: true } }),
+          sessionsValidAfter(),
+        ]);
+        if (!u || u.isSuspended || token.signedInAt < cutoff) return {};
         if (isStaffRole(u.role) && !isStaffRole(token.role)) return {}; // promoted to staff: sign in again at /login
         token.role = u.role;
         token.checkedAt = now;

@@ -11,6 +11,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     role?: Role;
+    /** When this session signed in (ms). Sessions before "Sign everyone out" (src/lib/sessions.ts) end. */
+    signedInAt?: number;
     /** When role and suspension were last re-read from the database (ms). */
     checkedAt?: number;
     /** Staff only: the session stops counting as staff after this time (ms). */
