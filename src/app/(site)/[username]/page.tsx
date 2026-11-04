@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { site } from "@/config/site";
 import { pinAccount, portalOf, USERNAME } from "@/lib/pin-accounts";
 import { PinLogin } from "@/components/PinLogin";
+import { AuthShell } from "@/components/AuthShell";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Sign in", robots: { index: false, follow: false } };
@@ -25,9 +26,9 @@ export default async function PersonalSignIn({ params }: { params: { username: s
   if (session?.user?.id === account.id) redirect(portal);
   return (
     <div className="bg-page">
-      <div className="container-site py-8 sm:py-12">
+      <AuthShell title="Welcome back" text={account.isExpert && !account.isSupplier ? "Sign in to your BizSphere-Ug expert dashboard." : "Sign in to your BizSphere-Ug supplier dashboard."}>
         <PinLogin kind="any" portal={portal} callPhone={site.contact.phone || null} account={{ login, name: account.displayName, phoneHint: null }} />
-      </div>
+      </AuthShell>
     </div>
   );
 }

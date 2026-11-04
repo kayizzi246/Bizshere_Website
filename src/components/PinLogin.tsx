@@ -86,9 +86,10 @@ export function PinLogin({ kind, portal, callPhone, account }: {
   const sentTo = account ? (account.phoneHint ?? "your phone") : phone;
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-[26px] font-extrabold tracking-[-0.03em] text-heading">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h1>
+    // Shown inside <AuthShell> (src/components/AuthShell.tsx), which draws the card and the page heading.
+    <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
+      <div className="flex flex-col gap-1 text-center">
+        <h2 className="font-display text-[22px] font-extrabold tracking-[-0.02em] text-heading">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h2>
         <p className="text-[14px] text-ink-muted">{reset ? `We sent a code by SMS to ${sentTo}.` : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
       </div>
 

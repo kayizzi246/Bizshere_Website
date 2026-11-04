@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { site } from "@/config/site";
 import { PinLogin } from "@/components/PinLogin";
+import { AuthShell } from "@/components/AuthShell";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Supplier sign in", robots: { index: false } };
@@ -19,7 +20,9 @@ export default async function SupplierLoginPage() {
   }
   return (
     <div className="bg-page">
-      <div className="container-site py-8 sm:py-12"><PinLogin kind="supplier" portal="/supplier" callPhone={site.contact.phone || null} /></div>
+      <AuthShell title="Welcome to the supplier portal" text="Add your products, prices and photos, and keep your business details up to date for buyers across Uganda.">
+        <PinLogin kind="supplier" portal="/supplier" callPhone={site.contact.phone || null} />
+      </AuthShell>
     </div>
   );
 }

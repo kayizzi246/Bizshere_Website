@@ -2,6 +2,7 @@ import Link from "next/link";
 import { googleEnabled } from "@/lib/auth";
 import { PhoneAuthCard } from "@/components/PhoneAuthCard";
 import { StaffSignIn } from "@/components/StaffSignIn";
+import { AuthShell } from "@/components/AuthShell";
 
 export const metadata = { title: "Sign in" };
 
@@ -13,9 +14,9 @@ export default function LoginPage({ searchParams }: { searchParams: { callbackUr
   const back = /^\/(?![/\\])/.test(searchParams.callbackUrl ?? "") ? searchParams.callbackUrl! : "/";
   if (back === "/admin" || back.startsWith("/admin/") || back.startsWith("/admin?")) {
     return (
-      <div className="container-site flex justify-center py-16">
+      <AuthShell title="Welcome back to the team" text="Sign in to the BizSphere-Ug admin to manage directories, prices, payments and members.">
         <StaffSignIn next={back} />
-      </div>
+      </AuthShell>
     );
   }
   return (
