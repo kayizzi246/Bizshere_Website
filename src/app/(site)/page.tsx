@@ -34,7 +34,7 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            64px above and 80px below (raised from 35/46, then 48/64); 12–16px between the elements; 68px headline. One column below xl. */}
+            64px above and 80px below (raised from 35/46, then 48/64); 12–16px between the elements; 60px headline (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
@@ -43,7 +43,7 @@ export default async function HomePage() {
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
-            <h1 className="text-hero mb-3 text-[38px] text-white sm:text-[54px] xl:text-[68px]">
+            <h1 className="text-hero mb-3 text-[34px] text-white sm:text-[48px] xl:text-[60px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal
             </h1>

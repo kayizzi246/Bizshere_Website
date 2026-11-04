@@ -238,10 +238,10 @@ body:has([data-sticky-search]) [data-site-header] { position: relative; }
 body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 
 /* The header (SiteHeader) is one floating rounded bar. --hh is its full height, gap included:
-   8px + 56px bar on phones, 12px + 64px from laptop width. A dark hero marked .under-header runs up
+   8px + 64px bar on phones, 12px + 72px from laptop width. A dark hero marked .under-header runs up
    behind it to the top of the screen (the transparent top border shows the hero's own background). */
-:root { --hh: 64px; }
-@media (min-width: 1024px) { :root { --hh: 76px; } }
+:root { --hh: 72px; }
+@media (min-width: 1024px) { :root { --hh: 84px; } }
 .under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; }
 /* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
