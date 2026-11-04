@@ -43,10 +43,18 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
     if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
   };
 
-  // Keep the picked thumbnail in view in the scrolling row
+  // Keep the picked thumbnail in view in the scrolling row. Only the row scrolls, sideways, and only
+  // after a change: scrollIntoView would also scroll the whole page, even on load.
   const thumbs = useRef<HTMLUListElement>(null);
+  const moved = useRef(false);
   useEffect(() => {
-    thumbs.current?.children[current]?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    if (!moved.current) { moved.current = true; return; }
+    const row = thumbs.current;
+    const el = row?.children[current] as HTMLElement | undefined;
+    if (!row || !el) return;
+    const left = el.offsetLeft - row.offsetLeft;
+    if (left < row.scrollLeft) row.scrollTo({ left, behavior: "smooth" });
+    else if (left + el.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollTo({ left: left + el.offsetWidth - row.clientWidth, behavior: "smooth" });
   }, [current]);
 
   const arrow = (dir: -1 | 1, big = false) => (
