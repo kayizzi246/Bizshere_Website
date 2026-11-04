@@ -74,9 +74,12 @@ export async function verifyCode(phone: string, code: string): Promise<boolean> 
   const row = await prisma.phoneCode.findFirst({ where: { phone, expiresAt: { gt: new Date() } }, orderBy: { createdAt: "desc" } });
   if (!row || row.attempts >= MAX_ATTEMPTS) return false;
   if (!(await bcrypt.compare(code, row.codeHash))) {
-    await prisma.phoneCode.update({ where: { id: row.id }, data: { attempts: { increment: 1 } } });
+    await prisma.phoneCode.updateMany({ where: { id: row.id, attempts: { lt: MAX_ATTEMPTS } }, data: { attempts: { increment: 1 } } });
     return false;
   }
-  await prisma.phoneCode.deleteMany({ where: { phone } });
-  return true;
+  // Consume only the verified row atomically; preserve any newly issued replacement.
+  const consumed = await prisma.phoneCode.deleteMany({
+    where: { id: row.id, attempts: { lt: MAX_ATTEMPTS }, expiresAt: { gt: new Date() } },
+  });
+  return consumed.count === 1;
 }

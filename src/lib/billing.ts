@@ -18,10 +18,15 @@ export const PERIOD_INFO: Record<BillingPeriod, { label: string; per: string; da
 /** When a paid period ends: a day pass lasts 24 hours, a week 7 days, otherwise a month or a year. */
 export function periodEnd(from: Date, period: BillingPeriod) {
   const end = new Date(from);
-  if (period === "DAILY") end.setDate(end.getDate() + 1);
-  else if (period === "WEEKLY") end.setDate(end.getDate() + 7);
-  else if (period === "YEARLY") end.setFullYear(end.getFullYear() + 1);
-  else end.setMonth(end.getMonth() + 1);
+  if (period === "DAILY") return new Date(from.getTime() + 86_400_000);
+  if (period === "WEEKLY") return new Date(from.getTime() + 7 * 86_400_000);
+  // Clamp to the destination month's last day (Jan 31 -> Feb 28, leap day -> Feb 28).
+  const day = end.getUTCDate();
+  end.setUTCDate(1);
+  if (period === "YEARLY") end.setUTCFullYear(end.getUTCFullYear() + 1);
+  else end.setUTCMonth(end.getUTCMonth() + 1);
+  const lastDay = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0)).getUTCDate();
+  end.setUTCDate(Math.min(day, lastDay));
   return end;
 }
 

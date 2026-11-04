@@ -145,7 +145,10 @@ async function dropPayment(id: string, trackingId: string | null): Promise<Settl
   const now = trackingId ? await settlePayment({ paymentId: id }).catch(() => "PENDING" as const) : "PENDING";
   // Paid in the meantime: keep it. Pending or failed: cancel the order so no later retry can be charged.
   if (now !== "PENDING" && now !== "FAILED") return now;
-  if (trackingId) await cancelOrder(trackingId);
+  if (trackingId && !(await cancelOrder(trackingId))) {
+    // The provider may still accept payment. Keep checking until cancellation is confirmed.
+    return settlePayment({ paymentId: id }).catch(() => "PENDING" as const);
+  }
   await prisma.payment.updateMany({ where: { id, status: { in: ["PENDING", "FAILED"] } }, data: { status: "CANCELLED" } });
   return "CANCELLED";
 }

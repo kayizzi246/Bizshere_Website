@@ -52,7 +52,7 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
     return s.status;
   }
   // The order must be ours and for the full amount before it opens anything.
-  if (s.merchantReference !== payment.id || (s.amount !== null && s.amount < Number(payment.amount)) || (s.currency && s.currency !== payment.currency)) {
+  if (s.merchantReference !== payment.id || (s.amount === null || !Number.isFinite(s.amount) || s.amount < Number(payment.amount)) || s.currency !== payment.currency) {
     await audit(null, "payment.mismatch", "payment", payment.id, { amount: s.amount, currency: s.currency, reference: s.merchantReference });
     return "PENDING";
   }

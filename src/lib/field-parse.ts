@@ -18,7 +18,7 @@ export function parseField(f: Pick<Field, "name" | "kind" | "options">, raw: str
     case "decimal": {
       const clean = raw.replace(/[,\s]/g, "");
       const n = Number(clean);
-      if (Number.isNaN(n) || n < 0) { errors[f.name] = "Number, 0 or more"; return null; }
+      if (!clean || !Number.isFinite(n) || n < 0 || !/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(clean)) { errors[f.name] = "Number, 0 or more"; return null; }
       return new Prisma.Decimal(clean);
     }
     case "bool": return raw === "true";
