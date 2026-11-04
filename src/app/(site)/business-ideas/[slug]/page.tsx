@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, ClipboardList, ExternalLink, FileDown, LockKeyhole, Wallet } from "lucide-react";
+import { ArrowLeft, BadgeCheck, ClipboardList, ExternalLink, FileDown, FileText, Lightbulb, LockKeyhole, Rocket, Wallet } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
-import { compactRange, date, itemHref, money, moneyRange } from "@/lib/format";
+import { compactRange, contentTypeLabel, date, itemHref, money, moneyRange } from "@/lib/format";
+import { DIRECTORIES } from "@/config/directories";
+import { SectionTitle } from "@/components/SectionTitle";
 import { prisma } from "@/lib/prisma";
 import { budgetTotal } from "@/lib/costing";
 import { trackView } from "@/components/DetailParts";
@@ -14,11 +16,14 @@ import { Icon } from "@/components/Icon";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaCard, PLAN_LABEL, PLAN_ORDER, points, titleCase } from "@/components/IdeaParts";
 import { OnboardingGate } from "@/components/Onboarding";
-import { RememberVisit } from "@/components/Recent";
+import { RecentStrip, RememberVisit } from "@/components/Recent";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "@/components/ProductGallery";
 import { WishlistButton } from "@/components/Wishlist";
 import { videoId } from "@/lib/youtube";
 import { popupPlan } from "@/lib/billing";
+
+/** The template rows that matter most, highlighted in the table. */
+const KEY_ROWS = ["Starting Capital", "Profit Potential", "Time to setup"];
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +45,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const path = `/business-ideas/${item.slug}`;
   const reqPath = requirementsPath(item.slug);
   await trackView(viewer, item.id, path);
-  const [media, { inCategory, list: more }, linked] = await Promise.all([
+  const [media, { inCategory, list: more }, linked, next] = await Promise.all([
     loadChildSections("BUSINESS_IDEA", { record: idea.id, item: item.id, org: null }),
     moreIdeas(item),
     // For the gallery: photos of the machines and suppliers this idea is linked to (Related, set in the admin)
@@ -49,6 +54,13 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
       orderBy: { displayOrder: "asc" },
       take: 8,
       select: { toItem: { select: { title: true, slug: true, contentType: true, machine: { select: { pictureUrl: true, pictureCredit: true } }, supplier: { select: { pictureUrl: true, pictureCredit: true } } } } },
+    }),
+    // For "What you need to start": everything this idea is linked to, except other ideas
+    prisma.relatedContent.findMany({
+      where: { fromItemId: item.id, toItem: { publicationStatus: "PUBLISHED", contentType: { not: "BUSINESS_IDEA" } } },
+      orderBy: { displayOrder: "asc" },
+      take: 6,
+      select: { toItem: { select: { id: true, title: true, slug: true, contentType: true } } },
     }),
   ]);
 
@@ -62,6 +74,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const lines = scenario ? (gated ? scenario.lines.slice(0, FREE_PREVIEW.budgetLines) : scenario.lines) : [];
   const hiddenLines = scenario ? scenario.lines.length - lines.length : 0;
+  // How many items have a sourced price (a count only: public)
+  const priced = scenario ? scenario.lines.filter((l) => l.unitCost !== null).length : 0;
   const plan = popupPlan(memberPlan);
 
   const unlock = (label: string, cls = "") => (
@@ -120,7 +134,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     .map((s) => (s.table.key === "media" ? { ...s, rows: s.rows.filter((r) => r.mediaType !== "image" && r.mediaType !== "video") } : s))
     .filter((s) => s.rows.length);
 
-  const card = "flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4";
+  const card = "flex scroll-mt-36 flex-col gap-5 rounded-3xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(7,26,51,0.04)] sm:p-7";
   const h2 = "font-display text-lg font-extrabold text-heading";
 
   return (
@@ -183,8 +197,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
         <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
           {/* ── 1. The template, as in the client's document: S/N, Name, Details, Notes ── */}
-          <section id="template" className={card}>
-            <h2 className={h2}>Business idea</h2>
+          <section id="template" className={card} data-reveal="">
+            <SectionTitle n="01" kicker="The idea" title="Business idea" sub="Everything about this business, as one simple table." icon={Lightbulb} />
             <div className="overflow-x-auto rounded-xl border border-line">
               <table className="w-full min-w-[560px] text-left text-[13px] sm:text-sm">
                 <thead className="bg-brand-deep text-xs text-white/90">
@@ -192,10 +206,10 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </thead>
                 <tbody>
                   {template.map(([k, v, note], n) => (
-                    <tr key={k} className={`border-t border-line align-top ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                    <tr key={k} className={`border-t border-line align-top ${KEY_ROWS.includes(k) ? "bg-accent-tint/60" : n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
                       <td className="px-3 py-2.5 text-ink-muted">{n + 1}</td>
-                      <td className="px-3 py-2.5 font-medium text-ink-soft">{k}</td>
-                      <td className="whitespace-pre-line break-words px-3 py-2.5 font-semibold text-heading">{v || <span className="font-normal text-ink-muted">—</span>}</td>
+                      <td className="px-3 py-2.5 font-medium text-ink-soft">{KEY_ROWS.includes(k) ? <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />{k}</span> : k}</td>
+                      <td className={`whitespace-pre-line break-words px-3 py-2.5 font-semibold ${KEY_ROWS.includes(k) ? "text-brand-dark" : "text-heading"}`}>{v || <span className="font-normal text-ink-muted">—</span>}</td>
                       <td className="whitespace-pre-line break-words px-3 py-2.5 text-ink-muted">{note}</td>
                     </tr>
                   ))}
@@ -205,9 +219,9 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </section>
 
           {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
-          <section id="budget" className={card}>
+          <section id="budget" className={card} data-reveal="">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className={h2}>Start-up Budget</h2>
+              <SectionTitle n="02" kicker="What it costs" title="Start-up Budget" sub="What to buy and pay to open, item by item." icon={Wallet} />
               {scenarios.length > 1 ? (
                 <nav aria-label="Business size" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
                   {scenarios.map((s) => (
@@ -217,6 +231,17 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </nav>
               ) : null}
             </div>
+            {scenario ? (
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <Stat label="Items" value={String(scenario.lines.length)} />
+                <div className="flex flex-col gap-1.5 rounded-2xl bg-page p-3 sm:p-4">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-muted">Priced</span>
+                  <span className="font-display text-[18px] font-extrabold leading-tight text-heading sm:text-[22px]">{priced}<span className="text-[14px] font-semibold text-ink-muted"> / {scenario.lines.length}</span></span>
+                  <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-brand" style={{ width: `${scenario.lines.length ? Math.round((priced / scenario.lines.length) * 100) : 0}%` }} /></span>
+                </div>
+                <Stat label="Total" value={gated ? "Members" : budgetTotal(scenario.lines) === null ? "Pending" : money(budgetTotal(scenario.lines)!, scenario.currency)} accent />
+              </div>
+            ) : null}
             {scenario ? (
               <div className="overflow-x-auto rounded-xl border border-line">
                 <table className="w-full min-w-[640px] text-left text-[13px] sm:text-sm">
@@ -258,10 +283,31 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             ) : <p className="text-sm text-ink-muted">Being prepared.</p>}
           </section>
 
+          {/* ── What it takes: the machines, funding, experts and tools linked to this idea ── */}
+          {next.length ? (
+            <section className={card} data-reveal="">
+              <SectionTitle n="+" kicker="Keep going" title="What you need to start" sub="Machines, money and people for this business, checked by our team." icon={Rocket} />
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {next.map(({ toItem: t }) => (
+                  <li key={t.id}>
+                    <Link href={itemHref(t)} className="group flex h-full items-center gap-3 rounded-2xl border border-line bg-page/50 p-3.5 text-ink transition hover:-translate-y-0.5 hover:border-brand hover:bg-white hover:text-ink">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-brand ring-1 ring-line transition group-hover:bg-brand group-hover:text-white group-hover:ring-brand"><Icon name={t.contentType === "RECIPE" ? "recipe" : DIRECTORIES.find((d) => d.type === t.contentType)?.icon ?? "link"} className="h-5 w-5" /></span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-accent-dark">{contentTypeLabel[t.contentType] ?? "Related"}</span>
+                        <span className="truncate font-display text-[15px] font-bold text-heading group-hover:text-brand">{t.title.replace(/^Sample:?\s*/i, "")}</span>
+                      </span>
+                      <span aria-hidden className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand">→</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           {/* ── 3. The business plan as a designed PDF (src/lib/idea-pdf.tsx), viewed right here ── */}
-          <section id="plan-pdf" className={card}>
+          <section id="plan-pdf" className={card} data-reveal="">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className={h2}>Business plan (PDF)</h2>
+              <SectionTitle n="03" kicker="Your plan" title="Business plan (PDF)" sub="The whole plan, with the steps to start, to keep or print." icon={FileText} />
               <span className="flex gap-2">
                 <a href={pdfPath} target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><ExternalLink aria-hidden className="h-3.5 w-3.5" />Open</a>
                 <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
@@ -300,9 +346,22 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
               </ul>
             </section>
           ) : null}
+
+          {/* What they looked at before: easy to go back to, and the site feels like theirs */}
+          <RecentStrip exclude={path} title="You looked at these recently" />
         </div>
       </article>
     </OnboardingGate>
   );
 }
 
+
+/** A number in the budget summary. */
+function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className={`flex flex-col gap-1.5 rounded-2xl p-3 sm:p-4 ${accent ? "bg-brand text-white" : "bg-page"}`}>
+      <span className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${accent ? "text-white/75" : "text-ink-muted"}`}>{label}</span>
+      <span className={`truncate font-display text-[18px] font-extrabold leading-tight sm:text-[22px] ${accent ? "" : "text-heading"}`}>{value}</span>
+    </div>
+  );
+}

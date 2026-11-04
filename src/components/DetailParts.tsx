@@ -46,7 +46,7 @@ export function Facts({ items }: { items: [string, React.ReactNode][] }) {
 export function Card({ title, children, className = "" }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`card flex flex-col gap-3 p-7 ${className}`}>
-      {title ? <h2 className="text-lg font-extrabold">{title}</h2> : null}
+      {title ? <h2 className="hl w-fit text-lg font-extrabold">{title}</h2> : null}
       {children}
     </section>
   );
@@ -98,7 +98,7 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
       <div className="flex items-center gap-3">
         <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold ${overdue ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`} aria-hidden>{overdue ? "!" : "✓"}</span>
         <span className="flex min-w-0 flex-col">
-          <h2 className="font-display text-base font-extrabold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
+          <h2 className="hl w-fit font-display text-base font-extrabold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
           <span className="text-[13px]">Last checked {date(lastReviewedAt)}</span>
         </span>
       </div>
@@ -150,7 +150,7 @@ export async function Connected({ contentItemId, title = "Connected resources" }
   const items = [...from.map((r) => r.toItem), ...to.map((r) => r.fromItem)].filter((v, i, a) => a.findIndex((x) => x.id === v.id) === i);
   return (
     <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-4 sm:p-5">
-      <h2 className="mb-1 font-display text-sm font-extrabold text-heading">{title}</h2>
+      <h2 className="hl w-fit mb-1 font-display text-sm font-extrabold text-heading">{title}</h2>
       {items.length === 0 ? <p className="text-[13px] text-ink-muted">Linked resources coming soon.</p> : null}
       {items.map((i) => (
         <Link key={i.id} href={itemHref(i)} className="group -mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-ink hover:bg-page hover:text-ink">

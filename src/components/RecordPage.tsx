@@ -185,7 +185,7 @@ export async function RecordPage({
                 {/* Contact and where to buy, right under the details */}
                 <section id="contact" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl bg-page p-4 sm:p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
+                    <h2 className="hl w-fit font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
                     {locked ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
                   </div>
                   {whereRow?.locked || contact === "locked" ? (
@@ -250,7 +250,7 @@ export async function RecordPage({
             {/* Specifications: one plain table, rows in alternating colours */}
             {(details && detailCount) || facts.length ? (
               <section id="specs" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
-                <h2 className="font-display text-lg font-extrabold text-heading">Specifications</h2>
+                <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Specifications</h2>
                 {/* The key facts first (they used to sit beside the photo), then every other field */}
                 {facts.length ? (
                   <dl className="overflow-hidden rounded-xl border border-line">
@@ -270,7 +270,7 @@ export async function RecordPage({
               <section id="overview" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
                 {shownTexts.map((t) => (
                   <div key={t.label} className="flex flex-col gap-1.5">
-                    <h2 className="font-display text-base font-extrabold text-heading">{t.label}</h2>
+                    <h2 className="hl w-fit font-display text-base font-extrabold text-heading">{t.label}</h2>
                     {t.locked ? (
                       <p className="flex items-center gap-3 text-sm text-ink-muted">For members. {unlock("Unlock")}</p>
                     ) : (
@@ -375,7 +375,7 @@ export async function RecordPage({
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5 sm:p-6">
-                  <h2 className="font-display text-lg font-extrabold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
+                  <h2 className="hl w-fit font-display text-lg font-extrabold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -429,7 +429,7 @@ export async function RecordPage({
           {contact !== undefined ? (
             <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="font-display text-lg font-extrabold text-heading">Contact</h2>
+                <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Contact</h2>
                 {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
               </div>
               {contact === "locked" ? (
@@ -458,7 +458,7 @@ export async function RecordPage({
 
           {shownLinks.length ? (
             <section className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-              <h2 className="mb-0.5 font-display text-sm font-extrabold text-heading">Useful links</h2>
+              <h2 className="hl w-fit mb-0.5 font-display text-sm font-extrabold text-heading">Useful links</h2>
               {/* Same pill buttons as the download card, full width and thumb-sized on phones */}
               {shownLinks.map((l) =>
                 l.locked ? (

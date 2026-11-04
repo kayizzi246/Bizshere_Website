@@ -85,7 +85,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
   ] as [string, string | null | undefined][]).filter(([, v]) => v);
 
   const card = "rounded-3xl border border-line bg-white p-5 sm:p-7";
-  const h2 = "flex items-center gap-2.5 font-display text-[19px] font-extrabold tracking-[-0.01em] text-heading";
+  const h2 = "hl flex w-fit items-center gap-2.5 font-display text-[19px] font-extrabold tracking-[-0.01em] text-heading";
   const h2icon = "flex h-8 w-8 items-center justify-center rounded-xl bg-brand-tint text-brand";
 
   const contactCard = (
@@ -177,14 +177,14 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
             <div className="lg:hidden">{contactCard}</div>
 
             {item.overview ? (
-              <section id="about" className={`flex flex-col gap-3 ${card}`}>
+              <section data-reveal="" id="about" className={`flex flex-col gap-3 ${card}`}>
                 <h2 className={h2}><span className={h2icon}><Users aria-hidden className="h-4 w-4" /></span>About</h2>
                 <ReadMore text={item.overview} lines={6} />
               </section>
             ) : null}
 
             {c.specialties.length ? (
-              <section className={`flex flex-col gap-4 ${card}`}>
+              <section data-reveal="" className={`flex flex-col gap-4 ${card}`}>
                 <h2 className={h2}><span className={h2icon}><Sparkles aria-hidden className="h-4 w-4" /></span>Specialties</h2>
                 <ul className="flex flex-wrap gap-2">
                   {c.specialties.map((s) => (
@@ -195,7 +195,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
             ) : null}
 
             {c.services.length ? (
-              <section className={`flex flex-col gap-4 ${card}`}>
+              <section data-reveal="" className={`flex flex-col gap-4 ${card}`}>
                 <h2 className={h2}><span className={h2icon}><Briefcase aria-hidden className="h-4 w-4" /></span>Services</h2>
                 <ul className="grid gap-3 sm:grid-cols-2">
                   {c.services.map((s) => (
@@ -213,7 +213,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
             ) : null}
 
             {c.qualifications.length ? (
-              <section className={`flex flex-col gap-4 ${card}`}>
+              <section data-reveal="" className={`flex flex-col gap-4 ${card}`}>
                 <h2 className={h2}><span className={h2icon}><GraduationCap aria-hidden className="h-4 w-4" /></span>Qualifications</h2>
                 <ul className="flex flex-col divide-y divide-line">
                   {c.qualifications.map((q) => (
@@ -230,7 +230,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
             ) : null}
 
             {c.feeMin != null || c.feeMax != null ? (
-              <section className={`flex flex-col gap-3 ${card}`}>
+              <section data-reveal="" className={`flex flex-col gap-3 ${card}`}>
                 <h2 className={h2}><span className={h2icon}><Monitor aria-hidden className="h-4 w-4" /></span>Fees</h2>
                 {fees ? (
                   <p className="font-display text-[22px] font-extrabold text-brand-dark">{fees}{c.quotationRequired ? <span className="ml-2 align-middle text-[12px] font-semibold text-ink-muted">quotation needed</span> : null}</p>
@@ -246,7 +246,7 @@ export default async function ExpertPage({ params, searchParams }: { params: { s
             <ExpertWork work={work} />
 
             {/* Reviews: approved by the team before they show */}
-            <section id="reviews" className={`flex scroll-mt-36 flex-col gap-5 ${card}`}>
+            <section data-reveal="" id="reviews" className={`flex scroll-mt-36 flex-col gap-5 ${card}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className={h2}><span className={h2icon}><MessageSquareQuote aria-hidden className="h-4 w-4" /></span>Client reviews</h2>
                 {rating ? <span className="inline-flex items-center gap-2 text-sm text-ink-muted"><Stars value={rating} dark /><strong className="text-heading">{rating.toFixed(1)}</strong> from {reviews.length}</span> : null}

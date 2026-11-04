@@ -22,7 +22,7 @@ export function ExpertWork({ work }: { work: Work[] }) {
   if (!work.length) return null;
   return (
     <section id="work" className="flex scroll-mt-24 flex-col gap-3">
-      <h2 className="font-display text-lg font-extrabold text-heading">Work and case studies</h2>
+      <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Work and case studies</h2>
       <ul className="grid gap-3 sm:grid-cols-2">
         {work.map((w) => (
           <li key={w.id} className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white">

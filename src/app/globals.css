@@ -72,7 +72,16 @@
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
   .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 0.98; }
   .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[36px] lg:text-[44px]; }
-  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
+  .text-section-title { @apply hl font-display text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
+  /* Highlighter: an orange marker stroke behind the lower part of a heading's text. A thick
+     underline, so it follows the words (across line breaks) and is painted behind the letters. */
+  .hl {
+    text-decoration-line: underline;
+    text-decoration-color: rgb(242 140 40 / 0.38);
+    text-decoration-thickness: 0.36em;
+    text-underline-offset: -0.18em;
+    text-decoration-skip-ink: none;
+  }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[24px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
