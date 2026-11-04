@@ -16,6 +16,8 @@ export function CorrectionForm({ item, signedIn }: { item: { id: string; title: 
   const err = (k: string) => state.errors?.[k]?.[0];
   return (
     <form action={action} className="card flex flex-col gap-4 p-7">
+      {/* Bot trap: hidden from people and screen readers; bots that fill every field get ignored (submitCorrection) */}
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] h-px w-px opacity-0" />
       {item ? (
         <>
           <input type="hidden" name="contentItemId" value={item.id} />

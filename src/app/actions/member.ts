@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { contentTypeLabel, itemHref } from "@/lib/format";
+import { allow, clientIp, LIMITS } from "@/lib/rate-limit";
 
 /** Actions for signed-in users: saved items, collections, saved searches, alerts, corrections. */
 
@@ -150,8 +151,14 @@ export type CorrectionState = { ok?: boolean; errors?: Record<string, string[] |
 
 /** Anyone can report a correction. It goes to the admin corrections queue. */
 export async function submitCorrection(_prev: CorrectionState, form: FormData): Promise<CorrectionState> {
+  // Bots: the hidden "website" field is filled only by form-filling bots; pretend it worked.
+  if (String(form.get("website") ?? "")) return { ok: true };
+  if (!(await allow(`corrections:ip:${await clientIp()}`, ...LIMITS.correctionsPerIp))) {
+    return { errors: { message: ["Too many reports from your connection. Please try again in an hour."] } };
+  }
   const session = await getSession();
-  const parsed = correctionSchema.safeParse(Object.fromEntries(form));
+  const { website: _trap, ...fields } = Object.fromEntries(form);
+  const parsed = correctionSchema.safeParse(fields);
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
   const exists = await prisma.contentItem.findUnique({ where: { id: parsed.data.contentItemId }, select: { id: true } });
   if (!exists) return { errors: { contentItemId: ["Choose the page you are reporting"] } };

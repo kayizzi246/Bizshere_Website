@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { normalizePhone } from "./phone";
 import { sendSms } from "./sms";
+import { allow, clientIp, LIMITS } from "./rate-limit";
 
 /**
  * Passwordless phone sign-in: we text a one-time code, the person types it back.
@@ -50,7 +51,14 @@ export async function sendCode(raw: string): Promise<SendResult> {
   if (sentLastHour >= MAX_CODES_PER_HOUR) {
     return { ok: false, error: "Too many codes were requested for this number. Please try again in an hour." };
   }
-  const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
+  // SMS pumping: a bot cycling through many numbers from one address, or a flood from many. Each text
+  // costs credit, so both one address and the whole site are capped (src/lib/rate-limit.ts).
+  const ip = await clientIp();
+  if (!(await allow(`sms:ip:${ip}`, ...LIMITS.smsPerIp)) || !(await allow("sms:all", ...LIMITS.smsAll))) {
+    await prisma.auditLog.create({ data: { action: "auth.code_limited", entityType: "phone", entityId: phone, details: { ip } } });
+    return { ok: false, error: "Too many codes were requested. Please try again in an hour." };
+  }
+  const code =String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
   const sent = await sendSms(phone, `Your BizSphere-Ug code is ${code}. It expires in ${CODE_MINUTES} minutes.`);
   if (!sent) return { ok: false, error: "We can't send text messages yet. Please try again later." };
   await prisma.auditLog.create({ data: { action: "auth.code_sent", entityType: "phone", entityId: phone } });

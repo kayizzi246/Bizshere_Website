@@ -113,3 +113,26 @@ export async function signOutAllDevices(form: FormData) {
   await audit(admin.id, "sessions.signed_out_everyone", "system", undefined, { at });
   back("saved=signedout");
 }
+
+/**
+ * The phone a staff member's sign-in code is texted to (src/lib/auth.ts: password + SMS code).
+ * For others, like the other changes here. For yourself only to add one when your account has
+ * none: switching on the second step is always safe, changing where codes go is not.
+ */
+export async function setStaffPhone(form: FormData) {
+  const admin = await requireAdmin();
+  const id = String(form.get("id"));
+  const self = id === admin.id;
+  const user = self
+    ? await prisma.user.findUnique({ where: { id }, select: { id: true, phone: true } })
+    : (await subAdmin(id)).user;
+  if (!user || (self && "phone" in user && user.phone)) back("error=self");
+  const phone = phoneKey(String(form.get("phone") ?? ""));
+  if (!phone) back(`error=phone&user=${id}`);
+  const taken = await prisma.user.findFirst({ where: { phone: phone!, id: { not: id } }, select: { id: true } });
+  if (taken) back(`error=exists&user=${id}`);
+  await prisma.user.update({ where: { id }, data: { phone } });
+  await audit(admin.id, "staff.phone_set", "user", id);
+  revalidatePath("/admin/team");
+  back(`saved=phone&user=${id}`);
+}

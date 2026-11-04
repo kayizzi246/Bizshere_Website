@@ -14,6 +14,7 @@ Read them in this order. Each document says who it is for.
 | 07 | [Delivery plan](07-delivery-plan.md) | Client, project lead | The five delivery stages, what is done, what is left, the acceptance test |
 | 08 | [Deploy to Vercel](08-deploy-to-vercel.md) | Whoever puts the site online | Step-by-step: Vercel project, Neon database, tables, admin, daily jobs |
 | 09 | [SMS, payments and logins](09-sms-payments-and-logins.md) | Whoever sets up the site | EgoSMS, Resend email, Pesapal payments (sandbox and live), every sign-in method, renewal reminders, go-live checklist |
+| 10 | [Security](10-security.md) | Owner, developer, hosting | Bot and scanner blocking, rate limits, staff SMS codes, Vercel Firewall settings, secrets, what to do in an incident |
 
 ## Source documents
 

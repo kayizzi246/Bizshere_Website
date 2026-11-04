@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { site } from "@/config/site";
 import { AREA_GROUPS, AREAS, areaLabel } from "@/lib/admin-areas";
-import { addSubAdmin, removeStaff, saveAreas, setStaffPassword, setStaffSuspended, setSuperAdmin, signOutAllDevices } from "./actions";
+import { addSubAdmin, removeStaff, saveAreas, setStaffPassword, setStaffSuspended, setStaffPhone, setSuperAdmin, signOutAllDevices } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin team" };
@@ -14,6 +14,7 @@ const SAVED: Record<string, string> = {
   added: "Sub-admin added. Give them the sign-in address, their email or phone, and the password you set.",
   areas: "Areas saved. They apply straight away.",
   password: "Password changed.",
+  phone: "Phone saved. Signing in now also needs the code texted to it.",
   suspended: "Account suspended. They are signed out within a few minutes.",
   restored: "Account restored.",
   role: "Role changed.",
@@ -111,6 +112,8 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
                   </span>
                   <span className="flex flex-wrap items-center gap-1.5">
                     {u.isSuspended ? <span className="badge-bad">Suspended</span> : null}
+                    {/* Sign-in needs password + SMS code only when the account has a phone (src/lib/auth.ts) */}
+                    {u.phone ? <span className="badge-info">SMS code at sign-in</span> : <span className="badge-warn" title="Add a phone number so signing in also needs a texted code">Password only: add a phone</span>}
                     <span className={isSuper ? "badge-warn" : "badge-info"}>{isSuper ? "Super admin" : `Sub-admin · ${u.adminAreas.length} area${u.adminAreas.length === 1 ? "" : "s"}`}</span>
                   </span>
                 </summary>
@@ -120,7 +123,18 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
                   ) : (
                     <p className="text-sm text-ink-muted">Manages: {u.adminAreas.map(areaLabel).join(", ") || "nothing yet"}.</p>
                   )}
-                  {isMe ? <p className="text-sm text-ink-muted">This is you. Another super admin can change your account.</p> : (
+                  {isMe ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm text-ink-muted">This is you. Another super admin can change your account.</p>
+                      {u.phone ? null : (
+                        <form action={setStaffPhone} className="flex flex-wrap items-end gap-2">
+                          <input type="hidden" name="id" value={u.id} />
+                          <label className="label text-xs">Add your phone, so signing in also needs a texted code<input name="phone" type="tel" required placeholder="0772 123 456" autoComplete="tel" className="input min-h-[42px]" /></label>
+                          <button className="btn-primary min-h-[42px]">Add phone</button>
+                        </form>
+                      )}
+                    </div>
+                  ) : (
                     <>
                       {!isSuper ? (
                         <form action={saveAreas} className="flex flex-col gap-3">
@@ -134,6 +148,11 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
                           <input type="hidden" name="id" value={u.id} />
                           <label className="label text-xs">New password<input name="password" type="text" minLength={10} required autoComplete="off" className="input min-h-[42px]" /></label>
                           <button className="btn-outline min-h-[42px]">Set password</button>
+                        </form>
+                        <form action={setStaffPhone} className="flex flex-wrap items-end gap-2">
+                          <input type="hidden" name="id" value={u.id} />
+                          <label className="label text-xs">Phone for sign-in codes<input name="phone" type="tel" required defaultValue={u.phone ?? ""} placeholder="0772 123 456" autoComplete="off" className="input min-h-[42px]" /></label>
+                          <button className="btn-outline min-h-[42px]">Save phone</button>
                         </form>
                         <form action={setSuperAdmin}>
                           <input type="hidden" name="id" value={u.id} /><input type="hidden" name="super" value={isSuper ? "0" : "1"} />

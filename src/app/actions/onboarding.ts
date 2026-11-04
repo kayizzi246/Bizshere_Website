@@ -8,6 +8,7 @@ import { audit } from "@/lib/audit";
 import { getViewer } from "@/lib/access";
 import { getSession } from "@/lib/auth";
 import { phoneKey, sendCode, type SendResult } from "@/lib/phone-codes";
+import { allow, LIMITS } from "@/lib/rate-limit";
 import { cancelOrder, pesapalConfigured, startCheckout } from "@/lib/payments";
 import { PERIOD_WORD, settlePayment, type Settled } from "@/lib/membership";
 
@@ -63,6 +64,9 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
   }
 
   const userId = session.user.id;
+  if (!(await allow(`checkout:user:${userId}`, ...LIMITS.checkoutPerUser))) {
+    return { status: "error", message: "Too many payment attempts. Please wait a few minutes and try again." };
+  }
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, phone: true, name: true } });
   // One membership per person: renewals and retries reuse it. A new one waits as PAST_DUE
   // (no access, see getViewer) until a payment succeeds.

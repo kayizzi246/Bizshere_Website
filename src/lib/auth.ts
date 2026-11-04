@@ -8,7 +8,8 @@ import { z } from "zod";
 import type { Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { audit } from "./audit";
-import { isTestPhone, phoneKey, verifyCode } from "./phone-codes";
+import { isTestPhone, phoneKey, sendCode, verifyCode } from "./phone-codes";
+import { allow, ipFrom, LIMITS } from "./rate-limit";
 import { sessionsValidAfter } from "./sessions";
 
 /** Same rule as src/lib/pin-accounts.ts (not imported: that module sends SMS and is not needed here). */
@@ -20,6 +21,8 @@ const credentialsSchema = z.object({
   identifier: z.string().trim().min(1).optional(),
   email: z.string().trim().min(1).optional(),
   password: z.string().min(1),
+  /** Staff, second step: the code texted to their phone after the right password. */
+  code: z.string().trim().max(12).optional(),
 });
 
 /** Google sign-in is offered only once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set. */
@@ -35,6 +38,21 @@ export const STAFF_SESSION_HOURS = 12;
 const RECHECK_MINUTES = 5;
 
 const isStaffRole = (r?: Role | null) => r === "ADMIN" || r === "EDITOR";
+
+/**
+ * Staff sign in with a password and then a code texted to their phone, so a leaked password alone
+ * can't open the admin. Staff without a phone on their account sign in with the password only
+ * (add one in Admin → Team). STAFF_SMS_CODE="off" switches the second step off, e.g. if SMS is down.
+ */
+const staffNeedsCode = (u: { role: Role; phone: string | null }) => isStaffRole(u.role) && Boolean(u.phone) && process.env.STAFF_SMS_CODE !== "off";
+/** Thrown by authorize() after the right password: the form then asks for the texted code. */
+export const STAFF_CODE_SENT = "STAFF_CODE_SENT";
+
+/** Request headers as NextAuth hands them to authorize(). */
+const headerOf = (req: { headers?: Record<string, unknown> } | undefined) => (name: string) => {
+  const v = req?.headers?.[name];
+  return typeof v === "string" ? v : Array.isArray(v) ? String(v[0]) : null;
+};
 
 /** Failed password sign-ins for this email or phone in the lockout window. */
 function recentFailures(key: string) {
@@ -53,10 +71,17 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         identifier: { label: "Email or phone", type: "text" },
         password: { label: "Password", type: "password" },
+        code: { label: "Code from the SMS (staff)", type: "text" },
       },
-      async authorize(raw) {
+      async authorize(raw, req) {
         const parsed = credentialsSchema.safeParse(raw);
         if (!parsed.success) return null;
+        // Many accounts tried from one address (password spraying): slow it down whatever the account.
+        const ip = ipFrom(headerOf(req));
+        if (!(await allow(`login:ip:${ip}`, ...LIMITS.loginPerIp))) {
+          await audit(null, "auth.login_blocked", "login", `ip:${ip}`);
+          return null;
+        }
         const id = parsed.data.identifier ?? parsed.data.email;
         if (!id) return null;
         // Same phone lookup as the code sign-in (accepts 0772…, +256…, and the local test number).
@@ -79,7 +104,19 @@ export const authOptions: NextAuthOptions = {
           await audit(user?.id ?? null, "auth.login_failed", "login", key);
           return null;
         }
-        if (isStaffRole(user.role)) await audit(user.id, "auth.staff_login", "user", user.id);
+        if (staffNeedsCode(user)) {
+          const code = parsed.data.code;
+          if (!code) {
+            // Right password: text the code and ask for it (the error reaches the form, see StaffSignIn).
+            const sent = await sendCode(user.phone!);
+            throw new Error(sent.ok ? STAFF_CODE_SENT : sent.error);
+          }
+          if (!(await verifyCode(user.phone!, code))) {
+            await audit(user.id, "auth.login_failed", "login", key, { step: "code" });
+            return null;
+          }
+        }
+        if (isStaffRole(user.role)) await audit(user.id, "auth.staff_login", "user", user.id, { ip });
         await prisma.user.update({ where: { id: user.id }, data: { lastActiveAt: new Date() } });
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
@@ -89,7 +126,9 @@ export const authOptions: NextAuthOptions = {
       id: "phone",
       name: "Phone and code",
       credentials: { phone: { label: "Phone", type: "tel" }, code: { label: "Code", type: "text" } },
-      async authorize(raw) {
+      async authorize(raw, req) {
+        // Guessing codes for many numbers from one address
+        if (!(await allow(`login:ip:${ipFrom(headerOf(req))}`, ...LIMITS.loginPerIp))) return null;
         const phone = phoneKey(String(raw?.phone ?? ""));
         if (!phone || !(await verifyCode(phone, String(raw?.code ?? "")))) return null;
         let user = await prisma.user.findUnique({ where: { phone } });

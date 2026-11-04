@@ -78,6 +78,13 @@ const jobs: Record<string, () => Promise<string>> = {
     return `renewals: ${sent} reminders sent`;
   },
 
+  /** Rate-limit counters whose window has passed (src/lib/rate-limit.ts), and sign-in codes past their expiry. */
+  async security() {
+    const limits = await prisma.rateLimit.deleteMany({ where: { resetAt: { lt: now } } });
+    const codes = await prisma.phoneCode.deleteMany({ where: { expiresAt: { lt: days(-1) } } });
+    return `security: ${limits.count} rate-limit counters and ${codes.count} old sign-in codes cleared`;
+  },
+
   /** Subscriptions past their period end without renewal become EXPIRED. */
   async subscriptions() {
     const r = await prisma.subscription.updateMany({ where: { status: { in: ["ACTIVE", "TRIAL", "PAST_DUE"] }, currentPeriodEnd: { lt: days(-3) } }, data: { status: "EXPIRED" } });

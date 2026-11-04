@@ -43,7 +43,7 @@
     "lucide-react": "0.454.0",
     "motion": "^12.23.12",
     "next": "14.2.35",
-    "next-auth": "4.24.10",
+    "next-auth": "4.24.15",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.9",
     "react": "18.3.1",
