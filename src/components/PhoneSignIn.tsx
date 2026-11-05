@@ -19,28 +19,46 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   const [length, setLength] = useState(6);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // After a code is sent: a short note, and seconds until another can be asked for (the server allows one every 30 s)
+  const [notice, setNotice] = useState<string | null>(null);
+  const [wait, setWait] = useState(0);
   const codeInput = useRef<HTMLInputElement>(null);
   const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[15px]";
 
   useEffect(() => { if (phone) codeInput.current?.focus(); }, [phone]);
+  useEffect(() => {
+    if (wait <= 0) return;
+    const t = setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => clearTimeout(t);
+  }, [wait]);
 
-  async function send(raw: string) {
+  // Each code is new and replaces the one before: only the newest SMS works.
+  async function send(raw: string, again = false) {
     setBusy(true);
     setError(null);
+    setNotice(null);
     const res = await requestCode(raw);
     setBusy(false);
-    if (res.ok) { setPhone(res.phone); setLength(res.length); }
-    else setError(res.error);
+    if (res.ok) {
+      setPhone(res.phone);
+      setLength(res.length);
+      setWait(30);
+      if (again) {
+        setNotice(`New code sent to ${res.phone}. Use the newest SMS: earlier codes no longer work.`);
+        if (codeInput.current) { codeInput.current.value = ""; codeInput.current.focus(); }
+      }
+    } else setError(res.error);
   }
 
   async function verify(code: string) {
     if (!phone || busy) return;
     setBusy(true);
     setError(null);
+    setNotice(null);
     const r = await signIn("phone", { phone, code, redirect: false });
     setBusy(false);
     if (!r || r.error) {
-      setError("That code isn't right, or it has expired.");
+      setError("That code isn't right, or it has expired. Use the newest SMS, or send a new code.");
       if (codeInput.current) { codeInput.current.value = ""; codeInput.current.focus(); }
     } else onSignedIn();
   }
@@ -56,11 +74,12 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
             onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); e.target.value = v; if (v.length === length) verify(v); }}
             className={`input ${field} text-center font-display font-bold tracking-[0.5em]`} />
         </label>
+        {notice ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-sm font-medium text-brand-dark">{notice}</p> : null}
         {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-sm font-medium text-bad-fg">{error}</p> : null}
         <button disabled={busy} className={`btn-primary w-full ${field}`}>{busy ? "Checking…" : "Verify and continue"}</button>
         <div className="flex justify-between text-sm">
-          <button type="button" onClick={() => { setPhone(null); setError(null); }} className="inline-flex items-center gap-1 font-semibold text-ink-muted hover:text-ink"><ArrowLeft className="h-4 w-4" /> Change number</button>
-          <button type="button" disabled={busy} onClick={() => send(phone)} className="font-semibold text-brand hover:text-brand-dark">Send a new code</button>
+          <button type="button" onClick={() => { setPhone(null); setError(null); setNotice(null); }} className="inline-flex items-center gap-1 font-semibold text-ink-muted hover:text-ink"><ArrowLeft className="h-4 w-4" /> Change number</button>
+          <button type="button" disabled={busy || wait > 0} onClick={() => send(phone, true)} className="font-semibold text-brand hover:text-brand-dark disabled:text-ink-muted">{wait > 0 ? `Send a new code in ${wait}s` : busy ? "Sending…" : "Send a new code"}</button>
         </div>
       </form>
     );
