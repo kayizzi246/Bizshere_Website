@@ -41,9 +41,9 @@ export async function SiteFooter() {
       <div className="container-site">
         <div className="grid grid-cols-2 gap-x-6 gap-y-9 py-12 sm:py-16 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-8">
-            {/* The logo's blue needs a light backing on navy */}
-            <Link href="/" aria-label="BizSphere-Ug home" className="w-fit rounded-2xl bg-white px-3 py-2">
-              <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-14 w-auto" />
+            {/* The logo turned all white for the navy: brightness-0 makes it black, invert makes that white */}
+            <Link href="/" aria-label="BizSphere-Ug home" className="w-fit">
+              <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-16 w-auto brightness-0 invert" />
             </Link>
             <p className="max-w-xs text-[14px] leading-relaxed text-white/65">{site.tagline}</p>
             {contact.length ? (

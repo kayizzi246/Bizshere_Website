@@ -9,7 +9,8 @@ import { IdeaPhoto } from "./IdeaParts";
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
  * feature, words on the left and a fan of photos on the right; then Funding and Suppliers as two
  * panels of colour meeting edge to edge across the full width; then Experts and Tools side by side on
- * white (Card below); then Get started. Every heading is black, in the heaviest weight.
+ * white (Card below); then Get started. Every heading is black, in the heaviest weight, and the words
+ * are centred on every screen size.
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
  * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. Only
@@ -34,9 +35,9 @@ const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], 
 // The funding rows are examples of what's listed, not links: a light brand colour each, slowly drifting (.drift-row)
 const ROWS = [["#CFE8FA", "#F0F8FE", "text-brand"], ["#DCE5F1", "#F5F8FC", "text-navy"], ["#FFD0A1", "#FFE2C4", "text-accent-dark"], ["#BFE0F6", "#E9F5FD", "text-brand-dark"]];
 
-const heading = "text-hero text-[27px] leading-[1.12] text-black sm:text-[38px]";
-const body = "max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
-const cardHeading = "text-hero text-[25px] leading-[1.15] text-black sm:text-[32px]";
+const heading = "text-hero text-[25px] leading-[1.15] text-black sm:text-[32px] lg:text-[38px]";
+const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
+const cardHeading = "text-hero text-[23px] leading-[1.15] text-black sm:text-[28px] lg:text-[32px]";
 
 const Label = ({ href, tone = "text-brand" }: { href: string; tone?: string }) => {
   const d = directory(href);
@@ -55,14 +56,14 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
  * stay in line with the rest of the page (half of the 1,440px site width).
  */
 function Card({ href, title, text, action, tone = "", mark, button, panel, children }: { href: string; title: string; text: string; action: string; tone?: string; mark: string; button?: string; panel?: "left" | "right"; children: React.ReactNode }) {
-  const side = panel === "left" ? "ml-auto lg:pl-16 lg:pr-8" : panel === "right" ? "mr-auto lg:pl-8 lg:pr-16" : "";
+  const side = panel === "left" ? "md:ml-auto md:mr-0 lg:pl-16 lg:pr-8" : panel === "right" ? "md:ml-0 md:mr-auto lg:pl-8 lg:pr-16" : "";
   return (
     <li className={tone}>
-      <div className={`flex h-full flex-col items-start gap-3 ${panel ? `w-full max-w-[720px] px-5 py-10 sm:py-12 ${side}` : ""}`}>
+      <div className={`flex h-full flex-col items-center gap-3 text-center ${panel ? `mx-auto w-full max-w-[720px] px-5 py-8 sm:py-12 ${side}` : ""}`}>
         <Label href={href} tone={mark} />
         <h3 className={cardHeading}>{title}</h3>
-        <p className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
-        <div className="w-full">{children}</div>
+        <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
+        <div className="w-full flex-1">{children}</div>
         <span className="mt-auto pt-1"><Go href={href} tone={button}>{action}</Go></span>
       </div>
     </li>
@@ -70,7 +71,7 @@ function Card({ href, title, text, action, tone = "", mark, button, panel, child
 }
 
 const Points = ({ points, mark, tint }: { points: [LucideIcon, string][]; mark: string; tint: string }) => (
-  <ul className="flex flex-wrap gap-2">
+  <ul className="flex flex-wrap justify-center gap-2">
     {points.map(([Glyph, label]) => (
       <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-heading ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
     ))}
@@ -85,12 +86,12 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="max-w-2xl text-hero text-[32px] leading-[1.1] text-black sm:text-[48px]">Everything a business needs, on one platform</h2>
+        <h2 className="max-w-2xl text-hero text-[28px] leading-[1.1] text-black sm:text-[38px] lg:text-[48px]">Everything a business needs, on one platform</h2>
         <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
       </div>
 
       <div className="container-site grid grid-cols-[minmax(0,1fr)] items-center gap-6 py-10 sm:py-12 lg:grid-cols-2 lg:gap-12">
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex flex-col items-center gap-3 text-center">
           <Label href="/business-ideas" />
           <h3 className={heading}>Business plans with the real costs</h3>
           <p className={body}>Not sure what to start? Browse ready plans with every requirement and a line-by-line budget, in small, medium and large sizes.</p>
@@ -121,7 +122,7 @@ export async function HomeFeatures() {
             return (
               <li key={f.slug} style={{ "--a": a, "--b": b, "--wait": `-${i * 2}s` } as React.CSSProperties} className="drift-row flex items-center gap-3 rounded-2xl px-4 py-3 text-heading">
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white ${mark}`}><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
-                <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold">{clean(f.title)}</span>
+                <span className="min-w-0 flex-1 truncate text-left font-display text-[15px] font-bold">{clean(f.title)}</span>
               </li>
             );
           })}
@@ -130,12 +131,12 @@ export async function HomeFeatures() {
 
       <Card panel="right" href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tone="bg-brand-tint" mark="text-brand"
         text="Looking for stock or materials? Find suppliers in Uganda and abroad, with contacts our team has checked.">
-        <ul className="grid auto-rows-fr grid-cols-2 gap-2">
+        <ul className="grid h-full auto-rows-fr grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {suppliers.map((s) => (
             <li key={s.slug}>
-              <Link href={`/suppliers/${s.slug}`} className="flex h-full flex-col gap-1 rounded-2xl bg-white p-4 text-heading transition-colors hover:text-brand">
+              <Link href={`/suppliers/${s.slug}`} className="flex h-full flex-col items-center justify-center gap-1 rounded-2xl bg-white p-4 text-center text-heading transition-colors hover:text-brand">
                 <span className="font-display text-[15px] font-bold leading-snug">{clean(s.title)}</span>
-                {s.supplier?.country ? <span className="mt-auto inline-flex items-center gap-1 text-[13px] text-ink-muted"><MapPin aria-hidden className="h-3.5 w-3.5" />{s.supplier.country}</span> : null}
+                {s.supplier?.country ? <span className="inline-flex items-center gap-1 text-[13px] text-ink-muted"><MapPin aria-hidden className="h-3.5 w-3.5" />{s.supplier.country}</span> : null}
               </Link>
             </li>
           ))}
@@ -143,8 +144,8 @@ export async function HomeFeatures() {
       </Card>
       </ul>
 
-      <div className="container-site py-10 sm:py-12">
-        <ul className="grid gap-8 md:grid-cols-2 lg:gap-12">
+      <div className="container-site py-8 sm:py-12">
+        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
       <Card href="/experts" title="Advice from people who know" action="Find an expert" mark="text-brand"
         text="Don't guess on the hard parts. Talk to checked advisors and see the services they offer and the jobs they've done.">
         <Points points={EXPERT_POINTS} mark="text-brand" tint="bg-brand-tint" />
@@ -159,7 +160,7 @@ export async function HomeFeatures() {
 
       <div className="bg-brand text-white">
         <div className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
-          <h2 className="text-hero text-[28px] leading-[1.1] sm:text-[40px]">Start using BizSphere-Ug today</h2>
+          <h2 className="text-hero text-[22px] leading-[1.15] sm:text-[30px]">Start using BizSphere-Ug today</h2>
           <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">Open every directory with one membership.</p>
           <Link href="/signup" className="group mt-2 inline-flex h-[52px] items-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-white hover:text-ink">
             Get started<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
