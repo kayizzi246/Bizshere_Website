@@ -118,7 +118,7 @@ export const DIRECTORIES: Directory[] = [
     link: { field: "providerId", label: "Fund provider" },
     labels: { title: "Fund name", shortSummary: "Brief", overview: "Description (optional)", category: "Category" },
     fields: [
-      e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN),
+      { ...e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN), required: true },
       t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
       ta("eligibilityText", "Eligibility", MAIN),
       d("amountMin", "Amount given, from", MAIN, MONEY_HELP), d("amountMax", "Amount given, up to", MAIN, "A ceiling, not a guarantee"), cur(MAIN),
@@ -168,7 +168,8 @@ export const DIRECTORIES: Directory[] = [
     type: "CONSULTANT", label: "Consultant / expert", model: "consultant",
     labels: { title: "Page title (usually the consultant's name)", shortSummary: "Brief (optional)", overview: "Profile", category: "Category" },
     fields: [
-      { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, l("specialties", "Specialty", MAIN),
+      { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, t("businessName", "Business name", MAIN), l("specialties", "Specialty", MAIN),
+      t("address", "Address", MAIN), { ...u("profileUrl", "Profile (download)", MAIN), upload: "file" },
       t("country", "Country", MAIN), t("district", "District", MAIN),
       t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
       t("professionalTitle", "Professional title", "Identity"), { ...u("photoUrl", "Photo", "Identity"), upload: "image" },
@@ -199,7 +200,7 @@ export const DIRECTORIES: Directory[] = [
     type: "TOOL", label: "Tool / template", model: "tool",
     labels: { title: "Tool name", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
-      e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), { ...u("downloadUrl", "Download file", MAIN), upload: "file" },
+      { ...e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), required: true }, { ...u("downloadUrl", "Download file", MAIN), upload: "file" },
       ta("purpose", "Purpose", "Identity"), t("intendedUser", "Intended user", "Identity"),
       ta("requiredInputs", "Required inputs", "Instructions"), ta("usageSteps", "Usage steps", "Instructions"), ta("workedExample", "Worked example", "Instructions"), ta("limitations", "Limitations", "Instructions"),
       t("fileFormat", "File format", "Compatibility"), t("supportedSoftware", "Supported software", "Compatibility"), b("editable", "Editable", "Compatibility"), b("hasMacros", "Contains macros", "Compatibility"),
@@ -251,7 +252,7 @@ export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; group
   SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
   FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },
-  CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl"] },
+  CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl", "profileUrl"] },
   GUIDE: { fields: ["downloadUrl"] },
   TOOL: { fields: ["downloadUrl", "calculatorRoute"] },
 };

@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { site } from "@/config/site";
 import { pinAccount, portalOf, USERNAME } from "@/lib/pin-accounts";
 import { PinLogin } from "@/components/PinLogin";
-import { AuthShell } from "@/components/AuthShell";
+import { PanelWords, SplitShell } from "@/components/SplitShell";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Sign in", robots: { index: false, follow: false } };
@@ -25,10 +25,8 @@ export default async function PersonalSignIn({ params }: { params: { username: s
   const session = await getSession();
   if (session?.user?.id === account.id) redirect(portal);
   return (
-    <div className="bg-page">
-      <AuthShell title="Welcome back" text={account.isExpert && !account.isSupplier ? "Sign in to your BizSphere-Ug expert dashboard." : "Sign in to your BizSphere-Ug supplier dashboard."}>
-        <PinLogin kind="any" portal={portal} callPhone={site.contact.phone || null} account={{ login, name: account.displayName, phoneHint: null }} />
-      </AuthShell>
-    </div>
+    <SplitShell panel={<PanelWords lead="Your business," accent="in one place" text="Sign in to keep your page up to date on BizSphere-Ug." />}>
+      <PinLogin kind="any" portal={portal} callPhone={site.contact.phone || null} account={{ login, name: account.displayName, phoneHint: null }} />
+    </SplitShell>
   );
 }

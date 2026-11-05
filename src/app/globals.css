@@ -272,6 +272,18 @@ main > div.bg-page:first-child:not(:has(> header)),
 main > article.bg-page:first-child:not(:has(> header)),
 main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(:has(> header)) { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
 
+/* The homepage's fan of ideas (src/components/HomeFeatures.tsx): --n is each card's place, -1, 0 or 1. Stacked
+   until its block is reached, then it opens. */
+.fan-card {
+  --x: calc(var(--n) * 76px); --y: calc(var(--n) * var(--n) * 18px);
+  position: absolute; top: 5%; left: 50%; width: 190px; margin-left: -95px;
+  translate: var(--x) var(--y); rotate: calc(var(--n) * 7deg);
+  transition: rotate 0.5s var(--ease-out), translate 0.5s var(--ease-out);
+}
+@media (min-width: 640px) { .fan-card { --x: calc(var(--n) * 130px); width: 270px; margin-left: -135px; } }
+.reveal-ready .fan[data-reveal]:not([data-shown]) .fan-card { translate: 0 0; rotate: 0deg; }
+@media (prefers-reduced-motion: reduce) { .fan-card { transition: none; } }
+
 /* A row of soft colour that slowly drifts. The colours repeat every half of the layer, so sliding it by
    half loops without a jump, and only transform moves, so it costs nothing while scrolling. */
 .drift-row { position: relative; isolation: isolate; overflow: hidden; }
@@ -283,24 +295,15 @@ main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(
 @keyframes row-drift { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .drift-row::before { animation: none; } }
 
+/* A page marked data-bare stands alone: none of the site around it (the staff sign-in). */
+body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: none; }
+
 /* "Become a Supplier | Expert": a tab growing out of the header bar. It overlaps the bar's border by 1px, and
    the two pseudo-elements are the inward curves where it meets the bar. */
 .join-tab { margin-top: -1px; filter: drop-shadow(0 5px 6px rgb(7 26 51 / 0.12)); }
 .join-tab::before, .join-tab::after { content: ""; position: absolute; top: 0; width: 14px; height: 14px; }
 .join-tab::before { left: -14px; background: radial-gradient(circle at 0 100%, transparent 13.5px, #fff 14px); }
 .join-tab::after { right: -14px; background: radial-gradient(circle at 100% 100%, transparent 13.5px, #fff 14px); }
-/* The homepage's fan of ideas (src/components/HomeStory.tsx): --n is each card's place, -1, 0 or 1. Stacked
-   until its block is reached, then it opens. */
-.fan-card {
-  --x: calc(var(--n) * 76px); --y: calc(var(--n) * var(--n) * 18px);
-  position: absolute; top: 5%; left: 50%; width: 190px; margin-left: -95px;
-  translate: var(--x) var(--y); rotate: calc(var(--n) * 7deg);
-  transition: rotate 0.5s var(--ease-out), translate 0.5s var(--ease-out);
-}
-@media (min-width: 640px) { .fan-card { --x: calc(var(--n) * 130px); width: 270px; margin-left: -135px; } }
-@media (hover: hover) { .fan-card:hover { translate: var(--x) calc(var(--y) - 10px); transition-duration: 0.2s; } }
-.reveal-ready .fan[data-reveal]:not([data-shown]) .fan-card { translate: 0 0; rotate: 0deg; }
-@media (prefers-reduced-motion: reduce) { .fan-card { transition: none; } }
 /* Slides away going down (src/components/ScrollEffects.tsx): leaves faster than it returns */
 [data-site-header] { transition: translate 240ms var(--ease-out); }
 [data-site-header][data-hidden] { translate: 0 -130%; transition-duration: 180ms; }

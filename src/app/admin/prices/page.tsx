@@ -1,16 +1,17 @@
 import { requireArea } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { date, isOlderThan, moneyRange } from "@/lib/format";
-import { addMarket, addObservation, addProduct } from "./actions";
+import { addMarket, addObservation, addProduct, setProductSupplier } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Prices" };
 
-export default async function AdminPricesPage({ searchParams }: { searchParams: { error?: string; added?: string } }) {
+export default async function AdminPricesPage({ searchParams }: { searchParams: { error?: string; added?: string; mapped?: string } }) {
   await requireArea("prices");
-  const [markets, products, districts, recent] = await Promise.all([
+  const [markets, products, suppliers, districts, recent] = await Promise.all([
     prisma.market.findMany({ include: { location: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({ orderBy: { name: "asc" } }),
+    prisma.supplier.findMany({ select: { id: true, contentItem: { select: { title: true } } }, orderBy: { contentItem: { title: "asc" } } }),
     prisma.location.findMany({ where: { type: "DISTRICT" }, orderBy: { name: "asc" } }),
     prisma.priceObservation.findMany({ include: { market: true, product: true, collector: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 30 }),
   ]);
@@ -70,6 +71,29 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
           <button className="btn-outline self-end">Add product</button>
         </form>
       </div>
+
+      <section className="card flex flex-col gap-3 p-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-extrabold">Suppliers on the prices page</h2>
+          <p className="text-sm text-ink-muted">Every product has a Supplier link, for members only. Choose a supplier and it opens that supplier; with none chosen it searches the suppliers for the product.</p>
+        </div>
+        {searchParams.mapped ? <p role="status" className="rounded-lg bg-brand-tint px-4 py-2.5 text-sm font-semibold text-brand-dark">Supplier saved.</p> : null}
+        <ul className="flex flex-col gap-2">
+          {products.map((p) => (
+            <li key={p.id}>
+              <form action={setProductSupplier} className="flex flex-wrap items-center gap-2 rounded-xl border border-line p-2.5">
+                <input type="hidden" name="productId" value={p.id} />
+                <span className="min-w-[10rem] flex-1 text-sm font-semibold text-heading">{p.name}{p.grade ? `, ${p.grade}` : ""}</span>
+                <select name="supplierId" defaultValue={p.supplierId ?? ""} aria-label={`Supplier for ${p.name}`} className="input min-h-[40px] w-full max-w-xs">
+                  <option value="">No supplier</option>
+                  {suppliers.map((x) => <option key={x.id} value={x.id}>{x.contentItem.title.replace(/^Sample:\s*/i, "")}</option>)}
+                </select>
+                <button className="btn-outline min-h-[40px] px-4 text-sm">Save</button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="card overflow-hidden">
         <h2 className="p-5 text-lg font-extrabold">Recent observations</h2>

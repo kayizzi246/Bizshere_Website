@@ -93,7 +93,7 @@ export function ListingHeader({ title, intro, tabs, active, overlap = false }: {
           </nav>
         ) : null}
         <div className="flex max-w-3xl flex-col gap-3">
-          <h1 className="text-hero text-[38px] sm:text-[52px] xl:text-[60px]">{title}</h1>
+          <h1 className="text-hero text-[28px] sm:text-[36px] xl:text-[42px]">{title}</h1>
           <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{intro}</p>
         </div>
       </div>

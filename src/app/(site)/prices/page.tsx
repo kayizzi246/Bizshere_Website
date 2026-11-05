@@ -38,7 +38,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
   const sort: Sort = SORTS.some(([k]) => k === searchParams.sort) ? (searchParams.sort as Sort) : "name";
 
   const [products, observations] = await Promise.all([
-    prisma.product.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findMany({ orderBy: { name: "asc" }, include: { supplier: { select: { contentItem: { select: { slug: true, publicationStatus: true } } } } } }),
     prisma.priceObservation.findMany({
       where: { status: "PUBLISHED" },
       include: { market: { include: { location: { include: { parent: true } } } } },
@@ -140,7 +140,10 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     initial: r.p.name.charAt(0),
     tone: TONES[[...r.p.name].reduce((s, c) => s + c.charCodeAt(0), 0) % TONES.length],
     sub: `${r.p.standardUnit ? `per ${r.p.standardUnit}` : "price"}${r.headType ? ` · ${TYPE_LABEL[r.headType]}` : ""}${marketLabel ? ` · ${marketLabel}` : r.marketCount ? ` · ${r.marketCount} ${r.marketCount === 1 ? "market" : "markets"}` : ""}`,
+    // Member detail, so visitors get no address. With no supplier chosen, members search the suppliers for the product.
+    supplier: { href: !viewer.isMember ? null : r.p.supplier?.contentItem.publicationStatus === "PUBLISHED" ? `/suppliers/${r.p.supplier.contentItem.slug}` : `/suppliers?q=${encodeURIComponent(r.p.name)}` },
     price: r.head ? priceCell(r.head) : { value: null, locked: false },
+    unit: r.p.standardUnit,
     change: r.change,
     updated: r.latest ? date(r.latest) : null,
   }));
@@ -161,7 +164,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     <div className="under-header bg-[#0A0B0D] text-white">
       <div className="container-site flex flex-col gap-4 py-6 sm:py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-hero text-[38px] text-white sm:text-[52px] xl:text-[60px]">Markets and Prices</h1>
+          <h1 className="text-hero text-[28px] text-white sm:text-[36px] xl:text-[42px]">Markets and Prices</h1>
           <p className="text-[14px] text-white/55">Latest dated wholesale, retail and farm-gate prices from markets across Uganda. Pick a market to see its products, or tap a product to see every market.</p>
         </div>
 

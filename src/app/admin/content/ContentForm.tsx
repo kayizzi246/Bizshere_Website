@@ -71,8 +71,10 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
 
       {dir.link ? (
         <Section id="s-link" title={dir.link.label}>
-          <Row><Select name={dir.link.field} label={dir.link.label} defaultValue={v(dir.link.field)} error={err(dir.link.field)} options={[{ value: "", label: "Choose…" }, ...options.link]} /></Row>
-          {options.link.length === 0 ? <p className="text-sm text-ink-muted">None exist yet. Create the organization first (Users and businesses).</p> : null}
+          <Row>
+            <Select name={dir.link.field} label={dir.link.label} defaultValue={v(dir.link.field)} error={err(dir.link.field)} options={[{ value: "", label: values?.id ? "Keep the current one" : "Create a new one" }, ...options.link]} />
+            {values?.id ? null : <Input name="linkNew" label={`New ${dir.link.label.toLowerCase()} name`} defaultValue="" help={`Leave empty to use the ${(lb.title ?? "title").toLowerCase()}.`} />}
+          </Row>
         </Section>
       ) : null}
 
@@ -121,7 +123,7 @@ function FieldInput({ f: raw, value, error, member }: { f: Field; value: string;
   const name = `f_${f.name}`;
   if (f.kind === "textarea" || f.kind === "json") return <div className="flex-[1_1_100%]"><TextArea name={name} label={f.label} defaultValue={value} help={f.help} error={error} rows={f.kind === "json" ? 3 : 3} mono={f.kind === "json"} /></div>;
   if (f.kind === "bool") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Unknown" }, { value: "true", label: "Yes" }, { value: "false", label: "No" }]} />;
-  if (f.kind === "enum") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Choose…" }, ...(f.options ?? []).map((o) => ({ value: o, label: o.replace(/_/g, " ").toLowerCase() }))]} />;
+  if (f.kind === "enum") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[...(f.required ? [] : [{ value: "", label: "Choose…" }]), ...(f.options ?? []).map((o) => ({ value: o, label: o.replace(/_/g, " ").toLowerCase() }))]} />;
   // Files: paste a link or upload; the button fills the link in.
   if (f.upload) {
     return (

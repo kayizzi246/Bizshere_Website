@@ -15,6 +15,21 @@ export async function sessionsValidAfter(): Promise<number> {
   return Number.isFinite(t) ? t : 0;
 }
 
+const userKey = (id: string) => `${KEY}.user.${id}`;
+
+/** Like sessionsValidAfter, for one person. */
+export async function userSessionsValidAfter(userId: string): Promise<number> {
+  const row = await prisma.siteSetting.findUnique({ where: { key: userKey(userId) } });
+  const t = row ? Date.parse(row.value) : NaN;
+  return Number.isFinite(t) ? t : 0;
+}
+
+/** Ends one person's sessions on every device, after their password changes. */
+export async function signOutUser(userId: string) {
+  const value = new Date().toISOString();
+  await prisma.siteSetting.upsert({ where: { key: userKey(userId) }, create: { key: userKey(userId), value }, update: { value } });
+}
+
 /** Ends every session on every device, including the caller's. */
 export async function signOutEveryone() {
   const value = new Date().toISOString();

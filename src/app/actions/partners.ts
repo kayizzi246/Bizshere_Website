@@ -29,6 +29,7 @@ const slugOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replac
 
 const details = z.object({
   name: z.string().trim().min(2).max(120),
+  business: z.string().trim().max(160),
   country: z.string().trim().min(2).max(60),
   place: z.string().trim().max(80),
   what: z.string().trim().min(2).max(600),
@@ -47,7 +48,7 @@ export async function registerPartner(form: FormData) {
   const fail = (error: string): never => redirect(`${info.join}?error=${error}`);
 
   const text = (k: string) => String(form.get(k) ?? "");
-  const parsed = details.safeParse({ name: text("name"), country: text("country"), place: text("place"), what: text("what"), title: text("title"), pin: text("pin"), pinAgain: text("pinAgain") });
+  const parsed = details.safeParse({ name: text("name"), business: text("business"), country: text("country"), place: text("place"), what: text("what"), title: text("title"), pin: text("pin"), pinAgain: text("pinAgain") });
   if (!parsed.success) return fail("details");
   const d = parsed.data;
 
@@ -65,7 +66,7 @@ export async function registerPartner(form: FormData) {
   const phone = user.phone;
 
   await prisma.$transaction(async (tx) => {
-    const org = await tx.organization.create({ data: { legalName: d.name, accountType: kind.data === "supplier" ? "SUPPLIER" : "CONSULTANCY", status: "PENDING" } });
+    const org = await tx.organization.create({ data: { legalName: d.business || d.name, accountType: kind.data === "supplier" ? "SUPPLIER" : "CONSULTANCY", status: "PENDING" } });
     await tx.organizationMember.create({ data: { userId, organizationId: org.id, role: "OWNER" } });
     // Stays a draft, out of sight, until it is paid for
     const item = await tx.contentItem.create({
@@ -75,7 +76,7 @@ export async function registerPartner(form: FormData) {
       await tx.supplier.create({ data: { contentItemId: item.id, organizationId: org.id, country: d.country, items: list(d.what), phone, listingClaimed: true } });
     } else {
       await tx.consultant.create({
-        data: { contentItemId: item.id, organizationId: org.id, ownerId: userId, fullName: d.name, professionalTitle: d.title || null, specialties: list(d.what), country: d.country, district: d.place || null, phone },
+        data: { contentItemId: item.id, organizationId: org.id, ownerId: userId, fullName: d.name, businessName: d.business || null, professionalTitle: d.title || null, specialties: list(d.what), country: d.country, district: d.place || null, phone },
       });
     }
     await tx.subscription.create({ data: { userId, organizationId: org.id, planId: plan.id, status: "PAST_DUE", period: "MONTHLY" } });

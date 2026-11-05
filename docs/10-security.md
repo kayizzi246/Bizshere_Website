@@ -47,7 +47,7 @@ Blocked attempts are written to the audit log (`auth.login_blocked`, `auth.code_
 - **Members** sign in with their phone and a texted code: no passwords to steal or reuse.
 - **Staff (admins and editors)** sign in with their password **and then a 6-digit code texted to their phone**. A leaked password alone doesn't open the admin.
   - The code goes to the phone on the staff account. **Admin → Team** shows "SMS code at sign-in" or "Password only: add a phone" for each person. Add a phone for everyone.
-  - If SMS is ever down and staff are locked out, set `STAFF_SMS_CODE="off"` in Vercel and redeploy. Remove it again as soon as SMS works.
+  - Staff log in with a password only by default, with SMS for the first log-in and a forgotten password. Set `STAFF_SMS_CODE="on"` in Vercel to ask for a texted code at every staff log-in too.
 - **Sellers and experts** sign in with phone + 4-digit PIN; 5 wrong PINs pause sign-in, and a forgotten PIN is reset with a texted code.
 - **Staff sessions end after 12 hours.** Every session re-checks the account every 5 minutes: a suspended account or a role change takes effect within minutes.
 - **Sign everyone out:** Admin → Team → "Sign everyone out" ends every session on every device within 5 minutes (use it after a lost phone or a shared password).

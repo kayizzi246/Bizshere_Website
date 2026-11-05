@@ -10,12 +10,14 @@ import { PhoneSignIn } from "./PhoneSignIn";
  * `allowEmail` adds "Sign in with email instead" for accounts that have an email
  * and password (staff, older accounts).
  */
-export function PhoneAuthCard({ title, googleEnabled, redirectTo, allowEmail = false, footer }: {
+export function PhoneAuthCard({ title, googleEnabled, redirectTo, allowEmail = false, footer, plain = false }: {
   title: string;
   googleEnabled: boolean;
   redirectTo: string;
   allowEmail?: boolean;
   footer?: React.ReactNode;
+  /** No box or heading of its own: the page around it draws those. */
+  plain?: boolean;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState(false);
@@ -38,8 +40,8 @@ export function PhoneAuthCard({ title, googleEnabled, redirectTo, allowEmail = f
   }
 
   return (
-    <div className="card mx-auto flex w-full max-w-md flex-col gap-5 p-8">
-      <h1 className="text-xl font-extrabold">{title}</h1>
+    <div className={plain ? "flex w-full flex-col gap-5" : "card mx-auto flex w-full max-w-md flex-col gap-5 p-8"}>
+      {plain ? null : <h1 className="text-xl font-extrabold">{title}</h1>}
       {email ? (
         <form onSubmit={emailSignIn} className="flex flex-col gap-4" noValidate>
           <label className="label">Email<input name="email" type="email" autoComplete="email" className="input" /></label>

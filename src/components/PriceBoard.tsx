@@ -7,9 +7,13 @@ import { ArrowDownLeft, ArrowUpRight, CalendarDays, LockKeyhole, MapPin, X } fro
 export type BoardPrice = { value: string | null; locked: boolean };
 export type BoardRow = {
   id: string; name: string; initial: string; tone: string;
-  /** "per kg · Wholesale · 3 markets" */
+  /** "per kg · Wholesale · 3 markets": the heading of the members' pop-up */
   sub: string;
+  /** Where the Supplier link goes. Members get the address; for visitors it is never sent. */
+  supplier: { href: string | null };
   price: BoardPrice;
+  /** What the price is for, e.g. "kg" or "50 kg bag". */
+  unit: string | null;
   change: number | null;
   updated: string | null;
 };
@@ -23,7 +27,9 @@ const GRID = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4";
  * the price, and under it the change and when it was last updated. Tapping a product opens a pop-up: members get
  * its latest price in every market; everyone else gets the sign-up and payment pop-up (a data-pay
  * link, caught by the site-wide OnboardingGate). `details` is only sent for members, so visitors
- * never receive market prices.
+ * never receive market prices. Under the name is the Supplier link, which is not free: members go to
+ * the supplier, everyone else to the same pop-up. The row's own link lies behind it, so the two
+ * are not nested.
  */
 export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Record<string, MarketPrice[]> | null }) {
   const [open, setOpen] = useState<BoardRow | null>(null);
@@ -36,8 +42,8 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
-  const cell = (p: BoardPrice) => p.value
-    ? <span className="font-display text-[17px] font-semibold tabular-nums text-white sm:text-[20px]">{p.value}</span>
+  const cell = (p: BoardPrice, unit: string | null) => p.value
+    ? <span className="font-display text-[17px] font-semibold tabular-nums text-white sm:text-[20px]">{p.value}{unit ? <span className="ml-1 font-sans text-[13px] font-medium text-white/60">/{unit}</span> : null}</span>
     : p.locked
       ? <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-accent"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span>
       : <span className="text-[13px] text-white/30">—</span>;
@@ -60,12 +66,16 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
         <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold text-white ${r.tone}`}>{r.initial}</span>
         <span className="flex min-w-0 flex-col">
           <span className="truncate font-display text-[16px] font-semibold sm:text-[18px]">{r.name}</span>
-          <span className="truncate text-[12px] text-white/45">{r.sub}</span>
+          {r.supplier.href ? (
+            <a href={r.supplier.href} className="relative z-10 w-fit py-0.5 text-[13px] font-semibold text-accent hover:text-white">Supplier</a>
+          ) : (
+            <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" className="relative z-10 inline-flex w-fit items-center gap-1 py-0.5 text-[13px] font-semibold text-accent hover:text-white"><LockKeyhole aria-hidden className="h-3 w-3" />Supplier</a>
+          )}
         </span>
       </span>
       {/* Price: the price, then the change and the date under it */}
       <span className="flex flex-col items-end gap-1 text-right">
-        {cell(r.price)}
+        {cell(r.price, r.unit)}
         <span className="flex items-center gap-2">
           {change(r.change)}
           {r.updated ? <span className="hidden text-[11px] text-white/45 sm:inline">{r.updated}</span> : null}
@@ -74,7 +84,7 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
     </>
   );
 
-  const rowCls = `w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
+  const rowCls = `relative w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
 
   return (
     <>
@@ -84,12 +94,13 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
           <span role="columnheader" className="text-right">Price</span>
         </div>
         {rows.map((r) => (
-          <div key={r.id} role="row">
+          <div key={r.id} role="row" className={rowCls}>
             {details ? (
-              <button type="button" onClick={() => setOpen(r)} className={rowCls}>{body(r)}</button>
+              <button type="button" onClick={() => setOpen(r)} aria-label={`${r.name}: prices in every market`} className="absolute inset-0 rounded-2xl" />
             ) : (
-              <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" className={rowCls}>{body(r)}</a>
+              <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" aria-label={`${r.name}: see every market`} className="absolute inset-0 rounded-2xl" />
             )}
+            {body(r)}
           </div>
         ))}
       </div>

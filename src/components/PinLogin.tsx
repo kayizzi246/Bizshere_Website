@@ -87,11 +87,11 @@ export function PinLogin({ kind, portal, callPhone, account }: {
   const sentTo = account ? (account.phoneHint ?? "your phone") : phone;
 
   return (
-    // Shown inside <AuthShell> (src/components/AuthShell.tsx), which draws the card and the page heading.
-    <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="font-display text-[22px] font-extrabold tracking-[-0.02em] text-heading">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h2>
-        <p className="text-[14px] text-ink-muted">{reset ? (resent ? `New code sent to ${sentTo}. Use the newest SMS: earlier codes no longer work.` : `We sent a code by SMS to ${sentTo}.`) : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
+    // Shown inside <SplitShell> (src/components/SplitShell.tsx).
+    <div className="flex w-full flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-hero text-[30px] leading-[1.1] text-heading sm:text-[36px]">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h1>
+        <p className="text-[15px] text-ink-muted">{reset ? (resent ? `New code sent to ${sentTo}. Use the newest SMS: earlier codes no longer work.` : `We sent a code by SMS to ${sentTo}.`) : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
       </div>
 
       {reset ? (

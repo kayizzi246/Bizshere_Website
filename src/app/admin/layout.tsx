@@ -35,6 +35,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   type Gated = NavItem & { area?: string };
   const all: Gated[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
+    { href: "/admin/account", label: "My account", icon: "users" },
     { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
     { href: "/admin/plans", label: "Prices", icon: "prices", area: "plans" },
     { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox", area: "review" },

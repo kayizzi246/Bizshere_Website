@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { GlassSelect } from "@/components/GlassSelect";
-import { BadgeCheck, Languages, MapPin, MonitorSmartphone, Search, Users } from "lucide-react";
+import { MapPin, MonitorSmartphone, Search, Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { directory } from "@/config/directories";
-import { date, itemHref } from "@/lib/format";
+import { itemHref } from "@/lib/format";
 import { searchTerms } from "@/lib/search-terms";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +12,14 @@ export const metadata = { title: directory("/experts").title };
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
 
-// Avatar colours for people without a photo, picked from the name so each person keeps theirs.
-const TONES = ["bg-brand text-white", "bg-accent text-ink", "bg-[#0F766E] text-white", "bg-[#7C3AED] text-white", "bg-brand-deep text-white", "bg-[#BE185D] text-white"];
-const toneOf = (name: string) => TONES[[...name].reduce((s, c) => s + c.charCodeAt(0), 0) % TONES.length];
-const initials = (name: string) => name.replace(/^sample\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+const th = "px-4 py-3 font-semibold";
+const cell = "text-[13px] text-ink-soft md:px-4 md:py-3";
 
 /**
- * Experts as a people directory: faces first (photo, or initials until one is added), then name,
- * title, specialties and where they work. One search box matches names, skills, towns and
- * languages with the site's forgiving search words; specialty, district and "online" narrow it.
- * Public fields only: email and phone stay on the member profile.
+ * Experts as the client's template: one table of S/N, Expert Names, Business Name, Country, Category
+ * and Specialty, stacking into rows on phones like the suppliers table. One search box matches names,
+ * skills, towns and languages with the site's forgiving search words; specialty, district and
+ * "online" narrow it. Public fields only: email and phone stay on the member profile.
  */
 export default async function ExpertsPage({ searchParams }: { searchParams: SP }) {
   const d = directory("/experts");
@@ -35,9 +33,8 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
     include: {
       contentItem: {
         select: {
-          id: true, slug: true, title: true, contentType: true, shortSummary: true, lastReviewedAt: true,
+          id: true, slug: true, title: true, contentType: true, shortSummary: true,
           primaryCategory: { select: { name: true } },
-          checks: { where: { result: "PASSED" }, select: { checkType: true } },
         },
       },
     },
@@ -56,7 +53,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
     if (district && c.district?.toLowerCase() !== district.toLowerCase()) return false;
     if (online && !c.deliveryModes.some((m) => /online|remote|phone|video/i.test(m))) return false;
     if (!terms.length) return true;
-    const text = [c.fullName, c.professionalTitle, c.contentItem.title, c.contentItem.shortSummary, c.contentItem.primaryCategory?.name, c.district, c.country, ...c.specialties, ...c.languages].filter(Boolean).join(" ").toLowerCase();
+    const text = [c.fullName, c.businessName, c.professionalTitle, c.contentItem.title, c.contentItem.shortSummary, c.contentItem.primaryCategory?.name, c.district, c.country, ...c.specialties, ...c.languages].filter(Boolean).join(" ").toLowerCase();
     return terms.every((variants) => variants.some((v) => text.includes(v)));
   });
 
@@ -75,7 +72,7 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
       <header className="under-header hero-glow bg-navy text-white">
         <div className="container-site flex flex-col gap-6 py-10 sm:py-14">
           <div className="flex max-w-3xl flex-col gap-3">
-            <h1 className="text-hero text-[38px] sm:text-[52px] xl:text-[60px]">Find the right expert</h1>
+            <h1 className="text-hero text-[28px] sm:text-[36px] xl:text-[42px]">Find the right expert</h1>
             <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{d.text}</p>
           </div>
 
@@ -120,50 +117,28 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search or another district. <Link href="/contact" className="font-semibold">Tell our team who you need</Link> and we&apos;ll help you find them.</p>
             </div>
           ) : (
-            <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
-              {/* Two a row on phones (compact cards), four from laptop width */}
-              {people.map((c) => {
-                const name = c.fullName || c.contentItem.title;
-                const checked = c.contentItem.checks.length > 0;
-                const remote = c.deliveryModes.some((m) => /online|remote|phone|video/i.test(m));
-                return (
-                  <li key={c.id}>
-                    <Link href={itemHref(c.contentItem)} className="group flex h-full flex-col items-center rounded-2xl border border-line bg-white p-3.5 text-center sm:rounded-3xl sm:p-6 text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">
-                      <span className="relative">
-                        {c.photoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element -- editor-entered photo address
-                          <img src={c.photoUrl} alt={name} loading="lazy" className="h-16 w-16 rounded-full object-cover ring-4 ring-brand-tint sm:h-24 sm:w-24" />
-                        ) : (
-                          <span aria-hidden className={`flex h-16 w-16 items-center justify-center rounded-full font-display text-lg font-bold ring-4 ring-brand-tint sm:h-24 sm:w-24 sm:text-2xl ${toneOf(name)}`}>{initials(name)}</span>
-                        )}
-                        {checked ? <span title="Checked by BizSphere-Ug" className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-brand sm:h-8 sm:w-8"><BadgeCheck aria-label="Checked" className="h-5 w-5 sm:h-6 sm:w-6" /></span> : null}
-                      </span>
-
-                      <span className="mt-3 font-display text-[15px] font-bold leading-tight tracking-tight text-heading group-hover:text-brand sm:mt-4 sm:text-lg">{name}</span>
-                      <span className="mt-1 line-clamp-2 text-xs font-medium text-accent-dark sm:text-sm">{c.professionalTitle ?? c.contentItem.primaryCategory?.name ?? "Business expert"}</span>
-                      {c.contentItem.shortSummary ? <span className="mt-2 hidden text-[13px] leading-relaxed text-ink-muted sm:line-clamp-2">{c.contentItem.shortSummary}</span> : null}
-
-                      {c.specialties.length ? (
-                        <span className="mt-3 flex flex-wrap justify-center gap-1 sm:mt-4 sm:gap-1.5">
-                          {c.specialties.slice(0, 2).map((s) => <span key={s} className="max-w-full truncate rounded-full bg-brand-tint px-2 py-0.5 text-[11px] font-semibold text-brand-dark sm:px-2.5 sm:py-1 sm:text-xs">{s}</span>)}
-                          {c.specialties.length > 2 ? <span className="rounded-full bg-page px-2 py-0.5 text-[11px] font-semibold text-ink-muted sm:px-2.5 sm:py-1 sm:text-xs">+{c.specialties.length - 2}</span> : null}
-                        </span>
-                      ) : null}
-
-                      <span className="mt-auto flex w-full flex-col gap-1.5 border-t border-line pt-3 text-xs text-ink-soft sm:pt-4 sm:text-[13px] [&:not(:first-child)]:mt-4 sm:[&:not(:first-child)]:mt-5">
-                        <span className="inline-flex items-center justify-center gap-1"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted sm:h-4 sm:w-4" />{[c.district, c.country].filter(Boolean).join(", ") || "Location not added"}</span>
-                        <span className="hidden flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-ink-muted sm:flex">
-                          {remote ? <span className="inline-flex items-center gap-1"><MonitorSmartphone aria-hidden className="h-3.5 w-3.5" />Online</span> : null}
-                          {c.languages.length ? <span className="inline-flex items-center gap-1"><Languages aria-hidden className="h-3.5 w-3.5" />{c.languages.join(", ")}</span> : null}
-                          <span>Reviewed {date(c.contentItem.lastReviewedAt)}</span>
-                        </span>
-                      </span>
-                      <span className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-full border border-line text-[13px] font-bold sm:mt-4 sm:text-sm text-heading transition group-hover:border-brand group-hover:bg-brand group-hover:text-white">View profile</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="overflow-hidden rounded-2xl border border-line bg-white">
+              <table className="w-full text-left text-[14px]">
+                <thead className="hidden bg-brand-deep text-xs text-white/90 md:table-header-group">
+                  <tr>
+                    <th className={`${th} w-14`}>S/N</th><th className={th}>Expert Names</th><th className={th}>Business Name</th>
+                    <th className={th}>Country</th><th className={th}>Category</th><th className={th}>Specialty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {people.map((c, n) => (
+                    <tr key={c.id} className={`flex flex-col gap-1 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "" : "md:bg-brand-tint/40"}`}>
+                      <td className="hidden text-ink-muted md:table-cell md:px-4 md:py-3">{n + 1}</td>
+                      <td className="md:px-4 md:py-3"><Link href={itemHref(c.contentItem)} className="font-semibold text-heading hover:text-brand">{(c.fullName || c.contentItem.title).replace(/^Sample:\s*/i, "")}</Link></td>
+                      <td className={cell}>{c.businessName ?? "—"}</td>
+                      <td className={cell}>{c.country ?? "—"}</td>
+                      <td className={cell}>{c.contentItem.primaryCategory?.name ?? c.professionalTitle ?? "—"}</td>
+                      <td className={cell}>{c.specialties.join(", ") || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

@@ -901,6 +901,7 @@ model Supplier {
   organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   offers       SupplierOffer[]
   listings     SupplierProductListing[]
+  priceProducts Product[]
 
   @@map("suppliers")
 }
@@ -948,8 +949,11 @@ model Product {
   grade        String?
   packaging    String?
   standardUnit String?
+  /// The supplier linked from this product's row on /prices (Admin > Markets and Prices). Members only.
+  supplierId   String?
 
   category     Category?                @relation(fields: [categoryId], references: [id])
+  supplier     Supplier?                @relation(fields: [supplierId], references: [id])
   observations PriceObservation[]
   listings     SupplierProductListing[]
   recipeLines  RecipeIngredient[]
@@ -1202,6 +1206,10 @@ model Consultant {
   phone             String?
   website           String?
   fullName          String
+  /// Client template: the Business Name beside the expert's name, the address, and the Profile download.
+  businessName      String?
+  address           String?
+  profileUrl        String?
   professionalTitle String?
   photoUrl          String?
   specialties       String[]
@@ -1306,6 +1314,9 @@ model ConsultantService {
   id           String  @id @default(cuid())
   consultantId String
   name         String
+  /// Free text, e.g. "UGX 200,000 per day". Shown to members only.
+  price        String?
+  remark       String?
   description  String?
   deliverables String?
   deliveryMode String?

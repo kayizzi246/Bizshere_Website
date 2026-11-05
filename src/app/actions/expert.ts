@@ -38,36 +38,53 @@ const text = (max: number) => z.string().trim().max(max).transform((v) => v || n
 const list = (max: number) => z.string().max(2000).transform((v) => v.split(/[,\n]/).map((x) => x.trim()).filter(Boolean).slice(0, max));
 const field = (form: FormData, k: string) => String(form.get(k) ?? "");
 
+// The fields of the public profile (client template). Anything else on the record is left as it is.
 const profileSchema = z.object({
   photoUrl: asset,
-  professionalTitle: text(120),
-  shortSummary: text(300),
-  overview: text(5000),
-  specialties: list(20),
-  languages: list(10),
-  district: text(80),
-  email: z.union([z.literal(""), z.string().trim().toLowerCase().email().max(200)]),
+  profileUrl: asset,
+  businessName: text(160),
+  address: text(200),
   phone: text(40),
+  country: text(60),
+  email: z.union([z.literal(""), z.string().trim().toLowerCase().email().max(200)]),
+  district: text(80),
   website: link,
-  bookingUrl: link,
-  availability: text(200),
-  links: z.string().max(3000).transform((v) => v.split(/\s*\n\s*/).map((x) => x.trim()).filter(Boolean).slice(0, 10)),
+  professionalTitle: text(120),
+  specialties: list(20),
 });
 
-/** The expert updates their own profile. Shows on their page at once. */
+/** The expert updates their own details. They show on their page at once. */
 export async function saveExpertProfile(form: FormData) {
   const { expert, userId } = await ownExpert();
   const parsed = profileSchema.safeParse(Object.fromEntries(Object.keys(profileSchema.shape).map((k) => [k, field(form, k)])));
   if (!parsed.success) redirect("/expert?error=profile");
-  const { shortSummary, overview, photoUrl, email, website, bookingUrl, links, ...rest } = parsed.data;
-  if (links.some((l) => !/^https?:\/\/[^\s]+\.[^\s]+/.test(l))) redirect("/expert?error=links");
-  await prisma.$transaction([
-    prisma.consultant.update({ where: { id: expert.id }, data: { ...rest, photoUrl: photoUrl || null, email: email || null, website: website || null, bookingUrl: bookingUrl || null, links } }),
-    prisma.contentItem.update({ where: { id: expert.contentItem.id }, data: { shortSummary, overview } }),
-  ]);
+  const { photoUrl, profileUrl, email, website, ...rest } = parsed.data;
+  await prisma.consultant.update({ where: { id: expert.id }, data: { ...rest, photoUrl: photoUrl || null, profileUrl: profileUrl || null, email: email || null, website: website || null } });
   await audit(userId, "expert.profile_saved", "consultant", expert.id);
   refresh(expert.contentItem.slug);
   redirect("/expert?saved=profile");
+}
+
+const serviceSchema = z.object({ name: z.string().trim().min(2).max(160), price: text(80), remark: text(200) });
+
+/** The expert adds a service to the Services table on their page. Shows at once, as their profile does. */
+export async function addService(form: FormData) {
+  const { expert, userId } = await ownExpert();
+  const parsed = serviceSchema.safeParse({ name: field(form, "name"), price: field(form, "price"), remark: field(form, "remark") });
+  if (!parsed.success) redirect("/expert?error=service");
+  await prisma.consultantService.create({ data: { ...parsed.data, consultantId: expert.id } });
+  await audit(userId, "expert.service_added", "consultant", expert.id);
+  refresh(expert.contentItem.slug);
+  redirect("/expert?saved=service");
+}
+
+/** Removes one of the expert's own services. */
+export async function deleteService(form: FormData) {
+  const { expert, userId } = await ownExpert();
+  await prisma.consultantService.deleteMany({ where: { id: field(form, "id"), consultantId: expert.id } });
+  await audit(userId, "expert.service_removed", "consultant", expert.id);
+  refresh(expert.contentItem.slug);
+  redirect("/expert?saved=service-removed");
 }
 
 const workSchema = z.object({

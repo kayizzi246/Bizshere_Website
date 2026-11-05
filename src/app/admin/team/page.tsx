@@ -5,16 +5,19 @@ import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { site } from "@/config/site";
 import { AREA_GROUPS, AREAS, areaLabel } from "@/lib/admin-areas";
-import { addSubAdmin, removeStaff, saveAreas, setStaffPassword, setStaffSuspended, setStaffPhone, setSuperAdmin, signOutAllDevices } from "./actions";
+import { addSubAdmin, removeStaff, saveAreas, sendTestSms, setStaffPassword, setStaffSuspended, setStaffPhone, setSuperAdmin, signOutAllDevices } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin team" };
 
 const SAVED: Record<string, string> = {
-  added: "Sub-admin added. Give them the sign-in address, their email or phone, and the password you set.",
+  added: "Added. We texted them an invitation. They log in with their number, get a code by SMS and choose their password.",
+  "added-no-sms": "Added, but the invitation SMS could not be sent. Check SMS below, then tell them to log in with their number.",
+  "added-password": "Added. Give them the sign-in address, their email or phone, and the password you set.",
+  "sms-ok": "Test SMS sent. Check your phone: if it arrives, text messages are working.",
   areas: "Areas saved. They apply straight away.",
   password: "Password changed.",
-  phone: "Phone saved. Signing in now also needs the code texted to it.",
+  phone: "Phone saved. They can use it to log in and to reset a forgotten password.",
   suspended: "Account suspended. They are signed out within a few minutes.",
   restored: "Account restored.",
   role: "Role changed.",
@@ -23,10 +26,14 @@ const SAVED: Record<string, string> = {
 };
 const ERROR: Record<string, string> = {
   invalid: "Check the name and email.",
-  password: "The password needs at least 10 characters.",
+  password: "That password is too short or too easy to guess. Use at least 6 digits or letters.",
+  "needs-phone": "Add their phone number so they can set a password by SMS, or set a password for them.",
+  already: "That person is already on the team.",
+  "no-phone": "Add a phone to your own account first: the test goes to you.",
+  "sms-failed": "The test SMS could not be sent. Check the EgoSMS settings and credit.",
   phone: "Enter a valid phone number, e.g. 0772 123 456.",
   contact: "Give an email or a phone number to sign in with.",
-  exists: "An account with that email or phone already exists. Use another, or change its role in Users and businesses.",
+  exists: "That email and that phone belong to two different accounts. Use one of them.",
   areas: "Tick at least one area.",
   self: "You can't change your own account here.",
   super: "Super admins open every area. Make them a sub-admin first to choose areas.",
@@ -79,23 +86,28 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
       {searchParams.add ? (
         <form action={addSubAdmin} className="flex flex-col gap-4 rounded-2xl border-2 border-brand bg-surface p-5">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-extrabold text-heading">Add a sub-admin</h2>
+            <span className="flex flex-col gap-0.5"><h2 className="text-lg font-extrabold text-heading">Add a team member</h2><span className="text-sm text-ink-muted">Someone new, or a person who already has an account: enter their number and they become an admin. They set their own password by SMS.</span></span>
             <Link href="/admin/team" aria-label="Close" className="text-xl text-ink">×</Link>
           </div>
           {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.invalid}</p> : null}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="label">Name<input name="name" required className="input" /></label>
-            <label className="label">Email<input name="email" type="email" className="input" /></label>
-            <label className="label">Phone (optional)<input name="phone" type="tel" placeholder="0772 123 456" className="input" /></label>
-            <label className="label">Password (10+ characters)<input name="password" type="text" minLength={10} required autoComplete="off" className="input" /></label>
+            <label className="label">Phone<input name="phone" type="tel" placeholder="0772 123 456" className="input" /></label>
+            <label className="label">Name (for someone new)<input name="name" className="input" /></label>
+            <label className="label">Email (optional)<input name="email" type="email" className="input" /></label>
+            <label className="label">Password (optional)<input name="password" type="text" autoComplete="off" placeholder="They choose their own" className="input" /></label>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-sm font-bold text-heading">What they may manage</span>
             <Areas chosen={[]} />
           </div>
-          <div className="flex justify-end gap-2"><Link href="/admin/team" className="btn-outline">Cancel</Link><button className="btn-primary">Add sub-admin</button></div>
+          <div className="flex justify-end gap-2"><Link href="/admin/team" className="btn-outline">Cancel</Link><button className="btn-primary">Add team member</button></div>
         </form>
       ) : null}
+
+      <form action={sendTestSms} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4">
+        <span className="flex flex-col gap-0.5"><span className="font-bold text-heading">Text messages</span><span className="text-sm text-ink-muted">Log-in codes and invitations go by SMS. Send yourself a test to make sure they work.</span></span>
+        <button className="btn-outline min-h-[42px] px-4 text-sm">Send test SMS</button>
+      </form>
 
       <ul className="flex flex-col gap-3">
         {staff.map((u) => {

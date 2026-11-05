@@ -2,7 +2,8 @@ import Link from "next/link";
 import { googleEnabled } from "@/lib/auth";
 import { PhoneAuthCard } from "@/components/PhoneAuthCard";
 import { StaffSignIn } from "@/components/StaffSignIn";
-import { AuthShell } from "@/components/AuthShell";
+import { PanelWords, SplitShell } from "@/components/SplitShell";
+import { StaffShell } from "@/components/StaffShell";
 
 export const metadata = { title: "Sign in" };
 
@@ -14,19 +15,14 @@ export default function LoginPage({ searchParams }: { searchParams: { callbackUr
   const back = /^\/(?![/\\])/.test(searchParams.callbackUrl ?? "") ? searchParams.callbackUrl! : "/";
   if (back === "/admin" || back.startsWith("/admin/") || back.startsWith("/admin?")) {
     return (
-      <AuthShell title="Welcome back to the team" text="Sign in to the BizSphere-Ug admin to manage directories, prices, payments and members.">
-        <StaffSignIn next={back} />
-      </AuthShell>
+      <StaffShell><StaffSignIn next={back} /></StaffShell>
     );
   }
   return (
-    <div className="container-site flex justify-center py-16">
-      <PhoneAuthCard
-        title="Get your access back"
-        googleEnabled={googleEnabled}
-        redirectTo={back}
-        footer={<p className="text-sm text-ink-muted">Enter the number you subscribed with. Not a member yet? <Link href="/signup" className="font-bold">Get started free</Link></p>}
-      />
-    </div>
+    <SplitShell heading="Welcome back" sub="Enter the number you subscribed with."
+      foot={<>Not a member yet? <Link href="/signup" className="font-bold">Create your account</Link></>}
+      panel={<PanelWords lead="Pick up where you" accent="left off" text="Your plans, prices and saved items are waiting for you." chips={["Business ideas", "Market prices", "Suppliers", "Funding"]} />}>
+      <PhoneAuthCard plain title="Get your access back" googleEnabled={googleEnabled} redirectTo={back} />
+    </SplitShell>
   );
 }

@@ -7,7 +7,7 @@ import { UploadButton } from "@/components/UploadButton";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ChoosePin } from "@/components/ChoosePin";
 import { changeMyPin } from "@/app/actions/pin";
-import { deleteWork, saveExpertProfile, saveWork } from "@/app/actions/expert";
+import { addService, deleteService, deleteWork, saveExpertProfile, saveWork } from "@/app/actions/expert";
 import { site } from "@/config/site";
 import { partnerAccess } from "@/lib/partners";
 
@@ -17,17 +17,20 @@ export const metadata = { title: "Expert dashboard", robots: { index: false } };
 const NOTICE: Record<string, string> = {
   paid: "Payment received. Our team will check your details, and your page goes live once approved.",
   password: "Your PIN is changed.",
-  profile: "Your profile is saved and shows on your page.",
-  "work-added": "Work sent. It shows on your page once our team approves it.",
-  "work-updated": "Changes sent. The work shows again once our team approves them.",
-  "work-deleted": "Work removed.",
+  profile: "Your details are saved and show on your page.",
+  service: "Service added. It shows on your page.",
+  "service-removed": "Service removed.",
+  "work-added": "Job sent. It shows on your page once our team approves it.",
+  "work-updated": "Changes sent. The job shows again once our team approves them.",
+  "work-deleted": "Job removed.",
 };
 const ERROR: Record<string, string> = {
   password: "Enter the same 4-digit PIN twice.",
   access: "You can only change your own profile.",
-  profile: "Check your profile: the email must be valid, and links and photos must start with https:// (or use Upload).",
+  profile: "Check your details: the email must be valid, and links and photos must start with https:// (or use Upload).",
+  service: "Check the service: it needs a name.",
   links: "Each extra link goes on its own line and starts with https://.",
-  work: "Check the work: it needs a title, the year must be a number, and links must start with https://.",
+  work: "Check the job: it needs a name, the year must be a number, and links must start with https://.",
 };
 
 // What each work status means to the expert, in plain words.
@@ -53,7 +56,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
   if ((await partnerAccess(session.user.id, "expert")).mustPay) redirect("/experts/join");
   const expert = await prisma.consultant.findUnique({
     where: { ownerId: session.user.id },
-    include: { contentItem: { select: { slug: true, shortSummary: true, overview: true } }, projects: { orderBy: { createdAt: "desc" } } },
+    include: { contentItem: { select: { slug: true, shortSummary: true, overview: true } }, projects: { orderBy: { createdAt: "desc" } }, services: { orderBy: { name: "asc" } } },
   });
 
   const signOut = <span className="w-32"><SignOutButton to="/expert" className="border border-line bg-white text-ink-soft hover:border-brand" /></span>;
@@ -86,7 +89,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
         {/* ── Who and where ── */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-white">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white">
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or entered address */}
               {expert.photoUrl ? <img src={expert.photoUrl} alt="" className="h-full w-full object-cover" /> : <UserRound aria-hidden className="h-6 w-6 text-brand/40" />}
             </span>
@@ -114,20 +117,66 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
             );
           })}
         </ul>
-        <p className="-mt-2 text-[13px] text-ink-muted">How it works: add your work → our team checks it → it shows on your page. Your profile and links show straight away.</p>
+        <p className="-mt-2 text-[13px] text-ink-muted">How it works: add a job → our team checks it → it shows on your page. Your details and services show straight away.</p>
+
+        {/* ── My details: the top of my page ── */}
+        <details className="rounded-2xl border border-line bg-white p-4" open={!expert.address && !expert.website}>
+          <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><UserRound aria-hidden className="h-4 w-4 text-brand" />My details</summary>
+          <form action={saveExpertProfile} className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className={`${label} sm:col-span-2`}>Photo or logo
+              <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
+            </label>
+            <div className="sm:col-span-2"><UploadButton target="photoUrl" kind="image" /></div>
+            <label className={label}>Business name<input name="businessName" defaultValue={expert.businessName ?? ""} className={input} /></label>
+            <label className={label}>Your title<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>Address<input name="address" defaultValue={expert.address ?? ""} className={input} /></label>
+            <label className={label}>Phone (members only)<input name="phone" type="tel" defaultValue={expert.phone ?? ""} className={input} /></label>
+            <label className={label}>Email (members only)<input name="email" type="email" defaultValue={expert.email ?? ""} className={input} /></label>
+            <label className={label}>Country<input name="country" defaultValue={expert.country ?? ""} className={input} /></label>
+            <label className={label}>District<input name="district" defaultValue={expert.district ?? ""} placeholder="e.g. Wakiso" className={input} /></label>
+            <label className={label}>Website<input name="website" type="url" defaultValue={expert.website ?? ""} placeholder="https://" className={input} /></label>
+            <label className={label}>Specialty (comma between)<input name="specialties" defaultValue={expert.specialties.join(", ")} className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>Profile to download (members only)
+              <input name="profileUrl" defaultValue={expert.profileUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
+            </label>
+            <div className="sm:col-span-2"><UploadButton target="profileUrl" kind="file" /></div>
+            <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my details</button>
+          </form>
+        </details>
+
+        {/* ── My services: the Services table on my page ── */}
+        <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+          <h2 className="font-display text-base font-extrabold text-heading">My services ({expert.services.length})</h2>
+          {expert.services.length ? (
+            <ul className="flex flex-col gap-2">
+              {expert.services.map((s) => (
+                <li key={s.id} className="flex items-center gap-3 rounded-xl bg-page px-3 py-2 text-[14px]">
+                  <span className="min-w-0 flex-1"><span className="font-semibold text-heading">{s.name}</span>{s.price ? <span className="text-ink-soft"> · {s.price}</span> : null}{s.remark ? <span className="text-ink-muted"> · {s.remark}</span> : null}</span>
+                  <form action={deleteService}><input type="hidden" name="id" value={s.id} /><button aria-label={`Remove ${s.name}`} className="flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:text-bad-fg"><Trash2 aria-hidden className="h-4 w-4" /></button></form>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <form key={expert.services.length} action={addService} className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+            <label className={label}>Service<input name="name" required minLength={2} maxLength={160} placeholder="e.g. Bee keeping training" className={input} /></label>
+            <label className={label}>Price<input name="price" maxLength={80} placeholder="e.g. UGX 200,000" className={input} /></label>
+            <label className={label}>Remark<input name="remark" maxLength={200} className={input} /></label>
+            <button className="btn-primary min-h-[44px] px-5 text-sm">Add</button>
+          </form>
+        </section>
 
         {/* ── Add work ── */}
-        <details className="group rounded-2xl border-2 border-brand/30 bg-white p-4" open={expert.projects.length === 0}>
+        <details className="group rounded-2xl border border-line bg-white p-4" open={expert.projects.length === 0}>
           <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add my work
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add a job
           </summary>
           <WorkForm input={input} label={label} />
         </details>
 
         {/* ── My work ── */}
         <div className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-extrabold text-heading">My work ({expert.projects.length})</h2>
-          {expert.projects.length === 0 ? <p className="text-sm text-ink-muted">Nothing yet. Add a project, a report or a case study above.</p> : null}
+          <h2 className="font-display text-lg font-extrabold text-heading">Jobs done ({expert.projects.length})</h2>
+          {expert.projects.length === 0 ? <p className="text-sm text-ink-muted">No jobs yet. Add your first one above.</p> : null}
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {expert.projects.map((w) => {
               const st = statusOf(w.status);
@@ -160,30 +209,6 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
           </ul>
         </div>
 
-        {/* ── My profile and links ── */}
-        <details className="rounded-2xl border border-line bg-white p-4" open={!expert.contentItem.overview && !expert.website}>
-          <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><UserRound aria-hidden className="h-4 w-4 text-brand" />My profile and website links</summary>
-          <form action={saveExpertProfile} className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className={`${label} sm:col-span-2`}>Photo
-              <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
-            </label>
-            <div className="sm:col-span-2"><UploadButton target="photoUrl" kind="image" /></div>
-            <label className={label}>Professional title<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
-            <label className={label}>District<input name="district" defaultValue={expert.district ?? ""} placeholder="e.g. Kampala" className={input} /></label>
-            <label className={`${label} sm:col-span-2`}>Short intro (one or two sentences)<input name="shortSummary" maxLength={300} defaultValue={expert.contentItem.shortSummary ?? ""} className={input} /></label>
-            <label className={`${label} sm:col-span-2`}>About me<textarea name="overview" rows={5} defaultValue={expert.contentItem.overview ?? ""} className="input w-full py-2 text-[14px]" /></label>
-            <label className={label}>Specialties (comma between)<input name="specialties" defaultValue={expert.specialties.join(", ")} placeholder="e.g. VAT, Payroll" className={input} /></label>
-            <label className={label}>Languages (comma between)<input name="languages" defaultValue={expert.languages.join(", ")} placeholder="e.g. English, Luganda" className={input} /></label>
-            <label className={label}>Email<input name="email" type="email" defaultValue={expert.email ?? ""} className={input} /></label>
-            <label className={label}>Phone shown to members<input name="phone" type="tel" defaultValue={expert.phone ?? ""} className={input} /></label>
-            <label className={label}>Website<input name="website" type="url" defaultValue={expert.website ?? ""} placeholder="https://" className={input} /></label>
-            <label className={label}>Booking link<input name="bookingUrl" type="url" defaultValue={expert.bookingUrl ?? ""} placeholder="https://" className={input} /></label>
-            <label className={`${label} sm:col-span-2`}>Other links, one per line (LinkedIn, portfolio, social pages)<textarea name="links" rows={3} defaultValue={expert.links.join("\n")} placeholder={"https://linkedin.com/in/…\nhttps://…"} className="input w-full py-2 text-[14px]" /></label>
-            <label className={`${label} sm:col-span-2`}>Availability<input name="availability" defaultValue={expert.availability ?? ""} placeholder="e.g. Weekdays, 9am to 5pm" className={input} /></label>
-            <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my profile</button>
-          </form>
-        </details>
-
         {/* ── Settings: PIN ── */}
         <details className="rounded-2xl border border-line bg-white p-4">
           <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4" />Settings: my PIN</summary>
@@ -207,8 +232,8 @@ function WorkForm({ work, input, label }: {
   return (
     <form action={saveWork} className="mt-3 grid gap-3 sm:grid-cols-2">
       {work ? <input type="hidden" name="id" value={work.id} /> : null}
-      <label className={`${label} sm:col-span-2`}>Title<input name="title" required defaultValue={work?.title} placeholder="e.g. Business plan for a poultry farm" className={input} /></label>
-      <label className={label}>Client (if you may name them)<input name="clientName" defaultValue={work?.clientName ?? ""} className={input} /></label>
+      <label className={`${label} sm:col-span-2`}>Job<input name="title" required defaultValue={work?.title} placeholder="e.g. Business plan for a poultry farm" className={input} /></label>
+      <label className={label}>Client<input name="clientName" defaultValue={work?.clientName ?? ""} className={input} /></label>
       <label className={label}>Year<input name="year" inputMode="numeric" maxLength={4} defaultValue={work?.year ?? ""} className={input} /></label>
       <label className={`${label} sm:col-span-2`}>What you did<textarea name="summary" rows={3} defaultValue={work?.summary ?? ""} className="input w-full py-2 text-[14px]" /></label>
       <label className={`${label} sm:col-span-2`}>Result (optional)<input name="outcome" defaultValue={work?.outcome ?? ""} placeholder="e.g. Loan of UGX 40m approved" className={input} /></label>

@@ -309,3 +309,24 @@ Suppliers and experts register themselves at `/suppliers/join` and `/experts/joi
 4. Before a listing ends they get the usual SMS and email reminders. Their dashboard locks when the period ends, and 3 days later the daily job hides the page. Paying again brings it straight back, without another approval.
 
 Paying for a listing does not make someone a member: the listing plans give no access to member content. Suppliers and experts the team added at **Supplier logins** and **Expert logins** have no listing plan, so they don't pay and nothing changes for them.
+
+### What suppliers and experts edit
+
+Their dashboards use the same fields and words as their public pages.
+
+- **Expert dashboard:** My details (business name, title, address, phone, email, country, district, website, specialty, profile to download), My services (service, price, remark) and Jobs done (job, client). Details and services show at once; a job shows once the team approves it.
+- **Supplier dashboard:** My details (address, phone, email, country, website) and products (name, package unit, min order, price, picture). Details show at once; a product shows once the team approves it.
+
+Phone, email, service prices and the expert's profile file are for members only.
+
+## Team sign-in and My account
+
+Team members log in with their email or phone number and password. There is no SMS at each log-in: it is used only the first time and for a forgotten password. The member phone sign-in does not work for team accounts: a code alone never opens the admin.
+
+- **Adding someone:** at **Admin → Team → Add**, enter their phone number and tick their areas. It works for someone new and for someone who already has an account, such as a member who has paid. They are texted an invitation.
+- **First log-in:** they enter their number and press Log in, type the code from the SMS and choose a password. Numbers are fine: at least 6, and easy ones like 123456 are refused.
+- **Forgot password:** on the log-in form, enter your email or phone, type the code from the SMS, then choose a new password. It needs a phone on the account; otherwise a super admin sets one at **Admin → Team**. The form answers the same for any email or number, so it does not show who is on the team.
+- **Checking SMS:** **Admin → Team → Send test SMS** texts your own phone.
+- **Extra protection:** set `STAFF_SMS_CODE="on"` in Vercel to ask for a texted code at every staff log-in as well.
+- **My account** (`/admin/account`): every team member can change their own name, email, phone and password. Email, phone and password ask for the current password, and a new phone must be confirmed with a code sent to it.
+- A password change ends that person's sessions on every device. Each change sends a notice to their old phone and email.

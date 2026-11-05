@@ -164,7 +164,7 @@ export const CHILD_TABLES: ChildTable[] = [
   {
     key: "services", model: "consultantService", label: "Services", item: "service", parents: ["CONSULTANT"],
     scope: (p) => ({ consultantId: p.record }), link: (p) => ({ consultantId: p.record }),
-    fields: [t("name", "Service", { required: true }), ta("description", "Description"), ta("deliverables", "Deliverables"), t("deliveryMode", "Delivery mode"), t("coverage", "Geographic coverage")],
+    fields: [t("name", "Service", { required: true }), t("price", "Price", { help: "e.g. UGX 200,000 per day. Shown to members only" }), t("remark", "Remark"), ta("description", "Description"), ta("deliverables", "Deliverables"), t("deliveryMode", "Delivery mode"), t("coverage", "Geographic coverage")],
     heading: "name",
   },
   {

@@ -99,10 +99,16 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     if (f.required && (v === null || v === "")) errors[f.name] = "Required";
     specialised[f.name] = v;
   }
-  if (dir.link) {
-    const linkId = str(form.get(dir.link.field));
-    if (!linkId) errors[dir.link.field] = `Choose the ${dir.link.label.toLowerCase()}`;
+  // Left empty, a new page gets its own organization or fund provider (made below, with the page);
+  // an existing page keeps the one it has.
+  const linkId = dir.link ? str(form.get(dir.link.field)) : "";
+  if (dir.link && linkId) {
     specialised[dir.link.field] = linkId;
+    // One supplier page per organization
+    if (dir.link.field === "organizationId") {
+      const taken = await prisma.supplier.findFirst({ where: { organizationId: linkId, ...(id ? { NOT: { contentItemId: id } } : {}) }, select: { id: true } });
+      if (taken) errors.organizationId = "This organization already has a supplier page. Choose another, or leave it on Create a new one.";
+    }
   }
   // "From" can't be above "to" (machine price, fund amount)
   for (const [lo, hi] of [["priceMin", "priceMax"], ["amountMin", "amountMax"]]) {
@@ -152,6 +158,18 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     const item = id
       ? await tx.contentItem.update({ where: { id }, data: { ...core, publishedAt: status === "PUBLISHED" ? before?.publishedAt ?? now : before?.publishedAt } })
       : await tx.contentItem.create({ data: { ...core, createdById: editor.id, publishedAt: status === "PUBLISHED" ? now : null } });
+
+    if (dir.link && !linkId && !id) {
+      const legalName = str(form.get("linkNew")) || title;
+      if (dir.link.field === "organizationId") {
+        const org = await tx.organization.create({ data: { legalName, accountType: "SUPPLIER", status: "ACTIVE" } });
+        specialised.organizationId = org.id;
+      } else {
+        const known = await tx.fundingProvider.findFirst({ where: { organization: { legalName: { equals: legalName, mode: "insensitive" } } }, select: { id: true } });
+        const org = known ? null : await tx.organization.create({ data: { legalName, accountType: "FUNDING_PROVIDER", status: "ACTIVE" } });
+        specialised.providerId = known?.id ?? (await tx.fundingProvider.create({ data: { organizationId: org!.id, providerCategory: (specialised.providerCategory as string | null) ?? null } })).id;
+      }
+    }
 
     const delegate = tx[DELEGATE[dir.model]] as unknown as UpsertDelegate;
     const record = await delegate.upsert({ where: { contentItemId: item.id }, create: { ...specialised, contentItemId: item.id }, update: specialised });

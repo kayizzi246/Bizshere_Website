@@ -1,33 +1,24 @@
 import Link from "next/link";
 import { googleEnabled } from "@/lib/auth";
-import { Icon } from "@/components/Icon";
 import { PhoneAuthCard } from "@/components/PhoneAuthCard";
+import { PanelWords, SplitShell } from "@/components/SplitShell";
 
 export const metadata = { title: "Create your account" };
 
 // Sign-up and sign-in are the same with a phone number: a new number gets an account.
 export default function SignupPage() {
   return (
-    <div className="container-site grid items-center gap-12 py-14 lg:grid-cols-2">
-      <div className="hidden flex-col gap-6 lg:flex">
-        <span className="eyebrow">Free account</span>
-        <h1 className="text-page-title">Start planning your business today</h1>
-        <ul className="flex flex-col gap-3 text-lg">
-          {["Search every directory", "Read previews of every plan, machine and fund", "Save items into collections for your plan", "Upgrade any time to unlock full detail"].map((t) => (
-            <li key={t} className="flex items-start gap-3"><Icon name="check" className="mt-1 h-5 w-5 shrink-0 text-brand" />{t}</li>
-          ))}
-        </ul>
-      </div>
+    <SplitShell heading="Create your account" sub="Enter your phone number to get started."
+      foot={<>Selling or advising? <Link href="/suppliers/join" className="font-bold">Become a Supplier</Link> or <Link href="/experts/join" className="font-bold">Become an Expert</Link></>}
+      panel={<PanelWords lead="Start planning your business" accent="today" text="Search every directory, read previews of every plan, machine and fund, and save what you need." chips={["Business ideas", "Machines", "Suppliers", "Funding", "Market prices"]} />}>
       <PhoneAuthCard
-        title="Create your free account"
+        plain
+        title="Create your account"
         googleEnabled={googleEnabled}
         // Straight on to the payment step of the onboarding pop-up, not a dead-end account page.
         redirectTo="/?onboard=pay&next=%2Fbusiness-ideas"
-        footer={<>
-          <p className="text-xs text-ink-muted">By continuing you agree to our <Link href="/terms">terms</Link> and <Link href="/privacy">privacy policy</Link>.</p>
-          <p className="border-t border-line pt-4 text-sm text-ink-muted">Selling machines, supplies or services? <Link href="/contact" className="font-bold">Contact our team</Link> to get listed.</p>
-        </>}
+        footer={<p className="text-xs text-ink-muted">By continuing you agree to our <Link href="/terms">terms</Link> and <Link href="/privacy">privacy policy</Link>.</p>}
       />
-    </div>
+    </SplitShell>
   );
 }

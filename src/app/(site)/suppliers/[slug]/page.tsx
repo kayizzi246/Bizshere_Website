@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, LockKeyhole, Package } from "lucide-react";
+import { FileDown, FileText, Globe, Link2, LockKeyhole, Mail, MapPin, Package, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { moneyRange } from "@/lib/format";
 import { trackView } from "@/components/DetailParts";
 import { OnboardingGate } from "@/components/Onboarding";
+import { ProfileFacts, ProfileTop, type ProfileFact } from "@/components/ProfileTop";
 import { RememberVisit } from "@/components/Recent";
 import { WishlistButton } from "@/components/Wishlist";
 
@@ -53,54 +54,34 @@ export default async function SupplierPage({ params }: { params: { slug: string 
 
   const members = <Link href={path} data-onboard="" className="inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members</Link>;
   const none = <span className="font-normal text-ink-muted">—</span>;
-  const rows: [string, React.ReactNode][] = [
-    ["Address", address || none],
-    ["Phone", gated ? members : s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="text-heading hover:text-brand">{s.phone}</a> : none],
-    ["Country", s.country || none],
-    ["Email", gated ? members : s.email ? <a href={`mailto:${s.email}`} className="break-all text-heading hover:text-brand">{s.email}</a> : none],
-    ["Website", s.website ? <a href={s.website} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a> : none],
-    ["Catalogue", !catalogue ? none : catalogueLocked ? members : <a href={`/api/files/${catalogue.id}`} className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><FileDown aria-hidden className="h-4 w-4" />Download</a>],
+  const rows: ProfileFact[] = [
+    { label: "Address", icon: MapPin, value: address || none },
+    { label: "Phone", icon: Phone, value: gated ? members : s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="text-heading hover:text-brand">{s.phone}</a> : none },
+    { label: "Country", icon: Globe, value: s.country || none },
+    { label: "Email", icon: Mail, value: gated ? members : s.email ? <a href={`mailto:${s.email}`} className="break-all text-heading hover:text-brand">{s.email}</a> : none },
+    { label: "Website", icon: Link2, value: s.website ? <a href={s.website} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a> : none },
+    { label: "Catalogue", icon: FileText, value: !catalogue ? none : catalogueLocked ? members : <a href={`/api/files/${catalogue.id}`} className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><FileDown aria-hidden className="h-4 w-4" />Download</a> },
   ];
   const th = "px-3 py-2.5 font-semibold";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      <article className="bg-page">
-        <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
-          <Link href="/suppliers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand"><ArrowLeft aria-hidden className="h-4 w-4" />All suppliers</Link>
-
-          {/* Name and logo, beside the details */}
-          <section className="grid overflow-hidden rounded-2xl border border-line bg-white md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-            <div className="flex flex-col items-center justify-center gap-3 border-b border-line p-6 text-center md:border-b-0 md:border-r">
-              {logo ? (
-                // Uploaded or editor-entered address; no Next image domain list to maintain.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={logo} alt={`${name} logo`} className="h-28 w-28 rounded-2xl border border-line object-cover" />
-              ) : <span className="flex h-28 w-28 items-center justify-center rounded-2xl bg-brand-tint font-display text-[36px] font-extrabold text-brand">{name.charAt(0)}</span>}
-              <span className="flex flex-col gap-1">
-                <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-heading">{name}</h1>
-                {item.primaryCategory ? <span className="text-sm text-ink-muted">{item.primaryCategory.name}</span> : null}
-              </span>
-              <span className="w-full max-w-[16rem]"><WishlistButton id={item.id} /></span>
-              <RememberVisit tone="light" item={{ href: path, title: name, kind: "Supplier", icon: "supplier", picture: logo }} />
-            </div>
-            <dl className="divide-y divide-line text-[14px]">
-              {rows.map(([k, v]) => (
-                <div key={k} className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-3 px-4 py-3 sm:px-5">
-                  <dt className="text-ink-muted">{k}</dt>
-                  <dd className="min-w-0 font-semibold text-heading">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
+      <article>
+        <ProfileTop back="/suppliers" backLabel="All suppliers" image={logo} name={name} sub={item.primaryCategory?.name}>
+          <span className="block w-full rounded-xl bg-white"><WishlistButton id={item.id} /></span>
+          <RememberVisit item={{ href: path, title: name, kind: "Supplier", icon: "supplier", picture: logo }} />
+        </ProfileTop>
+        <div className="bg-page">
+        <div className="container-site flex flex-col gap-4 pb-6">
+          <ProfileFacts facts={rows} />
 
           {/* Products */}
           <section id="products" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
-            <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Products</h2>
+            <h2 className="font-display text-lg font-extrabold text-heading">Products</h2>
             {s.listings.length ? (
               <div className="overflow-x-auto rounded-xl border border-line">
                 <table className="w-full min-w-[640px] text-left text-[13px] sm:text-sm">
-                  <thead className="bg-brand-deep text-xs text-white/90">
+                  <thead className="bg-brand-tint text-xs font-bold text-brand-dark">
                     <tr>
                       <th className={`${th} w-12`}>SN</th><th className={th}>Product Name</th><th className={th}>Package Unit</th>
                       <th className={th}>Min Order</th><th className={th}>Price</th><th className={`${th} w-20`}>Picture</th>
@@ -108,9 +89,9 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                   </thead>
                   <tbody>
                     {s.listings.map((l, n) => (
-                      <tr key={l.id} className={`border-t border-line align-middle ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                      <tr key={l.id} className="border-t border-line align-middle">
                         <td className="px-3 py-2 text-ink-muted">{n + 1}</td>
-                        <td className="px-3 py-2"><Link href={`${path}/products/${l.id}`} className="font-semibold text-heading hover:text-brand">{l.productName}</Link></td>
+                        <td className="px-3 py-2"><Link href={`${path}/products/${l.id}`} className="font-semibold text-heading hover:text-brand">{l.productName.replace(/^Sample:\s*/i, "")}</Link></td>
                         <td className="px-3 py-2 text-ink-soft">{l.unit ?? "—"}</td>
                         <td className="whitespace-nowrap px-3 py-2 text-ink-soft">{l.minimumOrderQuantity !== null ? Number(l.minimumOrderQuantity).toLocaleString("en-UG") : "—"}</td>
                         <td className="whitespace-nowrap px-3 py-2 font-semibold text-heading">{gated ? members : l.priceMin === null && l.priceMax === null ? <span className="font-normal text-ink-muted">—</span> : moneyRange(l.priceMin, l.priceMax, l.currency)}</td>
@@ -129,6 +110,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
           </section>
 
           <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
+        </div>
         </div>
       </article>
     </OnboardingGate>

@@ -46,6 +46,12 @@ export const LIMITS = {
   smsAll: [300, 3600],
   /** Password, PIN and code sign-in attempts from one IP address. */
   loginPerIp: [30, 900],
+  /** Forgotten staff passwords asked for from one IP address. */
+  staffResetPerIp: [10, 3600],
+  /** Staff log-in tries from one IP address (the first step, before the password check). */
+  staffLoginPerIp: [60, 900],
+  /** Current-password checks in My account, per team member. */
+  accountPerUser: [10, 900],
   /** Payment orders one person can start (each one is a Pesapal order). */
   checkoutPerUser: [10, 600],
   /** Correction reports from one IP address. */

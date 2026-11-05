@@ -6,19 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { moneyRange } from "@/lib/format";
 import { UploadButton } from "@/components/UploadButton";
 import { SignOutButton } from "@/components/SignOutButton";
-import { deleteProduct, saveProduct, saveSupplierPhoto } from "@/app/actions/supplier";
+import { deleteProduct, saveProduct, saveSupplierDetails, saveSupplierPhoto } from "@/app/actions/supplier";
 import { changeMyPin } from "@/app/actions/pin";
 import { ChoosePin } from "@/components/ChoosePin";
 import { site } from "@/config/site";
 import { partnerAccess } from "@/lib/partners";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Seller dashboard", robots: { index: false } };
+export const metadata = { title: "Supplier dashboard", robots: { index: false } };
 
 const NOTICE: Record<string, string> = {
   paid: "Payment received. Our team will check your details, and your page goes live once approved.",
   password: "Your PIN is changed.",
   photo: "Your photo is saved.",
+  details: "Your details are saved and show on your page.",
   added: "Product sent. It will show on your page once our team approves it.",
   updated: "Changes sent. The product shows again once our team approves them.",
   deleted: "Product removed.",
@@ -27,6 +28,7 @@ const ERROR: Record<string, string> = {
   password: "Enter the same 4-digit PIN twice.",
   access: "You can only change your own listing.",
   photo: "Use the Upload button, or an address starting with https://.",
+  details: "Check your details: the email must be valid, and the website must start with https://.",
   product: "Check the product: it needs a name, and prices must be numbers.",
 };
 
@@ -55,7 +57,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
   if ((await partnerAccess(session.user.id, "supplier")).mustPay) redirect("/suppliers/join");
   const suppliers = await prisma.supplier.findMany({
     where: { organization: { members: { some: { userId: session.user.id } } } },
-    include: { contentItem: { select: { title: true, slug: true } }, listings: { orderBy: { createdAt: "desc" } } },
+    include: { contentItem: { select: { title: true, slug: true } }, listings: { orderBy: { createdAt: "desc" } }, organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } },
   });
 
   const input = "input min-h-[44px] w-full text-[14px]";
@@ -97,7 +99,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                     {s.pictureUrl ? <img src={s.pictureUrl} alt="" className="h-full w-full object-cover" /> : <Package aria-hidden className="h-6 w-6 text-brand/40" />}
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">Seller dashboard</span>
+                    <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">Supplier dashboard</span>
                     <h1 className="font-display text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-heading sm:text-[28px]">{name}</h1>
                   </span>
                 </div>
@@ -121,8 +123,22 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
               </ul>
               <p className="-mt-2 text-[13px] text-ink-muted">How it works: add a product → our team checks it → it shows on your page. Changing a product sends it for checking again.</p>
 
+              {/* ── My details: the top of my page ── */}
+              <details className="rounded-2xl border border-line bg-white p-4" open={!s.email && !s.website}>
+                <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4 text-brand" />My details</summary>
+                <form action={saveSupplierDetails} className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <input type="hidden" name="supplierId" value={s.id} />
+                  <label className={`${label} sm:col-span-2`}>Address<input name="address" defaultValue={s.organization.locations[0]?.physicalAddress ?? ""} className={input} /></label>
+                  <label className={label}>Phone (members only)<input name="phone" type="tel" defaultValue={s.phone ?? ""} className={input} /></label>
+                  <label className={label}>Email (members only)<input name="email" type="email" defaultValue={s.email ?? ""} className={input} /></label>
+                  <label className={label}>Country<input name="country" defaultValue={s.country ?? ""} className={input} /></label>
+                  <label className={label}>Website<input name="website" type="url" defaultValue={s.website ?? ""} placeholder="https://" className={input} /></label>
+                  <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my details</button>
+                </form>
+              </details>
+
               {/* ── Add a product ── */}
-              <details className="group rounded-2xl border-2 border-brand/30 bg-white p-4" open={s.listings.length === 0}>
+              <details className="group rounded-2xl border border-line bg-white p-4" open={s.listings.length === 0}>
                 <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add a product
                 </summary>
@@ -191,7 +207,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
 
 function ProductForm({ supplierId, product, input, label }: {
   supplierId: string;
-  product?: { id: string; productName: string; specifications: string | null; unit: string | null; availability: string | null; priceMin: unknown; priceMax: unknown; imageUrl: string | null };
+  product?: { id: string; productName: string; specifications: string | null; unit: string | null; minimumOrderQuantity: unknown; availability: string | null; priceMin: unknown; priceMax: unknown; imageUrl: string | null };
   input: string;
   label: string;
 }) {
@@ -207,7 +223,8 @@ function ProductForm({ supplierId, product, input, label }: {
       <div className="sm:col-span-2"><UploadButton target="imageUrl" kind="image" /></div>
       <label className={label}>Price from (UGX)<input name="priceMin" inputMode="numeric" defaultValue={num(product?.priceMin)} className={input} /></label>
       <label className={label}>Price to (UGX, optional)<input name="priceMax" inputMode="numeric" defaultValue={num(product?.priceMax)} className={input} /></label>
-      <label className={label}>Unit<input name="unit" placeholder="e.g. piece, 50 kg bag" defaultValue={product?.unit ?? ""} className={input} /></label>
+      <label className={label}>Package unit<input name="unit" placeholder="e.g. piece, 50 kg bag" defaultValue={product?.unit ?? ""} className={input} /></label>
+      <label className={label}>Min order<input name="minimumOrderQuantity" inputMode="numeric" defaultValue={num(product?.minimumOrderQuantity)} className={input} /></label>
       <label className={label}>Availability<input name="availability" placeholder="e.g. In stock, 2 weeks" defaultValue={product?.availability ?? ""} className={input} /></label>
       <label className={`${label} sm:col-span-2`}>Description<textarea name="specifications" rows={3} defaultValue={product?.specifications ?? ""} className="input w-full py-2 text-[14px]" /></label>
       <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">{product ? "Save and send for approval" : "Send for approval"}</button>

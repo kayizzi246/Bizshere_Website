@@ -57,6 +57,19 @@ export async function addObservation(form: FormData) {
   redirect("/admin/prices?added=1");
 }
 
+/** Chooses the supplier linked from a product's row on /prices. Empty clears it. */
+export async function setProductSupplier(form: FormData) {
+  const editor = await requireArea("prices");
+  const productId = String(form.get("productId") ?? "");
+  const supplierId = String(form.get("supplierId") ?? "") || null;
+  if (supplierId && !(await prisma.supplier.findUnique({ where: { id: supplierId }, select: { id: true } }))) redirect("/admin/prices?error=Supplier+not+found");
+  await prisma.product.update({ where: { id: productId }, data: { supplierId } });
+  await audit(editor.id, "product.supplier_set", "product", productId, { supplierId });
+  revalidatePath("/admin/prices");
+  revalidatePath("/prices");
+  redirect("/admin/prices?mapped=1");
+}
+
 export async function addMarket(form: FormData) {
   const editor = await requireArea("prices");
   const name = String(form.get("name") ?? "").trim();

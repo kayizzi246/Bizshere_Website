@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { staffLoginStep } from "@/app/actions/staff-account";
+import { StaffReset } from "./StaffReset";
 
 /** Same value as STAFF_CODE_SENT in src/lib/auth.ts (not imported: that module is server-only). */
 const CODE_SENT = "STAFF_CODE_SENT";
 
 /**
  * Email (or phone) and password sign-in for staff: at /login when coming from the admin, and at the
- * private /staff/<key> link. Staff with a phone on their account then enter the code texted to it
- * (src/lib/auth.ts, staffNeedsCode): a password alone doesn't open the admin.
+ * private /staff/<key> link. Someone new has no password yet: their number gets a code and they
+ * choose one (StaffReset). With STAFF_SMS_CODE="on" every log-in also asks for a texted code.
  */
 export function StaffSignIn({ next = "/admin" }: { next?: string }) {
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +21,19 @@ export function StaffSignIn({ next = "/admin" }: { next?: string }) {
   const [step, setStep] = useState<null | { identifier: string; password: string }>(null);
   const [code, setCode] = useState("");
   const [resent, setResent] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [first, setFirst] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function attempt(identifier: string, password: string, smsCode?: string) {
     setBusy(true);
     setError(null);
-    const res = await signIn("credentials", { identifier, password, ...(smsCode ? { code: smsCode } : {}), redirect: false });
+    const fields = { identifier, password, ...(smsCode ? { code: smsCode } : {}), redirect: false };
+    let res = await signIn("credentials", fields);
+    // On a first visit the security token can change while the page is still starting up: NextAuth then
+    // refuses the attempt quietly (answering "ok" with csrf=true), so try once more with the fresh token.
+    if (res?.url?.includes("csrf=true")) res = await signIn("credentials", fields);
     setBusy(false);
     if (res?.ok && !res.error) { window.location.href = next.startsWith("/admin") ? next : "/admin"; return; }
     if (res?.error === CODE_SENT) { setResent(Boolean(step)); setStep({ identifier, password }); setCode(""); return; }
@@ -41,16 +51,26 @@ export function StaffSignIn({ next = "/admin" }: { next?: string }) {
     const form = new FormData(e.currentTarget);
     const identifier = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
-    if (!identifier || !password) return setError("Enter your email or phone and your password.");
+    if (!identifier) return setError("Enter your email or phone.");
+    setBusy(true);
+    setError(null);
+    const start = await staffLoginStep(identifier).catch(() => ({ next: "password" }) as const);
+    setBusy(false);
+    if (start.next === "error") return setError(start.error);
+    if (start.next === "code") { setFirst(identifier); setResetting(true); return; }
+    if (!password) return setError("Enter your password.");
     return attempt(identifier, password);
   }
 
   const label = "flex flex-col gap-1.5 text-[14px] font-medium text-heading";
 
-  // Shown inside <AuthShell> (src/components/AuthShell.tsx), which draws the card and the page heading.
+  if (resetting) return <StaffReset first={first} onBack={() => { setResetting(false); setFirst(null); }} onDone={() => { setResetting(false); setFirst(null); setNotice("Password saved. Log in with it now."); }} />;
+
+  // Shown inside <StaffShell> (src/components/StaffShell.tsx), which draws the screen and the heading.
   return (
-    <form onSubmit={submit} className="mx-auto flex w-full max-w-sm flex-col gap-4" noValidate>
+    <form onSubmit={submit} className="flex w-full flex-col gap-4" noValidate>
       <h2 className="sr-only">Staff sign in</h2>
+      {notice ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2.5 text-[13px] font-semibold text-brand-dark">{notice}</p> : null}
       {step ? (
         <>
           <p className="flex items-start gap-2 rounded-lg bg-brand-tint px-3 py-2.5 text-[13px] text-brand-dark">
@@ -64,12 +84,21 @@ export function StaffSignIn({ next = "/admin" }: { next?: string }) {
         </>
       ) : (
         <>
-          <label className={label}>Enter your email or phone
-            <input name="email" type="text" inputMode="email" autoComplete="username" autoFocus placeholder="Email or phone number" className="input min-h-[46px] text-[15px]" />
+          <label className={label}>Email or phone
+            <input name="email" type="text" autoComplete="username" autoFocus placeholder="you@example.com or 0772 123 456" className="input min-h-[48px] text-[15px]" />
           </label>
-          <label className={label}>Enter your password
-            <input name="password" type="password" autoComplete="current-password" placeholder="Password" className="input min-h-[46px] text-[15px]" />
-          </label>
+          <div className={label}>
+            <span className="flex items-center justify-between gap-3">
+              <label htmlFor="staff-password">Password</label>
+              <button type="button" onClick={() => { setError(null); setNotice(null); setResetting(true); }} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Forgot your password?</button>
+            </span>
+            <span className="relative block">
+              <input id="staff-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" className="input min-h-[48px] w-full pr-12 text-[15px]" />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-ink-muted hover:text-heading">
+                {showPassword ? <EyeOff aria-hidden className="h-[18px] w-[18px]" /> : <Eye aria-hidden className="h-[18px] w-[18px]" />}
+              </button>
+            </span>
+          </div>
         </>
       )}
       {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-sm font-semibold text-bad-fg">{error}</p> : null}
@@ -79,9 +108,7 @@ export function StaffSignIn({ next = "/admin" }: { next?: string }) {
           <button type="button" disabled={busy} onClick={() => attempt(step.identifier, step.password)} className="font-semibold text-brand">Send a new code</button>
           <button type="button" onClick={() => { setStep(null); setError(null); }} className="font-semibold text-ink-muted">Back</button>
         </span>
-      ) : (
-        <p className="text-center text-[13px] text-ink-muted">Forgot your password? Ask a super admin to set a new one in Admin → Team.</p>
-      )}
+      ) : <p className="text-center text-[13px] text-ink-muted">First time here? Enter your phone number and press Log in. We&apos;ll text you a code.</p>}
     </form>
   );
 }

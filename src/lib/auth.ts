@@ -10,7 +10,7 @@ import { prisma } from "./prisma";
 import { audit } from "./audit";
 import { isTestPhone, phoneKey, sendCode, verifyCode } from "./phone-codes";
 import { allow, ipFrom, LIMITS } from "./rate-limit";
-import { sessionsValidAfter } from "./sessions";
+import { sessionsValidAfter, userSessionsValidAfter } from "./sessions";
 
 /** Same rule as src/lib/pin-accounts.ts (not imported: that module sends SMS and is not needed here). */
 const USERNAME = /^[a-z0-9](?:[a-z0-9-]{1,38})[a-z0-9]$/;
@@ -40,11 +40,11 @@ const RECHECK_MINUTES = 5;
 const isStaffRole = (r?: Role | null) => r === "ADMIN" || r === "EDITOR";
 
 /**
- * Staff sign in with a password and then a code texted to their phone, so a leaked password alone
- * can't open the admin. Staff without a phone on their account sign in with the password only
- * (add one in Admin → Team). STAFF_SMS_CODE="off" switches the second step off, e.g. if SMS is down.
+ * Staff sign in with their email or phone and password, with no code each time: SMS is for the first
+ * log-in and a forgotten password (src/app/actions/staff-account.ts). STAFF_SMS_CODE="on" adds a texted
+ * code to every staff log-in, for extra protection.
  */
-const staffNeedsCode = (u: { role: Role; phone: string | null }) => isStaffRole(u.role) && Boolean(u.phone) && process.env.STAFF_SMS_CODE !== "off";
+const staffNeedsCode = (u: { role: Role; phone: string | null }) => isStaffRole(u.role) && Boolean(u.phone) && process.env.STAFF_SMS_CODE === "on";
 /** Thrown by authorize() after the right password: the form then asks for the texted code. */
 export const STAFF_CODE_SENT = "STAFF_CODE_SENT";
 
@@ -137,6 +137,11 @@ export const authOptions: NextAuthOptions = {
           await audit(user.id, "user.signed_up", "user", user.id, { via: "phone" });
         }
         if (user.isSuspended) return null;
+        // Staff sign in with their password and then a code (the sign-in above): a code alone must not open the admin.
+        if (isStaffRole(user.role)) {
+          await audit(user.id, "auth.staff_phone_refused", "user", user.id);
+          return null;
+        }
         // Demo account (OTP_TEST_PHONE): give it active member access so the owner can preview
         // paid pages on the live site. Only ever reached when the test env vars are set.
         if (isTestPhone(phone)) await ensureDemoMembership(user.id);
@@ -190,11 +195,12 @@ export const authOptions: NextAuthOptions = {
       // a role change (for example an admin made an editor) takes effect, and a session older than
       // the last "Sign everyone out" (src/lib/sessions.ts) ends.
       if (!token.checkedAt || now - token.checkedAt > RECHECK_MINUTES * 60_000) {
-        const [u, cutoff] = await Promise.all([
+        const [u, cutoff, ownCutoff] = await Promise.all([
           prisma.user.findUnique({ where: { id: token.id }, select: { role: true, isSuspended: true } }),
           sessionsValidAfter(),
+          userSessionsValidAfter(token.id),
         ]);
-        if (!u || u.isSuspended || token.signedInAt < cutoff) return {};
+        if (!u || u.isSuspended || token.signedInAt < Math.max(cutoff, ownCutoff)) return {};
         if (isStaffRole(u.role) && !isStaffRole(token.role)) return {}; // promoted to staff: sign in again at /login
         token.role = u.role;
         token.checkedAt = now;

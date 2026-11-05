@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { notFound } from "next/navigation";
 import { StaffSignIn } from "@/components/StaffSignIn";
-import { AuthShell } from "@/components/AuthShell";
+import { StaffShell } from "@/components/StaffShell";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Staff", robots: { index: false, follow: false } };
@@ -22,10 +22,6 @@ function matches(key: string) {
 export default function StaffLoginPage({ params }: { params: { key: string } }) {
   if (!matches(decodeURIComponent(params.key))) notFound();
   return (
-    <main className="flex min-h-screen items-center justify-center bg-page">
-      <AuthShell title="Welcome back to the team" text="Sign in to the BizSphere-Ug admin to manage directories, prices, payments and members.">
-        <StaffSignIn />
-      </AuthShell>
-    </main>
+    <main><StaffShell><StaffSignIn /></StaffShell></main>
   );
 }

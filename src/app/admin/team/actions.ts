@@ -10,39 +10,72 @@ import { audit } from "@/lib/audit";
 import { AREA_KEYS } from "@/lib/admin-areas";
 import { phoneKey } from "@/lib/phone-codes";
 import { signOutEveryone } from "@/lib/sessions";
+import { sendSms } from "@/lib/sms";
+import { staffPasswordProblem } from "@/lib/staff-reset";
+import { site } from "@/config/site";
 
 /**
- * The admin team (/admin/team), super admin only: add sub-admins with the areas they may manage,
- * change their areas or password, suspend them, or take their access away. Sub-admins sign in at
- * /admin with their email (or phone) and the password set here.
+ * The admin team (/admin/team), super admin only: add sub-admins with the areas they may manage, new
+ * people or someone who already has an account (a member who has paid, say), change their areas or
+ * password, suspend them, or take their access away. Given a phone and no password, they are texted
+ * an invitation; their first log-in texts a code and they choose their own password.
  */
 const back = (q: string): never => redirect(`/admin/team?${q}`);
 const areasOf = (form: FormData) => form.getAll("areas").map(String).filter((a) => AREA_KEYS.includes(a));
-const password = z.string().min(10, "At least 10 characters").max(200);
+const password = z.string().refine((v) => !staffPasswordProblem(v));
 
 const newStaff = z.object({
-  name: z.string().trim().min(2).max(120),
+  name: z.string().trim().max(120),
   email: z.union([z.literal(""), z.string().trim().toLowerCase().email()]),
   phone: z.string().trim().max(40),
-  password,
+  password: z.union([z.literal(""), password]),
 });
 
 export async function addSubAdmin(form: FormData) {
   const admin = await requireAdmin();
-  const parsed = newStaff.safeParse({ name: form.get("name"), email: form.get("email") ?? "", phone: form.get("phone") ?? "", password: form.get("password") });
+  const parsed = newStaff.safeParse({ name: form.get("name") ?? "", email: form.get("email") ?? "", phone: form.get("phone") ?? "", password: form.get("password") ?? "" });
   if (!parsed.success) back(`add=1&error=${parsed.error.issues.some((i) => i.path[0] === "password") ? "password" : "invalid"}`);
   const d = parsed.data!;
   const email = d.email || null;
   const phone = d.phone ? phoneKey(d.phone) : null;
   if (d.phone && !phone) back("add=1&error=phone");
   if (!email && !phone) back("add=1&error=contact");
-  if ((email && (await prisma.user.findUnique({ where: { email } }))) || (phone && (await prisma.user.findUnique({ where: { phone } })))) back("add=1&error=exists");
+  // Without a password they set their own by SMS, which needs a phone
+  if (!phone && !d.password) back("add=1&error=needs-phone");
   const areas = areasOf(form);
   if (!areas.length) back("add=1&error=areas");
-  const user = await prisma.user.create({ data: { name: d.name, email, phone, role: "EDITOR", adminAreas: areas, passwordHash: await bcrypt.hash(d.password, 10) } });
-  await audit(admin.id, "staff.added", "user", user.id, { areas });
+
+  const [byPhone, byEmail] = await Promise.all([
+    phone ? prisma.user.findUnique({ where: { phone } }) : null,
+    email ? prisma.user.findUnique({ where: { email } }) : null,
+  ]);
+  if (byPhone && byEmail && byPhone.id !== byEmail.id) back("add=1&error=exists");
+  const existing = byPhone ?? byEmail;
+  if (existing && (existing.role === "ADMIN" || existing.role === "EDITOR")) back("add=1&error=already");
+  if (!existing && d.name.length < 2) back("add=1&error=invalid");
+
+  // Someone with an account keeps it. Their old password or seller PIN is cleared: an admin chooses a new one.
+  const passwordHash = d.password ? await bcrypt.hash(d.password, 10) : null;
+  const user = existing
+    ? await prisma.user.update({ where: { id: existing.id }, data: { role: "EDITOR", adminAreas: areas, passwordHash, pinMustChange: false, phone: existing.phone ?? phone, email: existing.email ?? email } })
+    : await prisma.user.create({ data: { name: d.name, email, phone, role: "EDITOR", adminAreas: areas, passwordHash } });
+  await audit(admin.id, existing ? "staff.promoted" : "staff.added", "user", user.id, { areas });
+
   revalidatePath("/admin/team");
-  back(`saved=added&user=${user.id}`);
+  if (d.password) back(`saved=added-password&user=${user.id}`);
+  const link = `${site.url.replace(/\/$/, "")}/login?callbackUrl=%2Fadmin`;
+  const sent = await sendSms(user.phone!, `You've been added to the BizSphere-Ug team. Log in with this number at ${link} and we'll text you a code to set your password.`).catch(() => false);
+  back(`saved=${sent ? "added" : "added-no-sms"}&user=${user.id}`);
+}
+
+/** Proves SMS really goes out: a text to the super admin's own phone. */
+export async function sendTestSms() {
+  const admin = await requireAdmin();
+  const me = await prisma.user.findUnique({ where: { id: admin.id }, select: { phone: true } });
+  if (!me?.phone) back("error=no-phone");
+  const sent = await sendSms(me!.phone!, "BizSphere-Ug test: text messages are working.").catch(() => false);
+  await audit(admin.id, sent ? "sms.test_sent" : "sms.test_failed", "user", admin.id);
+  back(sent ? "saved=sms-ok" : "error=sms-failed");
 }
 
 /** Only sub-admins: the super admin opens everything anyway. */

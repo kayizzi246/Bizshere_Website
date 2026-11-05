@@ -38,7 +38,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
   return (
     <div className="lg:hidden">
       <button type="button" data-quick-services="" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
-        className={`spin-border fixed right-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
+        data-chrome="" className={`spin-border fixed right-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
         {/* Plain orange ring (.spin-border in globals.css) */}
         <span className="inline-flex h-[50px] items-center gap-2 rounded-full bg-brand pl-4 pr-5 font-display text-sm font-bold text-white">
           <span className="grid h-6 w-6 grid-cols-2 gap-0.5" aria-hidden>
@@ -109,7 +109,7 @@ export function ServiceRail({ services }: { services: Service[] }) {
   return (
     <nav aria-label="Quick links to services" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}
-      className="fixed bottom-5 left-5 z-30 hidden w-[260px] lg:block" style={{ height: open ? n * STEP - 6 : 56 }}>
+      data-chrome="" className="fixed bottom-5 left-5 z-30 hidden w-[260px] lg:block" style={{ height: open ? n * STEP - 6 : 56 }}>
       {items.map((it, i) => {
         const fromBottom = n - 1 - i; // 0 for the last button
         const depth = i; // 0 = front card of the deck
