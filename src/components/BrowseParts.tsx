@@ -82,7 +82,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
             Popular:
             {popular.map((e) => (
               <button key={e} type="button" onClick={() => { onSearch(e); onSubmit(); }}
-                className="max-w-[14rem] truncate rounded-full border border-dotted border-white/40 bg-white/[0.05] px-2.5 py-0.5 capitalize text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white">{e}</button>
+                className="max-w-[14rem] truncate rounded-full border border-dotted border-white/40 bg-white/[0.05] px-2.5 py-0.5 text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white">{e}</button>
             ))}
           </p>
         ) : null}

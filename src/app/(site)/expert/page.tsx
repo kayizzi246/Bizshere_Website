@@ -9,11 +9,13 @@ import { ChoosePin } from "@/components/ChoosePin";
 import { changeMyPin } from "@/app/actions/pin";
 import { deleteWork, saveExpertProfile, saveWork } from "@/app/actions/expert";
 import { site } from "@/config/site";
+import { partnerAccess } from "@/lib/partners";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Expert dashboard", robots: { index: false } };
 
 const NOTICE: Record<string, string> = {
+  paid: "Payment received. Our team will check your details, and your page goes live once approved.",
   password: "Your PIN is changed.",
   profile: "Your profile is saved and shows on your page.",
   "work-added": "Work sent. It shows on your page once our team approves it.",
@@ -47,6 +49,8 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
   if (!session?.user?.id) redirect("/experts/login");
   const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { pinMustChange: true } });
   if (me?.pinMustChange) return <ChoosePin back="/expert" error={searchParams.error === "password"} />;
+  // Registered themselves and not paid, or not renewed. Experts the team added have no listing plan.
+  if ((await partnerAccess(session.user.id, "expert")).mustPay) redirect("/experts/join");
   const expert = await prisma.consultant.findUnique({
     where: { ownerId: session.user.id },
     include: { contentItem: { select: { slug: true, shortSummary: true, overview: true } }, projects: { orderBy: { createdAt: "desc" } } },

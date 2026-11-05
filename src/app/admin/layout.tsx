@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const all: Gated[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
-    { href: "/admin/plans", label: "Membership prices", icon: "prices", area: "plans" },
+    { href: "/admin/plans", label: "Prices", icon: "prices", area: "plans" },
     { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox", area: "review" },
     { href: "/admin/corrections", label: "Corrections", badge: corrections, icon: "flag", area: "corrections" },
     { section: "Content" },
@@ -45,6 +45,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/prices", label: "Markets and Prices", icon: "prices", area: "prices" },
     { section: "People and site" },
     { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },
+    { href: "/admin/partners", label: "Registrations", icon: "supplier", area: "suppliers" },
     { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier", area: "suppliers" },
     { href: "/admin/seller-products", label: "Seller products", badge: sellerProducts, icon: "supplier", area: "suppliers" },
     { href: "/admin/expert-logins", label: "Expert logins", icon: "expert", area: "experts" },

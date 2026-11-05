@@ -81,7 +81,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
         onSubmit={toList}
         hint={hint}
         label="Search business ideas"
-        popular={examples.slice(0, 4)}
+        popular={ideas.slice(0, 4).map(name)}
         cats={cats}
         category={category}
         onCategory={(id) => { setCategory(id); setPage(1); }}

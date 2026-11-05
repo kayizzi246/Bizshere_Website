@@ -298,3 +298,14 @@ npm run jobs -- renewals      # only the renewal reminders
 | "Too many attempts" at staff or PIN sign-in | 5 wrong passwords in 15 minutes | Wait 15 minutes |
 | Google sign-in error "redirect_uri_mismatch" | Redirect URI doesn't match `NEXTAUTH_URL` | Add `<NEXTAUTH_URL>/api/auth/callback/google` in Google Cloud |
 | No renewal reminders | Daily job not running, or `CRON_SECRET` missing | Check Vercel → Cron Jobs; run `npm run jobs -- renewals` by hand |
+
+## Suppliers and experts: registering and paying
+
+Suppliers and experts register themselves at `/suppliers/join` and `/experts/join` (the header's "Become a Supplier" and "Become an Expert").
+
+1. They confirm their phone with an SMS code, enter their details and choose a 4-digit PIN.
+2. They pay with Pesapal. Set the prices at **Admin → Prices**. A length with no price isn't offered; with no prices at all the page says "Prices are coming soon" and nobody can pay.
+3. The listing stays hidden until the team approves it at **Admin → Registrations**.
+4. Before a listing ends they get the usual SMS and email reminders. Their dashboard locks when the period ends, and 3 days later the daily job hides the page. Paying again brings it straight back, without another approval.
+
+Paying for a listing does not make someone a member: the listing plans give no access to member content. Suppliers and experts the team added at **Supplier logins** and **Expert logins** have no listing plan, so they don't pay and nothing changes for them.

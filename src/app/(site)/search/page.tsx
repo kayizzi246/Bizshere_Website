@@ -360,7 +360,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
             <img src={photo} alt="" loading="lazy" className="h-[56%] w-auto rounded-full border-4 border-white object-cover" style={{ aspectRatio: "1" }} />
           </span>
         ) : picture || r.businessIdea || m ? (
-          <IdeaPhoto src={picture} alt="" className="aspect-[16/10] transition duration-500 group-hover:scale-[1.03]" />
+          <IdeaPhoto src={picture} alt="" className="aspect-[16/10] transition duration-300 group-hover:scale-[1.03]" />
         ) : (
           <span className={`flex aspect-[16/10] items-center justify-center ${LABEL_TONE[r.contentType] ? "bg-accent-tint text-accent-dark" : "bg-brand-tint text-brand"}`}><Icon name={ICON[r.contentType] ?? "link"} className="h-9 w-9 sm:h-11 sm:w-11" strokeWidth={1.5} /></span>
         )}

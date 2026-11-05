@@ -9,8 +9,8 @@ import { pinStatus, requestPinReset, resetPinWithCode } from "@/app/actions/pin"
 const RESET_AFTER = 4;
 
 const WORDS = {
-  supplier: { title: "Supplier sign in", intro: "For sellers listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "a seller", register: "Call us to register your business. We'll text you a PIN to sign in." },
-  expert: { title: "Expert sign in", intro: "For business experts listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "an expert", register: "Call us to be listed as an expert. We'll text you a PIN to sign in." },
+  supplier: { title: "Supplier sign in", intro: "For sellers listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "a seller", register: "This phone isn't registered yet. Register your business to get your dashboard." },
+  expert: { title: "Expert sign in", intro: "For business experts listed on BizSphere-Ug. Sign in with your phone and 4-digit PIN.", who: "an expert", register: "This phone isn't registered yet. Register as an expert to get your dashboard." },
   any: { title: "Sign in", intro: "Enter your 4-digit PIN.", who: "a seller or expert", register: "Call us and we'll set up your sign-in." },
 } as const;
 
@@ -118,7 +118,7 @@ export function PinLogin({ kind, portal, callPhone, account }: {
         <div role="alert" className="flex flex-col gap-3 rounded-xl bg-accent-tint p-4">
           <p className="text-sm font-semibold text-accent-dark">This {account ? "account" : "number"} isn&apos;t registered as {words.who}.</p>
           <p className="text-sm text-ink-soft">{words.register}</p>
-          {call}
+          {kind === "any" ? call : <a href={kind === "expert" ? "/experts/join" : "/suppliers/join"} className="inline-flex h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-dark hover:text-white">{kind === "expert" ? "Become an Expert" : "Become a Supplier"}</a>}
           {account ? null : <button type="button" onClick={() => setState("idle")} className="text-left text-[13px] font-semibold text-brand">Try another number</button>}
         </div>
       ) : (

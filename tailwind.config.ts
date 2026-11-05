@@ -7,6 +7,9 @@ const v = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
+  // hover: styles apply only where a real pointer can hover. On touch screens a tap would otherwise
+  // leave the hover look stuck on.
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       colors: {
@@ -41,6 +44,14 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"], // headings, nav, UI titles
         hero: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
+      },
+      // Motion defaults: a strong ease-out and a short duration, so everything answers at once. "scale"
+      // is included for the press feedback in globals.css.
+      transitionTimingFunction: { DEFAULT: "cubic-bezier(0.23, 1, 0.32, 1)", out: "cubic-bezier(0.23, 1, 0.32, 1)" },
+      transitionDuration: { DEFAULT: "160ms" },
+      transitionProperty: {
+        DEFAULT: "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, scale",
+        colors: "color, background-color, border-color, text-decoration-color, fill, stroke, scale",
       },
       maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
     },

@@ -10,11 +10,13 @@ import { deleteProduct, saveProduct, saveSupplierPhoto } from "@/app/actions/sup
 import { changeMyPin } from "@/app/actions/pin";
 import { ChoosePin } from "@/components/ChoosePin";
 import { site } from "@/config/site";
+import { partnerAccess } from "@/lib/partners";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Seller dashboard", robots: { index: false } };
 
 const NOTICE: Record<string, string> = {
+  paid: "Payment received. Our team will check your details, and your page goes live once approved.",
   password: "Your PIN is changed.",
   photo: "Your photo is saved.",
   added: "Product sent. It will show on your page once our team approves it.",
@@ -49,6 +51,8 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
   // First sign-in with a texted PIN (or one the team reset): choose your own before anything else.
   const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { pinMustChange: true } });
   if (me?.pinMustChange) return <ChoosePin back="/supplier" error={searchParams.error === "password"} />;
+  // Registered themselves and not paid, or not renewed. Sellers the team added have no listing plan.
+  if ((await partnerAccess(session.user.id, "supplier")).mustPay) redirect("/suppliers/join");
   const suppliers = await prisma.supplier.findMany({
     where: { organization: { members: { some: { userId: session.user.id } } } },
     include: { contentItem: { select: { title: true, slug: true } }, listings: { orderBy: { createdAt: "desc" } } },
@@ -63,6 +67,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
       <div className="bg-page"><div className="container-site py-8">
         <section className="mx-auto flex max-w-lg flex-col gap-3 rounded-2xl border border-line bg-white p-5">
           <h1 className="font-display text-xl font-extrabold text-heading">This account isn&apos;t registered as a seller</h1>
+          <Link href="/suppliers/join" className="btn-primary min-h-[42px] w-fit px-4 text-sm">Become a Supplier</Link>
           <p className="text-sm text-ink-soft">Call us to register your business as a seller. If you already have a seller sign-in, sign out and sign in with your seller phone and PIN.</p>
           <span className="flex flex-wrap items-center gap-3">
             {site.contact.phone ? <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="btn-primary min-h-[42px] px-4 text-sm">Call {site.contact.phone}</a> : <Link href="/contact" className="btn-primary min-h-[42px] px-4 text-sm">Contact us to register</Link>}

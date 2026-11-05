@@ -6,7 +6,7 @@ import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
-import { RecentStrip } from "@/components/Recent";
+import { HomeFeatures } from "@/components/HomeFeatures";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -34,12 +34,12 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            64px above and 80px below (raised from 35/46, then 48/64); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
+            about 80px above and 112px below (raised from 35/46, then 48/64, then 64/80); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[80px] pt-2 sm:pt-[36px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[112px] pt-2 sm:pt-[52px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
@@ -114,42 +114,8 @@ export default async function HomePage() {
 
       </section>
 
-      {/* ── Directories ─────────────────────────────────── */}
-      <section id="directories" className="scroll-mt-24 bg-white">
-        <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14 lg:py-16">
-          {/* Returning visitors: what they opened last time, first. Empty on a first visit. */}
-          <RecentStrip title="Welcome back · pick up where you left off" className="-mt-2 sm:-mt-4" />
-          {/* Section header: one bold, centred two-line line, the last words in brand blue */}
-          <h2 className="mx-auto max-w-[680px] text-balance text-center font-display text-[26px] font-extrabold leading-[1.3] tracking-[-0.02em] text-heading sm:text-[34px]">
-            Built for traders, farmers and growing businesses. <span className="text-brand">All in one place.</span>
-          </h2>
-
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-            {DIRECTORIES.map((d) => (
-              <Link key={d.href} href={d.href} className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 rounded-2xl border border-line bg-white p-5 text-ink transition-colors hover:border-brand hover:text-ink sm:flex sm:flex-col sm:p-6">
-                <span className="row-span-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-tint text-brand transition-colors group-hover:bg-brand group-hover:text-white sm:h-12 sm:w-12"><Icon name={d.icon} className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} /></span>
-                <h3 className="font-display text-[17px] font-extrabold sm:mt-5 sm:text-[19px] leading-tight tracking-[-0.025em] text-heading">{d.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-muted sm:mb-5 sm:mt-2.5 sm:line-clamp-3 sm:text-sm">{d.text}</p>
-                <span className="mt-2 text-sm font-semibold text-brand sm:mt-auto sm:text-[15px] group-hover:underline group-hover:underline-offset-4">Explore {d.title} →</span>
-              </Link>
-            ))}
-            {/* 10 directories in rows of four leave two slots on the last row: fill them with search */}
-            {/* Same look as the hero: navy, rounded search bar, orange button */}
-            <form action="/search" role="search" className="flex flex-col justify-center gap-4 rounded-2xl bg-navy p-5 text-white sm:col-span-2 sm:p-6">
-              <div className="flex flex-col gap-1">
-                <span className="font-display text-[22px] font-extrabold tracking-[-0.02em] sm:text-[24px]">Looking for something specific?</span>
-                <span className="text-[15px] leading-relaxed text-white/75">Search by business, product or town.</span>
-              </div>
-              <label className="flex items-center gap-2 rounded-full bg-white p-1.5 pl-4 text-ink-muted">
-                <Icon name="search" className="h-4 w-4 shrink-0" />
-                <span className="sr-only">Search all directories</span>
-                <input name="q" type="search" placeholder="e.g. maize mill" className="min-h-[44px] w-full min-w-0 bg-transparent text-base text-ink outline-none placeholder:text-ink-muted" />
-                <button className="inline-flex h-11 shrink-0 items-center rounded-full bg-accent px-5 text-[15px] font-semibold text-ink hover:bg-white hover:text-ink">Search</button>
-              </label>
-            </form>
-          </div>
-        </div>
-      </section>
+      {/* ── What the platform offers, a different block for each part ── */}
+      <HomeFeatures />
 
     </>
   );

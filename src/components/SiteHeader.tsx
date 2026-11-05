@@ -11,6 +11,9 @@ import { WishlistLink } from "./Wishlist";
 const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 const WIDE_ONLY = "/experts";
 
+// For businesses that want to be listed: they register, pay and our team checks the listing.
+const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "text-accent"], ["/experts/join", "Become an Expert", "expert", "text-brand"]];
+
 // Navigation links in Manrope (style guide); buttons (Log in, Get started) in Inter.
 const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
@@ -18,7 +21,7 @@ const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full 
 /**
  * 2026 SaaS header: one floating rounded white bar that stays at the top, with the heroes running up
  * behind it. Logo on the left; the main links in the middle; wishlist, Log in and one rounded call
- * to action on the right.
+ * to action on the right, with a small tab growing out of the bar's underside for suppliers and experts to join.
  * Phones: logo, wishlist and a round menu button only (the call to action is in the menu), so the
  * bar never runs wider than the screen. No search box: search is in the Directories menu and heroes.
  */
@@ -76,12 +79,25 @@ export async function SiteHeader() {
               <div className="my-1 border-t border-line" />
               <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
               <Link href="/about" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">About</Link>
-              <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact · List your business</Link>
+              {JOIN.map(([href, label]) => <Link key={label} href={href} className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">{label}</Link>)}
+              <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact</Link>
               {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Log in</Link> : null}
               {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
             </div>
           </MobileMenu>
         </div>
+
+        {/* Wide screens: a tab growing out of the bar, under the buttons. Phones and tablets have these in the menu. */}
+        <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-7 items-center gap-3 rounded-b-2xl bg-white px-4 lg:flex">
+          {JOIN.map(([href, label, icon, tone], n) => (
+            <span key={label} className="flex items-center gap-3">
+              {n ? <span aria-hidden className="h-1 w-1 rounded-full bg-line" /> : null}
+              <Link href={href} className="group inline-flex items-center gap-1.5 whitespace-nowrap font-display text-[12px] font-bold text-heading transition-colors hover:text-brand">
+                <Icon name={icon} className={`h-3.5 w-3.5 transition-transform duration-150 group-hover:-translate-y-px ${tone}`} />{label}
+              </Link>
+            </span>
+          ))}
+        </nav>
       </div>
     </header>
   );

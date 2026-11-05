@@ -8,7 +8,7 @@ import { audit } from "@/lib/audit";
 import { SITE_DATA } from "@/lib/cached";
 import { PLAN_PERIODS, PRICE_FIELD } from "@/lib/billing";
 
-/** Admin sets the member plan's prices. An empty box means "not set yet" (shown as "Price coming soon"). */
+/** Admin sets a plan's prices (members, suppliers, experts). An empty box means "not set yet" (shown as "Price coming soon"). */
 export async function savePlanPrices(form: FormData) {
   const user = await requireArea("plans");
   const price = (k: string) => {
@@ -24,5 +24,7 @@ export async function savePlanPrices(form: FormData) {
   await audit(user.id, "plan.prices_updated", "membership_plan", String(form.get("id")), data);
   revalidateTag(SITE_DATA);
   revalidatePath("/membership");
+  revalidatePath("/suppliers/join");
+  revalidatePath("/experts/join");
   redirect("/admin/plans?saved=1");
 }

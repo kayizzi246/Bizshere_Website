@@ -156,3 +156,20 @@ test('content decimal accepts formatted price', () => {
   assert.equal(parseField({ name: 'price', kind: 'decimal' }, '1,250.50', errors).toString(), '1250.5');
   assert.equal(Object.keys(errors).length, 0);
 });
+
+// A paid listing: a new one waits for the team, a lapsed one (already approved) returns at once.
+for (const [label, status, expected] of [['new listing', 'PENDING', 'waits'], ['lapsed listing', 'SUSPENDED', 'returns']]) {
+  test('listing paid: ' + label + ' ' + expected, async () => {
+    const calls = [];
+    const membership = load('src/lib/membership.ts', {
+      './prisma': { prisma: {
+        organization: { findUnique: async () => ({ status, supplier: { contentItemId: 'c1' }, consultants: [] }), update: q => { calls.push(['org', q.data.status]); return q; } },
+        contentItem: { update: q => { calls.push(['item', q.data.publicationStatus]); return q; }, updateMany: async q => { calls.push(['draft', q.where.publicationStatus, q.data.publicationStatus]); return { count: 1 }; } },
+        $transaction: async list => list,
+      } },
+      './payments': {}, './billing': {}, './audit': {}, './sms': {}, './email': {}, '@/config/site': {}, './format': {},
+    });
+    await membership.partnerPaid('o1');
+    assert.deepEqual(JSON.parse(JSON.stringify(calls)), expected === 'waits' ? [['draft', 'DRAFT', 'IN_REVIEW']] : [['org', 'ACTIVE'], ['item', 'PUBLISHED']]);
+  });
+}

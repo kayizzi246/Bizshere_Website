@@ -7,7 +7,7 @@
  *   - Vercel Cron:       GET /api/cron/daily, scheduled in vercel.json
  */
 import { prisma } from "./prisma";
-import { notifyMember } from "./membership";
+import { notifyMember, PARTNER_CODES } from "./membership";
 
 // Set at the start of every run, so a long-lived server never uses a stale date.
 let now = new Date();
@@ -56,7 +56,7 @@ const jobs: Record<string, () => Promise<string>> = {
   async renewals() {
     const subs = await prisma.subscription.findMany({
       where: { autoRenew: true, userId: { not: null }, period: { not: "DAILY" }, status: { in: ["ACTIVE", "PAST_DUE"] }, currentPeriodEnd: { gt: days(-3), lte: days(3) }, plan: { code: "member" } },
-      select: { id: true, userId: true, period: true, currentPeriodEnd: true, remindersSent: true },
+      select: { id: true, userId: true, period: true, currentPeriodEnd: true, remindersSent: true, plan: { select: { code: true } } },
     });
     let sent = 0;
     for (const s of subs) {
@@ -71,7 +71,12 @@ const jobs: Record<string, () => Promise<string>> = {
       const msg = stage === "ended"
         ? { title: "Your membership has ended", text: `Your BizSphere-Ug membership ended on ${when}. Renew to open full budgets, contacts and funding terms again.`, link }
         : { title: stage === "1d" ? "Your membership renews tomorrow" : "Your membership renews in 3 days", text: `Your BizSphere-Ug membership is due for renewal on ${when}. Renew now with MoMo, Airtel Money or card to keep full access.`, link };
-      await notifyMember(s.userId!, msg).catch((e: Error) => console.error(`renewals: ${s.id}: ${e.message}`));
+      // A supplier's or expert's listing has its own wording and renewal page
+      const join = s.plan.code === PARTNER_CODES.supplier ? "/suppliers/join" : s.plan.code === PARTNER_CODES.expert ? "/experts/join" : null;
+      const words = join
+        ? { title: stage === "ended" ? "Your listing has ended" : "Your listing is due for renewal", text: stage === "ended" ? `Your BizSphere-Ug listing ended on ${when}. Renew now to keep your page live.` : `Your BizSphere-Ug listing is due for renewal on ${when}. Renew to keep your page live.`, link: join }
+        : msg;
+      await notifyMember(s.userId!, words).catch((e: Error) => console.error(`renewals: ${s.id}: ${e.message}`));
       await prisma.subscription.update({ where: { id: s.id }, data: { remindersSent: { push: stage } } });
       sent++;
     }
@@ -90,6 +95,26 @@ const jobs: Record<string, () => Promise<string>> = {
     const r = await prisma.subscription.updateMany({ where: { status: { in: ["ACTIVE", "TRIAL", "PAST_DUE"] }, currentPeriodEnd: { lt: days(-3) } }, data: { status: "EXPIRED" } });
     const due = await prisma.subscription.updateMany({ where: { status: "ACTIVE", currentPeriodEnd: { lt: now, gte: days(-3) } }, data: { status: "PAST_DUE" } });
     return `subscriptions: ${due.count} past due, ${r.count} expired`;
+  },
+
+  /** A listing still unpaid 3 days after its period ended is hidden until it is renewed (partnerPaid brings it back). */
+  async listings() {
+    const item = { select: { id: true, publicationStatus: true } };
+    const subs = await prisma.subscription.findMany({
+      where: { plan: { code: { in: Object.values(PARTNER_CODES) } }, organizationId: { not: null }, currentPeriodEnd: { lt: days(-3) }, organization: { status: { not: "SUSPENDED" } } },
+      select: { userId: true, organizationId: true, organization: { select: { supplier: { select: { contentItem: item } }, consultants: { select: { contentItem: item }, take: 1 } } } },
+    });
+    let hidden = 0;
+    for (const s of subs) {
+      const listing = s.organization?.supplier?.contentItem ?? s.organization?.consultants[0]?.contentItem;
+      if (listing?.publicationStatus !== "PUBLISHED") continue;
+      await prisma.$transaction([
+        prisma.contentItem.update({ where: { id: listing.id }, data: { publicationStatus: "ARCHIVED" } }),
+        prisma.organization.update({ where: { id: s.organizationId! }, data: { status: "SUSPENDED" } }),
+      ]);
+      hidden++;
+    }
+    return `listings: ${hidden} hidden for not renewing`;
   },
 
   /** Content with a passed expiry date is archived; content with a passed review date is reported. */

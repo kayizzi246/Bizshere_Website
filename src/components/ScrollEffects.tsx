@@ -10,7 +10,8 @@ import { usePathname } from "next/navigation";
  *                            style={{ "--d": "120ms" }} staggers it.
  *   data-count="42"          counts up from 0 to 42 when it comes into view.
  *
- * Plus a thin reading-progress bar under the header.
+ * Plus a thin reading-progress bar under the header, and the header itself slides away as you
+ * scroll down and comes back as soon as you scroll up.
  *
  * Content below the fold is only hidden once this component has mounted (the
  * `reveal-ready` class on <html>), and nothing moves for visitors who ask for
@@ -20,10 +21,12 @@ export function ScrollEffects() {
   const path = usePathname();
   const bar = useRef<HTMLDivElement>(null);
 
-  // Reveal and count-up, re-scanned on every client-side navigation.
+  // Reveal and count-up. A page's content can arrive after the address changes (it streams in behind
+  // the loading screen), so new elements are watched for rather than looked for once: an element
+  // that was never seen here would stay hidden for good.
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const els = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown]), [data-count]:not([data-counted])"));
+    const watch = !reduce && "IntersectionObserver" in window;
     const show = (el: HTMLElement) => {
       if (el.hasAttribute("data-reveal")) {
         el.setAttribute("data-shown", "");
@@ -33,28 +36,35 @@ export function ScrollEffects() {
       }
       if (el.dataset.count && !el.hasAttribute("data-counted")) countUp(el, reduce);
     };
-    if (reduce || !("IntersectionObserver" in window)) { els.forEach(show); return; }
-    // Anything already on screen is shown at once (no flash, no wait). Only content
-    // further down is hidden, and only from this point on (`reveal-ready`), so a
-    // script that never runs can never leave the page blank.
-    const below = els.filter((el) => {
-      if (el.getBoundingClientRect().top < window.innerHeight) {
-        if (el.hasAttribute("data-reveal")) {
-          el.setAttribute("data-shown", "");
-          el.setAttribute("data-done", "");
-        }
-        if (el.dataset.count) countUp(el, reduce);
-        return false;
+    const io = watch ? new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { show(e.target as HTMLElement); io?.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }) : null;
+
+    const seen = new WeakSet<Element>();
+    const scan = () => {
+      for (const el of document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown]), [data-count]:not([data-counted])")) {
+        if (seen.has(el)) continue;
+        seen.add(el);
+        if (!io) show(el);
+        // Anything already on screen, or scrolled past, is shown at once (no flash, no wait).
+        else if (el.getBoundingClientRect().top < window.innerHeight) {
+          if (el.hasAttribute("data-reveal")) {
+            el.setAttribute("data-shown", "");
+            el.setAttribute("data-done", "");
+          }
+          if (el.dataset.count) countUp(el, reduce);
+        } else io.observe(el);
       }
-      return true;
-    });
-    document.documentElement.classList.add("reveal-ready");
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) { show(e.target as HTMLElement); io.unobserve(e.target); }
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 });
-    below.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, [path]);
+    };
+    scan();
+    // Only content further down is hidden, and only from this point on (`reveal-ready`), so a
+    // script that never runs can never leave the page blank.
+    if (watch) document.documentElement.classList.add("reveal-ready");
+    let frame = 0; // runs before the next paint, so new content never flashes
+    const mo = new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; scan(); }); });
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => { mo.disconnect(); io?.disconnect(); cancelAnimationFrame(frame); };
+  }, []);
 
   // Reading progress
   useEffect(() => {
@@ -69,6 +79,24 @@ export function ScrollEffects() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(frame); };
+  }, [path]);
+
+  // The header: away going down, back going up. Always there near the top, and while its menu is open
+  // or something in it has keyboard focus.
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    if (!header) return;
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const moved = y - last;
+      if (Math.abs(moved) < 6) return;
+      last = y;
+      const keep = y < 120 || moved < 0 || header.querySelector("details[open]") || header.contains(document.activeElement);
+      header.toggleAttribute("data-hidden", !keep);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); header.removeAttribute("data-hidden"); };
   }, [path]);
 
   return <div ref={bar} aria-hidden className="scroll-progress" />;

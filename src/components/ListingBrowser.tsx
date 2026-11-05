@@ -108,7 +108,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         onSubmit={toList}
         hint={hint}
         label={`Search ${title.toLowerCase()}`}
-        popular={examples.slice(0, 4)}
+        popular={all.slice(0, 4).map((i) => name(i.title))}
         cats={cats}
         category={category}
         onCategory={(id) => { setCategory(id); setPage(1); }}
@@ -204,7 +204,7 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
         <Link href={i.href} tabIndex={-1} aria-hidden className="relative block overflow-hidden bg-page">
           {i.picture ? (
             // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
-            <img src={i.picture} alt="" loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+            <img src={i.picture} alt="" loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-300 group-hover:scale-[1.04]" />
           ) : (
             <span className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
@@ -213,14 +213,18 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
       ) : null}
       <div className={`flex flex-1 flex-col ${compact(photos, "gap-1.5 p-3 sm:gap-2 sm:p-4", "gap-2.5 p-4 sm:p-5")}`}>
         {/* Category and wishlist, in the content area */}
-        <div className="flex items-center gap-2">
-          {!photos ? <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-tint text-brand"><Icon name={icon} className="h-7 w-7" strokeWidth={1.75} /></span> : null}
-          <span className="min-w-0 flex-1">
-            <span className={`block w-fit max-w-full truncate rounded-full ${photos ? "bg-brand-tint px-2.5 py-0.5 text-[11px] font-semibold text-brand-dark" : "text-xs font-semibold text-accent-dark"}`}>{i.primaryCategory?.name ?? "General"}</span>
-            {!photos ? <SeenBadge href={i.href} className="mt-1 bg-brand-tint" /> : null}
+        <div className="flex items-center justify-between gap-2">
+          {photos ? (
+            <span className="min-w-0 truncate rounded-full bg-brand-tint px-2.5 py-0.5 text-[11px] font-semibold text-brand-dark">{i.primaryCategory?.name ?? "General"}</span>
+          ) : (
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-tint text-brand"><Icon name={icon} className="h-7 w-7" strokeWidth={1.75} /></span>
+          )}
+          <span className="flex shrink-0 items-center gap-2">
+            {!photos ? <SeenBadge href={i.href} className="bg-brand-tint" /> : null}
+            <WishlistHeart id={i.id} className="border border-line" />
           </span>
-          <WishlistHeart id={i.id} className="shrink-0 border border-line" />
         </div>
+        {!photos ? <span className="text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span> : null}
 
         <Link href={i.href} className={`font-display font-bold leading-tight tracking-tight text-heading hover:text-brand ${compact(photos, "line-clamp-2 text-[15px] sm:text-[16px]", "text-[17px]")}`}>{i.title}</Link>
         {photos

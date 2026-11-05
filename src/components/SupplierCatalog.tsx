@@ -27,7 +27,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products" }: { it
                 <span className="flex aspect-square items-center justify-center overflow-hidden bg-page">
                   {/* Uploaded or editor-entered address; no Next image domain list to maintain. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {p.image ? <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" /> : <Package aria-hidden className="h-10 w-10 text-brand/30" strokeWidth={1.5} />}
+                  {p.image ? <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" /> : <Package aria-hidden className="h-10 w-10 text-brand/30" strokeWidth={1.5} />}
                 </span>
                 <span className="flex flex-1 flex-col gap-1 p-3">
                   <span className="line-clamp-2 text-[14px] font-semibold leading-snug text-heading group-hover:text-brand">{p.name.replace(/^Sample:\s*/i, "")}</span>

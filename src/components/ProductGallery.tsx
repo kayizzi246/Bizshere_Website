@@ -59,7 +59,7 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
 
   const arrow = (dir: -1 | 1, big = false) => (
     <button type="button" onClick={(e) => { e.stopPropagation(); go(dir); }} aria-label={dir < 0 ? "Previous photo" : "Next photo"}
-      className={`absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-heading shadow-sm ring-1 ring-black/5 transition hover:bg-white ${big ? "h-12 w-12" : "h-9 w-9 opacity-90 sm:opacity-0 sm:group-hover:opacity-100"} ${dir < 0 ? (big ? "left-4" : "left-2.5") : big ? "right-4" : "right-2.5"}`}>
+      className={`absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-heading shadow-sm ring-1 ring-black/5 transition hover:bg-white ${big ? "h-12 w-12" : "h-9 w-9 opacity-90 [@media(hover:hover)]:opacity-0 group-hover:opacity-100"} ${dir < 0 ? (big ? "left-4" : "left-2.5") : big ? "right-4" : "right-2.5"}`}>
       {dir < 0 ? <ChevronLeft aria-hidden className="h-5 w-5" /> : <ChevronRight aria-hidden className="h-5 w-5" />}
     </button>
   );

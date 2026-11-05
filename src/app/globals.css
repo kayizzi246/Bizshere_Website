@@ -7,6 +7,9 @@
 /* Colour variables behind the neutral Tailwind tokens (tailwind.config.ts), as RGB triplets.
    .theme-dark is set on the admin shell only (src/app/admin/layout.tsx); the site stays light. */
 :root {
+  /* Motion: a strong ease-out for anything entering or answering a tap; the drawer curve for side panels */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --surface: 255 255 255; --page: 244 247 250; --heading: 17 17 17;
   --ink: 10 10 10; --ink-soft: 43 43 43; --ink-muted: 107 107 107;
   --line: 233 231 228; --line-strong: 214 211 207;
@@ -55,6 +58,22 @@
   a {
     @apply text-brand hover:text-brand-dark;
   }
+
+  /* Headings break into even lines; paragraphs avoid a lone last word */
+  h1, h2, h3 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  /* Press feedback: buttons and pill links give slightly under the finger. "scale", not "transform",
+     so it adds to any positioning transform the element already has. */
+  :where(button, a.inline-flex) { transition: scale 160ms var(--ease-out); }
+  :where(button:not(:disabled), a.inline-flex):active { scale: 0.97; }
+  @media (prefers-reduced-motion: reduce) {
+    :where(button, a.inline-flex):active { scale: 1; }
+  }
+
+  /* No grey flash on tap; the press feedback does that job. A clear ring for keyboard users only. */
+  a, button { -webkit-tap-highlight-color: transparent; }
+  :where(a, button):focus-visible { outline: 2px solid #157EC2; outline-offset: 2px; }
 }
 
 @layer components {
@@ -142,21 +161,21 @@ select {
    Scroll reveal is driven by src/components/ScrollEffects.tsx. Elements are hidden
    only under `.reveal-ready`, which that component adds once it is running, so the
    page always reads fine if the script is slow or never runs. */
-.reveal-ready [data-reveal]:not([data-shown]) { opacity: 0; transform: translateY(22px); }
+.reveal-ready [data-reveal]:not([data-shown]) { opacity: 0; transform: translateY(12px); }
 .reveal-ready [data-reveal][data-shown]:not([data-done]) {
-  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms);
+  transition: opacity 0.4s var(--ease-out) var(--d, 0ms), transform 0.4s var(--ease-out) var(--d, 0ms);
 }
 
 /* Hero: children rise in one after another on page load */
-.hero-rise > * { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.hero-rise > *:nth-child(2) { animation-delay: 0.08s; }
-.hero-rise > *:nth-child(3) { animation-delay: 0.16s; }
-.hero-rise > *:nth-child(4) { animation-delay: 0.24s; }
-.hero-rise > *:nth-child(5) { animation-delay: 0.32s; }
-.hero-rise > *:nth-child(6) { animation-delay: 0.4s; }
-.hero-rise > *:nth-child(7) { animation-delay: 0.48s; }
-@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
-.rise-late { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
+.hero-rise > * { animation: rise 0.4s var(--ease-out) both; }
+.hero-rise > *:nth-child(2) { animation-delay: 0.05s; }
+.hero-rise > *:nth-child(3) { animation-delay: 0.1s; }
+.hero-rise > *:nth-child(4) { animation-delay: 0.15s; }
+.hero-rise > *:nth-child(5) { animation-delay: 0.2s; }
+.hero-rise > *:nth-child(6) { animation-delay: 0.25s; }
+.hero-rise > *:nth-child(7) { animation-delay: 0.3s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+.rise-late { animation: rise 0.4s var(--ease-out) 0.15s both; }
 
 /* Kept as names only: the site is flat, nothing floats or drifts. */
 .float, .float-slow, .drift { animation: none; }
@@ -166,12 +185,12 @@ select {
 /* Hero search boxes: a solid 2px blue edge (the box sits inside the padding). */
 .search-glow { padding: 2px; background: #157EC2; }
 
-.onboard-pop { animation: pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.onboard-pop { animation: pop 0.24s var(--ease-out) both; }
 @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
 
 /* Welcome screen after payment (src/components/Celebration.tsx): fades in, then the text rises in turn */
 .celebrate-in { animation: celebrate-fade 0.35s ease-out both; }
-.celebrate-rise { animation: pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.celebrate-rise { animation: pop 0.5s var(--ease-out) both; }
 .celebrate-rise:nth-child(2) { animation-delay: 0.35s; }
 .celebrate-rise:nth-child(3) { animation-delay: 0.45s; }
 .celebrate-rise:nth-child(4) { animation-delay: 0.55s; }
@@ -180,18 +199,20 @@ select {
 @keyframes celebrate-fade { from { opacity: 0; } }
 
 /* Dropdowns (src/components/GlassSelect.tsx): the frosted list drops in from just above */
-.glass-drop { animation: glass-drop 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: top; }
+.glass-drop { animation: glass-drop 0.18s var(--ease-out) both; transform-origin: top; }
 @keyframes glass-drop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
 
 /* Gallery (src/components/ProductGallery.tsx): each photo fades in as you move between them */
-.gallery-fade { animation: celebrate-fade 0.3s ease-out both; }
+.gallery-fade { animation: celebrate-fade 0.2s var(--ease-out) both; }
 
 /* Wishlist drawer (src/components/Wishlist.tsx): slides in from the right over a fading backdrop */
-.drawer-in { animation: drawer-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.drawer-out { animation: drawer-in 0.22s cubic-bezier(0.4, 0, 1, 1) reverse both; }
-.drawer-fade { animation: celebrate-fade 0.28s ease-out both; }
-.drawer-fade-out { animation: celebrate-fade 0.22s ease-in reverse both; }
+.drawer-in { animation: drawer-in 0.3s var(--ease-drawer) both; }
+.drawer-out { animation: drawer-out 0.2s var(--ease-drawer) both; }
+.drawer-fade { animation: celebrate-fade 0.3s var(--ease-out) both; }
+.drawer-fade-out { animation: fade-out 0.2s var(--ease-out) both; }
 @keyframes drawer-in { from { transform: translateX(100%); } }
+@keyframes drawer-out { to { transform: translateX(100%); } }
+@keyframes fade-out { to { opacity: 0; } }
 
 .scroll-progress {
   position: fixed; left: 0; right: 0; top: 0; z-index: 60; height: 3px;
@@ -245,6 +266,28 @@ select {
 /* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in
    src/components/DirectoryList.tsx), so the site header scrolls away there instead of sticking. */
 body:has([data-sticky-search]) [data-site-header] { position: relative; }
+/* "Become a Supplier | Expert": a tab growing out of the header bar. It overlaps the bar's border by 1px, and
+   the two pseudo-elements are the inward curves where it meets the bar. */
+.join-tab { margin-top: -1px; filter: drop-shadow(0 5px 6px rgb(7 26 51 / 0.12)); }
+.join-tab::before, .join-tab::after { content: ""; position: absolute; top: 0; width: 14px; height: 14px; }
+.join-tab::before { left: -14px; background: radial-gradient(circle at 0 100%, transparent 13.5px, #fff 14px); }
+.join-tab::after { right: -14px; background: radial-gradient(circle at 100% 100%, transparent 13.5px, #fff 14px); }
+/* The homepage's fan of ideas (src/components/HomeStory.tsx): --n is each card's place, -1, 0 or 1. Stacked
+   until its block is reached, then it opens. */
+.fan-card {
+  --x: calc(var(--n) * 76px); --y: calc(var(--n) * var(--n) * 18px);
+  position: absolute; top: 5%; left: 50%; width: 190px; margin-left: -95px;
+  translate: var(--x) var(--y); rotate: calc(var(--n) * 7deg);
+  transition: rotate 0.5s var(--ease-out), translate 0.5s var(--ease-out);
+}
+@media (min-width: 640px) { .fan-card { --x: calc(var(--n) * 130px); width: 270px; margin-left: -135px; } }
+@media (hover: hover) { .fan-card:hover { translate: var(--x) calc(var(--y) - 10px); transition-duration: 0.2s; } }
+.reveal-ready .fan[data-reveal]:not([data-shown]) .fan-card { translate: 0 0; rotate: 0deg; }
+@media (prefers-reduced-motion: reduce) { .fan-card { transition: none; } }
+/* Slides away going down (src/components/ScrollEffects.tsx): leaves faster than it returns */
+[data-site-header] { transition: translate 240ms var(--ease-out); }
+[data-site-header][data-hidden] { translate: 0 -130%; transition-duration: 180ms; }
+@media (prefers-reduced-motion: reduce) { [data-site-header] { transition: none; } }
 
 /* Business idea requirements: the "my list" bar along the bottom on phones (BudgetCalculator) lifts the
    floating Services button above it. */

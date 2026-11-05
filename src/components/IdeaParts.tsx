@@ -70,7 +70,7 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
       <div className="relative">
         <WishlistHeart id={idea.id} className="absolute right-2 top-2" />
         <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden rounded-[14px]">
-          <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[4/3] transition duration-500 group-hover:scale-[1.04] sm:aspect-[16/10]" />
+          <IdeaPhoto src={bi?.pictureUrl} alt="" className="aspect-[4/3] transition duration-300 group-hover:scale-[1.04] sm:aspect-[16/10]" />
           <span aria-hidden className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" />
           <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2" />
           {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{idea.primaryCategory.name}</span> : null}

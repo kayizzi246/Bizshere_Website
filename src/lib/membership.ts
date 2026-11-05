@@ -18,6 +18,11 @@ import { date, money } from "./format";
 
 export type Settled = "SUCCEEDED" | "PENDING" | "FAILED" | "CANCELLED" | "REFUNDED";
 
+/** Supplier and expert listings (src/lib/partners.ts): their own plans, which never open member content. */
+export const PARTNER_CODES = { supplier: "supplier_listing", expert: "expert_listing" } as const;
+export type PartnerKind = keyof typeof PARTNER_CODES;
+const isListing = (code?: string) => code === PARTNER_CODES.supplier || code === PARTNER_CODES.expert;
+
 export const PERIOD_WORD: Record<BillingPeriod, string> = { DAILY: "day pass", WEEKLY: "weekly membership", MONTHLY: "monthly membership", YEARLY: "yearly membership" };
 
 /** Pesapal's payment_method text → our method. */
@@ -34,7 +39,7 @@ const RETRYABLE: PaymentStatus[] = ["PENDING", "FAILED"];
 export async function settlePayment(where: { paymentId: string } | { trackingId: string }): Promise<Settled> {
   const payment = await prisma.payment.findFirst({
     where: "paymentId" in where ? { id: where.paymentId } : { providerRef: where.trackingId },
-    include: { subscription: true },
+    include: { subscription: { include: { plan: { select: { code: true } } } } },
   });
   if (!payment) return "FAILED";
   // A failed attempt is not the end: on Pesapal's page the person can try again on the same order
@@ -75,7 +80,15 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
   if (!applied) return "SUCCEEDED";
 
   await audit(sub.userId, "payment.succeeded", "payment", payment.id, { method: s.method, code: s.confirmationCode });
-  if (sub.userId) {
+  const listing = isListing(sub.plan?.code);
+  if (listing && sub.organizationId) await partnerPaid(sub.organizationId);
+  if (listing && sub.userId) {
+    await notifyMember(sub.userId, {
+      title: "Payment received for your listing",
+      text: `Thank you! We received ${money(payment.amount, payment.currency)} for your BizSphere-Ug listing, paid until ${date(end)}.`,
+      link: sub.plan.code === PARTNER_CODES.expert ? "/expert" : "/supplier",
+    }).catch(() => {});
+  } else if (sub.userId) {
     await notifyMember(sub.userId, {
       title: "Payment received: you have full access",
       text: `Thank you! We received ${money(payment.amount, payment.currency)} for your BizSphere-Ug ${PERIOD_WORD[period]}. Full access until ${date(end)}.`,
@@ -83,6 +96,27 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
     }).catch(() => {});
   }
   return "SUCCEEDED";
+}
+
+/**
+ * A listing has been paid for. A new one goes to the team to check (/admin/partners); one hidden
+ * because it lapsed comes straight back, as the team has already approved it.
+ */
+export async function partnerPaid(organizationId: string) {
+  const org = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { status: true, supplier: { select: { contentItemId: true } }, consultants: { select: { contentItemId: true }, take: 1 } },
+  });
+  const id = org?.supplier?.contentItemId ?? org?.consultants[0]?.contentItemId;
+  if (!org || !id) return;
+  if (org.status === "SUSPENDED") {
+    await prisma.$transaction([
+      prisma.organization.update({ where: { id: organizationId }, data: { status: "ACTIVE" } }),
+      prisma.contentItem.update({ where: { id }, data: { publicationStatus: "PUBLISHED" } }),
+    ]);
+  } else {
+    await prisma.contentItem.updateMany({ where: { id, publicationStatus: "DRAFT" }, data: { publicationStatus: "IN_REVIEW" } });
+  }
 }
 
 /**

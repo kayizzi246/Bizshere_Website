@@ -104,7 +104,7 @@ export function ServiceRail({ services }: { services: Service[] }) {
   // Out of the way on single items (it covered product photos and forms) and on account pages.
   if (hideQuickLinks(path)) return null;
   // White outline so the buttons stay distinct over the blue hero and over white sections alike.
-  const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-500 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
+  const button = "absolute inset-x-0 flex h-11 items-center justify-center rounded-[10px] border-2 border-white px-5 text-center font-display text-[14px] font-bold leading-tight motion-safe:transition-[transform,opacity,background-color] motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.2,0.8,0.2,1)]";
 
   return (
     <nav aria-label="Quick links to services" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
