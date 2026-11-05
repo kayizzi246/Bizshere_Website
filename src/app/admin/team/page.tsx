@@ -14,7 +14,7 @@ const SAVED: Record<string, string> = {
   added: "Added. We texted them an invitation. They log in with their number, get a code by SMS and choose their password.",
   "added-no-sms": "Added, but the invitation SMS could not be sent. Check SMS below, then tell them to log in with their number.",
   "added-password": "Added. Give them the sign-in address, their email or phone, and the password you set.",
-  "sms-ok": "Test SMS sent. Check your phone: if it arrives, text messages are working.",
+  "sms-ok": "EgoSMS accepted the test SMS. If it doesn't arrive in a minute or two, the delay is on the EgoSMS or phone network side.",
   areas: "Areas saved. They apply straight away.",
   password: "Password changed.",
   phone: "Phone saved. They can use it to log in and to reset a forgotten password.",
@@ -29,8 +29,8 @@ const ERROR: Record<string, string> = {
   password: "That password is too short or too easy to guess. Use at least 6 digits or letters.",
   "needs-phone": "Add their phone number so they can set a password by SMS, or set a password for them.",
   already: "That person is already on the team.",
-  "no-phone": "Add a phone to your own account first: the test goes to you.",
-  "sms-failed": "The test SMS could not be sent. Check the EgoSMS settings and credit.",
+  "sms-busy": "That's a lot of test messages. Please wait a while.",
+  "sms-failed": "The test SMS could not be sent.",
   phone: "Enter a valid phone number, e.g. 0772 123 456.",
   contact: "Give an email or a phone number to sign in with.",
   exists: "That email and that phone belong to two different accounts. Use one of them.",
@@ -46,7 +46,7 @@ const ERROR: Record<string, string> = {
  * and action checks this on the server, and their menu shows only those areas. Super admins open
  * everything, including this page, membership prices and permanent deletes.
  */
-export default async function TeamPage({ searchParams }: { searchParams: { add?: string; saved?: string; error?: string; user?: string } }) {
+export default async function TeamPage({ searchParams }: { searchParams: { why?: string; add?: string; saved?: string; error?: string; user?: string } }) {
   const me = await requireAdmin();
   const staff = await prisma.user.findMany({
     where: { role: { in: ["ADMIN", "EDITOR"] } },
@@ -104,8 +104,10 @@ export default async function TeamPage({ searchParams }: { searchParams: { add?:
         </form>
       ) : null}
 
-      <form action={sendTestSms} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4">
-        <span className="flex flex-col gap-0.5"><span className="font-bold text-heading">Text messages</span><span className="text-sm text-ink-muted">Log-in codes and invitations go by SMS. Send yourself a test to make sure they work.</span></span>
+      {searchParams.why ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{searchParams.why.slice(0, 200)}</p> : null}
+      <form action={sendTestSms} className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-line bg-surface p-4">
+        <span className="flex min-w-[14rem] flex-1 flex-col gap-0.5"><span className="font-bold text-heading">Text messages</span><span className="text-sm text-ink-muted">Log-in codes and invitations go by SMS. Send a test to any number to make sure they work.</span></span>
+        <label className="label">Phone number<input name="phone" type="tel" required defaultValue={staff.find((u) => u.id === me.id)?.phone ?? ""} placeholder="0772 123 456" className="input min-h-[42px]" /></label>
         <button className="btn-outline min-h-[42px] px-4 text-sm">Send test SMS</button>
       </form>
 

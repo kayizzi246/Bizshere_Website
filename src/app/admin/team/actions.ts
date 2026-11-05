@@ -10,7 +10,8 @@ import { audit } from "@/lib/audit";
 import { AREA_KEYS } from "@/lib/admin-areas";
 import { phoneKey } from "@/lib/phone-codes";
 import { signOutEveryone } from "@/lib/sessions";
-import { sendSms } from "@/lib/sms";
+import { sendSms, trySms } from "@/lib/sms";
+import { allow } from "@/lib/rate-limit";
 import { staffPasswordProblem } from "@/lib/staff-reset";
 import { site } from "@/config/site";
 
@@ -68,14 +69,16 @@ export async function addSubAdmin(form: FormData) {
   back(`saved=${sent ? "added" : "added-no-sms"}&user=${user.id}`);
 }
 
-/** Proves SMS really goes out: a text to the super admin's own phone. */
-export async function sendTestSms() {
+/** Proves SMS really goes out: a text to any number, showing EgoSMS's own answer if it refuses. */
+export async function sendTestSms(form: FormData) {
   const admin = await requireAdmin();
-  const me = await prisma.user.findUnique({ where: { id: admin.id }, select: { phone: true } });
-  if (!me?.phone) back("error=no-phone");
-  const sent = await sendSms(me!.phone!, "BizSphere-Ug test: text messages are working.").catch(() => false);
-  await audit(admin.id, sent ? "sms.test_sent" : "sms.test_failed", "user", admin.id);
-  back(sent ? "saved=sms-ok" : "error=sms-failed");
+  const phone = phoneKey(String(form.get("phone") ?? ""));
+  if (!phone) back("error=phone");
+  if (!(await allow(`sms-test:${admin.id}`, 10, 3600))) back("error=sms-busy");
+  const sent = await trySms(phone!, "BizSphere-Ug test: text messages are working.");
+  await audit(admin.id, sent.ok ? "sms.test_sent" : "sms.test_failed", "user", admin.id, sent.ok ? {} : { reason: sent.reason });
+  if (sent.ok) back("saved=sms-ok");
+  back(`error=sms-failed&why=${encodeURIComponent(sent.ok ? "" : sent.reason)}`);
 }
 
 /** Only sub-admins: the super admin opens everything anyway. */

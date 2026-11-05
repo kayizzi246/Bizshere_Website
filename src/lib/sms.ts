@@ -20,19 +20,24 @@ export const smsToConsole = () => process.env.SMS_CONSOLE === "true" && !process
 
 /** Sends `text` to `to` (+256772123456, 0772 123 456 …). True when EgoSMS accepted it. */
 export async function sendSms(to: string, text: string): Promise<boolean> {
+  return (await trySms(to, text)).ok;
+}
+
+/** The same, with the reason when it fails, for the admin's Send test SMS. */
+export async function trySms(to: string, text: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   // EgoSMS wants the international number without "+" or "00": 256772123456
   let number = to.replace(/\D/g, "").replace(/^00/, "");
   if (number.startsWith("0")) number = `256${number.slice(1)}`;
 
   if (smsToConsole()) {
     console.log(`\n┌─ SMS (not sent: SMS_CONSOLE=true) ─────────\n│ To:   +${number}\n│ Text: ${text}\n└────────────────────────────────────────────\n`);
-    return true;
+    return { ok: true };
   }
   const username = process.env.EGOSMS_USERNAME;
   const password = process.env.EGOSMS_PASSWORD;
   if (!username || !password) {
     console.error("sms: EGOSMS_USERNAME / EGOSMS_PASSWORD are not set");
-    return false;
+    return { ok: false, reason: "EGOSMS_USERNAME and EGOSMS_PASSWORD are not set on this server." };
   }
 
   // 0: most urgent (codes expire). The older egosms.co API refuses a message without a sender ID
@@ -48,11 +53,11 @@ export async function sendSms(to: string, text: string): Promise<boolean> {
     });
     // Failures also come back as HTTP 200, so the Status field decides.
     const body = (await res.json().catch(() => ({}))) as EgoResponse;
-    if (res.ok && body.Status === "OK") return true;
+    if (res.ok && body.Status === "OK") return { ok: true };
     console.error(`sms: EgoSMS refused the message to ${number}: HTTP ${res.status} ${body.Status ?? ""} ${body.Message ?? ""}`.trim());
-    return false;
+    return { ok: false, reason: `EgoSMS refused it: ${body.Message || body.Status || `HTTP ${res.status}`}` };
   } catch (e) {
     console.error(`sms: EgoSMS could not be reached: ${(e as Error).message}`);
-    return false;
+    return { ok: false, reason: `EgoSMS could not be reached: ${(e as Error).message}` };
   }
 }

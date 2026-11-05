@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Calculator, FileText, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { directory } from "@/config/directories";
+import { FanTilt } from "./FanTilt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
 
@@ -98,7 +99,7 @@ export async function HomeFeatures() {
           <Go href="/business-ideas">See business ideas</Go>
         </div>
         {fan.length ? (
-          <div data-reveal="" className="fan relative h-[260px] sm:h-[340px]">
+          <FanTilt>
             {fan.map((idea, i) => {
               const n = fan.length === 1 ? 0 : i - (fan.length - 1) / 2;
               return (
@@ -109,7 +110,7 @@ export async function HomeFeatures() {
                 </div>
               );
             })}
-          </div>
+          </FanTilt>
         ) : null}
       </div>
 
