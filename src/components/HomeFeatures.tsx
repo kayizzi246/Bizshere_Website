@@ -12,7 +12,8 @@ import { IdeaPhoto } from "./IdeaParts";
  * then Get started.
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
- * are used, so nothing here is member-only. No invented customers or numbers, and no shadows.
+ * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. The
+ * text never fades in, so nothing is hidden while scrolling; only the fan of photos opens.
  */
 const clean = (title: string) => title.replace(/^Sample:\s*/i, "");
 
@@ -51,7 +52,11 @@ const Go = ({ href, children }: { href: string; children: React.ReactNode }) => 
   </Link>
 );
 
-const heading = "font-display text-[30px] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[44px]";
+// Headings use the hero's heaviest weight, in one colour
+// The funding rows are examples of what's listed, not links: a light brand colour each, slowly drifting (.drift-row)
+const ROWS = [["#CFE8FA", "#F0F8FE", "text-brand"], ["#DCE5F1", "#F5F8FC", "text-navy"], ["#FFD0A1", "#FFE2C4", "text-accent-dark"], ["#BFE0F6", "#E9F5FD", "text-brand-dark"]];
+
+const heading = "text-hero text-[25px] leading-[1.12] sm:text-[34px]";
 const body = "max-w-md text-[16px] leading-relaxed sm:text-[18px]";
 
 export async function HomeFeatures() {
@@ -62,9 +67,9 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
       <div className="container-site pt-10 sm:pt-14">
-        <div data-reveal="" className="mx-auto flex max-w-3xl flex-col gap-3 text-center">
-          <h2 className="font-display text-[36px] font-extrabold leading-[1.05] tracking-[-0.035em] text-heading sm:text-[56px]">
-            Everything a business needs, <span className="text-brand">on one platform</span>
+        <div className="mx-auto flex max-w-3xl flex-col gap-3 text-center">
+          <h2 className="text-hero text-[30px] leading-[1.1] text-heading sm:text-[44px]">
+            Everything a business needs, on one platform
           </h2>
           <p className="mx-auto max-w-xl text-[16px] leading-relaxed text-ink-muted sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
         </div>
@@ -72,7 +77,7 @@ export async function HomeFeatures() {
 
       {/* Business Ideas: text beside a fan of real ideas */}
       <div className="container-site grid items-center gap-6 py-8 sm:py-10 lg:grid-cols-2 lg:gap-12">
-        <div data-reveal="" className="flex flex-col items-start gap-3">
+        <div className="flex flex-col items-start gap-3">
           <Label href="/business-ideas" />
           <h3 className={`${heading} text-heading`}>Business plans with the real costs</h3>
           <p className={`${body} text-ink-muted`}>Browse ready business plans with every requirement and a line-by-line start-up budget, in small, medium and large sizes.</p>
@@ -97,23 +102,23 @@ export async function HomeFeatures() {
       {/* Funding Sources: the other way round, beside a list of real programmes */}
       <div className="bg-accent-tint">
       <div className="container-site grid items-center gap-6 py-8 sm:py-10 lg:grid-cols-2 lg:gap-12">
-        <div data-reveal="" className="flex flex-col items-start gap-3 lg:order-2">
+        <div className="flex flex-col items-start gap-3 lg:order-2">
           <Label href="/funding" tone="text-accent-dark" />
           <h3 className={`${heading} text-heading`}>Every funding source in one list</h3>
           <p className={`${body} text-ink-muted`}>Compare banks, government programmes and other lenders: what each one gives, the terms, who qualifies and how to apply.</p>
           <Go href="/funding">See funding sources</Go>
         </div>
         {funding.length ? (
-          <ul data-reveal="" className="flex flex-col gap-2 lg:order-1">
-            {funding.map((f) => (
-              <li key={f.slug}>
-                <Link href={`/funding/${f.slug}`} className="group flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-heading transition-colors hover:text-accent-dark">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
+          <ul className="flex flex-col gap-2 lg:order-1">
+            {funding.map((f, i) => {
+              const [a, b, mark] = ROWS[i % ROWS.length];
+              return (
+                <li key={f.slug} style={{ "--a": a, "--b": b, "--wait": `-${i * 2}s` } as React.CSSProperties} className="drift-row flex items-center gap-3 rounded-2xl px-4 py-3 text-heading">
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white ${mark}`}><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                   <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold">{clean(f.title)}</span>
-                  <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5" />
-                </Link>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         ) : null}
       </div>
@@ -122,7 +127,7 @@ export async function HomeFeatures() {
       {/* Suppliers: centred, with real suppliers in a row */}
       <div className="bg-brand-tint">
         <div className="container-site flex flex-col items-center gap-6 py-8 text-center sm:py-10">
-          <div data-reveal="" className="flex max-w-2xl flex-col items-center gap-3">
+          <div className="flex max-w-2xl flex-col items-center gap-3">
             <Label href="/suppliers" />
             <h3 className={`${heading} text-heading`}>A directory of checked suppliers</h3>
             <p className="text-[16px] leading-relaxed text-ink-muted sm:text-[18px]">Find suppliers in Uganda and abroad and see what they sell, with contacts our team has checked.</p>
@@ -130,7 +135,7 @@ export async function HomeFeatures() {
           {suppliers.length ? (
             <ul className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {suppliers.map((s, i) => (
-                <li key={s.slug} data-reveal="" style={{ "--d": `${i * 70}ms` } as React.CSSProperties}>
+                <li key={s.slug}>
                   <Link href={`/suppliers/${s.slug}`} className="flex h-full flex-col items-start gap-2 rounded-2xl bg-white p-4 text-left text-heading transition-transform duration-200 hover:-translate-y-1 hover:text-heading">
                     <span className="font-display text-[16px] font-bold leading-snug">{clean(s.title)}</span>
                     {s.supplier?.country ? <span className="mt-auto inline-flex items-center gap-1 text-[13px] text-ink-muted"><MapPin aria-hidden className="h-3.5 w-3.5" />{s.supplier.country}</span> : null}
@@ -151,10 +156,10 @@ export async function HomeFeatures() {
           {PAIR.map((c, i) => {
             const d = directory(c.href);
             return (
-              <li key={c.href} data-reveal="" style={{ "--d": `${i * 90}ms` } as React.CSSProperties}
+              <li key={c.href}
                 className={`flex flex-col items-start gap-3 rounded-[28px] p-5 text-heading sm:p-7 ${c.tone}`}>
                 <Label href={c.href} tone={c.mark} />
-                <h3 className="font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[34px]">{c.headline}</h3>
+                <h3 className="text-hero text-[22px] leading-[1.15] sm:text-[28px]">{c.headline}</h3>
                 <p className="text-[15px] leading-relaxed text-ink-soft sm:text-[17px]">{c.text}</p>
                 <ul className="flex flex-wrap gap-2">
                   {c.points.map(([Glyph, label]) => (
@@ -171,8 +176,8 @@ export async function HomeFeatures() {
       </div>
 
       <div className="bg-brand text-white">
-        <div data-reveal="" className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
-          <h2 className="font-display text-[32px] font-extrabold leading-[1.06] tracking-[-0.03em] sm:text-[48px]">Start using BizSphere-Ug today</h2>
+        <div className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
+          <h2 className="text-hero text-[28px] leading-[1.1] sm:text-[40px]">Start using BizSphere-Ug today</h2>
           <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">Open every directory with one membership.</p>
           <Link href="/signup" className="group mt-2 inline-flex h-[52px] items-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-white hover:text-ink">
             Get started<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />

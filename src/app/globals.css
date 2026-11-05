@@ -266,6 +266,23 @@ select {
 /* Directory pages: the search card is pinned to the top while the results scroll (StickySearch in
    src/components/DirectoryList.tsx), so the site header scrolls away there instead of sticking. */
 body:has([data-sticky-search]) [data-site-header] { position: relative; }
+/* A page that opens on the light background carries it up behind the header, as the navy heroes do.
+   Not when it opens with its own white band (a header, or the search form): the light colour would show above it. */
+main > div.bg-page:first-child:not(:has(> header)),
+main > article.bg-page:first-child:not(:has(> header)),
+main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(:has(> header)) { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
+
+/* A row of soft colour that slowly drifts. The colours repeat every half of the layer, so sliding it by
+   half loops without a jump, and only transform moves, so it costs nothing while scrolling. */
+.drift-row { position: relative; isolation: isolate; overflow: hidden; }
+.drift-row::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: 200%;
+  background: linear-gradient(90deg, var(--a), var(--b), var(--a), var(--b), var(--a));
+  animation: row-drift 8s linear var(--wait, 0s) infinite;
+}
+@keyframes row-drift { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .drift-row::before { animation: none; } }
+
 /* "Become a Supplier | Expert": a tab growing out of the header bar. It overlaps the bar's border by 1px, and
    the two pseudo-elements are the inward curves where it meets the bar. */
 .join-tab { margin-top: -1px; filter: drop-shadow(0 5px 6px rgb(7 26 51 / 0.12)); }

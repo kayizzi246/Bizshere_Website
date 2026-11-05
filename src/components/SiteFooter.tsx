@@ -2,23 +2,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { DIRECTORIES } from "@/config/directories";
 import { site } from "@/config/site";
+import { getViewer } from "@/lib/access";
+import { prisma } from "@/lib/prisma";
 import { Icon } from "./Icon";
+import { SignOutButton } from "./SignOutButton";
 
 // Directories split across two columns: starting out, then reference material.
 const directoryLinks = DIRECTORIES.map((d) => [d.href, d.title] as [string, string]);
 const COLUMNS: { title: string; links: [string, string][] }[] = [
   { title: "Start a business", links: directoryLinks.slice(0, 5) },
   { title: "Resources", links: [...directoryLinks.slice(5), ["/opportunities", "Investment opportunities"]] },
-  { title: "Company", links: [["/about", "About"], ["/membership", "Membership and pricing"], ["/#watch", "Watch us on YouTube"], ["/contact", "Contact"], ["/suppliers/login", "Seller sign in"], ["/experts/login", "Expert sign in"]] },
+  { title: "Company", links: [["/about", "About"], ["/membership", "Membership and pricing"], ["/#watch", "Watch us on YouTube"], ["/contact", "Contact"]] },
   { title: "Trust", links: [["/methodology", "How we check content"], ["/corrections", "Report a correction"], ["/terms", "Terms"], ["/privacy", "Privacy and data protection"]] },
 ];
 
 /**
  * Deep navy footer, like the site's heroes: the logo with the tagline, contacts and payment methods,
- * four link columns and one thin bottom line.
+ * four link columns and one thin bottom line. Company ends with the way in for suppliers and experts:
+ * Become a Supplier or Expert, or for one who is signed in, their dashboard and Sign out.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
   const c = site.contact;
+  const viewer = await getViewer();
+  const me = viewer.userId ? await prisma.user.findUnique({
+    where: { id: viewer.userId },
+    select: { expertProfile: { select: { id: true } }, orgMemberships: { where: { organization: { supplier: { isNot: null } } }, select: { userId: true }, take: 1 } },
+  }) : null;
+  const portal = me?.orgMemberships.length ? "/supplier" : me?.expertProfile ? "/expert" : null;
+  const footerLink = "text-[14px] text-white/60 transition-colors hover:text-white";
   const contact = [
     c.phone && { icon: "phone", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}` },
     c.email && { icon: "mail", text: c.email, href: `mailto:${c.email}` },
@@ -58,9 +69,20 @@ export function SiteFooter() {
               <ul className="flex flex-col gap-2.5">
                 {col.links.map(([href, label]) => (
                   <li key={label}>
-                    <Link href={href} className="text-[14px] text-white/60 transition-colors hover:text-white">{label}</Link>
+                    <Link href={href} className={footerLink}>{label}</Link>
                   </li>
                 ))}
+                {col.title !== "Company" ? null : portal ? (
+                  <>
+                    <li><Link href={portal} className={footerLink}>My dashboard</Link></li>
+                    <li><SignOutButton plain to="/" className={footerLink} /></li>
+                  </>
+                ) : (
+                  <>
+                    <li><Link href="/suppliers/join" className={footerLink}>Become a Supplier</Link></li>
+                    <li><Link href="/experts/join" className={footerLink}>Become an Expert</Link></li>
+                  </>
+                )}
               </ul>
             </nav>
           ))}
