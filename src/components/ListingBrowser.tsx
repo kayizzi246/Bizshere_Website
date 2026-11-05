@@ -30,6 +30,9 @@ export type BrowseListing = {
   price?: string | null;
   /** Source and price are member detail and this viewer isn't a member: say so instead. */
   locked?: boolean;
+  /** Suppliers table: country and website, both public. */
+  country?: string | null;
+  website?: string | null;
   /** A longer description for cards without a photo (tools), e.g. the overview. */
   description?: string | null;
 };
@@ -62,7 +65,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   tabs?: [string, string][];
   active?: string;
   /** "table": one row per listing (funding, useful websites) instead of cards. */
-  variant: "cards" | "documents" | "table";
+  variant: "cards" | "documents" | "table" | "suppliers";
   /** Photo cards (machines, suppliers) instead of icon cards */
   photos: boolean;
   initial: { q: string; category: string; sort: string; page: number };
@@ -139,6 +142,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 <p className="text-sm font-semibold text-heading">{all.length ? "Nothing matches this search. Try other words or another category." : "Nothing published here yet."}</p>
                 {all.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
+            ) : variant === "suppliers" ? (
+              <SupplierTable rows={shown} first={(current - 1) * PER_PAGE + 1} />
             ) : variant === "table" ? (
               <ListingTable rows={shown} />
             ) : variant === "documents" ? (
@@ -239,6 +244,42 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
           View details<span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
         </Link>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Suppliers, as the client's template: S/N, Name, Product Category, Country, Website, Products (a
+ * link to the supplier's products). Phones get each row as a small card, with the same details.
+ */
+function SupplierTable({ rows, first }: { rows: BrowseListing[]; first: number }) {
+  const th = "px-4 py-3 font-semibold";
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-white">
+      <table className="w-full text-left text-[14px]">
+        <thead className="hidden bg-brand-deep text-xs text-white/90 md:table-header-group">
+          <tr>
+            <th className={`${th} w-14`}>S/N</th><th className={th}>Name</th><th className={th}>Product Category</th>
+            <th className={th}>Country</th><th className={th}>Website</th><th className={th}>Products</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, n) => (
+            <tr key={r.id} id={r.slug} className={`flex flex-col gap-1 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+              <td className="hidden text-ink-muted md:table-cell md:px-4 md:py-3">{first + n}</td>
+              <td className="md:px-4 md:py-3"><Link href={r.href} className="font-semibold text-heading hover:text-brand">{name(r.title)}</Link></td>
+              <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.primaryCategory?.name ?? "—"}</td>
+              <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.country ?? "—"}</td>
+              <td className="text-[13px] md:px-4 md:py-3">
+                {r.website ? <a href={r.website} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-[14rem] items-center gap-1 font-medium text-brand hover:text-brand-dark"><span className="truncate">{r.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</span><span aria-hidden>↗</span></a> : <span className="hidden text-ink-muted md:inline">—</span>}
+              </td>
+              <td className="pt-1 md:px-4 md:py-3 md:pt-3">
+                <Link href={r.href} className="inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3.5 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white">View products <span aria-hidden>→</span></Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

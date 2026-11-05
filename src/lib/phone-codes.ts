@@ -58,12 +58,17 @@ export async function sendCode(raw: string): Promise<SendResult> {
     await prisma.auditLog.create({ data: { action: "auth.code_limited", entityType: "phone", entityId: phone, details: { ip } } });
     return { ok: false, error: "Too many codes were requested. Please try again in an hour." };
   }
-  const code =String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
+  const code = String(randomInt(0, 10 ** CODE_LENGTH)).padStart(CODE_LENGTH, "0");
+  // Saved before it is texted, so the code works the moment the SMS arrives. If the text fails the
+  // earlier code stays valid; once it is sent, only this newest code works.
+  const row = await prisma.phoneCode.create({ data: { phone, codeHash: await bcrypt.hash(code, 10), expiresAt: new Date(Date.now() + CODE_MINUTES * 60_000) } });
   const sent = await sendSms(phone, `Your BizSphere-Ug code is ${code}. It expires in ${CODE_MINUTES} minutes.`);
-  if (!sent) return { ok: false, error: "We can't send text messages yet. Please try again later." };
+  if (!sent) {
+    await prisma.phoneCode.deleteMany({ where: { id: row.id } });
+    return { ok: false, error: "We can't send text messages yet. Please try again later." };
+  }
   await prisma.auditLog.create({ data: { action: "auth.code_sent", entityType: "phone", entityId: phone } });
-  await prisma.phoneCode.deleteMany({ where: { phone } });
-  await prisma.phoneCode.create({ data: { phone, codeHash: await bcrypt.hash(code, 10), expiresAt: new Date(Date.now() + CODE_MINUTES * 60_000) } });
+  await prisma.phoneCode.deleteMany({ where: { phone, id: { not: row.id } } });
   return { ok: true, phone, length: CODE_LENGTH };
 }
 

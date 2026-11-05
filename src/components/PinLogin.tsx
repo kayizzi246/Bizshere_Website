@@ -39,6 +39,7 @@ export function PinLogin({ kind, portal, callPhone, account }: {
   const [next, setNext] = useState("");
   const [again, setAgain] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [resent, setResent] = useState(false);
 
   const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
 
@@ -61,7 +62,7 @@ export function PinLogin({ kind, portal, callPhone, account }: {
     setError(null);
     const res = await requestPinReset(login, kind).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
     setBusy(false);
-    if (res.ok) setReset({ step: "code", length: res.length });
+    if (res.ok) { setResent(Boolean(reset)); setCode(""); setReset({ step: "code", length: res.length }); }
     else setError(res.error);
   }
 
@@ -90,7 +91,7 @@ export function PinLogin({ kind, portal, callPhone, account }: {
     <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1 text-center">
         <h2 className="font-display text-[22px] font-extrabold tracking-[-0.02em] text-heading">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h2>
-        <p className="text-[14px] text-ink-muted">{reset ? `We sent a code by SMS to ${sentTo}.` : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
+        <p className="text-[14px] text-ink-muted">{reset ? (resent ? `New code sent to ${sentTo}. Use the newest SMS: earlier codes no longer work.` : `We sent a code by SMS to ${sentTo}.`) : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
       </div>
 
       {reset ? (

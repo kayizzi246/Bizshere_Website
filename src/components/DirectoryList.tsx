@@ -23,13 +23,13 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   /** Optional one-line detail per card, e.g. yield or deadline. Keyed by content item id. Public fields only. */
   meta?: (ids: string[]) => Promise<Record<string, string>>;
   /** "documents" shows the items as digital products (file tile per item); `meta` is used as the document type. */
-  variant?: "cards" | "documents" | "table";
+  variant?: "cards" | "documents" | "table" | "suppliers";
   /** Photo per card (keyed by content item id). Turns the cards into photo cards. */
   images?: (ids: string[]) => Promise<Record<string, string>>;
   /** Outside address per item (useful websites): table rows link straight to it. */
   links?: (ids: string[]) => Promise<Record<string, string>>;
-  /** Source and price for the cards (machines). Member detail: the page sends `locked` for visitors. */
-  facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean }>>;
+  /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and website for the suppliers table. */
+  facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean; country?: string | null; website?: string | null }>>;
 }) {
   const rows = await prisma.contentItem.findMany({
     where: { contentType: { in: types }, publicationStatus: "PUBLISHED" },
