@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, FileText, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Check, FileText, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getViewer } from "@/lib/access";
+import { PERIOD_INFO, PLAN_PERIODS, popupPlan, type MemberPeriod } from "@/lib/billing";
+import { cachedMemberPlan } from "@/lib/cached";
 import { directory } from "@/config/directories";
 import { FanTilt } from "./FanTilt";
 import { Icon } from "./Icon";
@@ -9,8 +12,9 @@ import { IdeaPhoto } from "./IdeaParts";
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
  * feature, words on the left and a fan of photos on the right; then Funding and Suppliers as two
- * rounded panels (Panel below) with real listings in them; then Experts and Tools side by side on
- * white (Card below); then Get started. Every heading is black, in the heaviest weight, and the words
+ * joined panels (Panel below) with real listings in them; then Experts and Tools side by side on
+ * white (Card below); then the offer: what members get and the prices. The price is also under the
+ * title, and join buttons open the sign-up and payment pop-up right here. Members see no selling. Every heading is black, in the heaviest weight, and the words
  * are centred on every screen size.
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
@@ -38,6 +42,17 @@ const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark"
 
 // A supplier with no photo yet gets a bold initial, in turn from the brand colours.
 const MONOGRAM = ["bg-navy text-white", "bg-accent text-ink", "bg-brand-tint text-brand-dark", "bg-accent-tint text-accent-dark"];
+
+/** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), with the length chosen. */
+const pay = (period: MemberPeriod) => ({ href: `/membership?onboard=pay&period=${period}&next=%2Fbusiness-ideas`, "data-pay": "", "data-period": period, "data-next": "/business-ideas" });
+const BENEFITS = ["Full business plans and budgets", "Supplier and expert contacts", "Funding amounts and terms", "Machine prices and price history", "Tools, templates and downloads"];
+const LENGTHS: Record<MemberPeriod, { title: string; text: string }> = {
+  DAILY: { title: "Day pass", text: "Research an idea in a day" },
+  WEEKLY: { title: "Weekly", text: "Compare ideas and call suppliers" },
+  MONTHLY: { title: "Monthly", text: "Plan and start your business" },
+  YEARLY: { title: "Yearly", text: "Run and grow your business" },
+};
+const joinButton = "group inline-flex h-[52px] items-center justify-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white";
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
@@ -71,10 +86,10 @@ function Card({ href, title, text, action, mark, button, children }: { href: str
   );
 }
 
-/** A rounded panel in a full brand colour: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
+/** A panel in a full brand colour, joined to the one beside it: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
 function Panel({ href, title, text, action, tint, words, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; children: React.ReactNode }) {
   return (
-    <li className={`flex flex-col gap-4 rounded-[28px] p-5 sm:p-7 ${tint}`}>
+    <li className={`flex flex-col gap-4 p-5 sm:p-7 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} tone="" />
         <h3 className="text-hero text-[20px] leading-[1.2] sm:text-[23px] lg:text-[26px]">{title}</h3>
@@ -95,7 +110,13 @@ const Points = ({ points, mark, tint }: { points: [LucideIcon, string][]; mark: 
 );
 
 export async function HomeFeatures() {
-  const { ideas, funding, suppliers } = await records();
+  const [{ ideas, funding, suppliers }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
+  const plan = popupPlan(memberPlan);
+  const offered = PLAN_PERIODS.filter((p) => plan.amounts[p]);
+  const price = (p: MemberPeriod) => `${plan.currency} ${plan.amounts[p]!.toLocaleString("en-UG")}`;
+  const lowest = offered[0];
+  const start = offered.includes("MONTHLY") ? "MONTHLY" : lowest;
+  const sell = !viewer.isMember && !viewer.isStaff && Boolean(start);
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
   // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
@@ -106,6 +127,12 @@ export async function HomeFeatures() {
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="max-w-2xl text-hero text-[24px] leading-[1.15] text-black sm:text-[30px] lg:text-[36px]">Everything a business needs, on one platform</h2>
         <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
+        {sell ? (
+          <div className="mt-2 flex flex-col items-center gap-2">
+            <Link {...pay(start)} className={joinButton}>Get full access<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
+            <span className="text-[15px] text-ink-soft">From <strong className="font-extrabold text-heading">{price(lowest)}</strong> a {PERIOD_INFO[lowest].per}. Pay with mobile money or card.</span>
+          </div>
+        ) : null}
       </div>
 
       <div className="container-site grid grid-cols-[minmax(0,1fr)] items-center gap-6 py-10 sm:py-12 lg:grid-cols-2 lg:gap-12">
@@ -132,7 +159,7 @@ export async function HomeFeatures() {
       </div>
 
       <div className="container-site">
-        <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
+        <ul data-panels="" className="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2">
           <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink"
             text="Need money to start or grow? Compare banks, government programmes and other lenders.">
             <ul className="flex h-full flex-col gap-2">
@@ -209,10 +236,29 @@ export async function HomeFeatures() {
       <div className="bg-brand text-white">
         <div className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
           <h2 className="text-hero text-[20px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
-          <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">Open every directory with one membership.</p>
-          <Link href="/signup" className="group mt-2 inline-flex h-[52px] items-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-white hover:text-ink">
-            Get started<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
-          </Link>
+          {sell ? (
+            <>
+              <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">One membership opens all of this:</p>
+              <ul className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-1.5">
+                {BENEFITS.map((b) => <li key={b} className="flex items-center gap-1.5 text-[15px] font-semibold"><Check aria-hidden className="h-4 w-4 shrink-0 text-accent" strokeWidth={3} />{b}</li>)}
+              </ul>
+              <ul className="mt-3 grid w-full max-w-4xl grid-cols-2 gap-2.5 text-left sm:gap-3 lg:grid-cols-4">
+                {offered.map((p) => (
+                  <li key={p}>
+                    <Link {...pay(p)} className="group flex h-full flex-col gap-1 rounded-2xl bg-white p-4 text-heading hover:text-heading">
+                      <span className="text-[14px] font-bold text-ink-soft">{LENGTHS[p].title}</span>
+                      <span className="font-display text-[20px] font-extrabold leading-tight sm:text-[23px]">{price(p)}</span>
+                      <span className="text-[13px] leading-snug text-ink-muted">{LENGTHS[p].text}</span>
+                      <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[14px] font-bold text-brand">Choose<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[14px] text-white/90">Pay with MTN MoMo, Airtel Money, Visa or Mastercard.</p>
+            </>
+          ) : (
+            <Link href="/business-ideas" className={`${joinButton} mt-2`}>Browse business ideas<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
+          )}
         </div>
       </div>
     </section>
