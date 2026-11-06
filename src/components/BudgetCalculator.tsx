@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GlassSelect } from "./GlassSelect";
 import {
   Boxes, Check, ClipboardList, FileDown, FileText, LockKeyhole, Megaphone, Minus, Monitor, Plus, Scale, Search, ShoppingCart, Store, Wallet, Wrench, X,
@@ -26,6 +26,29 @@ const CATEGORY_ICON: [RegExp, LucideIcon][] = [
   [/brand|market|advert/i, Megaphone], [/premis|rent|shop|building/i, Store], [/stock|material|inventory|supplies/i, Boxes], [/operat|expense|wage|salar/i, Wallet],
 ];
 const iconFor = (category: string) => CATEGORY_ICON.find(([re]) => re.test(category))?.[1] ?? ClipboardList;
+// Each category takes the next colour, so the list is easy to scan.
+const TONES = ["bg-brand-tint text-brand", "bg-accent-tint text-accent-dark", "bg-[#E6F4EC] text-[#1F7A4D]", "bg-[#F3E8FF] text-[#6D28D9]"];
+
+/** A number that runs to its new value, from wherever it is now. Jumps straight there for reduced motion. */
+function useRunningNumber(target: number) {
+  const [value, setValue] = useState(target);
+  const now = useRef(target);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { now.current = target; setValue(target); return; }
+    const from = now.current;
+    const start = performance.now();
+    let frame = 0;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - start) / 500);
+      now.current = from + (target - from) * (1 - Math.pow(1 - k, 3));
+      setValue(now.current);
+      if (k < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target]);
+  return value;
+}
 
 /**
  * The start-up budget as a calculator: pick a business size, see the estimate from its essential
@@ -33,7 +56,9 @@ const iconFor = (category: string) => CATEGORY_ICON.find(([re]) => re.test(categ
  * cards with what it is and what it costs, and add the ones you need to your own list.
  *
  * When something is in "My list", "Download my plan" gives the business plan PDF with just those
- * items and quantities. Nothing sticks to the screen except, on phones, the "View my list" bar.
+ * items and quantities. On wide screens the list stays in view, so the total can be seen moving; on
+ * phones the "View my list" bar does that job. Numbers run to their new value and a bar shows how much
+ * of the estimate the list covers (globals.css: .size-pill, .req-card, .req-in, .list-pop).
  * Gated visitors are sent only the free preview of the lines and no totals; the server decides.
  */
 export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidden, pdfHref }: { name: string; plans: CalcPlan[]; initial: string; gated: boolean; unlockHref: string; hidden: Record<string, number>; pdfHref: string }) {
@@ -53,6 +78,10 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
   const myUnpriced = picked.filter((l) => l.price === null).length;
   const estimate = plan.totals ? (withOptional ? plan.totals.all : plan.totals.essential) : null;
   const essential = plan.count.all - plan.count.optional;
+  const shownEstimate = useRunningNumber(estimate ?? 0);
+  const shownTotal = useRunningNumber(myTotal);
+  const covered = estimate ? Math.min(1, myTotal / estimate) : 0;
+  const sizeAt = Math.max(0, plans.findIndex((p) => p.level === plan.level));
 
   // "Download my plan": the business plan PDF with only the picked items and quantities.
   const myPlanHref = `${pdfHref}?scenario=${plan.level}&items=${picked.map((l) => `${l.id}:${mine[l.id]}`).join(",")}`;
@@ -68,38 +97,47 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
       <div className="flex min-w-0 flex-col gap-4">
         {/* ── Size and estimate ── */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-3 sm:p-4">
+        <div className="flex flex-col gap-3 rounded-3xl border border-line bg-white p-3 sm:p-4">
           {plans.length > 1 ? (
-            <div className="flex flex-col gap-2.5">
-              <div role="radiogroup" aria-label="Business size" className="grid gap-2" style={{ gridTemplateColumns: `repeat(${plans.length}, minmax(0, 1fr))` }}>
-                {plans.map((p) => (
-                  <button key={p.level} type="button" role="radio" aria-checked={p.level === plan.level} onClick={() => switchTo(p.level)}
-                    className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${p.level === plan.level ? "border-brand bg-brand text-white" : "border-line bg-white text-brand hover:border-brand"}`}>
-                    {p.label}
-                  </button>
-                ))}
-              </div>
+            <div role="radiogroup" aria-label="Business size" className="relative grid rounded-2xl bg-page p-1" style={{ gridTemplateColumns: `repeat(${plans.length}, minmax(0, 1fr))` }}>
+              <span aria-hidden className="size-pill absolute inset-y-1 left-1 rounded-xl bg-brand" style={{ width: `calc((100% - 0.5rem) / ${plans.length})`, transform: `translateX(${sizeAt * 100}%)` }} />
+              {plans.map((p) => (
+                <button key={p.level} type="button" role="radio" aria-checked={p.level === plan.level} onClick={() => switchTo(p.level)}
+                  className={`relative rounded-xl px-3 py-3 font-display text-[15px] font-extrabold transition-colors duration-200 ${p.level === plan.level ? "text-white" : "text-ink-soft hover:text-brand"}`}>
+                  {p.label}
+                </button>
+              ))}
             </div>
           ) : null}
-          <div className="flex flex-col items-center gap-1 rounded-xl bg-brand-tint px-4 py-4 text-center">
-            <span className="text-sm text-ink-soft">Start-up cost{plans.length > 1 ? `, ${plan.label.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
+          <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-brand-dark px-4 py-6 text-center text-white">
+            <span className="text-[15px] font-medium">Start-up cost{plans.length > 1 ? `, ${plan.label.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
             {gated ? (
-              <a href={unlockHref} data-onboard="" className="inline-flex items-center gap-2 py-1 font-display text-xl font-bold text-brand"><LockKeyhole aria-hidden className="h-5 w-5" />Unlock the estimate</a>
+              <a href={unlockHref} data-onboard="" className="inline-flex items-center gap-2 py-1 font-display text-2xl font-extrabold text-white hover:text-accent"><LockKeyhole aria-hidden className="h-6 w-6" />Unlock the estimate</a>
             ) : (
-              <span className="font-display text-3xl font-extrabold tracking-tight text-brand-deep sm:text-4xl">{estimate === null ? "Some costs pending" : fmt(estimate, plan.currency)}</span>
+              <span className="text-hero text-[34px] leading-[1.1] tabular-nums sm:text-[46px]">{estimate === null ? "Some costs pending" : fmt(shownEstimate, plan.currency)}</span>
             )}
             {/* Only say how many items are counted when some are not priced yet */}
-            <span className="text-xs text-ink-muted">
+            <span className="text-[13px] text-white/85">
               {withOptional
                 ? plan.count.priced < plan.count.all ? `${plan.count.all - plan.count.priced} items not priced yet · ` : ""
                 : plan.count.pricedEssential < essential ? `${essential - plan.count.pricedEssential} items not priced yet · ` : ""}
               {plan.place} prices{plan.asOf ? `, ${plan.asOf}` : ""}
             </span>
             {plan.count.optional ? (
-              <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
-                <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#157EC2]" />
+              <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-[14px] font-medium">
+                <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#F28C28]" />
                 Include {plan.count.optional} optional {plan.count.optional === 1 ? "item" : "items"}
               </label>
+            ) : null}
+            {/* How far the visitor's own list has got */}
+            {estimate ? (
+              <div className="mt-3 flex w-full max-w-md flex-col gap-1.5">
+                <span className="flex items-baseline justify-between gap-3 text-[13px] font-semibold">
+                  <span>{picked.length ? "Your plan so far" : "Tap + Add to build your plan"}</span>
+                  {picked.length ? <span className="tabular-nums">{Math.round(covered * 100)}%</span> : null}
+                </span>
+                <span aria-hidden className="block h-2.5 overflow-hidden rounded-full bg-white/20"><span className="plan-bar block h-full rounded-full bg-accent" style={{ transform: `scaleX(${covered})` }} /></span>
+              </div>
             ) : null}
           </div>
         </div>
@@ -119,15 +157,26 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             </div>
           </div>
 
-          {/* Each category: its name, then must-have items before optional ones */}
-          {sections.map(({ c, shown }) => (
-            <section key={c} id={slug(c)} aria-label={c} className="flex flex-col gap-2">
-              <h4 className="flex items-baseline gap-2 font-display text-lg font-extrabold text-heading">{c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span></h4>
-              {[...shown.filter((l) => !l.optional), ...shown.filter((l) => l.optional)].map((l) => (
-                <RequirementCard key={l.id} l={l} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />
-              ))}
-            </section>
-          ))}
+          {/* Each category: its name, then must-have items before optional ones. A new size rises in. */}
+          <div key={plan.level} className="req-in flex flex-col gap-5">
+          {sections.map(({ c, shown }) => {
+            const tone = TONES[cats.findIndex(([name]) => name === c) % TONES.length];
+            const Glyph = iconFor(c);
+            const subtotal = shown.reduce((n, l) => n + (l.price ?? 0) * l.qty, 0);
+            return (
+              <section key={c} id={slug(c)} aria-label={c} className="flex flex-col gap-2">
+                <h4 className="flex items-center gap-2.5 font-display text-[19px] font-extrabold text-heading">
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone}`}><Glyph aria-hidden className="h-4 w-4" strokeWidth={2} /></span>
+                  {c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span>
+                  {!gated && subtotal > 0 ? <span className="ml-auto text-[15px] tabular-nums text-ink-soft">{fmt(subtotal, plan.currency)}</span> : null}
+                </h4>
+                {[...shown.filter((l) => !l.optional), ...shown.filter((l) => l.optional)].map((l, n) => (
+                  <RequirementCard key={l.id} l={l} n={n} tone={tone} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />
+                ))}
+              </section>
+            );
+          })}
+          </div>
           {sections.length === 0 ? <p className="rounded-2xl border border-dashed border-line-strong bg-white px-5 py-10 text-center text-sm text-ink-muted">No requirements match. Clear the search or change the filter.</p> : null}
           {hidden[plan.level] ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4">
@@ -144,7 +193,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
           <div className="container-site flex items-center gap-3 py-3">
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="text-xs text-ink-muted">{picked.length} {picked.length === 1 ? "item" : "items"} in my list</span>
-              <span className="font-display text-lg font-extrabold text-brand-deep">{fmt(myTotal, plan.currency)}{myUnpriced ? <span className="font-sans text-xs font-normal text-ink-muted"> + {myUnpriced} unpriced</span> : null}</span>
+              <span className="font-display text-lg font-extrabold text-brand-deep">{fmt(shownTotal, plan.currency)}{myUnpriced ? <span className="font-sans text-xs font-normal text-ink-muted"> + {myUnpriced} unpriced</span> : null}</span>
             </span>
             <button type="button" onClick={() => setListOpen(true)} className="ml-auto inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white"><ShoppingCart aria-hidden className="h-4 w-4" />View my list</button>
           </div>
@@ -154,14 +203,14 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 
       {/* ── My list: the visitor's own selection and total (beside the list on wide screens) ── */}
       <aside aria-label="My requirements list"
-        className={`flex-col rounded-2xl border border-line bg-white lg:inset-auto lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
+        className={`flex-col rounded-2xl border border-line bg-white lg:sticky lg:top-24 lg:inset-auto lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
         <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[15px] font-extrabold text-heading">
-          <span className="flex items-center gap-2">My requirements list{picked.length ? <span className="rounded-full bg-brand px-2 text-xs text-white">{picked.length}</span> : null}</span>
+          <span className="flex items-center gap-2">My requirements list{picked.length ? <span key={picked.length} className="list-pop rounded-full bg-brand px-2 text-xs text-white">{picked.length}</span> : null}</span>
           <button type="button" onClick={() => setListOpen(false)} aria-label="Close my list" className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-soft hover:bg-page lg:hidden"><X className="h-4 w-4" /></button>
         </h3>
         {picked.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-5 py-6 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-tint text-brand"><ShoppingCart aria-hidden className="h-7 w-7" /></span>
+            <span className="float flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-tint text-brand"><ShoppingCart aria-hidden className="h-7 w-7" /></span>
             <span className="font-display text-base font-bold text-heading">Your list is empty</span>
             <span className="text-[13px] text-ink-muted">Tap <strong>+ Add</strong> to build your plan.</span>
           </div>
@@ -169,7 +218,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
           <>
             <ul className="divide-y divide-line lg:max-h-[420px] lg:overflow-y-auto">
               {picked.map((l) => (
-                <li key={l.id} className="flex flex-col gap-2 px-5 py-3">
+                <li key={l.id} className="req-in flex flex-col gap-2 px-5 py-3">
                   <span className="flex items-start justify-between gap-2">
                     <span className="text-sm font-semibold text-heading">{l.item}</span>
                     <button type="button" onClick={() => pick(l, 0)} aria-label={`Remove ${l.item}`} className="text-ink-muted hover:text-bad-fg"><X className="h-4 w-4" /></button>
@@ -186,7 +235,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
               ))}
             </ul>
             <div className="flex flex-col gap-1 border-t-2 border-heading px-5 py-4">
-              <span className="flex items-baseline justify-between gap-2"><span className="font-bold">My total</span><span className="font-display text-xl font-extrabold text-brand-deep">{fmt(myTotal, plan.currency)}</span></span>
+              <span className="flex items-baseline justify-between gap-2"><span className="font-bold">My total</span><span className="font-display text-xl font-extrabold text-brand-deep">{fmt(shownTotal, plan.currency)}</span></span>
               {myUnpriced ? <span className="text-xs text-ink-muted">Plus {myUnpriced} {myUnpriced === 1 ? "item" : "items"} not yet priced</span> : null}
               <a href={`${myPlanHref}&download=1`} className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 text-[14px] font-semibold text-ink hover:bg-brand hover:text-white"><FileDown aria-hidden className="h-4 w-4" />Download my plan (PDF)</a>
               <span className="mt-1 flex items-center justify-between gap-2">
@@ -203,18 +252,20 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
 
 /**
  * One requirement as a single row: icon, name (marked "Optional" when it is), a short note;
- * then the cost and "Add". Must-have is the default, so it carries no label.
+ * then the cost and "Add". Must-have is the default, so it carries no label. Rows rise in, one after
+ * another, as they are reached (data-reveal), and a row gives a small pop when it is added.
  */
-function RequirementCard({ l, currency, added, onToggle }: { l: CalcLine; currency: string; added: number; onToggle: () => void }) {
+function RequirementCard({ l, n, tone, currency, added, onToggle }: { l: CalcLine; n: number; tone: string; currency: string; added: number; onToggle: () => void }) {
   const I = iconFor(l.category);
   const qty = `${l.qty.toLocaleString("en-UG")}${l.unit ? ` ${l.unit}` : ""}`;
   return (
-    <article className={`flex flex-col gap-3 rounded-2xl border bg-white p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4 ${added ? "border-brand" : "border-line"}`}>
-      <div className="flex min-w-0 flex-1 items-start gap-3.5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><I aria-hidden className="h-5 w-5" strokeWidth={1.75} /></span>
+    <article data-reveal="" data-added={added ? "" : undefined} style={{ "--d": `${Math.min(n, 5) * 50}ms` } as React.CSSProperties}
+      className={`req-card flex flex-col gap-3 rounded-2xl border p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4 ${added ? "border-brand bg-brand-tint/60" : "border-line bg-white"}`}>
+      <div className="flex min-w-0 flex-1 items-center gap-3.5">
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${tone}`}><I aria-hidden className="h-6 w-6" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-col gap-1">
           <h5 className="font-display text-[17px] font-extrabold leading-tight text-heading">
-            {l.item}{l.optional ? <span className="ml-2 align-middle text-xs font-semibold text-accent-dark">Optional</span> : null}
+            {l.item}{l.optional ? <span className="ml-2 rounded-full bg-accent-tint px-2 py-0.5 align-middle text-xs font-bold text-accent-dark">Optional</span> : null}
           </h5>
           {l.details ? <p className="line-clamp-2 text-sm leading-relaxed text-ink-muted">{l.details}</p> : null}
         </span>
@@ -225,14 +276,14 @@ function RequirementCard({ l, currency, added, onToggle }: { l: CalcLine; curren
             <span className="text-sm text-ink-muted">{l.reason ?? "Price to be confirmed"}</span>
           ) : (
             <>
-              <span className="whitespace-nowrap font-display text-base font-bold text-brand-deep">{fmt(l.price * l.qty, currency)}</span>
+              <span className="whitespace-nowrap font-display text-[18px] font-extrabold text-brand-deep">{fmt(l.price * l.qty, currency)}</span>
               {l.qty !== 1 || l.unit ? <span className="whitespace-nowrap text-xs text-ink-muted">{qty}{l.qty !== 1 ? ` × ${fmt(l.price, currency)}` : ""}</span> : null}
             </>
           )}
         </span>
         <button type="button" onClick={onToggle} aria-pressed={Boolean(added)} aria-label={added ? `Remove ${l.item} from my list` : `Add ${l.item} to my list`}
-          className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-semibold transition ${added ? "bg-brand-deep text-white" : "bg-brand text-white hover:bg-brand-dark"}`}>
-          {added ? <><Check aria-hidden className="h-4 w-4" />Added</> : <><Plus aria-hidden className="h-4 w-4" />Add</>}
+          className={`inline-flex h-11 min-w-[6rem] shrink-0 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-colors duration-150 active:scale-[0.97] ${added ? "bg-[#1F7A4D] text-white" : "bg-brand text-white hover:bg-brand-dark"}`}>
+          {added ? <><Check aria-hidden className="list-pop h-4 w-4" strokeWidth={3} />Added</> : <><Plus aria-hidden className="h-4 w-4" />Add</>}
         </button>
       </div>
     </article>

@@ -92,9 +92,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       <AutoSubmit />
 
       {/* ── Search bar and advanced panel ── */}
-      <section className="border-b border-line bg-white">
+      <section className="under-header hero-glow hero-still bg-navy">
         <div className="container-site flex flex-col gap-4 py-6 lg:py-8">
-          <h1 className="text-page-title text-heading">Search BizSphere-Ug</h1>
+          <h1 className="text-page-title text-white">Search BizSphere-Ug</h1>
           {/* A plain checkbox (no name, so it isn't sent) opens and closes the panel without JavaScript */}
           <div className="group/adv flex flex-col">
             <input id="adv-toggle" type="checkbox" defaultChecked={advancedOpen} className="peer sr-only" />
@@ -104,8 +104,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                 <input name="q" type="search" defaultValue={p.q} aria-label="Search" placeholder="Search ideas, machines, suppliers, funding, experts…" className="w-full min-w-0 bg-transparent text-base outline-none placeholder:text-ink-muted" />
               </span>
               <div className="flex gap-2.5">
-                <button className="btn-primary min-h-[52px] flex-1 px-7 text-[15px] sm:flex-none">Search</button>
-                <label htmlFor="adv-toggle" className="btn-outline min-h-[52px] flex-1 cursor-pointer whitespace-nowrap peer-focus-visible:ring-4 sm:flex-none">
+                <button className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-[10px] bg-accent px-7 text-[15px] font-bold text-ink transition-colors hover:bg-white sm:flex-none">Search</button>
+                <label htmlFor="adv-toggle" className="btn-outline min-h-[52px] flex-1 cursor-pointer whitespace-nowrap bg-white peer-focus-visible:ring-4 sm:flex-none">
                   <SlidersHorizontal aria-hidden className="h-4 w-4" />
                   <span className="group-has-[#adv-toggle:checked]/adv:hidden">Advanced search</span>
                   <span className="hidden group-has-[#adv-toggle:checked]/adv:inline">Hide advanced search</span>
@@ -115,14 +115,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
             {/* What people come to do: one tap shows every page about that task, across all directories */}
             <div className="mt-4 flex flex-col gap-2">
-              <span className="text-[13px] font-semibold text-ink-soft">What do you need to do?</span>
+              <span className="text-[14px] font-semibold text-white">What do you need to do?</span>
               <ul aria-label="Topics" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible">
                 {TOPICS.map((t) => {
                   const on = p.topic === t.id;
                   return (
                     <li key={t.id} className="shrink-0">
                       <Link href={url([["topic"], ["page"]], on ? {} : { topic: t.id })} aria-current={on ? "true" : undefined}
-                        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink-soft hover:border-brand hover:text-brand"}`}>
+                        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-accent bg-accent text-ink hover:text-ink" : "border-white bg-white text-ink-soft hover:text-brand"}`}>
                         {t.label}{on ? <span aria-hidden>×</span> : null}
                       </Link>
                     </li>

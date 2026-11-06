@@ -15,6 +15,8 @@ import { trackView } from "@/components/DetailParts";
 import { Icon } from "@/components/Icon";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaCard, PLAN_LABEL, PLAN_ORDER, points, titleCase } from "@/components/IdeaParts";
+import { DropHint } from "@/components/DropHint";
+import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RecentStrip, RememberVisit } from "@/components/Recent";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "@/components/ProductGallery";
@@ -112,7 +114,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     ["Profit Potential", profit, null],
     ["Key Skills", join(skills), null],
     ["Time to setup", idea.setupTime, null],
-    ["Startup Budget", scenarios.length ? <a href="#budget" className="font-semibold text-brand">See the start-up budget below ↓</a> : null, null],
+    ["Startup Budget", scenarios.length ? <Link href={`?scenario=${scenario!.level}#budget`} className="font-semibold text-brand">See the start-up budget below ↓</Link> : null, null],
   ];
 
   // Gallery: the main photo, then extra photos and videos added under "Photos and media".
@@ -134,6 +136,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     .map((s) => (s.table.key === "media" ? { ...s, rows: s.rows.filter((r) => r.mediaType !== "image" && r.mediaType !== "video") } : s))
     .filter((s) => s.rows.length);
 
+  const dropHead = "flex cursor-pointer list-none items-center justify-between gap-3";
   const card = "flex scroll-mt-36 flex-col gap-5 rounded-3xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(7,26,51,0.04)] sm:p-7";
   const h2 = "font-display text-lg font-extrabold text-heading";
 
@@ -200,17 +203,18 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
         <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
           {/* ── 1. The template, as in the client's document: S/N, Name, Details, Notes ── */}
           <section id="template" className={card} data-reveal="">
-            <SectionTitle n="01" kicker="The idea" title="Business idea" sub="Everything about this business, as one simple table." icon={Lightbulb} />
-            <div className="overflow-x-auto rounded-xl border border-line">
-              <table className="w-full min-w-[560px] text-left text-[13px] sm:text-sm">
-                <thead className="bg-brand-deep text-xs text-white/90">
-                  <tr><th className="w-12 px-3 py-2.5 font-semibold">S/N</th><th className="w-48 px-3 py-2.5 font-semibold">Name</th><th className="px-3 py-2.5 font-semibold">Details</th><th className="w-[30%] px-3 py-2.5 font-semibold">Notes</th></tr>
+            <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
+              <summary className={dropHead}><SectionTitle n="01" kicker="The idea" title="Business idea" sub="Everything about this business, as one simple table." icon={Lightbulb} /><DropHint /></summary>
+            <div className="mt-5 overflow-x-auto rounded-xl border border-line">
+              <table className="w-full min-w-[640px] text-left text-[15px] sm:text-[16px]">
+                <thead className="bg-brand-deep text-[14px] text-white">
+                  <tr><th className="w-12 px-3 py-3 font-bold">S/N</th><th className="w-56 px-3 py-3 font-bold">Name</th><th className="px-3 py-3 font-bold">Details</th><th className="px-3 py-3 font-bold">Notes</th></tr>
                 </thead>
                 <tbody>
                   {template.map(([k, v, note], n) => (
                     <tr key={k} className={`border-t border-line align-top ${KEY_ROWS.includes(k) ? "bg-accent-tint/60" : n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
                       <td className="px-3 py-2.5 text-ink-muted">{n + 1}</td>
-                      <td className="px-3 py-2.5 font-medium text-ink-soft">{KEY_ROWS.includes(k) ? <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />{k}</span> : k}</td>
+                      <td className="px-3 py-2.5 font-display font-extrabold text-heading">{KEY_ROWS.includes(k) ? <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />{k}</span> : k}</td>
                       <td className={`whitespace-pre-line break-words px-3 py-2.5 font-semibold ${KEY_ROWS.includes(k) ? "text-brand-dark" : "text-heading"}`}>{v || <span className="font-normal text-ink-muted">—</span>}</td>
                       <td className="whitespace-pre-line break-words px-3 py-2.5 text-ink-muted">{note}</td>
                     </tr>
@@ -218,21 +222,22 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </tbody>
               </table>
             </div>
+            </details>
           </section>
 
           {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
           <section id="budget" className={card} data-reveal="">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <SectionTitle n="02" kicker="What it costs" title="Start-up Budget" sub="What to buy and pay to open, item by item." icon={Wallet} />
+            <details open={Boolean(wanted)} className="group/drop [&>summary::-webkit-details-marker]:hidden">
+              <summary className={dropHead}><SectionTitle n="02" kicker="What it costs" title="Start-up Budget" sub="What to buy and pay to open, item by item." icon={Wallet} /><DropHint /></summary>
+            <div className="mt-5 flex flex-col gap-5">
               {scenarios.length > 1 ? (
-                <nav aria-label="Business size" className="inline-flex gap-1 rounded-full border border-line bg-page p-1">
+                <nav aria-label="Business size" className="inline-flex w-fit gap-1 rounded-full border border-line bg-page p-1">
                   {scenarios.map((s) => (
                     <Link key={s.id} href={`?scenario=${s.level}#budget`} scroll={false} aria-current={s.level === scenario!.level ? "true" : undefined}
                       className={`rounded-full px-3 py-1 text-[13px] font-semibold ${s.level === scenario!.level ? "bg-brand text-white hover:text-white" : "text-ink-soft hover:text-brand"}`}>{PLAN_LABEL[s.level]}</Link>
                   ))}
                 </nav>
               ) : null}
-            </div>
             {scenario ? (
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <Stat label="Items" value={String(scenario.lines.length)} />
@@ -283,6 +288,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </table>
               </div>
             ) : <p className="text-sm text-ink-muted">Being prepared.</p>}
+            </div>
+            </details>
           </section>
 
           {/* ── What it takes: the machines, funding, experts and tools linked to this idea ── */}
@@ -329,12 +336,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
           </p>
 
-          {!viewer.isMember ? (
-            <section className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-brand-deep p-5 text-white sm:flex-row sm:items-center">
-              <span className="font-display text-base font-extrabold">See the full budget and every step{plan.monthly ? `, from ${plan.monthly} a month` : ""}.</span>
-              <Link href={path} data-onboard="" className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock</Link>
-            </section>
-          ) : null}
+          {gated ? <MemberValue wide back={path} plan={plan} unlocks={[hiddenLines > 0 ? `${hiddenLines} more budget item${hiddenLines === 1 ? "" : "s"}` : "The full start-up budget", ...(scenarios.length > 1 ? ["Every budget size"] : []), "Every step to start"]} /> : null}
 
           {/* ── More ideas: the same category, or others when it has none ── */}
           {more.length ? (

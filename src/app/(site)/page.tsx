@@ -34,12 +34,12 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            about 80px above and 112px below (raised from 35/46, then 48/64, then 64/80); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
+            about 100px above and 140px below (raised from 35/46, then 48/64, then 64/80, then 80/112); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[112px] pt-2 sm:pt-[52px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[140px] pt-2 sm:pt-[72px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
@@ -70,7 +70,7 @@ export default async function HomePage() {
             </ul>
 
             <div className="mt-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <Link {...(viewer.userId && viewer.isMember ? { href: "/business-ideas" } : { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" })} className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">Get started free<ChevronRight aria-hidden className="h-4 w-4" /></Link>
+              <Link {...(viewer.userId && viewer.isMember ? { href: "/business-ideas" } : { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" })} className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">{viewer.isMember ? "Browse business ideas" : "Get full access"}<ChevronRight aria-hidden className="h-4 w-4" /></Link>
               <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
           </div>

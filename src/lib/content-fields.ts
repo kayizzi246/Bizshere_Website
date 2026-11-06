@@ -273,5 +273,12 @@ export const isMemberOnly = (type: ContentType, f: Field) => {
   return Boolean(m && (m.fields?.includes(f.name) || (f.group && m.groups?.includes(f.group))));
 };
 
+/** The names of the filled member-only fields, for "what membership opens". A from/to pair counts once. Names only: never the values. */
+export const memberOnlyLabels = (type: ContentType, record: Record<string, unknown>) => {
+  const filled = (v: unknown) => v !== null && v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0);
+  const fields = directoryFor(type)?.fields.filter((f) => isMemberOnly(type, f) && filled(record[f.name])) ?? [];
+  return [...new Set(fields.map((f) => f.label.replace(/,?\s+(from|to|up to)$/i, "")))];
+};
+
 /** Amount fields shown with the record's currency. */
 export const MONEY_FIELDS = new Set(["capitalMin", "capitalMax", "priceMin", "priceMax", "amountMin", "amountMax", "minAnnualTurnover", "capitalSought", "minimumParticipation", "feeMin", "feeMax"]);

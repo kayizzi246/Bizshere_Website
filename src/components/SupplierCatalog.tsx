@@ -10,7 +10,7 @@ export type CatalogItem = { id: string; name: string; image: string | null; pric
  * "Product catalog" table or from the supplier at /supplier (shown once the team approves them).
  * Visitors see the products but not the prices.
  */
-export function SupplierCatalog({ items, gated, back, title = "Products", wide = true }: { items: CatalogItem[]; gated: boolean; back: string; title?: string; /** Full page width: five across. Beside the contact card, three. */ wide?: boolean }) {
+export function SupplierCatalog({ items, gated, back, title = "Products", wide = true }: { items: CatalogItem[]; gated: boolean; back: string; title?: string; /** Full page width: five across. Beside the contact card, four. */ wide?: boolean }) {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
@@ -20,7 +20,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products", wide =
       {items.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line-strong bg-white px-5 py-8 text-center text-sm text-ink-muted">This supplier hasn&apos;t added products yet.</p>
       ) : (
-        <ul className={`grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 ${wide ? "lg:grid-cols-4 xl:grid-cols-5" : ""}`}>
+        <ul className={`grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 ${wide ? "lg:grid-cols-4 xl:grid-cols-5" : "xl:grid-cols-4"}`}>
           {items.map((p) => (
             <li key={p.id}>
               <Link href={`${back}/products/${p.id}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">

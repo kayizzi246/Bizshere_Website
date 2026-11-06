@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, Mail, MapPin, Phone, type LucideIcon } from "lucide-react";
+import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, MapPin, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { popupPlan } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
 import { moneyRange } from "@/lib/format";
+import { ContactButtons } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
+import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RememberVisit } from "@/components/Recent";
 import { SupplierCatalog } from "@/components/SupplierCatalog";
@@ -16,7 +18,7 @@ import { WishlistButton } from "@/components/Wishlist";
 export const dynamic = "force-dynamic";
 
 /**
- * A supplier's shop front: a banner with their own product photo, name and what they sell; then the
+ * A supplier's shop front: a plain navy banner with their logo, name and what they sell; then the
  * products as a shop grid with the story of the business above it, beside a contact card that stays
  * in view on wide screens. On phones the contact card comes first. Details with no value are left out.
  *
@@ -47,7 +49,6 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const name = item.title.replace(/^Sample:\s*/i, "");
   const logo = s.organization.logoUrl ?? s.pictureUrl;
-  const cover = s.listings.find((l) => l.imageUrl)?.imageUrl ?? s.pictureUrl;
   const place = s.organization.locations[0];
   const address = [place?.physicalAddress, place?.town].filter(Boolean).join(", ");
   const catalogue = item.media[0];
@@ -75,11 +76,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article>
         {/* ── Shop banner ── */}
-        <header className="under-header hero-glow hero-still relative overflow-hidden bg-navy text-white">
-          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-          {cover ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" /> : null}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/40" />
-          <div className="container-site relative flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
+        <header className="under-header bg-navy text-white">
+          <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
             <Link href="/suppliers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white/75 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All suppliers</Link>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
@@ -116,23 +114,14 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                 </section>
               ) : null}
               <div id="products" className="scroll-mt-28"><SupplierCatalog items={products} gated={gated} back={path} wide={false} /></div>
+              {gated ? <MemberValue wide back={path} plan={plan} unlocks={[...(s.phone ? ["Phone and WhatsApp"] : []), ...(s.email ? ["Email address"] : []), ...(s.listings.some((l) => l.priceMin !== null || l.priceMax !== null) ? ["Product prices"] : []), ...(catalogueLocked ? ["Catalogue download"] : [])]} /> : null}
               <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
             </div>
 
             {/* ── Contact: first on phones, beside the shop on wide screens ── */}
             <aside className="order-first flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-24 lg:order-none">
               <h2 className="font-display text-lg font-extrabold text-heading">Contact this supplier</h2>
-              {gated ? (
-                <div className="flex flex-col gap-2">
-                  <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />See phone and email</Link>
-                  <p className="text-[13px] leading-snug text-ink-muted">Contacts and prices are open to members.</p>
-                </div>
-              ) : s.phone || s.email ? (
-                <div className="flex flex-col gap-2">
-                  {s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />{s.phone}</a> : null}
-                  {s.email ? <a href={`mailto:${s.email}`} className="inline-flex min-h-[48px] items-center justify-center gap-2 break-all rounded-xl border border-line bg-white px-4 py-2 text-center text-[14px] font-bold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4 shrink-0" />{s.email}</a> : null}
-                </div>
-              ) : <p className="text-[14px] text-ink-muted">No phone or email listed yet.</p>}
+              <ContactButtons me="us" phone={s.phone} email={s.email} gated={gated} back={path} />
               {details.length ? (
                 <dl className="flex flex-col gap-3 border-t border-line pt-4">
                   {details.map(([Glyph, label, value]) => (

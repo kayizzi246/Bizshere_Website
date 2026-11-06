@@ -123,9 +123,9 @@ export async function HomeFeatures() {
   const strip = suppliers.length ? Array.from({ length: Math.ceil(5 / suppliers.length) }, () => suppliers).flat() : [];
 
   return (
-    <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
+    <section id="features" className="scroll-mt-24 overflow-x-clip bg-brand-tint/50">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="max-w-2xl text-hero text-[24px] leading-[1.15] text-black sm:text-[30px] lg:text-[36px]">Everything a business needs, on one platform</h2>
+        <h2 className="max-w-3xl text-hero text-[27px] leading-[1.12] text-black sm:text-[35px] lg:text-[42px]">Everything a business needs, on one platform</h2>
         <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
         {sell ? (
           <div className="mt-2 flex flex-col items-center gap-2">

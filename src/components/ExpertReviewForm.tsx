@@ -9,7 +9,7 @@ import { submitExpertReview } from "@/app/actions/reviews";
 export function ExpertReviewForm({ consultantId, back, signedIn, status }: { consultantId: string; back: string; signedIn: boolean; status?: string }) {
   return (
     <div id="reviews" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-      <h2 className="hl w-fit font-display text-lg font-extrabold text-heading sm:text-xl">Write a review</h2>
+      <h2 className="w-fit font-display text-lg font-extrabold text-heading sm:text-xl">Write a review</h2>
       {status === "sent" ? <p role="status" className="rounded-lg bg-brand-tint px-3 py-2 text-sm font-semibold text-brand-dark">Thank you. Your review will show once our team has checked it.</p> : null}
       {status === "error" ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-sm font-semibold text-bad-fg">Choose a star rating and write at least a few words.</p> : null}
       {signedIn ? (

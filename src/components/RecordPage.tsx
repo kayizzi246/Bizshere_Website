@@ -12,6 +12,8 @@ import { FieldSections, fieldCount, visibleGroups } from "./FieldSections";
 import { Expand, ReadMore, RecentStrip, RememberVisit } from "./Recent";
 import { ChildSections, loadChildSections } from "./ChildSections";
 import { Icon } from "./Icon";
+import { MemberValue } from "./MemberValue";
+import { memberOnlyLabels } from "@/lib/content-fields";
 import { ProductCard, type Product } from "./ProductCard";
 import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
@@ -83,6 +85,7 @@ export async function RecordPage({
     ...(contact === "locked" ? ["Contact details"] : []),
   ];
   const locked = !viewer.isMember && (lockedLabels.length > 0 || Boolean(details?.gated));
+  const unlocks = [...lockedLabels, ...(details?.gated ? memberOnlyLabels(details.type, details.record) : [])];
   const shownTexts = texts.filter((t) => t.locked || t.text);
   const shownLinks = links.filter((l) => l.locked || l.href);
   // Offers, listings, rounds, fees, services and the rest (src/lib/child-tables.ts).
@@ -185,7 +188,7 @@ export async function RecordPage({
                 {/* Contact and where to buy, right under the details */}
                 <section id="contact" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl bg-page p-4 sm:p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h2 className="hl w-fit font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
+                    <h2 className="w-fit font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
                     {locked ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
                   </div>
                   {whereRow?.locked || contact === "locked" ? (
@@ -245,12 +248,13 @@ export async function RecordPage({
         <div className="bg-page">
           <div className="container-site flex flex-col gap-4 py-4 sm:py-5">
             {catalog ? <div id="catalog" className="scroll-mt-36">{catalog}</div> : null}
+            {locked ? <MemberValue wide back={back} unlocks={unlocks} plan={planInfo} /> : null}
             {/* Two to a row from laptop width: specifications, description and the child sections */}
             <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2">
             {/* Specifications: one plain table, rows in alternating colours */}
             {(details && detailCount) || facts.length ? (
               <section id="specs" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
-                <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Specifications</h2>
+                <h2 className="w-fit font-display text-lg font-extrabold text-heading">Specifications</h2>
                 {/* The key facts first (they used to sit beside the photo), then every other field */}
                 {facts.length ? (
                   <dl className="overflow-hidden rounded-xl border border-line">
@@ -270,7 +274,7 @@ export async function RecordPage({
               <section id="overview" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
                 {shownTexts.map((t) => (
                   <div key={t.label} className="flex flex-col gap-1.5">
-                    <h2 className="hl w-fit font-display text-base font-extrabold text-heading">{t.label}</h2>
+                    <h2 className="w-fit font-display text-base font-extrabold text-heading">{t.label}</h2>
                     {t.locked ? (
                       <p className="flex items-center gap-3 text-sm text-ink-muted">For members. {unlock("Unlock")}</p>
                     ) : (
@@ -375,7 +379,7 @@ export async function RecordPage({
             <section id="overview" className="flex scroll-mt-36 flex-col gap-4">
               {shownTexts.map((t) => (
                 <div key={t.label} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5 sm:p-6">
-                  <h2 className="hl w-fit font-display text-lg font-extrabold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
+                  <h2 className="w-fit font-display text-lg font-extrabold tracking-[-0.01em] text-heading sm:text-xl">{t.label}</h2>
                   {t.locked ? (
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-page p-4 text-sm text-ink-muted">
                       <span>The {t.label.toLowerCase()} is for members.</span>{unlock("Unlock")}
@@ -400,6 +404,8 @@ export async function RecordPage({
 
           <ChildSections sections={sections.filter((x) => x.table.layout === "gallery")} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
 
+          {locked && !product ? <div className="lg:hidden"><MemberValue back={back} unlocks={unlocks} plan={planInfo} /></div> : null}
+
           {/* ── 4. Evidence ── */}
           <div id="evidence" className="scroll-mt-36">
             <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={back} />
@@ -414,22 +420,13 @@ export async function RecordPage({
           {picture && shownRows.length ? <Facts rows={shownRows} unlock={unlock} /> : null}
           {product ? <ProductCard product={product} back={back} price={planInfo.monthly} /> : null}
 
-          {/* Phones already have the unlock button in the header and the bar at the bottom */}
-          {locked && !product ? (
-            <section className="hidden flex-col gap-3 rounded-2xl bg-brand-deep p-6 text-white lg:flex">
-              <span className="font-display text-base font-bold">See the full listing</span>
-              <p className="text-[13px] leading-relaxed text-white/75">
-                {lockedLabels.length ? `Members see ${lockedLabels.join(", ").toLowerCase()} and every other detail.` : "Members see prices, contacts, terms and downloads."}
-              </p>
-              <Link href={back} data-onboard="" className="btn bg-accent text-ink hover:bg-white hover:text-ink">Unlock full access</Link>
-              <p className="text-xs text-white/60">{planInfo.monthly ? `${planInfo.monthly} a month · ` : ""}MTN MoMo, Airtel Money or card</p>
-            </section>
-          ) : null}
+          {/* Phones get this further down, after the details (above Evidence) */}
+          {locked && !product ? <div className="hidden lg:block"><MemberValue back={back} unlocks={unlocks} plan={planInfo} /></div> : null}
 
           {contact !== undefined ? (
             <section id="contact" className="flex scroll-mt-36 flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="hl w-fit font-display text-lg font-extrabold text-heading">Contact</h2>
+                <h2 className="w-fit font-display text-lg font-extrabold text-heading">Contact</h2>
                 {contact === "locked" ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
               </div>
               {contact === "locked" ? (
@@ -458,7 +455,7 @@ export async function RecordPage({
 
           {shownLinks.length ? (
             <section className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-6">
-              <h2 className="hl w-fit mb-0.5 font-display text-sm font-extrabold text-heading">Useful links</h2>
+              <h2 className="w-fit mb-0.5 font-display text-sm font-extrabold text-heading">Useful links</h2>
               {/* Same pill buttons as the download card, full width and thumb-sized on phones */}
               {shownLinks.map((l) =>
                 l.locked ? (
