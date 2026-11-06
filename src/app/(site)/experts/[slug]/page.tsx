@@ -204,7 +204,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
             </div>
 
             {/* ── Get in touch: first on phones, beside the profile on wide screens ── */}
-            <aside className="order-first flex flex-col gap-4 rounded-3xl border border-line bg-white p-5 lg:sticky lg:top-24 lg:order-none">
+            <aside className="order-first flex flex-col gap-4 rounded-3xl border border-line bg-white p-5 lg:sticky lg:top-32 lg:order-none">
               <h2 className={h2}>Talk to this expert</h2>
               <ContactButtons phone={c.phone} email={c.email} gated={gated} back={path} />
               {details.length ? (

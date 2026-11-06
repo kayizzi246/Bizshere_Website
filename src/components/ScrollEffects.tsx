@@ -10,8 +10,7 @@ import { usePathname } from "next/navigation";
  *                            style={{ "--d": "120ms" }} staggers it.
  *   data-count="42"          counts up from 0 to 42 when it comes into view.
  *
- * Plus a thin reading-progress bar under the header, and the header itself slides away as you
- * scroll down and comes back as soon as you scroll up.
+ * Plus a thin reading-progress bar under the header.
  *
  * Content below the fold is only hidden once this component has mounted (the
  * `reveal-ready` class on <html>), and nothing moves for visitors who ask for
@@ -79,24 +78,6 @@ export function ScrollEffects() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(frame); };
-  }, [path]);
-
-  // The header: away going down, back going up. Always there near the top, and while its menu is open
-  // or something in it has keyboard focus.
-  useEffect(() => {
-    const header = document.querySelector<HTMLElement>("[data-site-header]");
-    if (!header) return;
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      const moved = y - last;
-      if (Math.abs(moved) < 6) return;
-      last = y;
-      const keep = y < 120 || moved < 0 || header.querySelector("details[open]") || header.contains(document.activeElement);
-      header.toggleAttribute("data-hidden", !keep);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); header.removeAttribute("data-hidden"); };
   }, [path]);
 
   return <div ref={bar} aria-hidden className="scroll-progress" />;

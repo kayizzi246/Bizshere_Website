@@ -33,8 +33,8 @@ function databaseUrl(): string | undefined {
  * Neon closes connections that sit idle, and a warm Vercel function keeps using them: every query
  * in that request then fails with P1017 "Server has closed the connection" (seen in the live logs,
  * 29 Oct 2026). Prisma replaces a closed connection on the next attempt, so a failed READ is
- * retried after a short pause. The same goes when the database is briefly full. Writes are never
- * retried: one might already have been saved.
+ * retried after a short pause. Other writes are never retried, as one might already have been saved;
+ * the exception is a database that is briefly full, when nothing has run yet (refused below).
  */
 const RETRY_CODES = new Set(["P1017", "P1001", "P1002", "P2024", "P2037"]); // closed, unreachable, timed out, pool timeout, too many connections
 const READS = new Set(["findMany", "findFirst", "findFirstOrThrow", "findUnique", "findUniqueOrThrow", "count", "aggregate", "groupBy"]);
@@ -47,6 +47,12 @@ function retryable(e: unknown) {
   return (err.code && RETRY_CODES.has(err.code)) || /Server has closed the connection|Can't reach database server|Connection terminated|kind: Closed|too many (database )?connections/i.test(err.message ?? "");
 }
 
+/** The database turned the connection away, so the query never ran: safe to try again, even a save. */
+function refused(e: unknown) {
+  const err = e as { code?: string; message?: string };
+  return err.code === "P2037" || /too many (database )?connections/i.test(err.message ?? "");
+}
+
 function createClient() {
   return new PrismaClient({
     datasourceUrl: databaseUrl(),
@@ -54,12 +60,12 @@ function createClient() {
   }).$extends({
     query: {
       async $allOperations({ operation, args, query }) {
-        if (!READS.has(operation)) return query(args);
+        const read = READS.has(operation);
         for (let attempt = 1; ; attempt++) {
           try {
             return await query(args);
           } catch (e) {
-            if (attempt >= ATTEMPTS || !retryable(e)) throw e;
+            if (attempt >= ATTEMPTS || !(read ? retryable(e) : refused(e))) throw e;
             await new Promise((r) => setTimeout(r, 100 * attempt));
           }
         }

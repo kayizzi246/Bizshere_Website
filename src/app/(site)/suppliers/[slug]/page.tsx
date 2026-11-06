@@ -119,7 +119,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
             </div>
 
             {/* ── Contact: first on phones, beside the shop on wide screens ── */}
-            <aside className="order-first flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-24 lg:order-none">
+            <aside className="order-first flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-32 lg:order-none">
               <h2 className="font-display text-lg font-extrabold text-heading">Contact this supplier</h2>
               <ContactButtons me="us" phone={s.phone} email={s.email} gated={gated} back={path} />
               {details.length ? (

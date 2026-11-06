@@ -227,7 +227,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
             </div>
 
             {/* ── What to do next ── */}
-            <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-24">
+            <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-32">
               {gated ? <MemberValue back={path} unlocks={lockedTerms} plan={plan} /> : null}
               {f.officialTermsUrl ? (
                 <a data-visit="" href={f.officialTermsUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 rounded-2xl bg-navy p-3.5 text-white transition-colors hover:bg-brand hover:text-white">

@@ -1,37 +1,48 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Check, FileText, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Check, FileText, LockKeyhole, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { PERIOD_INFO, PLAN_PERIODS, popupPlan, type MemberPeriod } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
 import { directory } from "@/config/directories";
+import { compactRange, date, itemHref } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
+import { PanelParticles } from "./PanelParticles";
 
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
- * feature, words on the left and a fan of photos on the right; then Funding and Suppliers as two
+ * feature, words on the left and a fan of photos on the right; Business Machines with the words and
+ * photos swapped, so the page swings as it flows; then Funding and Suppliers as two
  * joined panels (Panel below) with real listings in them; then Experts and Tools side by side on
- * white (Card below); then the offer: what members get and the prices. The price is also under the
+ * white (Card below); Guides and News on a navy band; Market Prices and Useful Websites on
+ * white; then the offer: what members get and the prices. The price is also under the
  * title, and join buttons open the sign-up and payment pop-up right here. Members see no selling. Every heading is black, in the heaviest weight, and the words
  * are centred on every screen size.
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
  * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. Only
- * the fan and the funding rows move as they come into view, and the suppliers glide past in a row.
+ * each block rises gently into place once as it is reached (.rise-soft), the fan takes turns, and the
+ * suppliers glide past in a row.
  */
-const clean = (title: string) => title.replace(/^Sample:\s*/i, "");
+const clean = (title: string) => title.replace(/^Sample:\s*/i, "").replace(/^./, (c) => c.toUpperCase());
 
 async function records() {
   const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
   const live = { publicationStatus: "PUBLISHED" } as const;
-  const [ideas, funding, suppliers] = await Promise.all([
+  const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
+  const [ideas, funding, suppliers, machines, guides, news, websites, products] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 4 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 8 }),
+    prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "GUIDE", ...live }, select: item, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "NEWS", ...live }, select: item, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "WEBSITE", ...live }, select: item, orderBy: [...newest], take: 6 }),
+    prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
   ]);
-  return { ideas, funding, suppliers };
+  return { ideas, funding, suppliers, machines, guides, news, websites, products };
 }
 
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
@@ -72,13 +83,13 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 /**
  * One part: name, heading, sentence, what it holds and a button at the bottom, so two side by side line up.
  */
-function Card({ href, title, text, action, mark, button, children }: { href: string; title: string; text: string; action: string; mark: string; button?: string; children: React.ReactNode }) {
+function Card({ href, title, text, action, mark, button, dark = false, children }: { href: string; title: string; text: string; action: string; mark: string; button?: string; dark?: boolean; children: React.ReactNode }) {
   return (
-    <li>
+    <li data-reveal="" className="rise-soft">
       <div className="flex h-full flex-col items-center gap-3 text-center">
         <Label href={href} tone={mark} />
-        <h3 className={cardHeading}>{title}</h3>
-        <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
+        <h3 className={dark ? "text-hero text-[23px] leading-[1.2] text-white sm:text-[27px] lg:text-[30px]" : cardHeading}>{title}</h3>
+        <p className={`mx-auto max-w-lg text-[15px] leading-relaxed sm:text-[16px] ${dark ? "text-white" : "text-ink-soft"}`}>{text}</p>
         <div className="w-full flex-1">{children}</div>
         <span className="mt-auto pt-1"><Go href={href} tone={button}>{action}</Go></span>
       </div>
@@ -89,7 +100,7 @@ function Card({ href, title, text, action, mark, button, children }: { href: str
 /** A panel in a full brand colour, joined to the one beside it: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
 function Panel({ href, title, text, action, tint, words, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; children: React.ReactNode }) {
   return (
-    <li className={`flex flex-col gap-4 p-5 sm:p-7 ${tint}`}>
+    <li data-reveal="" className={`rise-soft flex flex-col gap-4 p-5 sm:p-7 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} tone="" />
         <h3 className="text-hero text-[20px] leading-[1.2] sm:text-[23px] lg:text-[26px]">{title}</h3>
@@ -104,13 +115,28 @@ function Panel({ href, title, text, action, tint, words, children }: { href: str
 const Points = ({ points, mark, tint }: { points: [LucideIcon, string][]; mark: string; tint: string }) => (
   <ul className="flex flex-wrap justify-center gap-2">
     {points.map(([Glyph, label]) => (
-      <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-heading ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
+      <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
+    ))}
+  </ul>
+);
+
+/** Plain rows of reading: a name, a line under it, a hairline between. No background of their own. */
+const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
+  <ul className="mx-auto flex w-full max-w-xl flex-col divide-y divide-white/20 text-left">
+    {items.map((r, n) => (
+      <li key={r.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
+        <Link href={itemHref(r)} className="group flex flex-col gap-0.5 py-3 text-white hover:text-white">
+          {note && r.publishedAt ? <span className="text-[12px] font-semibold text-accent">{date(r.publishedAt)}</span> : null}
+          <span className="font-display text-[16px] font-extrabold leading-snug group-hover:text-accent">{clean(r.title)}</span>
+          {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-white/85">{r.shortSummary}</span> : null}
+        </Link>
+      </li>
     ))}
   </ul>
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
   const plan = popupPlan(memberPlan);
   const offered = PLAN_PERIODS.filter((p) => plan.amounts[p]);
   const price = (p: MemberPeriod) => `${plan.currency} ${plan.amounts[p]!.toLocaleString("en-UG")}`;
@@ -123,7 +149,7 @@ export async function HomeFeatures() {
   const strip = suppliers.length ? Array.from({ length: Math.ceil(5 / suppliers.length) }, () => suppliers).flat() : [];
 
   return (
-    <section id="features" className="scroll-mt-24 overflow-x-clip bg-brand-tint/50">
+    <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="max-w-3xl text-hero text-[27px] leading-[1.12] text-black sm:text-[35px] lg:text-[42px]">Everything a business needs, on one platform</h2>
         <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
@@ -136,7 +162,7 @@ export async function HomeFeatures() {
       </div>
 
       <div className="container-site grid grid-cols-[minmax(0,1fr)] items-center gap-6 py-10 sm:py-12 lg:grid-cols-2 lg:gap-12">
-        <div className="flex flex-col items-center gap-3 text-center">
+        <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <Label href="/business-ideas" />
           <h3 className={heading}>Business plans with the real costs</h3>
           <p className={body}>Not sure what to start? Browse ready plans with every requirement and a line-by-line budget, in small, medium and large sizes.</p>
@@ -158,8 +184,51 @@ export async function HomeFeatures() {
         ) : null}
       </div>
 
+      {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
       <div className="container-site">
-        <ul data-panels="" className="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2">
+      <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-navy p-5 sm:p-8 ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+        <PanelParticles />
+        <div data-reveal="" className="relative flex flex-col items-start gap-4">
+          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/machines").title}</span>
+          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">The right machine for the job</h3>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">{directory("/machines").text}</p>
+          <Go href="/machines" tone="bg-accent text-ink hover:bg-white hover:text-ink">See business machines</Go>
+        </div>
+        {machines.length ? (
+          <div className="relative flex flex-col gap-2.5 rounded-3xl bg-brand-dark p-3 sm:p-4">
+            {machines.map((m, n) => {
+              const x = m.machine;
+              const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
+              const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
+              return (
+                <Link key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(m)} className="group flex items-center gap-3 rounded-2xl bg-navy p-2.5 text-white transition-colors hover:bg-black hover:text-white sm:gap-4 sm:p-3">
+                  <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-page sm:h-20 sm:w-20">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+                    <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  </span>
+                  {/* Phones: the price under the name, so the name has the whole width */}
+                  <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-display text-[16px] font-extrabold leading-tight sm:text-[19px]">{clean(m.title)}</span>
+                    {m.shortSummary ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{m.shortSummary}</span> : null}
+                  </span>
+                  {hasPrice ? (locked
+                    ? <span className="flex shrink-0 items-center gap-1.5 text-accent"><span aria-hidden className="select-none text-hero text-[18px] text-white blur-[6px] sm:text-[22px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
+                    : <span className="shrink-0 text-hero text-[16px] leading-tight sm:text-right sm:text-[22px]">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>) : null}
+                  </span>
+                </Link>
+              );
+            })}
+            {!viewer.isMember ? (
+              <p className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl bg-white px-4 py-2.5 text-[14px] font-semibold text-heading">
+                <span className="inline-flex items-center gap-2"><LockKeyhole aria-hidden className="h-4 w-4 text-brand" />Prices and where to buy</span>
+                <span className="rounded-lg bg-brand-dark px-2.5 py-1 text-[13px] font-bold text-white">For members</span>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+        <ul data-panels="" className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mt-5 sm:gap-5 md:grid-cols-2">
           <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink"
             text="Need money to start or grow? Compare banks, government programmes and other lenders.">
             <ul className="flex h-full flex-col gap-2">
@@ -223,18 +292,47 @@ export async function HomeFeatures() {
         <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
       <Card href="/experts" title="Advice from people who know" action="Find an expert" mark="text-brand"
         text="Don't guess on the hard parts. Talk to checked advisors and see the services they offer and the jobs they've done.">
-        <Points points={EXPERT_POINTS} mark="text-brand" tint="bg-brand-tint" />
+        <Points points={EXPERT_POINTS} mark="text-white" tint="bg-brand-dark text-white" />
       </Card>
 
       <Card href="/tools" title="Your numbers, done in minutes" action="Open the tools" mark="text-accent-dark" button="bg-accent text-ink hover:bg-accent-dark hover:text-white"
         text="Stop working it out by hand. Use ready calculators and templates for the sums every business has to do.">
-        <Points points={TOOL_POINTS} mark="text-accent-dark" tint="bg-accent-tint" />
+        <Points points={TOOL_POINTS} mark="text-ink" tint="bg-accent text-ink" />
       </Card>
         </ul>
       </div>
 
+      {/* Learn and keep up: navy, so the orange buttons stand out most here */}
+      <div data-reading="" className="bg-navy">
+      <div className="container-site py-8 sm:py-12">
+        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
+          <Card dark href="/guides" title="Step-by-step help" action="See all guides" mark="text-accent" button="bg-accent text-ink hover:bg-white hover:text-ink" text={directory("/guides").text}>
+            <Reading items={guides} />
+          </Card>
+          <Card dark href="/news" title="Know what is changing" action="Read the news" mark="text-accent" button="bg-accent text-ink hover:bg-white hover:text-ink" text={directory("/news").text}>
+            <Reading items={news} note />
+          </Card>
+        </ul>
+      </div>
+      </div>
+
+      <div className="container-site py-8 sm:py-12">
+        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
+          <Card href="/prices" title="What things cost today" action="Check market prices" mark="text-accent-dark" button="bg-accent text-ink hover:bg-accent-dark hover:text-white" text={directory("/prices").text}>
+            <ul className="flex flex-wrap justify-center gap-2">
+              {products.map((x) => <li key={x.name} className="rounded-full bg-accent px-3 py-1.5 text-[13px] font-semibold text-ink">{x.name}</li>)}
+            </ul>
+          </Card>
+          <Card href="/websites" title="The websites you will need" action="See useful websites" mark="text-brand" text={directory("/websites").text}>
+            <ul className="flex flex-wrap justify-center gap-2">
+              {websites.map((w) => <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-brand-dark px-3 py-1.5 text-[13px] font-semibold text-white hover:bg-navy hover:text-white">{clean(w.title)}</Link></li>)}
+            </ul>
+          </Card>
+        </ul>
+      </div>
+
       <div className="bg-brand text-white">
-        <div className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
+        <div data-reveal="" className="rise-soft container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
           <h2 className="text-hero text-[20px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
           {sell ? (
             <>

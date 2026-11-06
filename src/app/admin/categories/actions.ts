@@ -44,6 +44,49 @@ export async function renameCategory(form: FormData) {
   backTo(form, "saved=renamed");
 }
 
+/**
+ * Moves everything in the ticked categories into one category, all at once: pages, businesses and
+ * products. The ticked categories stay, now empty, so they can be kept or deleted.
+ */
+export async function moveToCategory(form: FormData) {
+  const staff = await requireArea("categories");
+  const targetId = String(form.get("target") ?? "");
+  const ids = form.getAll("ids").map(String).filter((id) => id !== targetId);
+  const target = await prisma.category.findUnique({ where: { id: targetId }, select: { name: true } });
+  if (!target) return backTo(form, "error=target");
+  if (!ids.length) return backTo(form, "error=none");
+  const moved = await prisma.$transaction(async (tx) => {
+    const primary = await tx.contentItem.updateMany({ where: { primaryCategoryId: { in: ids } }, data: { primaryCategoryId: targetId } });
+    // Links are one row per page and category: a page already in the target simply keeps that link
+    const links = await tx.contentCategory.findMany({ where: { categoryId: { in: ids } }, select: { contentItemId: true } });
+    await tx.contentCategory.createMany({ data: links.map((l) => ({ contentItemId: l.contentItemId, categoryId: targetId })), skipDuplicates: true });
+    await tx.contentCategory.deleteMany({ where: { categoryId: { in: ids } } });
+    const orgs = await tx.organizationCategory.findMany({ where: { categoryId: { in: ids } }, select: { organizationId: true } });
+    await tx.organizationCategory.createMany({ data: orgs.map((o) => ({ organizationId: o.organizationId, categoryId: targetId })), skipDuplicates: true });
+    await tx.organizationCategory.deleteMany({ where: { categoryId: { in: ids } } });
+    await tx.product.updateMany({ where: { categoryId: { in: ids } }, data: { categoryId: targetId } });
+    await tx.category.updateMany({ where: { id: targetId, parentId: { in: ids } }, data: { parentId: null } });
+    await tx.category.updateMany({ where: { parentId: { in: ids } }, data: { parentId: targetId } });
+    return primary.count + new Set(links.map((l) => l.contentItemId)).size;
+  });
+  await audit(staff.id, "category.moved", "category", targetId, { from: ids, moved });
+  refresh();
+  revalidatePath("/admin/content");
+  backTo(form, `saved=moved&n=${moved}&to=${encodeURIComponent(target.name)}`);
+}
+
+/** Deletes the ticked categories. Any that are in use are left alone, whatever was ticked. */
+export async function deleteCategories(form: FormData) {
+  const staff = await requireArea("categories");
+  const ids = form.getAll("ids").map(String);
+  if (!ids.length) return backTo(form, "error=none");
+  const unused = { id: { in: ids }, primaryFor: { none: {} }, contentLinks: { none: {} }, orgLinks: { none: {} }, products: { none: {} }, children: { none: {} } };
+  const { count } = await prisma.category.deleteMany({ where: unused });
+  await audit(staff.id, "category.bulk_deleted", "category", "bulk", { ticked: ids.length, deleted: count });
+  refresh();
+  backTo(form, `saved=bulk&n=${count}&kept=${ids.length - count}`);
+}
+
 /** Only an unused category can be deleted, so nothing on the site loses its category by accident. */
 export async function deleteCategory(form: FormData) {
   const staff = await requireArea("categories");

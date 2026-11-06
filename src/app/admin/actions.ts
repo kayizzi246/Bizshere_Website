@@ -295,5 +295,7 @@ export async function deleteContentBulk(form: FormData) {
   revalidateTag(SITE_DATA);
   revalidatePath("/");
   revalidateTag(SITE_DATA);
-  redirect(`/admin/content?deleted=${items.length}+item${items.length === 1 ? "" : "s"}`);
+  const list = new URLSearchParams(String(form.get("back") ?? ""));
+  list.set("deleted", `${items.length} ${items.length === 1 ? "page" : "pages"}`);
+  redirect(`/admin/content?${list}`);
 }

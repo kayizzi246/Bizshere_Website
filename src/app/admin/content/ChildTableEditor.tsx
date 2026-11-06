@@ -6,6 +6,7 @@ import { parentIds, refInclude, refLabel, refOptions } from "@/lib/child-data";
 import { deleteChildRow, saveChildRow } from "./child-table-actions";
 import { UploadButton } from "@/components/UploadButton";
 import { ProductTable, type ProductRow } from "@/components/ProductTable";
+import { SaveNotice } from "./SaveNotice";
 import Link from "next/link";
 
 /**
@@ -16,10 +17,12 @@ import Link from "next/link";
 type Row = Record<string, unknown>;
 type Options = Record<string, { value: string; label: string }[]>;
 
+type Notice = { in?: string; saved?: string; error?: string; added?: string; t?: string; f?: string };
+
 const PRODUCT_STATUS = { PUBLISHED: "Live", IN_REVIEW: "Waiting for approval", ARCHIVED: "Hidden" };
 
-/** `only` and `except` pick which tables to show; `editRow` is the product opened from its table. */
-export async function ChildTableEditor({ contentItemId, type, only, except, editRow }: { contentItemId: string; type: ContentType; only?: string[]; except?: string[]; editRow?: string }) {
+/** `only` and `except` pick which tables to show; `editRow` is the product opened from its table; `notice` is the result of the last save, shown in its own section. */
+export async function ChildTableEditor({ contentItemId, type, only, except, editRow, notice }: { contentItemId: string; type: ContentType; only?: string[]; except?: string[]; editRow?: string; notice?: Notice }) {
   const p = await parentIds(contentItemId);
   if (!p) return null;
   const tables = tablesFor(type).filter((x) => !x.displayOnly && (!only || only.includes(x.key)) && !except?.includes(x.key));
@@ -33,7 +36,16 @@ export async function ChildTableEditor({ contentItemId, type, only, except, edit
 
   return (
     <div className="flex flex-col gap-5">
-      {loaded.map(({ table, rows, options }) => (
+      {loaded.map(({ table, rows, options }) => {
+        const result = notice?.in === table.key ? notice : undefined;
+        // A new product leaves the form open and empty for the next, so many can go in one after another
+        const another = table.key === "listings" && Boolean(result?.added);
+        const note = result?.error || result?.saved ? (
+          <SaveNotice key={result.t} bad={Boolean(result.error)} next={another}>
+            {result.error ? `Not saved. ${result.error}` : result.saved === "removed" ? "Removed." : another ? "Saved. Add the next one below, or leave this page if you are done." : "Saved."}
+          </SaveNotice>
+        ) : null;
+        return (
         <section key={table.key} id={`t-${table.key}`} className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="flex flex-col gap-0.5">
@@ -44,7 +56,10 @@ export async function ChildTableEditor({ contentItemId, type, only, except, edit
           </div>
 
           {rows === null ? (
-            <p className="rounded-lg bg-warn-bg p-3 text-sm text-warn-fg">Link this record to an organization first (Organization section above), then add {table.label.toLowerCase()}.</p>
+            <>
+              {note}
+              <p className="rounded-lg bg-warn-bg p-3 text-sm text-warn-fg">Link this record to an organization first (Organization section above), then add {table.label.toLowerCase()}.</p>
+            </>
           ) : (
             <>
               {table.key === "listings" ? (
@@ -76,16 +91,19 @@ export async function ChildTableEditor({ contentItemId, type, only, except, edit
                   ))}
                 </ul>
               ) : null}
-              <details open={table.key === "listings" && rows.length === 0} className="group rounded-lg border border-dashed border-line-strong [&_summary::-webkit-details-marker]:hidden">
+              {note}
+              <details open={(table.key === "listings" && rows.length === 0) || another || Boolean(result?.error)} className="group rounded-lg border border-dashed border-line-strong [&_summary::-webkit-details-marker]:hidden">
                 <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-brand">+ Add {table.item}</summary>
                 <div className="border-t border-line p-4">
-                  <RowForm table={table} p={p} contentItemId={contentItemId} options={options} />
+                  {/* A new key empties the form after a save; after a refusal it keeps its key, and what was typed */}
+                  <RowForm formKey={(result?.saved ? result.t : result?.f) || "new"} table={table} p={p} contentItemId={contentItemId} options={options} />
                 </div>
               </details>
             </>
           )}
         </section>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -119,16 +137,25 @@ function ProductSection({ table, p, contentItemId, rows, options, editRow }: { t
   );
 }
 
-function RowForm({ table, contentItemId, row, options }: { table: ChildTable; p: ParentIds; contentItemId: string; row?: Row; options: Options }) {
+function RowForm({ table, contentItemId, row, options, formKey }: { table: ChildTable; p: ParentIds; contentItemId: string; row?: Row; options: Options; formKey?: string }) {
   return (
-    <form action={saveChildRow} className="flex flex-col gap-3">
+    <form key={formKey} action={saveChildRow} className="flex flex-col gap-3">
       <input type="hidden" name="contentItemId" value={contentItemId} />
       <input type="hidden" name="table" value={table.key} />
       {row ? <input type="hidden" name="rowId" value={String(row.id)} /> : null}
+      {formKey ? <input type="hidden" name="formKey" value={formKey} /> : null}
       <div className="flex flex-wrap gap-3">
         {table.fields.map((f) => <Input key={f.name} f={f} value={row ? formValue(f, row[f.name]) : defaultValue(f)} options={options[f.name]} />)}
       </div>
-      <div className="flex justify-end"><button className="btn-primary min-h-[44px] px-5">{row ? "Save changes" : `Add ${table.item}`}</button></div>
+      {/* A new product: Save and finish, or save and go straight on to the next */}
+      <div className="flex flex-wrap justify-end gap-2">
+        {!row && table.key === "listings" ? (
+          <>
+            <button className="btn-primary min-h-[44px] px-8">Save</button>
+            <button name="another" value="1" className="btn-outline min-h-[44px] px-5">Save and add another</button>
+          </>
+        ) : <button className="btn-primary min-h-[44px] px-5">{row ? "Save changes" : `Add ${table.item}`}</button>}
+      </div>
     </form>
   );
 }
@@ -152,7 +179,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
     return (
       <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-2">
         <label className="label min-w-0 text-[13px]">{label}
-          <input name={name} defaultValue={value} type="text" className="input min-h-[44px] w-full min-w-0 text-sm" placeholder="Paste a link, or upload below" />
+          <input name={name} defaultValue={value} type="text" pattern="(https?://|/).*" title="Use the Upload button, or a link starting with https://" className="input min-h-[44px] w-full min-w-0 text-sm" placeholder="Paste a link, or upload below" />
         </label>
         <UploadButton target={name} kind={f.upload} />
       </div>
@@ -163,7 +190,10 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
       {choices ? (
         <select name={name} defaultValue={value} className="input min-h-[44px] w-full min-w-0 text-sm">{choices.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
       ) : (
-        <input name={name} defaultValue={value} type={f.kind === "date" ? "date" : "text"} inputMode={f.kind === "int" || f.kind === "decimal" ? "decimal" : undefined} className="input min-h-[44px] w-full min-w-0 text-sm" />
+        <input name={name} defaultValue={value} type={f.kind === "date" ? "date" : "text"}
+          // Stops here, before anything typed is lost
+          {...(f.name === "currency" ? { pattern: "[A-Za-z]{3}", title: "Three letters, e.g. UGX" } : f.kind === "int" ? { pattern: "[0-9]*", inputMode: "numeric" as const, title: "Whole numbers only" } : {})}
+          className="input min-h-[44px] w-full min-w-0 text-sm" />
       )}
       {help ?? (f.kind === "list" ? <span className="text-xs font-normal text-ink-muted">Comma-separated</span> : null)}
     </label>

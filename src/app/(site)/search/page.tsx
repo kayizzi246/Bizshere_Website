@@ -190,7 +190,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <div>
           <input id="filters-toggle" type="checkbox" className="peer sr-only" />
           <label htmlFor="filters-toggle" className="btn-outline w-full cursor-pointer lg:hidden"><SlidersHorizontal aria-hidden className="h-4 w-4" />Filters</label>
-          <aside className="card mt-3 hidden flex-col p-5 peer-checked:flex lg:sticky lg:top-24 lg:mt-0 lg:flex">
+          <aside className="card mt-3 hidden flex-col p-5 peer-checked:flex lg:sticky lg:top-32 lg:mt-0 lg:flex">
             <Group title="Show results from">
               {dir ? (
                 <p className="text-[13px] text-ink-muted">Limited to <strong className="text-ink-soft">{[...GROUPS, PRICES_GROUP].find((g) => g.id === dir)?.label}</strong>. <Link href={url([["dir"], ["show"]])} className="font-semibold">Show all</Link></p>

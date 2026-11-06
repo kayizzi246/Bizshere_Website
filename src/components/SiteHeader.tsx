@@ -103,17 +103,10 @@ export async function SiteHeader() {
   );
 }
 
-/** The one call to action: start free, finish subscribing, or (for members) a quiet "Full access" mark. */
+/** The one call to action: start free or finish subscribing. */
 function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
   const size = mobile ? "h-11 justify-center text-[15px]" : "h-10 text-[14px]";
-  if (viewer.isMember) {
-    return (
-      // The member badge: opens "My membership" (time left, renew, payments) on the account page
-      <Link href="/account#membership" title="Your membership" className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-tint pl-1.5 pr-4 font-semibold text-brand-dark ring-1 ring-brand/20 transition hover:bg-brand hover:text-white ${size}`}>
-        <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white"><Icon name="check" className="h-4 w-4" /></span> Member
-      </Link>
-    );
-  }
+  if (viewer.isMember) return null; // members have nothing to sign up for: their badge is in the footer
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
     // Signed in: straight to the payment pop-up (data-pay), wherever they are.

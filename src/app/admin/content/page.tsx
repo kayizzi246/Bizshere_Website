@@ -6,7 +6,7 @@ import { archiveContent, deleteContentBulk, sendForReReview } from "../actions";
 import { staffAccess } from "@/lib/access";
 import { contentArea } from "@/lib/admin-areas";
 import { redirect } from "next/navigation";
-import { ConfirmButton } from "@/components/ConfirmButton";
+import { SelectAllRows, SelectedActions } from "./SelectRows";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Content" };
@@ -32,7 +32,11 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
     ...(fresh === "due" ? { nextReviewDueAt: { gte: now, lt: in30 } } : {}),
     ...(fresh === "ok" ? { OR: [{ nextReviewDueAt: { gte: in30 } }, { nextReviewDueAt: null }] } : {}),
   };
-  const items = await prisma.contentItem.findMany({ where, include: { createdBy: true, reviewedBy: true }, orderBy: [{ nextReviewDueAt: "asc" }], take: 100 });
+  const [items, total] = await Promise.all([
+    prisma.contentItem.findMany({ where, include: { createdBy: true, reviewedBy: true }, orderBy: [{ nextReviewDueAt: "asc" }], take: 100 }),
+    prisma.contentItem.count({ where }),
+  ]);
+  const keep = new URLSearchParams({ ...(type ? { type } : {}), fresh, ...(searchParams.q ? { q: searchParams.q } : {}) }).toString();
   const href = (extra: Record<string, string>) => "?" + new URLSearchParams({ ...(type ? { type } : {}), fresh, ...extra }).toString();
 
   return (
@@ -42,7 +46,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
         <Link href={`/admin/content/new${type ? `?type=${type}` : ""}`} className="btn-primary">Add {type ? contentTypeLabel[type].toLowerCase() : "content"}</Link>
       </div>
 
-      {searchParams.deleted ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-semibold text-brand-dark">Deleted {searchParams.deleted}. It has been removed from the database.</p> : null}
+      {searchParams.deleted ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-semibold text-brand-dark">Deleted {searchParams.deleted}, removed from the database.</p> : null}
 
       <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
         {mine.map(([t, l]) => (
@@ -55,15 +59,13 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       </div>
 
       <form className="overflow-hidden rounded-xl border border-line bg-surface">
-        <div className="flex flex-wrap items-center justify-end gap-2 border-b border-line p-3 text-sm">
-          <span className="text-ink-muted">With selected:</span>
-          <button formAction={sendForReReview} className="btn-outline min-h-[44px] px-3">Send for re-review</button>
-          <button formAction={archiveContent} className="btn-outline min-h-[44px] px-3">Archive</button>
-          {user.superAdmin ? <ConfirmButton action={deleteContentBulk} title="Delete the selected pages?" message="The ticked pages and everything attached to them will be removed from the database." className="h-[38px]">Delete</ConfirmButton> : null}
-        </div>
+        {/* After a delete, back to this same list */}
+        <input type="hidden" name="back" value={keep} />
+        <SelectedActions review={sendForReReview} archive={archiveContent} remove={user.superAdmin ? deleteContentBulk : undefined} />
+        {total > items.length ? <p className="border-b border-line bg-page px-3 py-2 text-[13px] text-ink-muted">Showing the first {items.length} of {total}. Select all covers these {items.length}; the rest come up once they are gone.</p> : null}
         <div className="overflow-x-auto">
           <table className="table-base min-w-[880px]">
-            <thead><tr><th className="w-9"><span className="sr-only">Select</span></th><th>Title</th><th>Status</th><th>Access</th><th>Last reviewed</th><th>Freshness</th><th>Owner</th></tr></thead>
+            <thead><tr><th className="w-9"><SelectAllRows /></th><th>Title</th><th>Status</th><th>Access</th><th>Last reviewed</th><th>Freshness</th><th>Owner</th></tr></thead>
             <tbody>
               {items.map((i) => {
                 const overdue = i.nextReviewDueAt && i.nextReviewDueAt < now;

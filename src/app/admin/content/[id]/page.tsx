@@ -13,7 +13,7 @@ import { ChildTableEditor } from "../ChildTableEditor";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit content" };
 
-export default async function EditContentPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; error?: string; product?: string } }) {
+export default async function EditContentPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; error?: string; product?: string; in?: string; added?: string; t?: string; f?: string } }) {
   const user = await requireItemArea(params.id);
   const loaded = await loadValues(params.id);
   if (!loaded) notFound();
@@ -74,22 +74,22 @@ export default async function EditContentPage({ params, searchParams }: { params
           <Link href={itemHref(item)} className="btn-outline" target="_blank">View page ↗</Link>
         </div>
       </div>
-      {searchParams.saved ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
-      {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
+      {searchParams.saved && !searchParams.in ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
+      {searchParams.error && !searchParams.in ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
 
       <ContentForm type={item.contentType} options={options} values={values} multi={multi} />
 
       {/* A supplier: the products come straight after the details; the rest is rarely needed. */}
-      {item.contentType === "SUPPLIER" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} only={["listings"]} editRow={searchParams.product} /> : null}
+      {item.contentType === "SUPPLIER" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} only={["listings"]} editRow={searchParams.product} notice={searchParams} /> : null}
 
       {item.contentType === "SUPPLIER" ? (
-        <details className="group/more rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
+        <details open={Boolean(searchParams.in && searchParams.in !== "listings")} className="group/more rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:px-6 sm:py-5">
             <span className="flex flex-col gap-0.5"><span className="text-base font-extrabold text-heading">More options</span><span className="text-[13px] text-ink-muted">Catalogue download, branches, extra contacts, checks and history. You can usually leave these alone.</span></span>
             <span aria-hidden className="text-lg text-ink-muted transition group-open/more:rotate-90">›</span>
           </summary>
           <div className="flex flex-col gap-5 border-t border-line p-4 sm:p-6">
-            <ChildTableEditor contentItemId={item.id} type={item.contentType} except={["listings"]} />
+            <ChildTableEditor contentItemId={item.id} type={item.contentType} except={["listings"]} notice={searchParams} />
             <ChildEditors contentItemId={item.id} />
             {record}
           </div>
@@ -97,7 +97,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       ) : (
         <>
           <ChildEditors contentItemId={item.id} ideaId={item.businessIdea?.id} programmeId={item.fundingProgramme?.id} />
-          {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} /> : null}
+          {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} notice={searchParams} /> : null}
           {record}
         </>
       )}

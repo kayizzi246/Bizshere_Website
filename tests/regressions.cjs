@@ -33,6 +33,16 @@ function onboarding(cancelled, settled) {
   return { actions, updates };
 }
 
+test('a number is read from what people naturally type, and unclear ones are refused', () => {
+  const { looseNumber, parseField } = load('src/lib/field-parse.ts', { '@prisma/client': { Prisma: { Decimal: String, DbNull: null } } });
+  const read = (raw) => { const errors = {}; const v = parseField({ name: 'n', kind: 'decimal' }, looseNumber(raw), errors); return errors.n ? 'refused' : String(v); };
+  assert.equal(read('UGX 5,000'), '5000');
+  assert.equal(read('10 bags'), '10');
+  assert.equal(read('5000/='), '5000');
+  assert.equal(read('1,250.50 shillings'), '1250.50');
+  for (const unclear of ['5-10', '5k', '2 x 50', 'ask us', '-3']) assert.equal(read(unclear), 'refused', unclear);
+});
+
 test('failed provider cancellation keeps payment eligible for settlement', async () => {
   const { actions, updates } = onboarding(false, ['PENDING', 'PENDING']);
   assert.equal(await actions.cancelPayment('p1'), 'PENDING');
@@ -198,8 +208,13 @@ test('database client limits connections and retries a full database', async () 
   const full = () => { tries++; if (tries < 3) throw new Error('Too many database connections opened: FATAL: too many connections for role'); return 'rows'; };
   assert.equal(await prisma.query.$allOperations({ operation: 'findMany', args: {}, query: full }), 'rows');
   assert.equal(tries, 3);
+  // Refused at the door, so a save never ran and can try again; a lost connection might have saved, so it can't.
+  let saves = 0;
+  const refused = () => { saves++; if (saves < 3) throw new Error('Too many database connections opened'); return 'saved'; };
+  assert.equal(await prisma.query.$allOperations({ operation: 'create', args: {}, query: refused }), 'saved');
+  assert.equal(saves, 3);
   let writes = 0;
-  await assert.rejects(prisma.query.$allOperations({ operation: 'create', args: {}, query: () => { writes++; throw new Error('Too many database connections opened'); } }));
+  await assert.rejects(prisma.query.$allOperations({ operation: 'create', args: {}, query: () => { writes++; throw new Error('Server has closed the connection'); } }));
   assert.equal(writes, 1);
 });
 

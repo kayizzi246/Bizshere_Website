@@ -12,7 +12,8 @@ const WHITE = "rgba(255,255,255,0.55)";
 const ORANGE = "rgba(242,140,40,0.85)";
 
 /**
- * Small particles over the navy panel of the sign-in screens (src/components/SplitShell.tsx). Each drifts
+ * Small particles on a navy panel (the sign-in screens, the homepage machines): it fills its parent, which
+ * must be positioned, and the panel's content sits above it. Each drifts
  * around its home and is pushed away by the mouse, then springs back. Purely decorative, so it takes
  * no clicks and is hidden from screen readers. It stops when off screen or in a hidden tab, and with
  * reduced motion the particles are simply drawn still.

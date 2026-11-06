@@ -193,7 +193,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
           <button type="button" onClick={requestClose} aria-label="Close" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink shadow-sm ring-1 ring-line hover:bg-page"><X className="h-5 w-5" /></button>
         </div>
 
-        {checkout ? null : <WhyPanel plan={plan} renew={renew} />}
+        {checkout ? null : <WhyPanel renew={renew} />}
 
         <div className={`flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 ${checkout ? "sm:px-6 md:py-6" : "md:py-10"}`}>
           {step === "account" ? (
@@ -235,11 +235,10 @@ const WHY = [
 ];
 
 /** Left panel: why an account and membership are worth it. Deep brand blue like the hero; trimmed on phones. */
-function WhyPanel({ plan, renew }: { plan: Plan; renew: boolean }) {
+function WhyPanel({ renew }: { renew: boolean }) {
   return (
     <div className="bg-brand-deep px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <p className="text-[12px] font-semibold text-white/60">BizSphere-Ug membership</p>
-      <p className="mt-2 font-display text-[24px] font-extrabold leading-[1.12] tracking-[-0.02em] sm:mt-3 sm:text-[28px] md:text-[30px]">{renew ? "Keep every door open." : "See the full budget before you spend a shilling."}</p>
+      <p className="font-display text-[24px] font-extrabold leading-[1.12] tracking-[-0.02em] sm:text-[28px] md:text-[30px]">{renew ? "Keep every door open." : "Subscribe now to enjoy full access"}</p>
       <p className="mt-3 hidden text-[13px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Anyone can read a preview. Members get the whole page:"}</p>
       <ul className="mt-4 hidden flex-col divide-y divide-white/10 sm:flex">
         {WHY.map((w) => (
@@ -249,10 +248,6 @@ function WhyPanel({ plan, renew }: { plan: Plan; renew: boolean }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[12px] text-white/70 sm:mt-5 sm:border-t sm:border-white/15 sm:pt-4">
-        {plan.monthly ? <><strong className="text-[15px] font-bold text-white">{plan.monthly}</strong> a month. </> : null}
-        Pay with MoMo, Airtel Money or card, and cancel any time.
-      </p>
     </div>
   );
 }

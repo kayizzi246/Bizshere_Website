@@ -103,13 +103,13 @@ export function ListingHeader({ title, intro, tabs, active, overlap = false }: {
 
 /**
  * Holds a directory's search card: it overlaps the bottom of the deep brand blue header band, then stays
- * pinned to the top of the screen while the results scroll (desktop and phones); on these pages the
- * site header scrolls away instead (globals.css). It sits inside the
+ * pinned just under the site header while the results scroll (desktop and phones; wide screens leave
+ * room for the header's join tab). It sits inside the
  * results area, not the band, because a sticky element only sticks within its parent.
  */
 export function StickySearch({ children }: { children: React.ReactNode }) {
   return (
-    <div data-sticky-search="" className="sticky top-2 z-30 -mt-14 sm:-mt-16">
+    <div data-sticky-search="" className="sticky top-[calc(var(--hh)+0.5rem)] z-30 -mt-14 sm:-mt-16 lg:top-[calc(var(--hh)+2.25rem)]">
       <div className="container-site">{children}</div>
     </div>
   );

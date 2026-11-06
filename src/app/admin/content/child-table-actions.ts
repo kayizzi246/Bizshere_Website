@@ -8,12 +8,13 @@ import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { childTable, delegate } from "@/lib/child-tables";
 import { parentIds, refOptions } from "@/lib/child-data";
-import { parseField } from "@/lib/field-parse";
+import { looseNumber, parseField } from "@/lib/field-parse";
 
 /** Saves and deletes rows of the child tables in src/lib/child-tables.ts. */
 
 const s = (form: FormData, k: string) => String(form.get(k) ?? "").trim();
-const back = (id: string, key: string, msg: string): never => redirect(`/admin/content/${id}?${msg}#t-${key}`);
+// `in`: shown in that section, where the person is looking. `t`: every result is new, even the same one twice.
+const back = (id: string, key: string, msg: string): never => redirect(`/admin/content/${id}?${msg}&in=${key}&t=${Date.now()}#t-${key}`);
 // Columns that are required with a database default: an empty box keeps the default rather than clearing it.
 const KEEP_DEFAULT = new Set(["currency", "timeZone"]);
 
@@ -38,15 +39,24 @@ export async function saveChildRow(form: FormData) {
       data[f.name] = raw || null;
       continue;
     }
-    const v = parseField({ name: f.name, kind: f.kind, options: f.options }, raw, errors);
+    const v = parseField({ name: f.name, kind: f.kind, options: f.options }, f.kind === "decimal" ? looseNumber(raw) : raw, errors);
     if (v === null && (f.kind === "bool" || KEEP_DEFAULT.has(f.name))) continue;
+    // The database only takes a three-letter code in capitals
+    if (f.name === "currency") {
+      const code = String(v).toUpperCase();
+      if (!/^[A-Z]{3}$/.test(code)) errors.currency = "Three letters, e.g. UGX";
+      data.currency = code;
+      continue;
+    }
     data[f.name] = v;
   }
   if (table.key === "reviews" && data.rating !== undefined && (Number(data.rating) < 1 || Number(data.rating) > 5)) errors.rating = "1 to 5";
-  if (data.priceMin && data.priceMax && Number(data.priceMin) > Number(data.priceMax)) errors.priceMax = "Must be at least the 'from' price";
+  // Typed the wrong way round: the meaning is clear, so put them right
+  if (data.priceMin && data.priceMax && Number(data.priceMin) > Number(data.priceMax)) [data.priceMin, data.priceMax] = [data.priceMax, data.priceMin];
   if (Object.keys(errors).length) {
     const msg = Object.entries(errors).map(([k, v]) => `${table.fields.find((f) => f.name === k)?.label ?? k}: ${v}`).join("; ");
-    return back(contentItemId, table.key, "error=" + encodeURIComponent(msg));
+    // `f`: the form stays the same one, so what was typed stays in it
+    return back(contentItemId, table.key, `error=${encodeURIComponent(msg)}&f=${encodeURIComponent(s(form, "formKey"))}`);
   }
 
   // A supplier product's price date is the day its price was last saved (as in the seller's dashboard).
@@ -61,7 +71,7 @@ export async function saveChildRow(form: FormData) {
   await audit(editor.id, rowId ? "child.updated" : "child.created", table.model, contentItemId, { table: table.key });
   revalidatePath(`/admin/content/${contentItemId}`);
   revalidateTag(SITE_DATA);
-  back(contentItemId, table.key, "saved=child");
+  back(contentItemId, table.key, s(form, "another") ? "saved=child&added=1" : "saved=child");
 }
 
 export async function deleteChildRow(form: FormData) {
@@ -77,5 +87,5 @@ export async function deleteChildRow(form: FormData) {
   await audit(editor.id, "child.deleted", table.model, contentItemId, { table: table.key });
   revalidatePath(`/admin/content/${contentItemId}`);
   revalidateTag(SITE_DATA);
-  back(contentItemId, table.key, "saved=child");
+  back(contentItemId, table.key, "saved=removed");
 }

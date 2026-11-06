@@ -56,6 +56,12 @@ export async function SiteFooter() {
                 ))}
               </ul>
             ) : null}
+            {/* The member badge: opens "My membership" (time left, renew, payments) on the account page */}
+            {viewer.isMember ? (
+              <Link href="/account#membership" title="Your membership" className="inline-flex h-10 w-fit items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-1.5 pr-4 text-[14px] font-semibold text-brand-dark transition-colors hover:bg-accent hover:text-ink">
+                <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white"><Icon name="check" className="h-4 w-4" /></span> Member
+              </Link>
+            ) : null}
             <ul aria-label="Ways to pay" className="flex flex-wrap gap-1.5">
               {["MTN MoMo", "Airtel Money", "Visa / Mastercard"].map((m) => (
                 <li key={m} className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white/75 ring-1 ring-white/15">{m}</li>
