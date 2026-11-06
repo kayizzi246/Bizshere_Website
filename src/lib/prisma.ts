@@ -19,7 +19,10 @@ function databaseUrl(): string | undefined {
     if (url.hostname.includes("-pooler") || url.searchParams.get("pgbouncer") === "true") set("pgbouncer", "true");
     set("connect_timeout", "20"); // seconds: room for a sleeping database to wake
     set("pool_timeout", "20"); // seconds to wait for a free connection before failing
-    if (process.env.VERCEL) set("connection_limit", "5"); // many small functions share the database
+    // Every running copy of the site opens its own connections and Vercel runs many at once, more during
+    // a deploy, so each must stay small: at 5 the live database refused them ("too many connections",
+    // 6 Nov 2026). Queries beyond this wait their turn. Not 1: a transaction holds one for its whole length.
+    if (process.env.VERCEL) set("connection_limit", "2");
     return url.toString();
   } catch {
     return raw;
@@ -30,9 +33,10 @@ function databaseUrl(): string | undefined {
  * Neon closes connections that sit idle, and a warm Vercel function keeps using them: every query
  * in that request then fails with P1017 "Server has closed the connection" (seen in the live logs,
  * 29 Oct 2026). Prisma replaces a closed connection on the next attempt, so a failed READ is
- * retried after a short pause. Writes are never retried: one might already have been saved.
+ * retried after a short pause. The same goes when the database is briefly full. Writes are never
+ * retried: one might already have been saved.
  */
-const RETRY_CODES = new Set(["P1017", "P1001", "P1002", "P2024"]); // closed, unreachable, timed out, pool timeout
+const RETRY_CODES = new Set(["P1017", "P1001", "P1002", "P2024", "P2037"]); // closed, unreachable, timed out, pool timeout, too many connections
 const READS = new Set(["findMany", "findFirst", "findFirstOrThrow", "findUnique", "findUniqueOrThrow", "count", "aggregate", "groupBy"]);
 // A pool can hold several dead connections at once (one per slot), and each attempt may pick
 // another, so allow enough tries to cycle through them: waits of 0.1 s, 0.2 s … about 1.5 s in all.
@@ -40,7 +44,7 @@ const ATTEMPTS = 6;
 
 function retryable(e: unknown) {
   const err = e as { code?: string; message?: string };
-  return (err.code && RETRY_CODES.has(err.code)) || /Server has closed the connection|Can't reach database server|Connection terminated|kind: Closed/i.test(err.message ?? "");
+  return (err.code && RETRY_CODES.has(err.code)) || /Server has closed the connection|Can't reach database server|Connection terminated|kind: Closed|too many (database )?connections/i.test(err.message ?? "");
 }
 
 function createClient() {

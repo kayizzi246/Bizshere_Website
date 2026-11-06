@@ -11,7 +11,7 @@ function load(file, mocks) {
   }).outputText;
   const module = { exports: {} };
   const context = { module, exports: module.exports, require: name => name in mocks ? mocks[name] : require(name),
-    console, process, Date, Request, Response, URL, FormData, AbortSignal };
+    console, process, Date, Request, Response, URL, FormData, AbortSignal, setTimeout };
   vm.runInNewContext(source, context, { filename: file });
   return module.exports;
 }
@@ -179,6 +179,28 @@ test('texted membership link avoids the word account', async () => {
   assert.match(emails[0], /example\.test\/account#membership/);
   assert.equal(membership.smsLink('/supplier'), '/supplier');
   assert.equal(membership.smsLink('/accounts'), '/accounts');
+});
+
+// The live database refused connections: each copy of the site must stay small, and a read must wait and retry.
+test('database client limits connections and retries a full database', async () => {
+  const saved = { url: process.env.DATABASE_URL, vercel: process.env.VERCEL };
+  process.env.DATABASE_URL = 'postgresql://u:p@db.example.test:5432/d';
+  process.env.VERCEL = '1';
+  delete globalThis.prisma;
+  let options;
+  class PrismaClient { constructor(o) { options = o; } $extends(c) { return c; } }
+  const { prisma } = load('src/lib/prisma.ts', { '@prisma/client': { PrismaClient } });
+  delete globalThis.prisma;
+  process.env.DATABASE_URL = saved.url;
+  if (saved.vercel === undefined) delete process.env.VERCEL; else process.env.VERCEL = saved.vercel;
+  assert.equal(new URL(options.datasourceUrl).searchParams.get('connection_limit'), '2');
+  let tries = 0;
+  const full = () => { tries++; if (tries < 3) throw new Error('Too many database connections opened: FATAL: too many connections for role'); return 'rows'; };
+  assert.equal(await prisma.query.$allOperations({ operation: 'findMany', args: {}, query: full }), 'rows');
+  assert.equal(tries, 3);
+  let writes = 0;
+  await assert.rejects(prisma.query.$allOperations({ operation: 'create', args: {}, query: () => { writes++; throw new Error('Too many database connections opened'); } }));
+  assert.equal(writes, 1);
 });
 
 // A paid listing: a new one waits for the team, a lapsed one (already approved) returns at once.
