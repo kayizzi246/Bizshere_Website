@@ -15,7 +15,7 @@ import { IdeaPhoto } from "./IdeaParts";
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
  * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. Only
- * the fan and the listings in the two panels move as they come into view.
+ * the fan and the funding rows move as they come into view, and the suppliers glide past in a row.
  */
 const clean = (title: string) => title.replace(/^Sample:\s*/i, "");
 
@@ -25,7 +25,7 @@ async function records() {
   const [ideas, funding, suppliers] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 4 }),
-    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 4 }),
+    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 8 }),
   ]);
   return { ideas, funding, suppliers };
 }
@@ -35,6 +35,9 @@ const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], 
 
 // The tag on each funding row: what kind of money it is, at a glance.
 const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark", GRANT: "bg-[#E6F4EC] text-[#1F7A4D]", EQUITY: "bg-accent-tint text-accent-dark" };
+
+// A supplier with no photo yet gets a bold initial, in turn from the brand colours.
+const MONOGRAM = ["bg-navy text-white", "bg-accent text-ink", "bg-brand-tint text-brand-dark", "bg-accent-tint text-accent-dark"];
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
@@ -68,17 +71,17 @@ function Card({ href, title, text, action, mark, button, children }: { href: str
   );
 }
 
-/** A rounded panel: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
-function Panel({ href, title, text, action, tint, mark, children }: { href: string; title: string; text: string; action: string; tint: string; mark: string; children: React.ReactNode }) {
+/** A rounded panel in a full brand colour: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
+function Panel({ href, title, text, action, tint, words, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; children: React.ReactNode }) {
   return (
     <li className={`flex flex-col gap-4 rounded-[28px] p-5 sm:p-7 ${tint}`}>
-      <div className="flex flex-col items-start gap-2">
-        <Label href={href} tone={mark} />
-        <h3 className={cardHeading}>{title}</h3>
-        <p className="max-w-lg text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
+      <div className={`flex flex-col items-start gap-2 ${words}`}>
+        <Label href={href} tone="" />
+        <h3 className="text-hero text-[20px] leading-[1.2] sm:text-[23px] lg:text-[26px]">{title}</h3>
+        <p className="max-w-lg text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
-      <span><Go href={href}>{action}</Go></span>
+      <span><Go href={href} tone="bg-white text-heading hover:bg-navy hover:text-white">{action}</Go></span>
     </li>
   );
 }
@@ -95,6 +98,8 @@ export async function HomeFeatures() {
   const { ideas, funding, suppliers } = await records();
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
+  // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
+  const strip = suppliers.length ? Array.from({ length: Math.ceil(5 / suppliers.length) }, () => suppliers).flat() : [];
 
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
@@ -128,15 +133,15 @@ export async function HomeFeatures() {
 
       <div className="container-site">
         <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
-          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent-tint/70" mark="text-accent-dark"
+          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink"
             text="Need money to start or grow? Compare banks, government programmes and other lenders.">
-            <ul className="flex flex-col gap-2">
+            <ul className="flex h-full flex-col gap-2">
               {funding.map((f, n) => {
                 const org = f.fundingProgramme?.provider.organization;
                 const type = f.fundingProgramme?.fundingType;
                 return (
-                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties}>
-                    <Link href={`/funding/${f.slug}`} className="group flex items-center gap-3 rounded-2xl bg-white p-3 text-heading hover:text-heading">
+                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className="flex-1">
+                    <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white p-3 text-heading hover:text-heading">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate font-display text-[15px] font-bold group-hover:text-brand">{clean(f.title)}</span>
@@ -150,25 +155,39 @@ export async function HomeFeatures() {
             </ul>
           </Panel>
 
-          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand-tint" mark="text-brand"
+          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand" words="text-white"
             text="Looking for stock or materials? Find suppliers in Uganda and abroad, with contacts our team has checked.">
-            <ul className="grid h-full auto-rows-fr grid-cols-2 gap-2">
-              {suppliers.map((x, n) => {
-                const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
-                return (
-                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties}>
-                    <Link href={`/suppliers/${x.slug}`} className="group relative flex h-full min-h-[130px] items-end overflow-hidden rounded-2xl bg-white p-2 text-heading hover:text-heading">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                      {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" /> : <span className="absolute inset-0 flex items-center justify-center pb-10 text-brand/40"><Icon name="supplier" className="h-8 w-8" /></span>}
-                      <span className="relative flex max-w-full flex-col rounded-xl bg-white px-2.5 py-1.5">
-                        <span className="truncate font-display text-[13px] font-bold leading-tight group-hover:text-brand">{clean(x.title)}</span>
-                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3" />{x.supplier.country}</span> : null}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {/* Runs to the panel's edges, where it fades into the blue (.marquee-soft in globals.css) */}
+            <div className="marquee marquee-soft -mx-5 h-full sm:-mx-7">
+              <div className="marquee-viewport h-full overflow-hidden">
+                <div className="marquee-track flex h-full w-max" style={{ "--marquee-duration": `${strip.length * 6}s` } as React.CSSProperties}>
+                  {[false, true].map((dup) => (
+                    <ul key={String(dup)} aria-hidden={dup || undefined} className={`flex h-full shrink-0 gap-2.5 pr-2.5 ${dup ? "marquee-dup" : ""}`}>
+                      {strip.map((x, n) => {
+                        const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
+                        const name = clean(x.title);
+                        const sells = x.supplier?.items.slice(0, 2).join(", ");
+                        return (
+                          <li key={n} className="w-[200px] shrink-0 sm:w-[220px]">
+                            <Link href={`/suppliers/${x.slug}`} tabIndex={dup ? -1 : undefined} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-heading hover:text-heading">
+                              <span className={`relative flex min-h-[150px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+                                {picture ? <img src={picture} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" /> : <span aria-hidden className="font-display text-[44px] font-extrabold leading-none">{name.charAt(0)}</span>}
+                              </span>
+                              <span className="flex min-w-0 flex-col gap-0.5 p-3">
+                                <span className="line-clamp-1 font-display text-[14px] font-extrabold leading-tight group-hover:text-brand">{name}</span>
+                                {sells ? <span className="line-clamp-1 text-[12px] font-medium text-ink-soft">{sells}</span> : null}
+                                {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ))}
+                </div>
+              </div>
+            </div>
           </Panel>
         </ul>
       </div>

@@ -284,6 +284,9 @@ main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(
 .reveal-ready .fan[data-reveal]:not([data-shown]) .fan-card { translate: 0 0; rotate: 0deg; }
 @media (prefers-reduced-motion: reduce) { .fan-card { transition: none; } }
 
+/* The homepage's moving suppliers: both ends fade away, so the cards melt into the panel behind them. */
+.marquee-soft .marquee-viewport { mask-image: linear-gradient(to right, transparent, #000 16%, #000 84%, transparent); }
+
 /* A page marked data-bare stands alone: none of the site around it (the staff sign-in). */
 body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: none; }
 
