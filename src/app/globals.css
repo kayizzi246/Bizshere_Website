@@ -284,17 +284,6 @@ main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(
 .reveal-ready .fan[data-reveal]:not([data-shown]) .fan-card { translate: 0 0; rotate: 0deg; }
 @media (prefers-reduced-motion: reduce) { .fan-card { transition: none; } }
 
-/* A row of soft colour that slowly drifts. The colours repeat every half of the layer, so sliding it by
-   half loops without a jump, and only transform moves, so it costs nothing while scrolling. */
-.drift-row { position: relative; isolation: isolate; overflow: hidden; }
-.drift-row::before {
-  content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: 200%;
-  background: linear-gradient(90deg, var(--a), var(--b), var(--a), var(--b), var(--a));
-  animation: row-drift 8s linear var(--wait, 0s) infinite;
-}
-@keyframes row-drift { to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .drift-row::before { animation: none; } }
-
 /* A page marked data-bare stands alone: none of the site around it (the staff sign-in). */
 body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: none; }
 

@@ -9,13 +9,13 @@ import { IdeaPhoto } from "./IdeaParts";
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
  * feature, words on the left and a fan of photos on the right; then Funding and Suppliers as two
- * panels of colour meeting edge to edge across the full width; then Experts and Tools side by side on
+ * rounded panels (Panel below) with real listings in them; then Experts and Tools side by side on
  * white (Card below); then Get started. Every heading is black, in the heaviest weight, and the words
  * are centred on every screen size.
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
  * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. Only
- * the fan moves as it comes into view; the text never fades, so nothing is hidden while scrolling.
+ * the fan and the listings in the two panels move as they come into view.
  */
 const clean = (title: string) => title.replace(/^Sample:\s*/i, "");
 
@@ -24,8 +24,8 @@ async function records() {
   const live = { publicationStatus: "PUBLISHED" } as const;
   const [ideas, funding, suppliers] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true }, orderBy: [...newest], take: 4 }),
-    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true } } }, orderBy: [...newest], take: 4 }),
+    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 4 }),
+    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 4 }),
   ]);
   return { ideas, funding, suppliers };
 }
@@ -33,8 +33,8 @@ async function records() {
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
 const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], [FileText, "Business plans"], [TrendingUp, "Cash flow"]];
 
-// The funding rows are examples of what's listed, not links: a light brand colour each, slowly drifting (.drift-row)
-const ROWS = [["#CFE8FA", "#F0F8FE", "text-brand"], ["#DCE5F1", "#F5F8FC", "text-navy"], ["#FFD0A1", "#FFE2C4", "text-accent-dark"], ["#BFE0F6", "#E9F5FD", "text-brand-dark"]];
+// The tag on each funding row: what kind of money it is, at a glance.
+const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark", GRANT: "bg-[#E6F4EC] text-[#1F7A4D]", EQUITY: "bg-accent-tint text-accent-dark" };
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
@@ -52,21 +52,33 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 );
 
 /**
- * One part: name, heading, sentence, what it holds and a button at the bottom, so two side by side line
- * up. A `panel` is half of a full-width band: its colour runs to the screen's edge, while its words
- * stay in line with the rest of the page (half of the 1,440px site width).
+ * One part: name, heading, sentence, what it holds and a button at the bottom, so two side by side line up.
  */
-function Card({ href, title, text, action, tone = "", mark, button, panel, children }: { href: string; title: string; text: string; action: string; tone?: string; mark: string; button?: string; panel?: "left" | "right"; children: React.ReactNode }) {
-  const side = panel === "left" ? "md:ml-auto md:mr-0 lg:pl-16 lg:pr-8" : panel === "right" ? "md:ml-0 md:mr-auto lg:pl-8 lg:pr-16" : "";
+function Card({ href, title, text, action, mark, button, children }: { href: string; title: string; text: string; action: string; mark: string; button?: string; children: React.ReactNode }) {
   return (
-    <li className={tone}>
-      <div className={`flex h-full flex-col items-center gap-3 text-center ${panel ? `mx-auto w-full max-w-[720px] px-5 py-8 sm:py-12 ${side}` : ""}`}>
+    <li>
+      <div className="flex h-full flex-col items-center gap-3 text-center">
         <Label href={href} tone={mark} />
         <h3 className={cardHeading}>{title}</h3>
         <p className="mx-auto max-w-lg text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
         <div className="w-full flex-1">{children}</div>
         <span className="mt-auto pt-1"><Go href={href} tone={button}>{action}</Go></span>
       </div>
+    </li>
+  );
+}
+
+/** A rounded panel: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
+function Panel({ href, title, text, action, tint, mark, children }: { href: string; title: string; text: string; action: string; tint: string; mark: string; children: React.ReactNode }) {
+  return (
+    <li className={`flex flex-col gap-4 rounded-[28px] p-5 sm:p-7 ${tint}`}>
+      <div className="flex flex-col items-start gap-2">
+        <Label href={href} tone={mark} />
+        <h3 className={cardHeading}>{title}</h3>
+        <p className="max-w-lg text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{text}</p>
+      </div>
+      <div className="flex-1">{children}</div>
+      <span><Go href={href}>{action}</Go></span>
     </li>
   );
 }
@@ -114,36 +126,52 @@ export async function HomeFeatures() {
         ) : null}
       </div>
 
-      <ul className="grid grid-cols-[minmax(0,1fr)] md:grid-cols-2">
-      <Card panel="left" href="/funding" title="Every funding source in one list" action="See funding sources" tone="bg-accent-tint" mark="text-accent-dark"
-        text="Need money to start or grow? Compare banks, government programmes and other lenders.">
-        <ul className="flex flex-col gap-2">
-          {funding.map((f, i) => {
-            const [a, b, mark] = ROWS[i % ROWS.length];
-            return (
-              <li key={f.slug} style={{ "--a": a, "--b": b, "--wait": `-${i * 2}s` } as React.CSSProperties} className="drift-row flex items-center gap-3 rounded-2xl px-4 py-3 text-heading">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white ${mark}`}><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
-                <span className="min-w-0 flex-1 truncate text-left font-display text-[15px] font-bold">{clean(f.title)}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </Card>
+      <div className="container-site">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
+          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent-tint/70" mark="text-accent-dark"
+            text="Need money to start or grow? Compare banks, government programmes and other lenders.">
+            <ul className="flex flex-col gap-2">
+              {funding.map((f, n) => {
+                const org = f.fundingProgramme?.provider.organization;
+                const type = f.fundingProgramme?.fundingType;
+                return (
+                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties}>
+                    <Link href={`/funding/${f.slug}`} className="group flex items-center gap-3 rounded-2xl bg-white p-3 text-heading hover:text-heading">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate font-display text-[15px] font-bold group-hover:text-brand">{clean(f.title)}</span>
+                        {org ? <span className="truncate text-[13px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
+                      </span>
+                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[12px] font-bold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
 
-      <Card panel="right" href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tone="bg-brand-tint" mark="text-brand"
-        text="Looking for stock or materials? Find suppliers in Uganda and abroad, with contacts our team has checked.">
-        <ul className="grid h-full auto-rows-fr grid-cols-1 gap-2 min-[420px]:grid-cols-2">
-          {suppliers.map((s) => (
-            <li key={s.slug}>
-              <Link href={`/suppliers/${s.slug}`} className="flex h-full flex-col items-center justify-center gap-1 rounded-2xl bg-white p-4 text-center text-heading transition-colors hover:text-brand">
-                <span className="font-display text-[15px] font-bold leading-snug">{clean(s.title)}</span>
-                {s.supplier?.country ? <span className="inline-flex items-center gap-1 text-[13px] text-ink-muted"><MapPin aria-hidden className="h-3.5 w-3.5" />{s.supplier.country}</span> : null}
-              </Link>
-            </li>
-          ))}
+          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand-tint" mark="text-brand"
+            text="Looking for stock or materials? Find suppliers in Uganda and abroad, with contacts our team has checked.">
+            <ul className="grid h-full auto-rows-fr grid-cols-2 gap-2">
+              {suppliers.map((x, n) => {
+                const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
+                return (
+                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties}>
+                    <Link href={`/suppliers/${x.slug}`} className="group relative flex h-full min-h-[130px] items-end overflow-hidden rounded-2xl bg-white p-2 text-heading hover:text-heading">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+                      {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" /> : <span className="absolute inset-0 flex items-center justify-center pb-10 text-brand/40"><Icon name="supplier" className="h-8 w-8" /></span>}
+                      <span className="relative flex max-w-full flex-col rounded-xl bg-white px-2.5 py-1.5">
+                        <span className="truncate font-display text-[13px] font-bold leading-tight group-hover:text-brand">{clean(x.title)}</span>
+                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3" />{x.supplier.country}</span> : null}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
         </ul>
-      </Card>
-      </ul>
+      </div>
 
       <div className="container-site py-8 sm:py-12">
         <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">

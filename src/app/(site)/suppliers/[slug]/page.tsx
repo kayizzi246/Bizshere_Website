@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileDown, FileText, Globe, Link2, LockKeyhole, Mail, MapPin, Package, Phone } from "lucide-react";
+import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, Mail, MapPin, Phone, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -9,16 +9,16 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { moneyRange } from "@/lib/format";
 import { trackView } from "@/components/DetailParts";
 import { OnboardingGate } from "@/components/Onboarding";
-import { ProfileFacts, ProfileTop, type ProfileFact } from "@/components/ProfileTop";
 import { RememberVisit } from "@/components/Recent";
+import { SupplierCatalog } from "@/components/SupplierCatalog";
 import { WishlistButton } from "@/components/Wishlist";
 
 export const dynamic = "force-dynamic";
 
 /**
- * A supplier, as the client's template "Supplier Detailed Page": name and logo beside a table of
- * Address, Phone, Country, Email, Website and Catalogue, then the Products table (SN, Product Name,
- * Package Unit, Min Order, Price, Picture).
+ * A supplier's shop front: a banner with their own product photo, name and what they sell; then the
+ * products as a shop grid with the story of the business above it, beside a contact card that stays
+ * in view on wide screens. On phones the contact card comes first. Details with no value are left out.
  *
  * Address comes from the main location, the catalogue from the first document under "Photos and
  * media". Phone, email and prices are member detail: for visitors they are never sent to the page.
@@ -47,70 +47,108 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const name = item.title.replace(/^Sample:\s*/i, "");
   const logo = s.organization.logoUrl ?? s.pictureUrl;
+  const cover = s.listings.find((l) => l.imageUrl)?.imageUrl ?? s.pictureUrl;
   const place = s.organization.locations[0];
   const address = [place?.physicalAddress, place?.town].filter(Boolean).join(", ");
   const catalogue = item.media[0];
   const catalogueLocked = catalogue ? catalogue.accessLevel !== "PUBLIC" && !viewer.isMember : false;
+  const kind = s.supplierType ? s.supplierType.charAt(0) + s.supplierType.slice(1).toLowerCase().replace(/_/g, " ") : null;
+  const about = item.overview ?? item.shortSummary;
 
-  const members = <Link href={path} data-onboard="" className="inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members</Link>;
-  const none = <span className="font-normal text-ink-muted">—</span>;
-  const rows: ProfileFact[] = [
-    { label: "Address", icon: MapPin, value: address || none },
-    { label: "Phone", icon: Phone, value: gated ? members : s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="text-heading hover:text-brand">{s.phone}</a> : none },
-    { label: "Country", icon: Globe, value: s.country || none },
-    { label: "Email", icon: Mail, value: gated ? members : s.email ? <a href={`mailto:${s.email}`} className="break-all text-heading hover:text-brand">{s.email}</a> : none },
-    { label: "Website", icon: Link2, value: s.website ? <a href={s.website} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a> : none },
-    { label: "Catalogue", icon: FileText, value: !catalogue ? none : catalogueLocked ? members : <a href={`/api/files/${catalogue.id}`} className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><FileDown aria-hidden className="h-4 w-4" />Download</a> },
+  // Prices stay on the server for visitors: `gated` cards show "See price" instead.
+  const products = s.listings.map((l) => ({
+    id: l.id, name: l.productName, image: l.imageUrl, unit: l.unit, availability: l.availability, text: l.specifications,
+    price: gated || (l.priceMin === null && l.priceMax === null) ? null : moneyRange(l.priceMin, l.priceMax, l.currency),
+    minOrder: l.minimumOrderQuantity !== null ? Number(l.minimumOrderQuantity).toLocaleString("en-UG") : null,
+  }));
+
+  const details: [LucideIcon, string, React.ReactNode][] = [
+    ...(address ? [[MapPin, "Address", address] as [LucideIcon, string, React.ReactNode]] : []),
+    ...(s.country ? [[Globe, "Country", s.country] as [LucideIcon, string, React.ReactNode]] : []),
+    ...(s.website ? [[Link2, "Website", <a key="w" href={s.website} target="_blank" rel="noopener noreferrer" className="break-all font-semibold text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a>] as [LucideIcon, string, React.ReactNode]] : []),
+    ...(catalogue ? [[FileDown, "Catalogue", catalogueLocked
+      ? <Link key="c" href={path} data-onboard="" className="inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members only</Link>
+      : <a key="c" href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
   ];
-  const th = "px-3 py-2.5 font-semibold";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article>
-        <ProfileTop back="/suppliers" backLabel="All suppliers" image={logo} name={name} sub={item.primaryCategory?.name}>
-          <span className="block w-full rounded-xl bg-white"><WishlistButton id={item.id} /></span>
-          <RememberVisit item={{ href: path, title: name, kind: "Supplier", icon: "supplier", picture: logo }} />
-        </ProfileTop>
-        <div className="bg-page">
-        <div className="container-site flex flex-col gap-4 pb-6">
-          <ProfileFacts facts={rows} />
-
-          {/* Products */}
-          <section id="products" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
-            <h2 className="font-display text-lg font-extrabold text-heading">Products</h2>
-            {s.listings.length ? (
-              <div className="overflow-x-auto rounded-xl border border-line">
-                <table className="w-full min-w-[640px] text-left text-[13px] sm:text-sm">
-                  <thead className="bg-brand-tint text-xs font-bold text-brand-dark">
-                    <tr>
-                      <th className={`${th} w-12`}>SN</th><th className={th}>Product Name</th><th className={th}>Package Unit</th>
-                      <th className={th}>Min Order</th><th className={th}>Price</th><th className={`${th} w-20`}>Picture</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {s.listings.map((l, n) => (
-                      <tr key={l.id} className="border-t border-line align-middle">
-                        <td className="px-3 py-2 text-ink-muted">{n + 1}</td>
-                        <td className="px-3 py-2"><Link href={`${path}/products/${l.id}`} className="font-semibold text-heading hover:text-brand">{l.productName.replace(/^Sample:\s*/i, "")}</Link></td>
-                        <td className="px-3 py-2 text-ink-soft">{l.unit ?? "—"}</td>
-                        <td className="whitespace-nowrap px-3 py-2 text-ink-soft">{l.minimumOrderQuantity !== null ? Number(l.minimumOrderQuantity).toLocaleString("en-UG") : "—"}</td>
-                        <td className="whitespace-nowrap px-3 py-2 font-semibold text-heading">{gated ? members : l.priceMin === null && l.priceMax === null ? <span className="font-normal text-ink-muted">—</span> : moneyRange(l.priceMin, l.priceMax, l.currency)}</td>
-                        <td className="px-3 py-2">
-                          <Link href={`${path}/products/${l.id}`} aria-label={`${l.productName} details`} className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-line bg-page">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            {l.imageUrl ? <img src={l.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" /> : <Package aria-hidden className="h-5 w-5 text-brand/40" />}
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* ── Shop banner ── */}
+        <header className="under-header hero-glow hero-still relative overflow-hidden bg-navy text-white">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+          {cover ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" /> : null}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/40" />
+          <div className="container-site relative flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
+            <Link href="/suppliers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white/75 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All suppliers</Link>
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address
+                  <img src={logo} alt="" className="h-20 w-20 shrink-0 rounded-2xl bg-white object-cover ring-4 ring-white/15 sm:h-28 sm:w-28" />
+                ) : <span aria-hidden className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white font-display text-[32px] font-extrabold text-brand ring-4 ring-white/15 sm:h-28 sm:w-28">{name.charAt(0)}</span>}
+                <div className="flex min-w-0 flex-col gap-2">
+                  <h1 className="text-hero text-[26px] leading-[1.1] sm:text-[36px]">{name}</h1>
+                  {[item.primaryCategory?.name, kind, s.country].some(Boolean) ? <p className="text-[15px] text-white/80">{[item.primaryCategory?.name, kind, s.country].filter(Boolean).join(" · ")}</p> : null}
+                  {s.items.length ? (
+                    <ul aria-label="What they sell" className="flex flex-wrap gap-1.5 pt-1">
+                      {s.items.slice(0, 6).map((x) => <li key={x} className="rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold text-white">{x}</li>)}
+                    </ul>
+                  ) : null}
+                </div>
               </div>
-            ) : <p className="text-sm text-ink-muted">This supplier hasn&apos;t added products yet.</p>}
-          </section>
+              <div className="shrink-0 text-ink sm:w-52">
+                <span className="block w-full rounded-xl bg-white"><WishlistButton id={item.id} /></span>
+                <RememberVisit item={{ href: path, title: name, kind: "Supplier", icon: "supplier", picture: logo }} />
+              </div>
+            </div>
+          </div>
+        </header>
 
-          <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
-        </div>
+        <div className="bg-page">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-6 py-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+            {/* ── The shop ── */}
+            <div className="flex min-w-0 flex-col gap-6">
+              {about ? (
+                <section className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
+                  <h2 className="font-display text-lg font-extrabold text-heading">About {name}</h2>
+                  <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{about}</p>
+                </section>
+              ) : null}
+              <div id="products" className="scroll-mt-28"><SupplierCatalog items={products} gated={gated} back={path} wide={false} /></div>
+              <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
+            </div>
+
+            {/* ── Contact: first on phones, beside the shop on wide screens ── */}
+            <aside className="order-first flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-24 lg:order-none">
+              <h2 className="font-display text-lg font-extrabold text-heading">Contact this supplier</h2>
+              {gated ? (
+                <div className="flex flex-col gap-2">
+                  <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />See phone and email</Link>
+                  <p className="text-[13px] leading-snug text-ink-muted">Contacts and prices are open to members.</p>
+                </div>
+              ) : s.phone || s.email ? (
+                <div className="flex flex-col gap-2">
+                  {s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />{s.phone}</a> : null}
+                  {s.email ? <a href={`mailto:${s.email}`} className="inline-flex min-h-[48px] items-center justify-center gap-2 break-all rounded-xl border border-line bg-white px-4 py-2 text-center text-[14px] font-bold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4 shrink-0" />{s.email}</a> : null}
+                </div>
+              ) : <p className="text-[14px] text-ink-muted">No phone or email listed yet.</p>}
+              {details.length ? (
+                <dl className="flex flex-col gap-3 border-t border-line pt-4">
+                  {details.map(([Glyph, label, value]) => (
+                    <div key={label} className="flex min-w-0 items-start gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Glyph aria-hidden className="h-4 w-4" strokeWidth={1.75} /></span>
+                      <span className="flex min-w-0 flex-col">
+                        <dt className="text-[12px] font-medium text-ink-muted">{label}</dt>
+                        <dd className="min-w-0 break-words text-[14px] font-semibold text-heading">{value}</dd>
+                      </span>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+              <p className="border-t border-line pt-3 text-[12px] leading-snug text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
+            </aside>
+          </div>
         </div>
       </article>
     </OnboardingGate>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LockKeyhole, Package } from "lucide-react";
 
 /** One catalog product as the page passes it: prices are null for visitors (member detail, never sent). */
-export type CatalogItem = { id: string; name: string; image: string | null; price: string | null; unit: string | null; availability: string | null; text: string | null };
+export type CatalogItem = { id: string; name: string; image: string | null; price: string | null; unit: string | null; availability: string | null; text: string | null; minOrder?: string | null };
 
 /**
  * A supplier's product catalog: a shop-style grid, five across on wide screens. Each card opens
@@ -10,7 +10,7 @@ export type CatalogItem = { id: string; name: string; image: string | null; pric
  * "Product catalog" table or from the supplier at /supplier (shown once the team approves them).
  * Visitors see the products but not the prices.
  */
-export function SupplierCatalog({ items, gated, back, title = "Products" }: { items: CatalogItem[]; gated: boolean; back: string; title?: string }) {
+export function SupplierCatalog({ items, gated, back, title = "Products", wide = true }: { items: CatalogItem[]; gated: boolean; back: string; title?: string; /** Full page width: five across. Beside the contact card, three. */ wide?: boolean }) {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
@@ -20,7 +20,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products" }: { it
       {items.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line-strong bg-white px-5 py-8 text-center text-sm text-ink-muted">This supplier hasn&apos;t added products yet.</p>
       ) : (
-        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+        <ul className={`grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 ${wide ? "lg:grid-cols-4 xl:grid-cols-5" : ""}`}>
           {items.map((p) => (
             <li key={p.id}>
               <Link href={`${back}/products/${p.id}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink transition hover:-translate-y-0.5 hover:border-brand hover:text-ink">
@@ -39,6 +39,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products" }: { it
                       <span className="text-[14px] font-bold text-brand-dark">{p.price}{p.unit ? <span className="text-[12px] font-normal text-ink-muted"> / {p.unit}</span> : null}</span>
                     ) : <span className="text-[12px] text-ink-muted">Ask for price</span>}
                   </span>
+                  {p.minOrder ? <span className="text-[12px] text-ink-muted">Min order: {p.minOrder}</span> : null}
                   {p.availability ? <span className="text-[11px] font-semibold text-[#1F8A5B]">{p.availability}</span> : null}
                 </span>
               </Link>
