@@ -42,7 +42,7 @@ export default async function SupplierLoginsPage({ searchParams }: { searchParam
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-extrabold text-heading">Supplier logins</h1>
-        <p className="text-sm text-ink-muted">Add a seller&apos;s phone number. We text them a 4-digit PIN and their personal sign-in link; they choose their own PIN on first sign-in, then add products and a photo. They can also sign in at <strong>{loginUrl("supplier").replace(/^https?:\/\//, "")}</strong>. Add the supplier itself first under Content → Trusted Suppliers.</p>
+        <p className="text-sm text-ink-muted">Add a seller&apos;s phone number. We text them a 4-digit PIN and their personal sign-in link; they choose their own PIN on first sign-in, then add products and a photo. They can also sign in at <strong>{loginUrl("supplier").replace(/^https?:\/\//, "")}</strong>. Add the supplier itself first under Directories → Supplier.</p>
       </div>
       {searchParams.saved ? <p role="status" className="rounded-lg bg-brand-tint px-4 py-2.5 text-sm font-semibold text-brand-dark">{SAVED[searchParams.saved] ?? "Saved."}</p> : null}
       {searchParams.error ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.phone}</p> : null}
@@ -56,7 +56,7 @@ export default async function SupplierLoginsPage({ searchParams }: { searchParam
             <section key={s.id} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-bold text-heading">{s.contentItem.title}</span>
-                <span className="flex gap-3 text-xs text-ink-muted"><span>{s._count.listings} products</span><Link href={`/suppliers/${s.contentItem.slug}`} className="font-semibold">View page</Link></span>
+                <span className="flex gap-3 text-xs text-ink-muted"><Link href={`/admin/seller-products?show=all&supplier=${s.id}`} className="font-semibold">{s._count.listings} products</Link><Link href={`/suppliers/${s.contentItem.slug}`} className="font-semibold">View page</Link></span>
               </div>
               {s.organization.members.length ? (
                 <ul className="flex flex-col gap-2">

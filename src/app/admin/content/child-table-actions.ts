@@ -49,6 +49,8 @@ export async function saveChildRow(form: FormData) {
     return back(contentItemId, table.key, "error=" + encodeURIComponent(msg));
   }
 
+  // A supplier product's price date is the day its price was last saved (as in the seller's dashboard).
+  if (table.key === "listings") data.quotedAt = data.priceMin || data.priceMax ? new Date() : null;
   const model = delegate(prisma, table.model);
   if (rowId) {
     const { count } = await model.updateMany({ where: { id: rowId, ...scope }, data });

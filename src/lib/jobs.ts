@@ -55,7 +55,7 @@ const jobs: Record<string, () => Promise<string>> = {
    */
   async renewals() {
     const subs = await prisma.subscription.findMany({
-      where: { autoRenew: true, userId: { not: null }, period: { not: "DAILY" }, status: { in: ["ACTIVE", "PAST_DUE"] }, currentPeriodEnd: { gt: days(-3), lte: days(3) }, plan: { code: "member" } },
+      where: { autoRenew: true, userId: { not: null }, period: { not: "DAILY" }, status: { in: ["ACTIVE", "PAST_DUE"] }, currentPeriodEnd: { gt: days(-3), lte: days(3) }, plan: { code: { in: ["member", ...Object.values(PARTNER_CODES)] } } },
       select: { id: true, userId: true, period: true, currentPeriodEnd: true, remindersSent: true, plan: { select: { code: true } } },
     });
     let sent = 0;

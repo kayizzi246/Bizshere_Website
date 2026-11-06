@@ -134,6 +134,9 @@ for (const [label, start, period, expected] of [
   ['end of month', '2026-01-31T12:34:00Z', 'MONTHLY', '2026-02-28T12:34:00.000Z'],
   ['leap month', '2028-01-31T12:34:00Z', 'MONTHLY', '2028-02-29T12:34:00.000Z'],
   ['leap year renewal', '2028-02-29T12:34:00Z', 'YEARLY', '2029-02-28T12:34:00.000Z'],
+  ['six months', '2026-08-31T12:34:00Z', 'HALF_YEARLY', '2027-02-28T12:34:00.000Z'],
+  ['two years', '2028-02-29T12:34:00Z', 'TWO_YEARS', '2030-02-28T12:34:00.000Z'],
+  ['three years', '2026-11-06T12:34:00Z', 'THREE_YEARS', '2029-11-06T12:34:00.000Z'],
   ['daily duration', '2026-11-04T12:34:00Z', 'DAILY', '2026-11-05T12:34:00.000Z'],
   ['weekly duration', '2026-11-04T12:34:00Z', 'WEEKLY', '2026-11-11T12:34:00.000Z'],
 ]) {
@@ -155,6 +158,27 @@ test('content decimal accepts formatted price', () => {
   const errors = {};
   assert.equal(parseField({ name: 'price', kind: 'decimal' }, '1,250.50', errors).toString(), '1250.5');
   assert.equal(Object.keys(errors).length, 0);
+});
+
+// Texted links must not contain the word "account": it reaches the phone as "a/c", a page that doesn't exist.
+test('texted membership link avoids the word account', async () => {
+  const texts = [];
+  const emails = [];
+  const membership = load('src/lib/membership.ts', {
+    './prisma': { prisma: {
+      user: { findUnique: async () => ({ phone: '+256700000000', email: 'a@example.invalid', name: 'A' }) },
+      alert: { create: async () => ({}) },
+    } },
+    './payments': {}, './billing': {}, './audit': {}, './format': {},
+    './sms': { sendSms: async (_to, text) => { texts.push(text); return true; } },
+    './email': { sendEmail: async (_to, _title, text) => { emails.push(text); return true; } },
+    '@/config/site': { site: { url: 'https://example.test' } },
+  });
+  await membership.notifyMember('u1', { title: 'T', text: 'Paid.', link: '/account#membership' });
+  assert.equal(texts[0], 'Paid. https://example.test/me#membership');
+  assert.match(emails[0], /example\.test\/account#membership/);
+  assert.equal(membership.smsLink('/supplier'), '/supplier');
+  assert.equal(membership.smsLink('/accounts'), '/accounts');
 });
 
 // A paid listing: a new one waits for the team, a lapsed one (already approved) returns at once.

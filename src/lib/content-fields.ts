@@ -10,7 +10,13 @@ import type { ContentType } from "@prisma/client";
  */
 export type FieldKind = "text" | "textarea" | "int" | "decimal" | "bool" | "date" | "list" | "enum" | "url" | "json";
 /** `upload` adds an "Upload" button that stores the file and fills in its address. */
-export type Field = { name: string; label: string; kind: FieldKind; options?: string[]; help?: string; required?: boolean; group?: string; upload?: "image" | "file" };
+export type Field = {
+  name: string; label: string; kind: FieldKind; options?: string[]; help?: string; required?: boolean; group?: string; upload?: "image" | "file";
+  /** Filled in on a new page. */
+  initial?: string;
+  /** Not a column of the directory's own table: saved by hand in src/app/admin/content/actions.ts. */
+  virtual?: boolean;
+};
 
 /** Child rows edited as one line each in a textarea. */
 export type ChildList = { key: "ideaSteps" | "guideSteps" | "recipeSteps" | "recipeIngredients" | "guideDocuments"; label: string; help: string };
@@ -20,9 +26,9 @@ export type Directory = {
   label: string;
   model: "businessIdea" | "machine" | "supplier" | "fundingProgramme" | "investmentOpportunity" | "guide" | "consultant" | "recipe" | "tool" | "website" | "news";
   /** Extra required link chosen in the form. */
-  link?: { field: "organizationId" | "providerId"; label: string };
+  link?: { field: "organizationId" | "providerId"; label: string; /** Rarely needed: kept under Advanced settings, with this explanation. */ advanced?: string };
   /** Form labels for the shared fields, in the client's wording (e.g. "Machine name", "Brief"). */
-  labels?: { title?: string; shortSummary?: string; overview?: string; category?: string };
+  labels?: { title?: string; shortSummary?: string; overview?: string; category?: string; main?: string; mainNote?: string; moreNote?: string };
   fields: Field[];
   children?: ChildList[];
 };
@@ -42,6 +48,7 @@ const e = (name: string, label: string, options: string[], group?: string): Fiel
 const cur = (group?: string): Field => ({ name: "currency", label: "Currency (ISO code)", kind: "text", group, help: "e.g. UGX, USD" });
 
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
+const SUPPLIER_MORE = "What else they offer";
 
 export const DIRECTORIES: Directory[] = [
   {
@@ -99,18 +106,22 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "SUPPLIER", label: "Supplier", model: "supplier",
-    link: { field: "organizationId", label: "Organization" },
-    labels: { title: "Supplier name", shortSummary: "Brief (optional)", overview: "About (optional)", category: "Category" },
+    link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
+    labels: {
+      title: "Business name", shortSummary: "Short description (optional)", overview: "About the business (optional)", category: "Category",
+      main: "Business and contact details", mainNote: "Shown on the supplier's page.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
+    },
+    // Only what the supplier page and the suppliers list use. Products are added after saving.
     fields: [
-      e("supplierType", "Type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
-      t("country", "Country", MAIN), l("items", "Items supplied", MAIN),
-      t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
-      { ...u("pictureUrl", "Photo (shop, products or logo)", MAIN), upload: "image" }, t("pictureCredit", "Photo credit", MAIN, "e.g. Photo: supplier, or Jane Doe, CC BY-SA 4.0"),
-      i("yearsEstablished", "Year established (only if confirmed)", "Profile"), l("brandsSupplied", "Brands supplied", "Products"),
-      t("minimumOrder", "Minimum order", "Commercial terms"), b("sellsWholesale", "Sells wholesale", "Commercial terms"), b("sellsRetail", "Sells retail", "Commercial terms"),
-      l("paymentMethods", "Payment methods", "Commercial terms"), ta("deliveryAreas", "Delivery areas", "Commercial terms"), t("leadTime", "Lead time", "Commercial terms"), ta("returnsPolicy", "Returns policy", "Commercial terms"),
-      b("offersInstallation", "Installation", "Service capability"), b("offersMaintenance", "Maintenance", "Service capability"), b("offersTraining", "Training", "Service capability"),
-      b("sparePartsLocal", "Spare parts locally", "Service capability"), b("exportCapability", "Exports", "Service capability"), b("listingClaimed", "Listing claimed by the business", "Trust"),
+      { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
+      e("supplierType", "Type of business", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
+      { ...t("country", "Country", MAIN), initial: "Uganda" },
+      t("phone", "Phone number", MAIN, "e.g. 0772 123 456"), t("email", "Email address", MAIN), { ...u("website", "Website", MAIN), help: "Starts with https://" },
+      { ...t("address", "Address", MAIN, "Street, building or area"), virtual: true },
+      { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
+      l("brandsSupplied", "Brands they sell", SUPPLIER_MORE), b("sellsWholesale", "Sells wholesale", SUPPLIER_MORE), b("sellsRetail", "Sells retail", SUPPLIER_MORE),
+      b("offersInstallation", "Installs what they sell", SUPPLIER_MORE), b("offersMaintenance", "Does maintenance", SUPPLIER_MORE), b("offersTraining", "Trains staff", SUPPLIER_MORE),
+      b("sparePartsLocal", "Has spare parts in Uganda", SUPPLIER_MORE), b("exportCapability", "Exports", SUPPLIER_MORE),
     ],
   },
   {

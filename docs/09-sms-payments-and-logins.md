@@ -156,7 +156,7 @@ The pricing page shows a **"Test mode"** badge while `PESAPAL_ENV="sandbox"` or 
    ```
 
    It registers that address with your Pesapal account (or finds it, if it's already registered) and prints the line to copy, e.g. `PESAPAL_IPN_ID="5d68…"`. Put it in `.env` and in the host's environment variables. The id belongs to one account and one server: run it again for the sandbox keys and for the live keys, and after changing the domain. If you leave `PESAPAL_IPN_ID` empty, the site registers the address by itself on the first payment.
-5. Set the real prices at **Admin → Membership prices** (`/admin/plans`). An empty box shows "Price coming soon" for that plan.
+5. Set the real prices at **Admin → Subscription prices** (`/admin/plans`). Suppliers and experts pay for 6 months, 1, 2 or 3 years; members by the day, week, month or year. A length with an empty box isn't offered.
 6. Make one real payment with the smallest plan and check it in **Admin → Payments**.
 
 ### Demo mode without Pesapal
@@ -252,6 +252,7 @@ Once a day the site sends renewal reminders (and other upkeep: closing funding r
 | Day pass | None (too short) |
 | Weekly | 1 day before it ends, and when it has ended |
 | Monthly, Yearly | 3 days before, 1 day before, and when it has ended |
+| Supplier and expert listings (all lengths) | 3 days before, 1 day before, and when it has ended |
 
 Each reminder goes by SMS to members with a phone and by email to members with an email, plus an alert on their account page. It links to the renewal pop-up. Each one is sent once per period. Members can turn reminders off on **My account → My membership**.
 

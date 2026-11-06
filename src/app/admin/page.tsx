@@ -7,6 +7,7 @@ import { ADMIN_DIRECTORIES } from "@/lib/content-fields";
 import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
 import { customerOf, listPayments, METHOD_LABEL, STATUS_LABEL } from "@/lib/admin-payments";
 import { Icon } from "@/components/Icon";
+import { waitingPartners } from "@/lib/partners";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin dashboard" };
@@ -26,6 +27,18 @@ const QUICK: [string, string, string, string][] = [
   ["/admin/prices", "prices", "Market price", "prices"],
 ];
 
+// Plain answers to "where do I…?", with the area each needs.
+const HOW_TO: [string, string, string][] = [
+  ["/admin/content/new?type=SUPPLIER", "Add a supplier", contentArea("SUPPLIER")],
+  ["/admin/seller-products?show=all", "See and approve supplier products", "suppliers"],
+  ["/admin/supplier-logins", "Let a supplier sign in", "suppliers"],
+  ["/admin/partners", "Approve a new supplier or expert", "suppliers"],
+  ["/admin/plans", "Change subscription prices", "plans"],
+  ["/admin/categories", "Add or rename a category", "categories"],
+  ["/admin/payments", "Check a payment", "payments"],
+  ["/admin/users", "Find a user or business", "users"],
+];
+
 /**
  * Dashboard: four numbers that matter, the latest payments, quick actions, what needs
  * attention, and a compact count per directory. Sub-admins see only their own areas.
@@ -39,7 +52,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const threeDaysAgo = new Date(now.getTime() - 3 * 86_400_000);
 
-  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType] = await Promise.all([
+  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType, newPartners, waitingProducts] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.submission.count({ where: { status: "PENDING", createdAt: { lt: threeDaysAgo } } }),
     prisma.contentItem.count({ where: { publicationStatus: "PUBLISHED", nextReviewDueAt: { lt: now } } }),
@@ -53,6 +66,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     prisma.payment.count({ where: { status: "PENDING" } }),
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
     prisma.contentItem.groupBy({ by: ["contentType", "publicationStatus"], _count: { _all: true } }),
+    waitingPartners(),
+    prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
   ]);
   const countOf = (type: string, status?: string) => byType.filter((r) => r.contentType === type && (!status || r.publicationStatus === status)).reduce((n, r) => n + r._count._all, 0);
   const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "opportunity" : "link");
@@ -60,8 +75,10 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const attention = ([
+    newPartners && can("suppliers") ? { href: "/admin/partners", text: `${newPartners} new supplier${newPartners === 1 ? "" : "s"} or expert${newPartners === 1 ? "" : "s"} paid and waiting for approval`, tone: "warn" } : null,
+    waitingProducts && can("suppliers") ? { href: "/admin/seller-products", text: `${waitingProducts} supplier product${waitingProducts === 1 ? "" : "s"} waiting for approval`, tone: "info" } : null,
     pending && can("review") ? { href: "/admin/review", text: `${pending} item${pending === 1 ? "" : "s"} waiting for review${oldPending ? ` (${oldPending} older than 3 days)` : ""}`, tone: oldPending ? "warn" : "info" } : null,
-    corrections && can("corrections") ? { href: "/admin/corrections", text: `${corrections} correction report${corrections === 1 ? "" : "s"} to check`, tone: "info" } : null,
+    corrections && can("corrections") ? { href: "/admin/corrections", text: `${corrections} reported mistake${corrections === 1 ? "" : "s"} to check`, tone: "info" } : null,
     pendingPayments && can("payments") ? { href: "/admin/payments?status=PENDING", text: `${pendingPayments} payment${pendingPayments === 1 ? "" : "s"} waiting to confirm`, tone: "warn" } : null,
     failedPayments && can("payments") ? { href: "/admin/payments?status=FAILED", text: `${failedPayments} failed payment${failedPayments === 1 ? "" : "s"} this month`, tone: "bad" } : null,
     overdue && canContent ? { href: "/admin/content?fresh=over", text: `${overdue} page${overdue === 1 ? "" : "s"} overdue for re-review`, tone: "warn" } : null,
@@ -70,6 +87,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     expiringQuotes && can(contentArea("MACHINE")) ? { href: "/admin/content?type=MACHINE", text: `${expiringQuotes} supplier quote${expiringQuotes === 1 ? "" : "s"} expire this week`, tone: "warn" } : null,
   ] as ({ href: string; text: string; tone: string } | null | 0)[]).filter((x): x is { href: string; text: string; tone: string } => Boolean(x));
   const quick = QUICK.filter((q) => can(q[3]));
+  const howTo = HOW_TO.filter((h) => can(h[2]));
   const kpis = [
     can("payments") ? <Kpi key="revenue" icon="wallet" href="/admin/payments" label="Revenue this month" value={money(revenue._sum.amount ?? 0)} sub={`${revenue._count} payment${revenue._count === 1 ? "" : "s"}`} /> : null,
     can("users") ? <Kpi key="members" icon="users" href="/admin/users?tab=member" label="Paying members" value={members} sub="Active memberships" /> : null,
@@ -157,6 +175,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
           </Panel>
         </div>
       </div>
+
+      {/* Where things are, in plain words */}
+      {howTo.length ? <Panel title="Where do I…?">
+        <ul className="grid gap-x-8 gap-y-1 sm:grid-cols-2 xl:grid-cols-4">
+          {howTo.map(([href, label]) => <li key={href}><Link href={href} className="-mx-2 flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-[13px] font-semibold text-ink hover:bg-page hover:text-brand">{label}<span aria-hidden className="text-ink-muted">→</span></Link></li>)}
+        </ul>
+      </Panel> : null}
 
       {/* Content per directory, one compact list */}
       {canContent ? <Panel title="Your content" action={<Link href="/admin/content" className="text-[13px] font-semibold">All content →</Link>}>

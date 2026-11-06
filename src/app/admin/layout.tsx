@@ -12,6 +12,7 @@ import { contentArea } from "@/lib/admin-areas";
 import { ADMIN_DIRECTORIES } from "@/lib/content-fields";
 import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
 import { prisma } from "@/lib/prisma";
+import { waitingPartners } from "@/lib/partners";
 
 const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "opportunity" : "link");
 
@@ -22,39 +23,43 @@ const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await staffAccess();
-  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews, expertWork] = await Promise.all([
+  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews, expertWork, newPartners] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
     prisma.payment.count({ where: { status: "PENDING" } }),
     prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
     prisma.consultantReview.count({ where: { moderation: "PENDING" } }),
     prisma.consultantProject.count({ where: { status: "IN_REVIEW" } }),
+    waitingPartners(),
   ]);
   const theme = cookies().get("admin-theme")?.value === "dark" ? "dark" : "light";
   // Each link with the area it needs (src/lib/admin-areas.ts); a sub-admin sees only their areas.
   type Gated = NavItem & { area?: string };
   const all: Gated[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
-    { href: "/admin/account", label: "My account", icon: "users" },
-    { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
-    { href: "/admin/plans", label: "Prices", icon: "prices", area: "plans" },
+    { section: "To check" },
+    { href: "/admin/partners", label: "New suppliers and experts", badge: newPartners, icon: "supplier", area: "suppliers" },
+    { href: "/admin/seller-products", label: "Supplier products", badge: sellerProducts, icon: "supplier", area: "suppliers" },
     { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox", area: "review" },
-    { href: "/admin/corrections", label: "Corrections", badge: corrections, icon: "flag", area: "corrections" },
-    { section: "Content" },
-    { href: "/admin/content", label: "All content", icon: "files" },
-    { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.filter((d) => user.can(contentArea(d.type))).map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },
-    { href: "/admin/prices", label: "Markets and Prices", icon: "prices", area: "prices" },
-    { section: "People and site" },
-    { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },
-    { href: "/admin/partners", label: "Registrations", icon: "supplier", area: "suppliers" },
-    { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier", area: "suppliers" },
-    { href: "/admin/seller-products", label: "Seller products", badge: sellerProducts, icon: "supplier", area: "suppliers" },
-    { href: "/admin/expert-logins", label: "Expert logins", icon: "expert", area: "experts" },
+    { href: "/admin/corrections", label: "Reported mistakes", badge: corrections, icon: "flag", area: "corrections" },
     { href: "/admin/expert-work", label: "Expert work", badge: expertWork, icon: "expert", area: "experts" },
     { href: "/admin/expert-reviews", label: "Expert reviews", badge: pendingReviews, icon: "expert", area: "experts" },
+    { section: "Money" },
+    { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
+    { href: "/admin/plans", label: "Subscription prices", icon: "prices", area: "plans" },
+    { section: "Website content" },
+    { href: "/admin/content", label: "All content", icon: "files" },
+    { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.filter((d) => user.can(contentArea(d.type))).map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },
+    { href: "/admin/categories", label: "Categories", icon: "files", area: "categories" },
+    { href: "/admin/prices", label: "Market prices", icon: "prices", area: "prices" },
     { href: "/admin/updates", label: "Homepage updates", icon: "megaphone", area: "homepage" },
     { href: "/admin/video", label: "Homepage video", icon: "video", area: "homepage" },
-    ...(user.superAdmin ? [{ section: "Super admin" }, { href: "/admin/team", label: "Admin team", icon: "users" }] : []),
+    { section: "People" },
+    { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },
+    { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier", area: "suppliers" },
+    { href: "/admin/expert-logins", label: "Expert logins", icon: "expert", area: "experts" },
+    ...(user.superAdmin ? [{ href: "/admin/team", label: "Admin team", icon: "users" }] : []),
+    { href: "/admin/account", label: "My account", icon: "users" },
   ];
   const canContent = ADMIN_DIRECTORIES.some((d) => user.can(contentArea(d.type)));
   const visible = all.filter((it) => {
@@ -90,7 +95,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Suspense fallback={null}><SideNav items={items} dark /></Suspense>
         </div>
         <div className="flex flex-col gap-1 border-t border-white/10 p-3">
-          <ThemeToggle initial={theme} withLabel />
           <Link href="/" target="_blank" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
             <Icon name="external" className="h-4 w-4" />View website
           </Link>

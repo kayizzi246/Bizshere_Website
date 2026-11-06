@@ -1,5 +1,6 @@
 import { requireArea } from "@/lib/access";
 import Link from "next/link";
+import { PERIOD_INFO } from "@/lib/billing";
 import { prisma } from "@/lib/prisma";
 import { date, money } from "@/lib/format";
 import { Icon } from "@/components/Icon";
@@ -97,7 +98,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
                       <tr key={p.id}>
                         <td className="whitespace-nowrap text-ink-muted">{date(p.paidAt ?? p.createdAt)}</td>
                         <td><span className="flex flex-col"><span className="font-semibold text-ink">{c.name}</span><span className="text-xs text-ink-muted">{c.contact}</span></span></td>
-                        <td><span className="flex flex-col"><span>{p.subscription.plan.name}</span><span className="text-xs capitalize text-ink-muted">{p.subscription.period.toLowerCase()}</span></span></td>
+                        <td><span className="flex flex-col"><span>{p.subscription.plan.name}</span><span className="text-xs text-ink-muted">{PERIOD_INFO[p.period ?? p.subscription.period].label}</span></span></td>
                         <td className="whitespace-nowrap">{METHOD_LABEL[p.method]}</td>
                         <td className="whitespace-nowrap text-right font-semibold text-ink">{money(p.amount, p.currency)}</td>
                         <td><span className={`badge ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span></td>

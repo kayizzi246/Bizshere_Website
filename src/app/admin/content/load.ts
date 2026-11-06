@@ -1,12 +1,13 @@
 import type { ContentType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { DIRECTORY_KINDS } from "@/lib/categories";
 import { directoryFor, type Field } from "@/lib/content-fields";
 
 export type Option = { value: string; label: string };
-export type FormOptions = { categories: Option[]; audiences: Option[]; locations: Option[]; link: Option[] };
+export type FormOptions = { categories: Option[]; primaryCategories: Option[]; audiences: Option[]; locations: Option[]; link: Option[] };
 
-/** Choices for the entry form's select boxes. */
-export async function loadOptions(type: ContentType): Promise<FormOptions> {
+/** Choices for the entry form's select boxes. The main category offers this directory's own kinds, plus the one already chosen. */
+export async function loadOptions(type: ContentType, currentCategoryId?: string | null): Promise<FormOptions> {
   const dir = directoryFor(type);
   const [categories, audiences, locations, orgs, providers] = await Promise.all([
     prisma.category.findMany({ orderBy: [{ kind: "asc" }, { name: "asc" }] }),
@@ -17,6 +18,7 @@ export async function loadOptions(type: ContentType): Promise<FormOptions> {
   ]);
   return {
     categories: categories.map((c) => ({ value: c.id, label: `${c.name} (${c.kind.toLowerCase().replace(/_/g, " ")})` })),
+    primaryCategories: categories.filter((c) => DIRECTORY_KINDS[type].includes(c.kind) || c.id === currentCategoryId).sort((a, b) => a.name.localeCompare(b.name)).map((c) => ({ value: c.id, label: c.name })),
     audiences: audiences.map((a) => ({ value: a.id, label: a.name })),
     locations: locations.map((l) => ({ value: l.id, label: `${l.name} (${l.type.toLowerCase()})` })),
     link: [
@@ -43,7 +45,7 @@ export async function loadValues(id: string) {
       relatedFrom: { include: { toItem: { select: { slug: true } } }, orderBy: { displayOrder: "asc" } },
       revisions: { include: { editor: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 10 },
       businessIdea: { include: { steps: { orderBy: { stepNumber: "asc" } } } },
-      machine: true, supplier: true, fundingProgramme: true, investmentOpportunity: true,
+      machine: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } }, fundingProgramme: true, investmentOpportunity: true,
       guide: { include: { steps: { orderBy: { stepNumber: "asc" } }, documents: true } },
       consultant: true,
       recipe: { include: { ingredients: { orderBy: { order: "asc" } }, steps: { orderBy: { stepNumber: "asc" } } } },
@@ -56,6 +58,7 @@ export async function loadValues(id: string) {
   const values: Record<string, string> = {};
   for (const f of dir.fields) values[`f_${f.name}`] = toFormValue(f, record?.[f.name]);
   if (dir.link && record) values[dir.link.field] = String(record[dir.link.field] ?? "");
+  if (item.supplier) values.f_address = item.supplier.organization.locations[0]?.physicalAddress ?? "";
 
   const children: Record<string, string> = {
     ideaSteps: item.businessIdea?.steps.map((s) => [s.title, s.description].filter(Boolean).join(" | ")).join("\n") ?? "",

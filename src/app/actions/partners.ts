@@ -9,12 +9,12 @@ import type { BillingPeriod } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { audit } from "@/lib/audit";
-import { PLAN_PERIODS, PRICE_FIELD, periodEnd } from "@/lib/billing";
+import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD, periodEnd } from "@/lib/billing";
 import { allow, LIMITS } from "@/lib/rate-limit";
 import { pesapalConfigured, startCheckout } from "@/lib/payments";
 import { phoneKey } from "@/lib/phone-codes";
 import { ensureUsername } from "@/lib/pin-accounts";
-import { partnerPaid, PERIOD_WORD } from "@/lib/membership";
+import { partnerPaid } from "@/lib/membership";
 import { PARTNER_INFO, partnerOf, partnerPlan, type PartnerKind } from "@/lib/partners";
 import { cancelPayment, type CheckoutOutcome } from "./onboarding";
 
@@ -79,7 +79,7 @@ export async function registerPartner(form: FormData) {
         data: { contentItemId: item.id, organizationId: org.id, ownerId: userId, fullName: d.name, businessName: d.business || null, professionalTitle: d.title || null, specialties: list(d.what), country: d.country, district: d.place || null, phone },
       });
     }
-    await tx.subscription.create({ data: { userId, organizationId: org.id, planId: plan.id, status: "PAST_DUE", period: "MONTHLY" } });
+    await tx.subscription.create({ data: { userId, organizationId: org.id, planId: plan.id, status: "PAST_DUE", period: "YEARLY" } });
     if (pinHash) await tx.user.update({ where: { id: userId }, data: { passwordHash: pinHash, pinMustChange: false } });
   });
   await ensureUsername(userId, d.name);
@@ -89,7 +89,7 @@ export async function registerPartner(form: FormData) {
 }
 
 const simulate = () => process.env.PAYMENT_SIMULATE === "true";
-const payInput = z.object({ kind: kindOf, period: z.enum(PLAN_PERIODS) });
+const payInput = z.object({ kind: kindOf, period: z.enum(PARTNER_PERIODS) });
 
 /** Starts or renews a listing. It counts only when Pesapal confirms (settlePayment), or at once in simulation. */
 export async function startPartnerPayment(input: { kind: PartnerKind; period: BillingPeriod }): Promise<CheckoutOutcome> {
@@ -136,7 +136,7 @@ export async function startPartnerPayment(input: { kind: PartnerKind; period: Bi
       paymentId: payment.id,
       amount: Number(price),
       currency: "UGX",
-      description: `BizSphere-Ug ${plan.name} ${PERIOD_WORD[period].replace(" membership", "")}`,
+      description: `BizSphere-Ug ${plan.name}, ${PERIOD_INFO[period].length}`,
       phone: phoneKey(user?.phone ?? "") ?? undefined,
       email: user?.email ?? undefined,
       name: user?.name ?? undefined,

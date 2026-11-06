@@ -5,6 +5,8 @@ import { delegate, tablesFor, type ChildField, type ChildTable, type ParentIds }
 import { parentIds, refInclude, refLabel, refOptions } from "@/lib/child-data";
 import { deleteChildRow, saveChildRow } from "./child-table-actions";
 import { UploadButton } from "@/components/UploadButton";
+import { ProductTable, type ProductRow } from "@/components/ProductTable";
+import Link from "next/link";
 
 /**
  * Editors for every child table of this directory (src/lib/child-tables.ts): a row list
@@ -14,10 +16,13 @@ import { UploadButton } from "@/components/UploadButton";
 type Row = Record<string, unknown>;
 type Options = Record<string, { value: string; label: string }[]>;
 
-export async function ChildTableEditor({ contentItemId, type }: { contentItemId: string; type: ContentType }) {
+const PRODUCT_STATUS = { PUBLISHED: "Live", IN_REVIEW: "Waiting for approval", ARCHIVED: "Hidden" };
+
+/** `only` and `except` pick which tables to show; `editRow` is the product opened from its table. */
+export async function ChildTableEditor({ contentItemId, type, only, except, editRow }: { contentItemId: string; type: ContentType; only?: string[]; except?: string[]; editRow?: string }) {
   const p = await parentIds(contentItemId);
   if (!p) return null;
-  const tables = tablesFor(type).filter((x) => !x.displayOnly);
+  const tables = tablesFor(type).filter((x) => !x.displayOnly && (!only || only.includes(x.key)) && !except?.includes(x.key));
   const loaded = await Promise.all(tables.map(async (table) => {
     const scope = table.scope(p);
     const rows = scope ? await delegate(prisma, table.model).findMany({ where: scope, orderBy: table.orderBy, include: refInclude(table.fields) }) : null;
@@ -42,7 +47,9 @@ export async function ChildTableEditor({ contentItemId, type }: { contentItemId:
             <p className="rounded-lg bg-warn-bg p-3 text-sm text-warn-fg">Link this record to an organization first (Organization section above), then add {table.label.toLowerCase()}.</p>
           ) : (
             <>
-              {rows.length ? (
+              {table.key === "listings" ? (
+                <ProductSection table={table} p={p} contentItemId={contentItemId} rows={rows} options={options} editRow={editRow} />
+              ) : rows.length ? (
                 <ul className="flex flex-col divide-y divide-line rounded-lg border border-line">
                   {rows.map((row) => (
                     <li key={String(row.id)}>
@@ -69,7 +76,7 @@ export async function ChildTableEditor({ contentItemId, type }: { contentItemId:
                   ))}
                 </ul>
               ) : null}
-              <details className="group rounded-lg border border-dashed border-line-strong [&_summary::-webkit-details-marker]:hidden">
+              <details open={table.key === "listings" && rows.length === 0} className="group rounded-lg border border-dashed border-line-strong [&_summary::-webkit-details-marker]:hidden">
                 <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-brand">+ Add {table.item}</summary>
                 <div className="border-t border-line p-4">
                   <RowForm table={table} p={p} contentItemId={contentItemId} options={options} />
@@ -80,6 +87,35 @@ export async function ChildTableEditor({ contentItemId, type }: { contentItemId:
         </section>
       ))}
     </div>
+  );
+}
+
+/** A supplier's products: the table, then the one being edited. Edit is a link, so it works without any script. */
+function ProductSection({ table, p, contentItemId, rows, options, editRow }: { table: ChildTable; p: ParentIds; contentItemId: string; rows: Row[]; options: Options; editRow?: string }) {
+  const editing = rows.find((r) => r.id === editRow);
+  return (
+    <>
+      {rows.length ? (
+        <ProductTable rows={rows as unknown as ProductRow[]} statusLabels={PRODUCT_STATUS} actions={(r) => (
+          <Link href={`/admin/content/${contentItemId}?product=${r.id}#t-listings`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">Edit</Link>
+        )} />
+      ) : <p className="text-sm text-ink-muted">No products yet. Add the first one below.</p>}
+      {editing ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-brand/40 bg-page/60 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-bold text-heading">Edit {String(editing.productName)}</h3>
+            <Link href={`/admin/content/${contentItemId}#t-listings`} className="text-sm font-semibold">Cancel</Link>
+          </div>
+          <RowForm table={table} p={p} contentItemId={contentItemId} row={editing} options={options} />
+          <form action={deleteChildRow} className="flex justify-end">
+            <input type="hidden" name="contentItemId" value={contentItemId} />
+            <input type="hidden" name="table" value={table.key} />
+            <input type="hidden" name="rowId" value={String(editing.id)} />
+            <button className="text-xs font-semibold text-bad-fg hover:underline">Delete this product</button>
+          </form>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -109,7 +145,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
     );
   }
   const choices = f.kind === "bool" ? [{ value: "", label: "Unknown" }, { value: "true", label: "Yes" }, { value: "false", label: "No" }]
-    : f.kind === "enum" ? [{ value: "", label: "Choose…" }, ...(f.options ?? []).map((o) => ({ value: o, label: o.replace(/_/g, " ").toLowerCase() }))]
+    : f.kind === "enum" ? [{ value: "", label: "Choose…" }, ...(f.options ?? []).map((o) => ({ value: o, label: f.optionLabels?.[o] ?? o.replace(/_/g, " ").toLowerCase() }))]
     : f.kind === "ref" ? [{ value: "", label: f.required ? "Choose…" : "None" }, ...(options ?? [])]
     : null;
   if (f.upload) {

@@ -26,7 +26,8 @@ These aren't in the information request but the site can't launch without them.
 |---|---|---|---|
 | Public contact details (email, phone, WhatsApp, address, hours) | Contact page and footer | `src/config/site.ts` → `contact` | ☐ |
 | Domain name | Live address, sign-in links | `NEXTAUTH_URL` in hosting settings | ☐ |
-| Membership plan prices (monthly, yearly) | Membership page shows "to be confirmed" until set | Admin, or `membership_plans` table | ☐ |
+| Membership plan prices (daily, weekly, monthly, yearly) | Membership page shows "to be confirmed" until set | Admin → Subscription prices | ☐ |
+| Supplier and expert listing prices (6 months, 1, 2, 3 years) | Starting prices are worked out from the old yearly price | Admin → Subscription prices | ☐ |
 | Payment gateway account (MTN MoMo, Airtel Money, cards) | Taking payments | `.env` `PAYMENT_*`, `src/lib/payments.ts` | ☐ |
 | Terms of use and privacy policy approved by a lawyer | Legal pages are marked "Draft" | `src/app/(site)/terms`, `privacy`; then set `legalDraft: false` in `site.ts` | ☐ |
 | Data protection registration (Uganda) | Legal requirement for handling personal data; confirm with counsel | — | ☐ |

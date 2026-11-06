@@ -13,13 +13,14 @@ export const contentArea = (type: ContentType | string) => `content:${type}`;
 
 export const AREAS: Area[] = [
   { key: "payments", label: "Payments and revenue", group: "Money", help: "Payments, refunds, revenue and the export" },
-  { key: "plans", label: "Membership prices", group: "Money" },
+  { key: "plans", label: "Subscription prices", group: "Money", help: "What suppliers, experts and members pay" },
   { key: "review", label: "Review queue", group: "Checking", help: "New businesses, offers and prices sent in" },
-  { key: "corrections", label: "Corrections", group: "Checking", help: "Mistakes readers report" },
+  { key: "corrections", label: "Reported mistakes", group: "Checking", help: "Mistakes readers report" },
   ...ADMIN_DIRECTORIES.map((d) => ({ key: contentArea(d.type), label: d.label, group: "Directories" })),
-  { key: "prices", label: "Markets and Prices", group: "Directories" },
+  { key: "categories", label: "Categories", group: "Directories", help: "Rename, add and delete categories" },
+  { key: "prices", label: "Market prices", group: "Directories" },
   { key: "users", label: "Users and businesses", group: "People", help: "See accounts; create business and member accounts" },
-  { key: "suppliers", label: "Suppliers: logins and seller products", group: "People" },
+  { key: "suppliers", label: "Suppliers: sign-ups, logins and products", group: "People" },
   { key: "experts", label: "Experts: logins, work and reviews", group: "People" },
   { key: "homepage", label: "Homepage updates and video", group: "Site" },
 ];

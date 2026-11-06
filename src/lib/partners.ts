@@ -33,6 +33,14 @@ export function partnerPlan(kind: PartnerKind) {
   });
 }
 
+/** Paid listings waiting for the team to check and approve them (/admin/partners). */
+export function waitingPartners() {
+  const inReview = { contentItem: { publicationStatus: "IN_REVIEW" as const } };
+  return prisma.subscription.count({
+    where: { plan: { code: { in: Object.values(PARTNER_CODES) } }, organization: { OR: [{ supplier: inReview }, { consultants: { some: inReview } }] } },
+  });
+}
+
 /** The person's own supplier or expert record with its page, or null. */
 export async function partnerOf(userId: string, kind: PartnerKind) {
   const contentItem = { select: { id: true, title: true, slug: true, publicationStatus: true } };

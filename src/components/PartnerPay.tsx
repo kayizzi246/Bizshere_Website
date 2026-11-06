@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Loader2, X } from "lucide-react";
 import { cancelPayment, checkPayment } from "@/app/actions/onboarding";
 import { startPartnerPayment } from "@/app/actions/partners";
+import type { PartnerPeriod } from "@/lib/billing";
 import type { PartnerKind } from "@/lib/membership";
 
-type Option = { period: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY"; label: string; price: string };
+type Option = { period: PartnerPeriod; label: string; price: string };
 
 /**
  * A supplier's or expert's listing payment, in a pop-up that opens by itself after registering (and
@@ -17,7 +18,7 @@ type Option = { period: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY"; label: string
  */
 export function PartnerPay({ kind, options, done, title }: { kind: PartnerKind; options: Option[]; done: string; title: string }) {
   const [open, setOpen] = useState(true);
-  const [period, setPeriod] = useState<Option["period"]>(options.find((o) => o.period === "MONTHLY")?.period ?? options[0]?.period ?? "MONTHLY");
+  const [period, setPeriod] = useState<Option["period"]>(options.find((o) => o.period === "YEARLY")?.period ?? options[0]?.period ?? "YEARLY");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<{ url: string; paymentId: string } | null>(null);

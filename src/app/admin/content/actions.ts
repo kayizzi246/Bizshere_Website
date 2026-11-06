@@ -7,6 +7,7 @@ import { Prisma, type AccessLevel, type BusinessStage, type ContentType, type Pu
 import { prisma, type Tx } from "@/lib/prisma";
 import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
+import { categorySlug, DIRECTORY_KINDS, findOrAddCategory } from "@/lib/categories";
 import { directoryFor, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
 import { parseField } from "@/lib/field-parse";
 
@@ -95,6 +96,7 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
 
   const specialised: Record<string, unknown> = {};
   for (const f of dir.fields) {
+    if (f.virtual) continue;
     const v = parseField(f, str(form.get(`f_${f.name}`)), errors);
     if (f.required && (v === null || v === "")) errors[f.name] = "Required";
     specialised[f.name] = v;
@@ -133,8 +135,13 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   const missing = relSlugs.filter((s) => !relTargets.some((t) => t.slug === s));
   if (missing.length) errors.relations = `No page with address: ${missing.join(", ")}`;
 
+  // A category typed into the form: added to this directory's list (or reused if it's already there) and chosen.
+  const newCategory = str(form.get("newCategory")).replace(/\s+/g, " ");
+  if (newCategory && (newCategory.length < 2 || newCategory.length > 80 || !categorySlug(newCategory))) errors.newCategory = "Use 2 to 80 letters or numbers";
+
   if (Object.keys(errors).length) return { errors };
 
+  const addedCategory = newCategory ? (await findOrAddCategory(prisma, DIRECTORY_KINDS[type][0], newCategory)).category : null;
   const now = new Date();
   const core = {
     contentType: type,
@@ -143,7 +150,7 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     shortSummary: str(form.get("shortSummary")) || null,
     overview: str(form.get("overview")) || null,
     coverageNotes: str(form.get("coverageNotes")) || null,
-    primaryCategoryId: str(form.get("primaryCategoryId")) || null,
+    primaryCategoryId: addedCategory?.id ?? (str(form.get("primaryCategoryId")) || null),
     businessStages: form.getAll("businessStages").map(String).filter((s): s is BusinessStage => STAGES.includes(s as BusinessStage)),
     publicationStatus: status,
     accessLevel: access,
@@ -173,6 +180,15 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
 
     const delegate = tx[DELEGATE[dir.model]] as unknown as UpsertDelegate;
     const record = await delegate.upsert({ where: { contentItemId: item.id }, create: { ...specialised, contentItemId: item.id }, update: specialised });
+
+    // A supplier's address lives on its business's main location
+    if (type === "SUPPLIER" && form.has("f_address")) {
+      const organizationId = (record as unknown as { organizationId: string }).organizationId;
+      const physicalAddress = str(form.get("f_address")) || null;
+      const place = await tx.organizationLocation.findFirst({ where: { organizationId }, orderBy: { isPrimary: "desc" } });
+      if (place) await tx.organizationLocation.update({ where: { id: place.id }, data: { physicalAddress } });
+      else if (physicalAddress) await tx.organizationLocation.create({ data: { organizationId, physicalAddress, isPrimary: true } });
+    }
 
     for (const child of dir.children ?? []) {
       if (form.has(`c_${child.key}`)) await saveChildren(tx, child.key, record.id, str(form.get(`c_${child.key}`)), errors);

@@ -16,13 +16,28 @@ async function meta(ids: string[]) {
   ].filter(Boolean).join(" · ")]));
 }
 
-// The table's Country and Website columns (client template). Both are public.
+// The card's country and what they sell. Both are public.
 async function facts(ids: string[]) {
-  const rows = await prisma.supplier.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, country: true, website: true } });
-  return Object.fromEntries(rows.map((s) => [s.contentItemId, { country: s.country, website: s.website }]));
+  const rows = await prisma.supplier.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, country: true, items: true } });
+  return Object.fromEntries(rows.map((s) => [s.contentItemId, { country: s.country, sells: s.items.slice(0, 4).join(", ") || null }]));
+}
+
+// The card shows what they sell first: the newest approved product with a photo, then their own photo or logo.
+async function images(ids: string[]) {
+  const rows = await prisma.supplier.findMany({
+    where: { contentItemId: { in: ids } },
+    select: {
+      contentItemId: true, pictureUrl: true, organization: { select: { logoUrl: true } },
+      listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 },
+    },
+  });
+  return Object.fromEntries(rows.flatMap((s) => {
+    const picture = s.listings[0]?.imageUrl || s.pictureUrl || s.organization.logoUrl;
+    return picture ? [[s.contentItemId, picture]] : [];
+  }));
 }
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/suppliers");
-  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} facts={facts} variant="suppliers" title={d.title} intro={d.text} />;
+  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} facts={facts} images={images} variant="suppliers" title={d.title} intro={d.text} />;
 }

@@ -17,6 +17,8 @@ export type ChildField = {
   kind: FieldKind | "ref";
   ref?: RefKind;
   options?: string[];
+  /** Plain words for the choices of an enum, where the stored value isn't readable. */
+  optionLabels?: Record<string, string>;
   required?: boolean;
   help?: string;
   /** Member detail: replaced by a lock on gated pages, never sent to visitors. */
@@ -104,15 +106,15 @@ export const CHILD_TABLES: ChildTable[] = [
     heading: "machineId", orderBy: { quotedAt: "desc" }, publicWhere: { status: "PUBLISHED" }, displayOnly: true,
   },
   {
-    key: "listings", model: "supplierProductListing", label: "Product catalog", item: "product", parents: ["SUPPLIER"],
-    intro: "The supplier's products, shown as a grid on their page. Suppliers can also add these themselves at /supplier. For a machine, add a supplier offer on the machine's page instead.",
+    key: "listings", model: "supplierProductListing", label: "Products", item: "product", parents: ["SUPPLIER"],
+    intro: "This supplier's products, as they appear on their page. Suppliers can also add their own from their dashboard.",
     scope: (p) => ({ supplierId: p.record }), link: (p) => ({ supplierId: p.record }),
     fields: [
-      t("productName", "Product", { required: true }), { ...u("imageUrl", "Photo"), upload: "image" }, ref("productId", "Linked product (market prices)", "product"),
-      ta("specifications", "Specifications"), t("unit", "Unit"), d("minimumOrderQuantity", "Minimum order quantity"), t("availability", "Availability"),
-      d("priceMin", "Price from", { member: true, help: MONEY }), d("priceMax", "Price to", { member: true }), t("currency", "Currency"),
-      dt("quotedAt", "Quoted on"), dt("validUntil", "Valid until"),
-      e("status", "Show on the site", ["PUBLISHED", "IN_REVIEW", "ARCHIVED"], { internal: true, help: "PUBLISHED shows it; anything else hides it" }),
+      t("productName", "Product name", { required: true }), { ...u("imageUrl", "Photo"), upload: "image" },
+      d("priceMin", "Price from", { member: true, help: "Leave empty if you don't know it" }), d("priceMax", "Price to", { member: true, help: "Only for a price range" }), t("currency", "Currency"),
+      t("unit", "Package unit", { help: "e.g. piece, 50 kg bag" }), d("minimumOrderQuantity", "Minimum order"), t("availability", "Availability", { help: "e.g. In stock, 2 weeks" }),
+      ta("specifications", "Description"),
+      e("status", "Show on the website?", ["PUBLISHED", "IN_REVIEW", "ARCHIVED"], { required: true, internal: true, optionLabels: { PUBLISHED: "Yes, live", IN_REVIEW: "Not yet: waiting for approval", ARCHIVED: "No, hidden" } }),
     ],
     heading: "productName", orderBy: { createdAt: "desc" }, publicWhere: { status: "PUBLISHED" },
   },

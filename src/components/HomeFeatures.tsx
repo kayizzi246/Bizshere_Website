@@ -36,9 +36,9 @@ const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], 
 // The funding rows are examples of what's listed, not links: a light brand colour each, slowly drifting (.drift-row)
 const ROWS = [["#CFE8FA", "#F0F8FE", "text-brand"], ["#DCE5F1", "#F5F8FC", "text-navy"], ["#FFD0A1", "#FFE2C4", "text-accent-dark"], ["#BFE0F6", "#E9F5FD", "text-brand-dark"]];
 
-const heading = "text-hero text-[25px] leading-[1.15] text-black sm:text-[32px] lg:text-[38px]";
+const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
-const cardHeading = "text-hero text-[23px] leading-[1.15] text-black sm:text-[28px] lg:text-[32px]";
+const cardHeading = "text-hero text-[20px] leading-[1.2] text-black sm:text-[23px] lg:text-[26px]";
 
 const Label = ({ href, tone = "text-brand" }: { href: string; tone?: string }) => {
   const d = directory(href);
@@ -87,7 +87,7 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="max-w-2xl text-hero text-[28px] leading-[1.1] text-black sm:text-[38px] lg:text-[48px]">Everything a business needs, on one platform</h2>
+        <h2 className="max-w-2xl text-hero text-[24px] leading-[1.15] text-black sm:text-[30px] lg:text-[36px]">Everything a business needs, on one platform</h2>
         <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
       </div>
 
@@ -161,7 +161,7 @@ export async function HomeFeatures() {
 
       <div className="bg-brand text-white">
         <div className="container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
-          <h2 className="text-hero text-[22px] leading-[1.15] sm:text-[30px]">Start using BizSphere-Ug today</h2>
+          <h2 className="text-hero text-[20px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
           <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">Open every directory with one membership.</p>
           <Link href="/signup" className="group mt-2 inline-flex h-[52px] items-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-white hover:text-ink">
             Get started<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />

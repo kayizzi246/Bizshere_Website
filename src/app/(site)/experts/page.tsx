@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { GlassSelect } from "@/components/GlassSelect";
-import { MapPin, MonitorSmartphone, Search, Users } from "lucide-react";
+import { BadgeCheck, MapPin, MonitorSmartphone, Search, Users } from "lucide-react";
+import type { Prisma } from "@prisma/client";
+import { WishlistHeart } from "@/components/Wishlist";
 import { prisma } from "@/lib/prisma";
 import { directory } from "@/config/directories";
 import { itemHref } from "@/lib/format";
@@ -10,14 +12,13 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: directory("/experts").title };
 
 type SP = Record<string, string | string[] | undefined>;
+type Expert = Prisma.ConsultantGetPayload<{ include: { contentItem: { select: { id: true; slug: true; title: true; contentType: true; shortSummary: true; primaryCategory: { select: { name: true } } } } } }>;
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();
 
-const th = "px-4 py-3 font-semibold";
-const cell = "text-[13px] text-ink-soft md:px-4 md:py-3";
 
 /**
- * Experts as the client's template: one table of S/N, Expert Names, Business Name, Country, Category
- * and Specialty, stacking into rows on phones like the suppliers table. One search box matches names,
+ * Experts as a grid of cards, the same layout as the business ideas (two across on phones, up to five
+ * on wide screens). One search box matches names,
  * skills, towns and languages with the site's forgiving search words; specialty, district and
  * "online" narrow it. Public fields only: email and phone stay on the member profile.
  */
@@ -117,31 +118,50 @@ export default async function ExpertsPage({ searchParams }: { searchParams: SP }
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search or another district. <Link href="/contact" className="font-semibold">Tell our team who you need</Link> and we&apos;ll help you find them.</p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-line bg-white">
-              <table className="w-full text-left text-[14px]">
-                <thead className="hidden bg-brand-deep text-xs text-white/90 md:table-header-group">
-                  <tr>
-                    <th className={`${th} w-14`}>S/N</th><th className={th}>Expert Names</th><th className={th}>Business Name</th>
-                    <th className={th}>Country</th><th className={th}>Category</th><th className={th}>Specialty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {people.map((c, n) => (
-                    <tr key={c.id} className={`flex flex-col gap-1 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "" : "md:bg-brand-tint/40"}`}>
-                      <td className="hidden text-ink-muted md:table-cell md:px-4 md:py-3">{n + 1}</td>
-                      <td className="md:px-4 md:py-3"><Link href={itemHref(c.contentItem)} className="font-semibold text-heading hover:text-brand">{(c.fullName || c.contentItem.title).replace(/^Sample:\s*/i, "")}</Link></td>
-                      <td className={cell}>{c.businessName ?? "—"}</td>
-                      <td className={cell}>{c.country ?? "—"}</td>
-                      <td className={cell}>{c.contentItem.primaryCategory?.name ?? c.professionalTitle ?? "—"}</td>
-                      <td className={cell}>{c.specialties.join(", ") || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+              {people.map((c) => <li key={c.id}><ExpertCard expert={c} /></li>)}
+            </ul>
           )}
         </div>
       </div>
     </>
+  );
+}
+
+/** One expert, the same card as a business idea (IdeaCard): picture, category, name, a short description, a tinted panel and a button. */
+function ExpertCard({ expert: c }: { expert: Expert }) {
+  const name = (c.fullName || c.contentItem.title).replace(/^Sample:\s*/i, "");
+  const href = itemHref(c.contentItem);
+  const initials = name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const about = c.contentItem.shortSummary ?? c.professionalTitle ?? c.businessName;
+  const place = [c.district, c.country].filter(Boolean).join(", ");
+  return (
+    <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
+      <div className="relative">
+        <WishlistHeart id={c.contentItem.id} className="absolute right-2 top-2 z-10" />
+        <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-[14px] bg-brand-tint sm:aspect-[16/10]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+          {c.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="h-full w-full object-cover object-top transition duration-300 group-hover:scale-[1.04]" /> : (
+            <span className="flex h-full w-full items-center justify-center font-display text-[30px] font-extrabold text-brand/70 sm:text-[36px]">{initials}</span>
+          )}
+          {c.contentItem.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{c.contentItem.primaryCategory.name}</span> : null}
+        </Link>
+      </div>
+      <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">
+        <Link href={href} className="font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name}</Link>
+        {about ? <p className="line-clamp-2 text-[12px] leading-snug text-ink-muted sm:text-[13px]">{about}</p> : null}
+        {place ? <p className="flex items-center gap-1 text-[12px] text-ink-soft sm:text-[13px]"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /><span className="truncate">{place}</span></p> : null}
+        <p className="flex items-center gap-2 rounded-xl bg-page px-2.5 py-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" /></span>
+          <span className="flex min-w-0 flex-col leading-tight">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-ink-muted">Specialty</span>
+            <strong className="line-clamp-2 text-[13px] font-bold text-heading">{c.specialties.join(", ") || "General advice"}</strong>
+          </span>
+        </p>
+        <div className="mt-auto pt-1">
+          <Link href={href} className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9">View profile</Link>
+        </div>
+      </div>
+    </div>
   );
 }

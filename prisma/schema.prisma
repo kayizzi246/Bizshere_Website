@@ -208,7 +208,10 @@ enum BillingPeriod {
   DAILY
   WEEKLY
   MONTHLY
+  HALF_YEARLY
   YEARLY
+  TWO_YEARS
+  THREE_YEARS
 }
 
 enum SubscriptionStatus {
@@ -1669,6 +1672,10 @@ model MembershipPlan {
   priceWeekly  Decimal?     @db.Decimal(14, 2) // a week pass
   priceMonthly Decimal?     @db.Decimal(14, 2) // NULL until the client confirms prices
   priceYearly  Decimal?     @db.Decimal(14, 2)
+  /// Supplier and expert listings are sold for 6 months, 1, 2 or 3 years (priceYearly is the 1-year price).
+  priceHalfYearly Decimal?  @db.Decimal(14, 2)
+  priceTwoYears   Decimal?  @db.Decimal(14, 2)
+  priceThreeYears Decimal?  @db.Decimal(14, 2)
   currency     String       @default("UGX")
   /// e.g. { "fullDetail": true, "contacts": true, "downloads": true, "alerts": true, "maxListings": 10 }
   entitlements Json

@@ -4,7 +4,7 @@ import { date, isOlderThan, moneyRange } from "@/lib/format";
 import { addMarket, addObservation, addProduct, setProductSupplier } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Prices" };
+export const metadata = { title: "Market prices" };
 
 export default async function AdminPricesPage({ searchParams }: { searchParams: { error?: string; added?: string; mapped?: string } }) {
   await requireArea("prices");
@@ -19,12 +19,12 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <div><h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Markets and Prices</h1><p className="text-sm text-ink-muted">Add dated observations. Old observations are kept as history and never overwritten.</p></div>
+      <div><h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Record what a product cost at a market on a given day. Old prices are kept as history and never overwritten. This is separate from what suppliers and experts pay: that is under Subscription prices.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
-      {searchParams.added ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">Observation added.</p> : null}
+      {searchParams.added ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">Price added.</p> : null}
 
       <form action={addObservation} className="card flex flex-col gap-4 p-6">
-        <h2 className="text-lg font-extrabold">Add an observation</h2>
+        <h2 className="text-lg font-extrabold">Add a market price</h2>
         <div className="flex flex-wrap gap-3.5">
           <label className="label flex-[1_1_220px]">Market<select name="marketId" required className="input">{markets.map((m) => <option key={m.id} value={m.id}>{m.name}{m.location ? `, ${m.location.name}` : ""}</option>)}</select></label>
           <label className="label flex-[1_1_220px]">Product<select name="productId" required className="input">{products.map((p) => <option key={p.id} value={p.id}>{p.name}{p.grade ? `, ${p.grade}` : ""}{p.standardUnit ? ` (${p.standardUnit})` : ""}</option>)}</select></label>
@@ -48,7 +48,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
         <label className="label">Remark<input name="notes" className="input" /></label>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="publish" className="h-4 w-4 accent-brand" />Publish now (I checked the evidence). Otherwise it goes to the review queue.</label>
-          <button className="btn-primary">Add observation</button>
+          <button className="btn-primary">Add price</button>
         </div>
       </form>
 
@@ -96,7 +96,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
       </section>
 
       <section className="card overflow-hidden">
-        <h2 className="p-5 text-lg font-extrabold">Recent observations</h2>
+        <h2 className="p-5 text-lg font-extrabold">Recent prices</h2>
         <div className="overflow-x-auto">
           <table className="table-base min-w-[860px]">
             <thead><tr><th>Product</th><th>Market</th><th>Min – max price</th><th>Unit</th><th>Observed</th><th>Status</th><th>By</th></tr></thead>
@@ -112,7 +112,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
                   <td className="text-ink-muted">{o.collector?.name ?? "—"}</td>
                 </tr>
               ))}
-              {recent.length === 0 ? <tr><td colSpan={7} className="text-ink-muted">No observations yet.</td></tr> : null}
+              {recent.length === 0 ? <tr><td colSpan={7} className="text-ink-muted">No prices yet.</td></tr> : null}
             </tbody>
           </table>
         </div>

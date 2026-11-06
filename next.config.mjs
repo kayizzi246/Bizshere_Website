@@ -44,6 +44,16 @@ const nextConfig = {
   // Lets a second build (e.g. a CI or verification build) use its own folder
   // without disturbing a running `next dev`. Defaults to .next.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Texted links: something between us and the phone shortens the word "account" to "a/c", so
+  // /account arrived as /a/c, a page that doesn't exist. Texts now use /me (see smsLink in
+  // src/lib/membership.ts); /a/c stays so the texts already sent still work. The #membership
+  // part of a link is kept by the browser.
+  async redirects() {
+    return [
+      { source: "/me", destination: "/account", permanent: false },
+      { source: "/a/c", destination: "/account", permanent: false },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

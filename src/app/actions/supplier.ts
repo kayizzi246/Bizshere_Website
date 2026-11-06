@@ -172,5 +172,6 @@ export async function reviewSellerProduct(form: FormData) {
   });
   refresh(listing.supplier.contentItem.slug);
   revalidatePath("/admin/seller-products");
-  redirect(`/admin/seller-products?done=${decision === "approve" ? "approved" : "rejected"}`);
+  const show = String(form.get("show") ?? "");
+  redirect(`/admin/seller-products?done=${decision === "approve" ? "approved" : "hidden"}${/^[a-z]+$/.test(show) ? `&show=${show}` : ""}`);
 }

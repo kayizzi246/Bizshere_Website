@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CheckCircle2, Clock, ExternalLink, Package, Plus, Settings, Trash2, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, ExternalLink, Package, Plus, Settings, XCircle } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { moneyRange } from "@/lib/format";
+import { ConfirmButton } from "@/components/ConfirmButton";
+import { ProductTable } from "@/components/ProductTable";
 import { UploadButton } from "@/components/UploadButton";
 import { SignOutButton } from "@/components/SignOutButton";
 import { deleteProduct, saveProduct, saveSupplierDetails, saveSupplierPhoto } from "@/app/actions/supplier";
@@ -38,7 +39,7 @@ const STATUS = {
   IN_REVIEW: { label: "Waiting for approval", cls: "bg-accent-tint text-accent-dark", Icon: Clock },
   ARCHIVED: { label: "Not approved", cls: "bg-bad-bg text-bad-fg", Icon: XCircle },
 } as const;
-const statusOf = (s: string) => STATUS[(s in STATUS ? s : "IN_REVIEW") as keyof typeof STATUS];
+const STATUS_LABELS = { PUBLISHED: STATUS.PUBLISHED.label, IN_REVIEW: STATUS.IN_REVIEW.label, ARCHIVED: STATUS.ARCHIVED.label };
 
 /**
  * Seller dashboard (/supplier): a seller signs in at /suppliers/login with their phone and PIN.
@@ -46,7 +47,7 @@ const statusOf = (s: string) => STATUS[(s in STATUS ? s : "IN_REVIEW") as keyof 
  * product's status, and change their photo and PIN. Access comes from the admin linking their
  * phone to the supplier (/admin/supplier-logins); the actions check it again on every change.
  */
-export default async function SupplierPortal({ searchParams }: { searchParams: { saved?: string; error?: string } }) {
+export default async function SupplierPortal({ searchParams }: { searchParams: { saved?: string; error?: string; edit?: string } }) {
   const session = await getSession();
   // Signed out: the seller sign-in page (phone and PIN).
   if (!session?.user?.id) redirect("/suppliers/login");
@@ -89,6 +90,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
         {suppliers.map((s) => {
           const name = s.contentItem.title.replace(/^Sample:\s*/i, "");
           const count = (st: string) => s.listings.filter((l) => l.status === st).length;
+          const editing = s.listings.find((l) => l.id === searchParams.edit);
           return (
             <section key={s.id} className="flex flex-col gap-5">
               {/* ── Who and where ── */}
@@ -123,6 +125,41 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
               </ul>
               <p className="-mt-2 text-[13px] text-ink-muted">How it works: add a product → our team checks it → it shows on your page. Changing a product sends it for checking again.</p>
 
+              {/* ── Add a product ── */}
+              <details className="group rounded-2xl border border-line bg-white p-4" open={s.listings.length === 0}>
+                <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add a product
+                </summary>
+                <ProductForm supplierId={s.id} input={input} label={label} />
+              </details>
+
+              {/* ── My products ── */}
+              <div className="flex flex-col gap-2">
+                <h2 className="font-display text-lg font-extrabold text-heading">My products ({s.listings.length})</h2>
+                {s.listings.length === 0 ? <p className="text-sm text-ink-muted">No products yet. Add your first one above.</p> : (
+                  <ProductTable rows={s.listings} statusLabels={STATUS_LABELS} actions={(p) => (
+                    <>
+                      <Link href={`/supplier?edit=${p.id}#edit-product`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand">Edit</Link>
+                      <form>
+                        <input type="hidden" name="supplierId" value={s.id} /><input type="hidden" name="id" value={p.id} />
+                        <ConfirmButton action={deleteProduct} title={`Remove ${p.productName}?`} message="It comes off your page and from this list. This cannot be undone." plain className="h-9">Remove</ConfirmButton>
+                      </form>
+                    </>
+                  )} />
+                )}
+                <p className="text-[12px] text-ink-muted sm:hidden">Swipe the table sideways to see everything.</p>
+              </div>
+
+              {editing ? (
+                <section id="edit-product" className="scroll-mt-24 rounded-2xl border border-brand/40 bg-white p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="font-display text-base font-extrabold text-heading">Edit {editing.productName}</h2>
+                    <Link href="/supplier" className="text-sm font-semibold">Cancel</Link>
+                  </div>
+                  <ProductForm supplierId={s.id} product={editing} input={input} label={label} />
+                </section>
+              ) : null}
+
               {/* ── My details: the top of my page ── */}
               <details className="rounded-2xl border border-line bg-white p-4" open={!s.email && !s.website}>
                 <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4 text-brand" />My details</summary>
@@ -136,46 +173,6 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                   <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my details</button>
                 </form>
               </details>
-
-              {/* ── Add a product ── */}
-              <details className="group rounded-2xl border border-line bg-white p-4" open={s.listings.length === 0}>
-                <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add a product
-                </summary>
-                <ProductForm supplierId={s.id} input={input} label={label} />
-              </details>
-
-              {/* ── My products ── */}
-              <div className="flex flex-col gap-2">
-                <h2 className="font-display text-lg font-extrabold text-heading">My products ({s.listings.length})</h2>
-                {s.listings.length === 0 ? <p className="text-sm text-ink-muted">No products yet. Add your first one above.</p> : null}
-                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                  {s.listings.map((p) => {
-                    const st = statusOf(p.status);
-                    return (
-                      <li key={p.id} className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white">
-                        <div className="relative flex aspect-square items-center justify-center bg-page">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-full w-full object-cover" /> : <Package aria-hidden className="h-8 w-8 text-brand/40" />}
-                          <span className={`absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${st.cls}`}><st.Icon aria-hidden className="h-3 w-3" />{st.label}</span>
-                        </div>
-                        <div className="flex flex-1 flex-col gap-1 p-3">
-                          <span className="line-clamp-2 text-[14px] font-semibold text-heading">{p.productName}</span>
-                          <span className="text-[13px] font-bold text-brand-dark">{p.priceMin !== null || p.priceMax !== null ? moneyRange(p.priceMin, p.priceMax, p.currency) : "No price"}{p.unit ? <span className="font-normal text-ink-muted"> / {p.unit}</span> : null}</span>
-                          <details className="mt-auto pt-1">
-                            <summary className="cursor-pointer list-none text-[13px] font-semibold text-brand [&::-webkit-details-marker]:hidden">Edit</summary>
-                            <ProductForm supplierId={s.id} product={p} input={input} label={label} />
-                          </details>
-                          <form action={deleteProduct}>
-                            <input type="hidden" name="supplierId" value={s.id} /><input type="hidden" name="id" value={p.id} />
-                            <button className="inline-flex items-center gap-1 text-[12px] font-semibold text-bad-fg"><Trash2 aria-hidden className="h-3.5 w-3.5" />Remove</button>
-                          </form>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
 
               {/* ── Settings: photo and PIN, out of the way ── */}
               <details className="rounded-2xl border border-line bg-white p-4">

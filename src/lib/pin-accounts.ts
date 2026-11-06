@@ -31,7 +31,7 @@ export const USERNAME = /^[a-z0-9](?:[a-z0-9-]{1,38})[a-z0-9]$/;
  * personal sign-in address never hides a real page.
  */
 const RESERVED = new Set([
-  "about", "account", "admin", "api", "brand", "business-ideas", "contact", "corrections", "demo", "expert", "experts",
+  "about", "account", "me", "admin", "api", "brand", "business-ideas", "contact", "corrections", "demo", "expert", "experts",
   "funding", "guides", "ideas", "illustrations", "login", "logout", "machines", "membership", "methodology", "news",
   "opportunities", "prices", "privacy", "recipes", "samples", "search", "signup", "staff", "supplier", "suppliers",
   "terms", "tools", "uploads", "websites", "icon", "favicon", "robots", "sitemap", "help", "support", "home", "www",

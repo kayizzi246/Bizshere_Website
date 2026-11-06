@@ -11,12 +11,14 @@ import { AlertTriangle, Loader2, Trash2, X } from "lucide-react";
  * (`action`, run as that button's formAction) receives the form's fields as usual.
  * The pop-up is rendered into the admin shell so it follows light/dark mode.
  */
-export function ConfirmButton({ action, title = "Delete permanently?", message, children, className = "" }: {
+export function ConfirmButton({ action, title = "Delete permanently?", message, children, className = "", plain = false }: {
   action: (form: FormData) => Promise<void>;
   title?: string;
   message: string;
   children: React.ReactNode;
   className?: string;
+  /** A small delete: leaves out the list of everything attached to a page. */
+  plain?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const submit = useRef<HTMLButtonElement>(null);
@@ -47,11 +49,11 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
             <h2 id="confirm-title" className="font-display text-lg font-extrabold tracking-tight text-heading">{title}</h2>
             <p id="confirm-text" className="text-sm leading-relaxed text-ink-soft">{message}</p>
           </div>
-          <ul className="flex flex-col gap-1 rounded-xl bg-page p-3 text-[13px] text-ink-muted">
+          {plain ? null : <ul className="flex flex-col gap-1 rounded-xl bg-page p-3 text-[13px] text-ink-muted">
             <li>• Its details, offers, rounds, fees, budgets and versions</li>
             <li>• Media, sources, checks, revisions and saved copies</li>
             <li className="font-semibold text-bad-fg">• This cannot be undone</li>
-          </ul>
+          </ul>}
         </div>
         <div className="flex flex-col-reverse gap-2 border-t border-line bg-page/60 px-6 py-4 sm:flex-row sm:justify-end">
           <button ref={cancel} type="button" onClick={() => setOpen(false)} disabled={pending}
@@ -61,7 +63,7 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
           <button type="button" onClick={() => submit.current?.click()} disabled={pending}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#C7362B] px-5 text-sm font-semibold text-white hover:bg-[#A82C23] disabled:opacity-70">
             {pending ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : <Trash2 aria-hidden className="h-4 w-4" />}
-            {pending ? "Deleting…" : "Delete permanently"}
+            {pending ? "Deleting…" : plain ? "Delete" : "Delete permanently"}
           </button>
         </div>
       </div>

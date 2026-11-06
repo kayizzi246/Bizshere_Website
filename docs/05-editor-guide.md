@@ -17,15 +17,17 @@
 ## Adding content
 
 1. **Admin → Add content** and choose the directory.
-2. Fill in the **Identity and publishing** section:
-   - *Status*: **Draft** while you work, **In review** for a second editor, **Published** when ready.
-   - *Access*: **Public** (everything free), **Preview** (summary free, detail for members: the usual choice), **Members only**.
-   - *Next review due*: when the information should be checked again. Suggested: prices 30 days, funding 60 days, guides 120 days, suppliers 12 months.
-3. Fill in the directory's sections. Leave unknown fields empty. Yes/No questions have an *Unknown* option; use it.
-4. **Classification**: a primary category, then audiences, business stages, and the
-   districts the item *applies to* (not where the provider is based).
-5. **Connected resources**: one link per line, `relationship page-address`. Example for a
-   business idea:
+2. Fill in **Basics**: the name, a short description and a category. If the category isn't in the list, type it into
+   *Not in the list? Add a new category*; it is added when you save.
+3. Fill in the directory's details. Leave unknown fields empty. Yes/No questions have an *Unknown* option; use it.
+   Optional groups are folded: click one to open it.
+4. **Publishing**:
+   - *Status*: **Draft** while you work, **Waiting for review** for a second editor, **Live on the website** when ready.
+   - *Who sees the full details?*: **Members only; everyone sees a preview** (the usual choice), **Everyone, free**, or **Members only, with no preview**.
+5. **Advanced settings** are folded, and you can usually leave them alone: the web address, review dates
+   (suggested next review: prices 30 days, funding 60 days, guides 120 days, suppliers 12 months), audiences,
+   business stages, the districts the item *applies to* (not where the provider is based), and links to other
+   pages: one link per line, `relationship page-address`. Example for a business idea:
    ```
    needs_machine deck-baking-oven-2-decks
    fits_funding sample-sme-equipment-loan
@@ -33,7 +35,26 @@
    expert_help sample-business-plan-consultant
    ```
    The page address is the last part of its URL. Links show on both pages.
-6. Write a short note in *What changed?* and **Save**. Every save is kept in the revision history.
+6. **Save**. Every save is kept in the revision history. When editing, you can say what changed under *Advanced settings*.
+
+## Suppliers
+
+The supplier form asks only for what the supplier page shows: name, what they sell, contact details, address and
+photo. After saving, add their products in the table on the same page. **Edit** on a row opens that product.
+A catalogue download, branches and extra contacts are under **More options**.
+
+**Supplier products** (`/admin/seller-products`) lists every supplier's products in one table. Products a seller adds
+or changes wait there under *Waiting for approval* until someone approves them. **Hide** takes a product off the website.
+
+## Categories (`/admin/categories`)
+
+Add a category, or change a name and press **Save**: the page address stays the same, so links keep working. A category
+can only be deleted when nothing uses it.
+
+## Subscription prices (`/admin/plans`)
+
+Suppliers and experts pay for 6 months, 1, 2 or 3 years. Members pay by the day, week, month or year. Empty a box to stop
+offering that length. People who have already paid keep the time they paid for.
 
 ## Line formats
 
@@ -61,11 +82,11 @@ Lists such as allergens, languages and specialties are comma-separated.
 
 ## Review queue (`/admin/review`)
 
-Business sign-ups, machine offers and price observations wait here. Open one, record the
+Business sign-ups, machine offers and market prices wait here. Open one, record the
 checks you made, then **Approve**, **Request changes** or **Reject**. A note is required
 unless you approve. The business sees your decision as an alert.
 
-## Corrections (`/admin/corrections`)
+## Reported mistakes (`/admin/corrections`)
 
 Readers report problems from any page. Check the claim against the source first.
 **Accept** marks the page as due for review now, so it appears in the overdue filter; then

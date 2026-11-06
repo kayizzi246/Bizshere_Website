@@ -168,7 +168,7 @@ async function credentialLogin(context, user, password) {
       await admin.waitForURL('**/admin', { timeout: 20000 });
       assert.ok(await admin.locator('#admin-shell').count());
     });
-    const adminRoutes = ['/admin', '/admin/content', '/admin/prices', '/admin/payments', '/admin/plans', '/admin/review', '/admin/corrections', '/admin/users', '/admin/supplier-logins', '/admin/seller-products', '/admin/expert-logins', '/admin/expert-work', '/admin/expert-reviews', '/admin/updates', '/admin/video', '/admin/team'];
+    const adminRoutes = ['/admin', '/admin/content', '/admin/prices', '/admin/payments', '/admin/plans', '/admin/categories', '/admin/review', '/admin/corrections', '/admin/users', '/admin/supplier-logins', '/admin/seller-products', '/admin/expert-logins', '/admin/expert-work', '/admin/expert-reviews', '/admin/updates', '/admin/video', '/admin/team'];
     for (const route of adminRoutes) await check('admin page ' + route, () => visit(admin, route));
     for (const type of Object.keys(paths)) await check('admin create form ' + type, () => visit(admin, '/admin/content/new?type=' + type));
     if (idea) await check('admin edit form', () => visit(admin, '/admin/content/' + idea.id));

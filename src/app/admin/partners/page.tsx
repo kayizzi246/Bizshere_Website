@@ -6,7 +6,7 @@ import { PARTNER_CODES } from "@/lib/membership";
 import { approvePartner } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Registrations" };
+export const metadata = { title: "New suppliers and experts" };
 
 /**
  * Suppliers and experts who registered themselves (src/lib/partners.ts). A paid listing waits here
@@ -38,8 +38,8 @@ export default async function PartnersPage({ searchParams }: { searchParams: { s
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-extrabold text-heading">Registrations</h1>
-        <p className="text-sm text-ink-muted">Suppliers and experts who registered and paid for themselves. Check the details, then approve to put the page live. Prices are at <Link href="/admin/plans">Prices</Link>.</p>
+        <h1 className="text-2xl font-extrabold text-heading">New suppliers and experts</h1>
+        <p className="text-sm text-ink-muted">Suppliers and experts who registered and paid for themselves. Check the details, then approve to put the page live. What they pay is set at <Link href="/admin/plans">Subscription prices</Link>.</p>
       </div>
       {searchParams.saved ? <p role="status" className="rounded-lg bg-brand-tint px-4 py-2.5 text-sm font-semibold text-brand-dark">Approved. The page is live and they have been told.</p> : null}
       {rows.length === 0 ? <p className="rounded-2xl border border-dashed border-line-strong bg-surface px-5 py-8 text-center text-sm text-ink-muted">No registrations yet.</p> : null}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, MapPin, Package } from "lucide-react";
 import { Icon } from "./Icon";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
@@ -30,9 +30,9 @@ export type BrowseListing = {
   price?: string | null;
   /** Source and price are member detail and this viewer isn't a member: say so instead. */
   locked?: boolean;
-  /** Suppliers table: country and website, both public. */
+  /** Supplier cards: country and what they sell, both public. */
   country?: string | null;
-  website?: string | null;
+  sells?: string | null;
   /** A longer description for cards without a photo (tools), e.g. the overview. */
   description?: string | null;
 };
@@ -143,7 +143,9 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 {all.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
             ) : variant === "suppliers" ? (
-              <SupplierTable rows={shown} first={(current - 1) * PER_PAGE + 1} />
+              <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+                {shown.map((i) => <li key={i.id} id={i.slug}><SupplierCard i={i} /></li>)}
+              </ul>
             ) : variant === "table" ? (
               <ListingTable rows={shown} />
             ) : variant === "documents" ? (
@@ -252,38 +254,37 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
   );
 }
 
-/**
- * Suppliers, as the client's template: S/N, Name, Product Category, Country, Website, Products (a
- * link to the supplier's products). Phones get each row as a small card, with the same details.
- */
-function SupplierTable({ rows, first }: { rows: BrowseListing[]; first: number }) {
-  const th = "px-4 py-3 font-semibold";
+/** A supplier, the same card as a business idea (IdeaCard): a picture of what they sell, category, name, where they are, what they sell and a button. */
+function SupplierCard({ i }: { i: BrowseListing }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white">
-      <table className="w-full text-left text-[14px]">
-        <thead className="hidden bg-brand-deep text-xs text-white/90 md:table-header-group">
-          <tr>
-            <th className={`${th} w-14`}>S/N</th><th className={th}>Name</th><th className={th}>Product Category</th>
-            <th className={th}>Country</th><th className={th}>Website</th><th className={th}>Products</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, n) => (
-            <tr key={r.id} id={r.slug} className={`flex flex-col gap-1 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
-              <td className="hidden text-ink-muted md:table-cell md:px-4 md:py-3">{first + n}</td>
-              <td className="md:px-4 md:py-3"><Link href={r.href} className="font-semibold text-heading hover:text-brand">{name(r.title)}</Link></td>
-              <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.primaryCategory?.name ?? "—"}</td>
-              <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.country ?? "—"}</td>
-              <td className="text-[13px] md:px-4 md:py-3">
-                {r.website ? <a href={r.website} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-[14rem] items-center gap-1 font-medium text-brand hover:text-brand-dark"><span className="truncate">{r.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</span><span aria-hidden>↗</span></a> : <span className="hidden text-ink-muted md:inline">—</span>}
-              </td>
-              <td className="pt-1 md:px-4 md:py-3 md:pt-3">
-                <Link href={r.href} className="inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3.5 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white">View products <span aria-hidden>→</span></Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
+      <div className="relative">
+        <WishlistHeart id={i.id} className="absolute right-2 top-2 z-10" />
+        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-[14px] bg-brand-tint sm:aspect-[16/10]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+          {i.picture ? <img src={i.picture} alt="" loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" /> : (
+            <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name="supplier" className="h-9 w-9" /></span>
+          )}
+          {i.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{i.primaryCategory.name}</span> : null}
+        </Link>
+      </div>
+      <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">
+        <Link href={i.href} className="font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name(i.title)}</Link>
+        {i.summary ? <p className="line-clamp-2 text-[12px] leading-snug text-ink-muted sm:text-[13px]">{i.summary}</p> : null}
+        {i.country ? <p className="flex items-center gap-1 text-[12px] text-ink-soft sm:text-[13px]"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /><span className="truncate">{i.country}</span></p> : null}
+        {i.sells ? (
+          <p className="flex items-center gap-2 rounded-xl bg-page px-2.5 py-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Package aria-hidden className="h-3.5 w-3.5" /></span>
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-ink-muted">What they sell</span>
+              <strong className="line-clamp-2 text-[13px] font-bold text-heading">{i.sells}</strong>
+            </span>
+          </p>
+        ) : null}
+        <div className="mt-auto pt-1">
+          <Link href={i.href} className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9">View products</Link>
+        </div>
+      </div>
     </div>
   );
 }
@@ -296,13 +297,13 @@ function SupplierTable({ rows, first }: { rows: BrowseListing[]; first: number }
 function ListingTable({ rows }: { rows: BrowseListing[] }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-white">
-      <table className="w-full text-left text-[14px]">
-        <thead className="hidden bg-brand-deep text-xs text-white/85 md:table-header-group">
+      <table className="w-full text-left text-[16px]">
+        <thead className="hidden bg-brand-deep text-[14px] text-white md:table-header-group">
           <tr>
-            <th className="px-4 py-3 font-semibold">Name</th>
-            <th className="px-4 py-3 font-semibold">Details</th>
-            <th className="px-4 py-3 font-semibold">Category</th>
-            <th className="px-4 py-3 font-semibold">Checked</th>
+            <th className="px-4 py-3 font-bold">Name</th>
+            <th className="px-4 py-3 font-bold">Details</th>
+            <th className="px-4 py-3 font-bold">Category</th>
+            <th className="px-4 py-3 font-bold">Checked</th>
             <th className="w-12 px-2 py-3"><span className="sr-only">Wishlist</span></th>
           </tr>
         </thead>
@@ -310,20 +311,20 @@ function ListingTable({ rows }: { rows: BrowseListing[] }) {
           {rows.map((r, n) => {
             const label = name(r.title);
             const link = r.external ? (
-              <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
+              <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
             ) : (
-              <Link href={r.href} className="font-semibold text-heading hover:text-brand">{label}</Link>
+              <Link href={r.href} className="font-bold text-heading hover:text-brand">{label}</Link>
             );
             return (
               <tr key={r.id} id={r.slug} className={`flex flex-col gap-0.5 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
                 <td className="md:px-4 md:py-3">
                   {link}
-                  {r.summary ? <span className="mt-0.5 block text-[12px] leading-snug text-ink-muted md:hidden">{r.summary}</span> : null}
+                  {r.summary ? <span className="mt-0.5 block text-[14px] leading-snug text-ink-muted md:hidden">{r.summary}</span> : null}
                   {r.external ? <span className="block truncate text-[12px] text-ink-muted">{r.external.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span> : null}
                 </td>
-                <td className="text-[13px] text-ink-soft md:px-4 md:py-3">{r.extra ?? <span className="hidden md:inline">—</span>}</td>
-                <td className="text-[13px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
-                <td className="whitespace-nowrap text-[12px] text-ink-muted md:px-4 md:py-3">Checked {r.reviewed}</td>
+                <td className="text-[15px] text-ink-soft md:px-4 md:py-3">{r.extra ?? <span className="hidden md:inline">—</span>}</td>
+                <td className="text-[15px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
+                <td className="whitespace-nowrap text-[14px] text-ink-muted md:px-4 md:py-3">Checked {r.reviewed}</td>
                 <td className="md:px-2 md:py-3"><WishlistHeart id={r.id} className="border border-line" /></td>
               </tr>
             );

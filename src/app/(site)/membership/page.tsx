@@ -1,16 +1,15 @@
 import Link from "next/link";
-import type { BillingPeriod } from "@prisma/client";
 import { ArrowRight, Check, CreditCard, Crown, ShieldCheck, Smartphone, X } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { PLAN_PERIODS, popupPlan, yearlySaving } from "@/lib/billing";
+import { PLAN_PERIODS, popupPlan, yearlySaving, type MemberPeriod } from "@/lib/billing";
 import { date, money } from "@/lib/format";
 import { pesapalSandbox } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pricing", description: "One membership, four lengths. Members get full budgets, contacts, funding terms and downloads, by the day, week, month or year." };
 
-const CARDS: Record<BillingPeriod, { title: string; text: string; per: string; button: string }> = {
+const CARDS: Record<MemberPeriod, { title: string; text: string; per: string; button: string }> = {
   DAILY: { title: "Day pass", text: "Research one or two ideas in a single day.", per: "day", button: "Get a day pass" },
   WEEKLY: { title: "Weekly", text: "Compare ideas, call suppliers and check funding.", per: "week", button: "Subscribe" },
   MONTHLY: { title: "Monthly", text: "For planning and starting your business.", per: "month", button: "Subscribe" },
@@ -22,7 +21,7 @@ const CARDS: Record<BillingPeriod, { title: string; text: string; per: string; b
  * crosses are real differences only: renewal reminders (src/lib/jobs.ts: none for a day pass,
  * the day before for a week, 3 days and 1 day before for a month or a year) and the yearly saving.
  */
-const FEATURES: { label: string; on: (p: BillingPeriod) => boolean }[] = [
+const FEATURES: { label: string; on: (p: MemberPeriod) => boolean }[] = [
   { label: "Full business plans and budgets", on: () => true },
   { label: "Supplier and expert contacts", on: () => true },
   { label: "Funding amounts and terms", on: () => true },
@@ -56,7 +55,7 @@ export default async function MembershipPage() {
   const memberUntil = viewer.isMember ? sub?.currentPeriodEnd ?? null : null;
 
   /** Subscribe or renew: opens the plans and payment pop-up in place (src/components/Onboarding.tsx). */
-  const cta = (period: BillingPeriod) =>
+  const cta = (period: MemberPeriod) =>
     viewer.isMember
       ? { href: `/membership?onboard=renew&period=${period}`, "data-renew": "", "data-period": period, "data-next": "/membership" }
       : { href: `/membership?onboard=pay&period=${period}&next=%2Fbusiness-ideas`, "data-pay": "", "data-period": period, "data-next": "/business-ideas" };

@@ -6,7 +6,7 @@ import { METHOD_LABEL, STATUS_LABEL } from "@/lib/admin-payments";
 import { date, money } from "@/lib/format";
 import { PERIOD_INFO } from "@/lib/billing";
 
-const PERIOD_LABEL: Record<BillingPeriod, string> = { DAILY: "Day pass", WEEKLY: "Weekly", MONTHLY: "Monthly", YEARLY: "Yearly" };
+const PERIOD_LABEL: Record<BillingPeriod, string> = { ...Object.fromEntries(Object.entries(PERIOD_INFO).map(([k, v]) => [k, v.label])) as Record<BillingPeriod, string>, DAILY: "Day pass" };
 
 /**
  * "My membership" on the account page: status, time left, renewal reminders and payment history.

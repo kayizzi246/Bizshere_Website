@@ -23,7 +23,10 @@ export const PARTNER_CODES = { supplier: "supplier_listing", expert: "expert_lis
 export type PartnerKind = keyof typeof PARTNER_CODES;
 const isListing = (code?: string) => code === PARTNER_CODES.supplier || code === PARTNER_CODES.expert;
 
-export const PERIOD_WORD: Record<BillingPeriod, string> = { DAILY: "day pass", WEEKLY: "weekly membership", MONTHLY: "monthly membership", YEARLY: "yearly membership" };
+export const PERIOD_WORD: Record<BillingPeriod, string> = {
+  DAILY: "day pass", WEEKLY: "weekly membership", MONTHLY: "monthly membership", HALF_YEARLY: "6-month membership",
+  YEARLY: "yearly membership", TWO_YEARS: "2-year membership", THREE_YEARS: "3-year membership",
+};
 
 /** Pesapal's payment_method text → our method. */
 function methodOf(m: string | null): PaymentMethod | null {
@@ -119,6 +122,9 @@ export async function partnerPaid(organizationId: string) {
   }
 }
 
+/** A link for a text message. The word "account" gets shortened to "a/c" on the way to the phone, which breaks the link, so texts use /me (next.config.mjs). */
+export const smsLink = (link: string) => link.replace(/^\/account(?=$|[/?#])/, "/me");
+
 /**
  * Tells a member something about their membership: an alert in /account, plus an SMS to the
  * phone and an email to the address they signed up with (whichever they have).
@@ -127,8 +133,9 @@ export async function notifyMember(userId: string, msg: { title: string; text: s
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { phone: true, email: true, name: true } });
   if (!user) return;
   const url = `${site.url}${msg.link}`;
+  const textUrl = `${site.url}${smsLink(msg.link)}`;
   const sent = await Promise.all([
-    user.phone ? sendSms(user.phone, `${msg.text} ${url}`) : false,
+    user.phone ? sendSms(user.phone, `${msg.text} ${textUrl}`) : false,
     user.email ? sendEmail(user.email, msg.title, `Hello ${user.name || "there"},\n\n${msg.text}\n\n${url}\n\nBizSphere-Ug`) : false,
   ]);
   await prisma.alert.create({

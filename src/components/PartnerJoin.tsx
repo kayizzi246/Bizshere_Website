@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Check } from "lucide-react";
-import type { BillingPeriod } from "@prisma/client";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PERIOD_INFO, PLAN_PERIODS, PRICE_FIELD, yearlySaving } from "@/lib/billing";
+import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD } from "@/lib/billing";
 import { money } from "@/lib/format";
 import { PARTNER_INFO, partnerAccess, partnerOf, partnerPlan, type PartnerKind } from "@/lib/partners";
 import { registerPartner } from "@/app/actions/partners";
@@ -35,9 +34,9 @@ const ERRORS: Record<string, string> = {
 
 /** The prices the team has set, in order. A price of 0 or none can't be paid for, so it isn't offered. */
 function planOptions(plan: Awaited<ReturnType<typeof partnerPlan>>) {
-  return PLAN_PERIODS.flatMap((p) => {
+  return PARTNER_PERIODS.flatMap((p) => {
     const v = plan[PRICE_FIELD[p]];
-    return v !== null && Number(v) > 0 ? [{ period: p, label: PERIOD_INFO[p].label, per: PERIOD_INFO[p].per, price: money(v, plan.currency) }] : [];
+    return v !== null && Number(v) > 0 ? [{ period: p, label: PERIOD_INFO[p].length, price: money(v, plan.currency) }] : [];
   });
 }
 
@@ -60,7 +59,6 @@ export async function PartnerJoin({ kind, error }: { kind: PartnerKind; error?: 
   ]);
   if (partner && access && !access.mustPay) redirect(info.portal);
   const options = planOptions(plan);
-  const saving = yearlySaving(Object.fromEntries(PLAN_PERIODS.map((p) => [p, plan[PRICE_FIELD[p]] === null ? null : Number(plan[PRICE_FIELD[p]])])) as Record<BillingPeriod, number | null>);
   const step = !userId ? 1 : !partner ? 2 : 3;
 
   const panel = (
@@ -76,12 +74,11 @@ export async function PartnerJoin({ kind, error }: { kind: PartnerKind; error?: 
       <section aria-label="Pricing" className="flex flex-col gap-3 border-t border-white/15 pt-5">
         <h3 className="font-display text-[16px] font-extrabold">Simple pricing</h3>
         {options.length ? (
-          <ul className="grid gap-2 sm:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-2">
             {options.map((o) => (
               <li key={o.period} className="flex flex-col gap-0.5 rounded-2xl bg-white/10 p-3 ring-1 ring-white/15">
-                <span className="flex items-center justify-between gap-2 text-[13px] font-semibold text-white/75">{o.label}{o.period === "YEARLY" && saving ? <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-ink">-{saving}%</span> : null}</span>
+                <span className="text-[13px] font-semibold text-white/75">{o.label}</span>
                 <span className="font-display text-[17px] font-extrabold tabular-nums">{o.price}</span>
-                <span className="text-[12px] text-white/60">per {o.per}</span>
               </li>
             ))}
           </ul>

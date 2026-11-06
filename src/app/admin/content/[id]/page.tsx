@@ -13,39 +13,19 @@ import { ChildTableEditor } from "../ChildTableEditor";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit content" };
 
-export default async function EditContentPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; error?: string } }) {
+export default async function EditContentPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; error?: string; product?: string } }) {
   const user = await requireItemArea(params.id);
   const loaded = await loadValues(params.id);
   if (!loaded) notFound();
   const { item, values, multi } = loaded;
   const [options, checks, corrections] = await Promise.all([
-    loadOptions(item.contentType),
+    loadOptions(item.contentType, item.primaryCategoryId),
     prisma.verificationCheck.findMany({ where: { contentItemId: item.id }, include: { checkedBy: { select: { name: true } } }, orderBy: { checkedAt: "desc" } }),
     prisma.correctionReport.count({ where: { contentItemId: item.id, status: "PENDING" } }),
   ]);
 
-  return (
+  const record = (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <Link href={`/admin/content?type=${item.contentType}`} className="text-sm">← {contentTypeLabel[item.contentType]} list</Link>
-          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">{item.title}</h1>
-          <p className="text-sm text-ink-muted">{contentTypeLabel[item.contentType]} · {item.publicationStatus.replace("_", " ").toLowerCase()} · updated {date(item.updatedAt)}</p>
-        </div>
-        <div className="flex gap-2">
-          {corrections ? <Link href="/admin/corrections" className="badge-warn">{corrections} open correction(s)</Link> : null}
-          <Link href={itemHref(item)} className="btn-outline" target="_blank">View page ↗</Link>
-        </div>
-      </div>
-      {searchParams.saved ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? "Saved. A revision was recorded." : "Saved."}</p> : null}
-      {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
-
-      <ContentForm type={item.contentType} options={options} values={values} multi={multi} />
-
-      <ChildEditors contentItemId={item.id} ideaId={item.businessIdea?.id} programmeId={item.fundingProgramme?.id} />
-
-      {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} /> : null}
-
       <section className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6">
         <h2 className="text-lg font-extrabold">Verification checks</h2>
         <p className="text-sm text-ink-muted">Each check is recorded separately with its scope, date and evidence. Pages show only passed checks.</p>
@@ -78,6 +58,49 @@ export default async function EditContentPage({ params, searchParams }: { params
           </div>
         ))}
       </section>
+    </>
+  );
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Link href={`/admin/content?type=${item.contentType}`} className="text-sm">← {contentTypeLabel[item.contentType]} list</Link>
+          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">{item.title}</h1>
+          <p className="text-sm text-ink-muted">{contentTypeLabel[item.contentType]} · {item.publicationStatus.replace("_", " ").toLowerCase()} · updated {date(item.updatedAt)}</p>
+        </div>
+        <div className="flex gap-2">
+          {corrections ? <Link href="/admin/corrections" className="badge-warn">{corrections} open correction(s)</Link> : null}
+          <Link href={itemHref(item)} className="btn-outline" target="_blank">View page ↗</Link>
+        </div>
+      </div>
+      {searchParams.saved ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
+      {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
+
+      <ContentForm type={item.contentType} options={options} values={values} multi={multi} />
+
+      {/* A supplier: the products come straight after the details; the rest is rarely needed. */}
+      {item.contentType === "SUPPLIER" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} only={["listings"]} editRow={searchParams.product} /> : null}
+
+      {item.contentType === "SUPPLIER" ? (
+        <details className="group/more rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:px-6 sm:py-5">
+            <span className="flex flex-col gap-0.5"><span className="text-base font-extrabold text-heading">More options</span><span className="text-[13px] text-ink-muted">Catalogue download, branches, extra contacts, checks and history. You can usually leave these alone.</span></span>
+            <span aria-hidden className="text-lg text-ink-muted transition group-open/more:rotate-90">›</span>
+          </summary>
+          <div className="flex flex-col gap-5 border-t border-line p-4 sm:p-6">
+            <ChildTableEditor contentItemId={item.id} type={item.contentType} except={["listings"]} />
+            <ChildEditors contentItemId={item.id} />
+            {record}
+          </div>
+        </details>
+      ) : (
+        <>
+          <ChildEditors contentItemId={item.id} ideaId={item.businessIdea?.id} programmeId={item.fundingProgramme?.id} />
+          {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} /> : null}
+          {record}
+        </>
+      )}
       {user.superAdmin ? (
         <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-6 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex flex-col gap-1">

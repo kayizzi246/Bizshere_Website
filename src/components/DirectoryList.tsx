@@ -28,8 +28,8 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   images?: (ids: string[]) => Promise<Record<string, string>>;
   /** Outside address per item (useful websites): table rows link straight to it. */
   links?: (ids: string[]) => Promise<Record<string, string>>;
-  /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and website for the suppliers table. */
-  facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean; country?: string | null; website?: string | null }>>;
+  /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and what they sell for the supplier cards. */
+  facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean; country?: string | null; sells?: string | null }>>;
 }) {
   const rows = await prisma.contentItem.findMany({
     where: { contentType: { in: types }, publicationStatus: "PUBLISHED" },
