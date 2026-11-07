@@ -25,7 +25,7 @@ const errors = [];
 const accounts = [];
 const artifacts = path.join(__dirname, 'artifacts');
 fs.mkdirSync(artifacts, { recursive: true });
-const paths = { BUSINESS_IDEA: '/business-ideas', MACHINE: '/machines', SUPPLIER: '/suppliers', FUNDING_PROGRAMME: '/funding', INVESTMENT_OPPORTUNITY: '/opportunities', GUIDE: '/guides', CONSULTANT: '/experts', RECIPE: '/recipes', TOOL: '/tools', WEBSITE: '/websites', NEWS: '/news' };
+const paths = { BUSINESS_IDEA: '/business-ideas', MACHINE: '/machines', SUPPLIER: '/suppliers', FUNDING_PROGRAMME: '/funding', INVESTMENT_OPPORTUNITY: '/opportunities', GUIDE: '/guides', CONSULTANT: '/experts', RECIPE: '/recipes', TOOL: '/tools', WEBSITE: '/websites', NEWS: '/news', BUSINESS_TIP: '/tips' };
 async function check(name, fn) {
   try { const detail = await fn(); results.push({ name, passed: true, detail: typeof detail === 'string' ? undefined : detail }); console.log('PASS ' + name); }
   catch (e) { results.push({ name, passed: false, error: e.message }); console.log('FAIL ' + name + ': ' + e.message); }
@@ -75,7 +75,7 @@ async function credentialLogin(context, user, password) {
     await context.addCookies([{ name: 'cookie-notice', value: 'accepted', url: BASE }]);
     const page = await context.newPage();
     watch(page, 'public desktop');
-    const publicRoutes = ['/', ...Object.values(paths), '/prices', '/membership', '/about', '/contact', '/terms', '/privacy', '/methodology', '/login', '/signup', '/suppliers/login', '/experts/login', '/search', '/search?q=bakery', '/search?q=%27%3Cscript%3E', '/search?page=-1', '/business-ideas?page=abc', '/machines?page=999999', '/corrections', '/demo', ...samples.map(c => paths[c.contentType] + '/' + c.slug)];
+    const publicRoutes = ['/', ...Object.values(paths), '/forum', '/prices', '/membership', '/about', '/contact', '/terms', '/privacy', '/methodology', '/login', '/signup', '/suppliers/login', '/experts/login', '/search', '/search?q=bakery', '/search?q=%27%3Cscript%3E', '/search?page=-1', '/business-ideas?page=abc', '/machines?page=999999', '/corrections', '/demo', ...samples.map(c => paths[c.contentType] + '/' + c.slug)];
     for (const route of publicRoutes) await check('page ' + route, () => visit(page, route));
     // Render one of every directory page type, and fetch every published detail page.
     for (const item of content) {
@@ -162,16 +162,21 @@ async function credentialLogin(context, user, password) {
     const admin = await adminContext.newPage(); watch(admin, 'admin');
     await check('staff password login through browser', async () => {
       await visit(admin, '/login?callbackUrl=%2Fadmin');
-      await admin.getByLabel('Enter your email or phone').fill(accounts[0].email);
-      await admin.getByLabel('Enter your password').fill(password);
+      await admin.getByLabel('Email or phone', { exact: true }).fill(accounts[0].email);
+      await admin.getByLabel('Password', { exact: true }).fill(password);
       await admin.getByRole('button', { name: 'Log in', exact: true }).click();
       await admin.waitForURL('**/admin', { timeout: 20000 });
       assert.ok(await admin.locator('#admin-shell').count());
     });
     const adminRoutes = ['/admin', '/admin/content', '/admin/prices', '/admin/payments', '/admin/plans', '/admin/categories', '/admin/review', '/admin/corrections', '/admin/users', '/admin/supplier-logins', '/admin/seller-products', '/admin/expert-logins', '/admin/expert-work', '/admin/expert-reviews', '/admin/updates', '/admin/video', '/admin/team'];
-    for (const route of adminRoutes) await check('admin page ' + route, () => visit(admin, route));
-    for (const type of Object.keys(paths)) await check('admin create form ' + type, () => visit(admin, '/admin/content/new?type=' + type));
-    if (idea) await check('admin edit form', () => visit(admin, '/admin/content/' + idea.id));
+    const adminVisit = async (route) => {
+      await visit(admin, route);
+      assert.ok(new URL(admin.url()).pathname.startsWith('/admin'), route + ': sent to ' + admin.url());
+      assert.ok(await admin.locator('#admin-shell').count(), route + ': not inside the admin');
+    };
+    for (const route of [...adminRoutes, '/admin/forum', '/admin/content/new']) await check('admin page ' + route, () => adminVisit(route));
+    for (const type of Object.keys(paths)) await check('admin create form ' + type, () => adminVisit('/admin/content/new?type=' + type));
+    if (idea) await check('admin edit form', () => adminVisit('/admin/content/' + idea.id));
     await check('admin payment export', async () => {
       const r = await adminContext.request.get(BASE + '/admin/payments/export'); assert.equal(r.status(), 200); assert.match(r.headers()['content-type'], /csv/);
     });
