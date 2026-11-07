@@ -36,7 +36,9 @@ function databaseUrl(): string | undefined {
  * retried after a short pause. Other writes are never retried, as one might already have been saved;
  * the exception is a database that is briefly full, when nothing has run yet (refused below).
  */
-const RETRY_CODES = new Set(["P1017", "P1001", "P1002", "P2024", "P2037"]); // closed, unreachable, timed out, pool timeout, too many connections
+// Not P2024 (no free connection in this copy's pool): it has already waited pool_timeout, and trying again
+// only lengthens the queue that caused it (live logs, 7 Nov 2026).
+const RETRY_CODES = new Set(["P1017", "P1001", "P1002", "P2037"]); // closed, unreachable, timed out, too many connections
 const READS = new Set(["findMany", "findFirst", "findFirstOrThrow", "findUnique", "findUniqueOrThrow", "count", "aggregate", "groupBy"]);
 // A pool can hold several dead connections at once (one per slot), and each attempt may pick
 // another, so allow enough tries to cycle through them: waits of 0.1 s, 0.2 s … about 1.5 s in all.

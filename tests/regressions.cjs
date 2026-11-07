@@ -127,6 +127,7 @@ for (const [label, amount, currency, expected] of [
   test('settlement: ' + label, async () => {
     let applied = false;
     const membership = load('src/lib/membership.ts', {
+      './memo': { forgetMemo: () => {} },
       './prisma': { prisma: {
         payment: { findFirst: async () => ({ id: 'p1', status: 'PENDING', providerRef: 'tracking1', amount: 1000, currency: 'UGX', period: 'MONTHLY', subscription: { id: 's1', userId: null, status: 'PAST_DUE' } }) },
         $transaction: async fn => fn({ payment: { updateMany: async () => { applied = true; return { count: 1 }; } }, subscription: { update: async () => ({}) } }),
@@ -175,6 +176,7 @@ test('texted membership link avoids the word account', async () => {
   const texts = [];
   const emails = [];
   const membership = load('src/lib/membership.ts', {
+      './memo': { forgetMemo: () => {} },
     './prisma': { prisma: {
       user: { findUnique: async () => ({ phone: '+256700000000', email: 'a@example.invalid', name: 'A' }) },
       alert: { create: async () => ({}) },
@@ -223,6 +225,7 @@ for (const [label, status, expected] of [['new listing', 'PENDING', 'waits'], ['
   test('listing paid: ' + label + ' ' + expected, async () => {
     const calls = [];
     const membership = load('src/lib/membership.ts', {
+      './memo': { forgetMemo: () => {} },
       './prisma': { prisma: {
         organization: { findUnique: async () => ({ status, supplier: { contentItemId: 'c1' }, consultants: [] }), update: q => { calls.push(['org', q.data.status]); return q; } },
         contentItem: { update: q => { calls.push(['item', q.data.publicationStatus]); return q; }, updateMany: async q => { calls.push(['draft', q.where.publicationStatus, q.data.publicationStatus]); return { count: 1 }; } },
@@ -253,4 +256,19 @@ test('forum names never show a phone number or email', () => {
   assert.equal(shortName('+256 700 123456'), 'Member');
   assert.equal(shortName('grace@example.com'), 'Member');
   assert.equal(shortName(''), 'Member');
+});
+
+test('requests that arrive together share one lookup, and a failed one is not reused', async () => {
+  const { shortMemo } = load('src/lib/memo.ts', {});
+  let calls = 0;
+  const lookup = () => shortMemo('member:u1', 5000, async () => { calls++; return true; });
+  const results = await Promise.all(Array.from({ length: 20 }, lookup)); // a page prefetching 20 links
+  assert.equal(calls, 1);
+  assert.ok(results.every(Boolean));
+  let tries = 0;
+  const failing = () => shortMemo('member:u2', 5000, async () => { tries++; throw new Error('pool timeout'); });
+  await assert.rejects(failing());
+  await new Promise((r) => setTimeout(r, 0));
+  await assert.rejects(failing());
+  assert.equal(tries, 2);
 });

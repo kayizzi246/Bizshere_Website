@@ -30,6 +30,8 @@ const cap = (s?: string | null) => (s ? s.charAt(0) + s.slice(1).toLowerCase().r
  * district, stage, budget, freshness), a filter column (directories, machine condition, funding
  * type) and results drawn per directory. Contacts, prices and amounts stay member-only.
  */
+// Links here don't prefetch: a page of results, topics and filters prefetched dozens of pages at once and
+// ran the database out of connections (live logs, 7 Nov 2026). They open as soon as they are clicked.
 export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
   const viewer = await getViewer();
   const p = parseSearch(searchParams);
@@ -83,8 +85,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   ];
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const dir = typeof searchParams.dir === "string" ? searchParams.dir : "";
-  // Open on arrival and whenever an advanced field is in use.
-  const advancedOpen = hasAdvanced(p) || p.advanced || Object.keys(searchParams).length === 0;
+  // Closed until asked for (the Advanced search button); open by itself when an advanced field is in use, or ?advanced=1.
+  const advancedOpen = hasAdvanced(p) || p.advanced;
   const plan = popupPlan(memberPlan);
 
   return (
@@ -121,7 +123,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                   const on = p.topic === t.id;
                   return (
                     <li key={t.id} className="shrink-0">
-                      <Link href={url([["topic"], ["page"]], on ? {} : { topic: t.id })} aria-current={on ? "true" : undefined}
+                      <Link prefetch={false} href={url([["topic"], ["page"]], on ? {} : { topic: t.id })} aria-current={on ? "true" : undefined}
                         className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-accent bg-accent text-ink hover:text-ink" : "border-white bg-white text-ink-soft hover:text-brand"}`}>
                         {t.label}{on ? <span aria-hidden>×</span> : null}
                       </Link>
@@ -175,7 +177,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
                 </div>
               </div>
               <div className="flex flex-col-reverse gap-2.5 border-t border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
-                <Link href="/search?adv=1" className="btn min-h-[44px] text-ink-soft hover:text-brand sm:mr-auto">Clear all</Link>
+                <Link prefetch={false} href="/search?adv=1" className="btn min-h-[44px] text-ink-soft hover:text-brand sm:mr-auto">Clear all</Link>
                 <button formAction={saveSearch} className="btn-outline"><Icon name="bell" className="h-4 w-4" />Save this search</button>
                 <button className="btn-primary px-7">Apply filters</button>
               </div>
@@ -193,7 +195,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
           <aside className="card mt-3 hidden flex-col p-5 peer-checked:flex lg:sticky lg:top-32 lg:mt-0 lg:flex">
             <Group title="Show results from">
               {dir ? (
-                <p className="text-[13px] text-ink-muted">Limited to <strong className="text-ink-soft">{[...GROUPS, PRICES_GROUP].find((g) => g.id === dir)?.label}</strong>. <Link href={url([["dir"], ["show"]])} className="font-semibold">Show all</Link></p>
+                <p className="text-[13px] text-ink-muted">Limited to <strong className="text-ink-soft">{[...GROUPS, PRICES_GROUP].find((g) => g.id === dir)?.label}</strong>. <Link prefetch={false} href={url([["dir"], ["show"]])} className="font-semibold">Show all</Link></p>
               ) : (
                 <>
                   {GROUPS.map((g) => <Check key={g.id} name="show" value={g.id} checked={p.show.includes(g.id)} auto>{g.label}</Check>)}
@@ -231,12 +233,12 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
             <ul className="flex flex-wrap gap-2">
               {chips.map((c) => (
                 <li key={c.href + c.label}>
-                  <Link href={c.href} className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-tint py-1 pl-3 pr-2 text-xs font-semibold text-brand-dark hover:border-brand hover:text-brand-dark">
+                  <Link prefetch={false} href={c.href} className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-tint py-1 pl-3 pr-2 text-xs font-semibold text-brand-dark hover:border-brand hover:text-brand-dark">
                     {c.label}<Icon name="close" className="h-3 w-3" /><span className="sr-only">Remove filter</span>
                   </Link>
                 </li>
               ))}
-              {chips.length > 1 ? <li><Link href="/search" className="inline-flex px-2 py-1 text-xs font-semibold">Clear all</Link></li> : null}
+              {chips.length > 1 ? <li><Link prefetch={false} href="/search" className="inline-flex px-2 py-1 text-xs font-semibold">Clear all</Link></li> : null}
             </ul>
           ) : null}
 
@@ -255,10 +257,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
               <p className="max-w-md text-sm text-ink-muted">Try a shorter search, check the spelling, or remove a filter. You can also try one of these:</p>
               <ul className="flex max-w-xl flex-wrap justify-center gap-2">
                 {["register a business", "file tax returns", "EFRIS", "maize mill", "SME loan", "poultry"].map((t) => (
-                  <li key={t}><Link href={`/search?q=${encodeURIComponent(t)}`} className="inline-flex rounded-full border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-brand hover:text-brand">{t}</Link></li>
+                  <li key={t}><Link prefetch={false} href={`/search?q=${encodeURIComponent(t)}`} className="inline-flex rounded-full border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink hover:border-brand hover:text-brand">{t}</Link></li>
                 ))}
               </ul>
-              <p className="mt-2 text-sm text-ink-muted">Still can&apos;t find it? <Link href="/contact" className="font-semibold">Tell our team what you need</Link> and we&apos;ll point you to it or add it.</p>
+              <p className="mt-2 text-sm text-ink-muted">Still can&apos;t find it? <Link prefetch={false} href="/contact" className="font-semibold">Tell our team what you need</Link> and we&apos;ll point you to it or add it.</p>
             </div>
           ) : null}
 
@@ -291,7 +293,7 @@ function pageList(page: number, pages: number): (number | null)[] {
 
 function PageLink({ href, current, children }: { href: string; current?: boolean; children: React.ReactNode }) {
   return (
-    <Link href={href} aria-current={current ? "page" : undefined}
+    <Link prefetch={false} href={href} aria-current={current ? "page" : undefined}
       className={`inline-flex h-10 min-w-[40px] items-center justify-center rounded-[10px] border px-3 text-sm font-semibold ${current ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink hover:border-brand hover:text-brand"}`}>
       {children}
     </Link>
@@ -353,7 +355,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface transition-colors sm:border sm:border-line sm:hover:border-brand/40">
       {/* Every card has a picture area, so the grid lines up: photo, expert portrait, or the directory icon */}
-      <Link href={href} tabIndex={-1} aria-hidden className="relative block overflow-hidden sm:border-b sm:border-line">
+      <Link prefetch={false} href={href} tabIndex={-1} aria-hidden className="relative block overflow-hidden sm:border-b sm:border-line">
         {photo ? (
           <span className="flex aspect-[16/10] items-center justify-center bg-accent-tint">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -368,7 +370,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-2.5 sm:gap-1 sm:p-3">
         <span className={`font-display text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${LABEL_TONE[r.contentType] ?? "text-brand"}`}>{contentTypeLabel[r.contentType]}</span>
-        <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
+        <h3 className="line-clamp-2 text-[14px] font-extrabold leading-snug text-heading sm:text-[16px]"><Link prefetch={false} href={href} className="text-heading hover:text-brand">{r.title}</Link></h3>
         {check && (r.supplier || r.consultant) ? <span className="badge-ok self-start whitespace-normal"><Icon name="check" className="h-3 w-3 shrink-0" />Contact checked {date(check.checkedAt)}</span> : null}
         {round ? <span className="badge self-start whitespace-normal bg-accent-tint text-accent-dark"><span className="live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />Open{round.isRolling ? " · rolling" : round.closesAt ? ` · closes ${date(round.closesAt)}` : ""}</span> : null}
         {r.investmentOpportunity?.deadline ? <span className="badge-warn self-start">Deadline {date(r.investmentOpportunity.deadline)}</span> : null}
@@ -382,7 +384,7 @@ function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean;
         {r.consultant ? <Contact label="Email" value={member ? r.consultant.email : null} fake="name@example.co.ug" href={href} /> : null}
 
         <div className="mt-auto flex items-center gap-1.5 pt-2 sm:gap-2">
-          <Link href={href} className="btn-primary min-h-[38px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
+          <Link prefetch={false} href={href} className="btn-primary min-h-[38px] flex-1 px-3 text-[13px]"><span>View<span className="hidden sm:inline"> details</span></span></Link>
           <WishlistHeart id={r.id} className="h-[38px] w-[38px] shrink-0 rounded-lg border border-line" />
         </div>
       </div>
@@ -396,7 +398,7 @@ function Contact({ label, value, fake, href }: { label: string; value: string | 
   return (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-soft sm:text-[13px]">
       <span><strong className="font-semibold text-ink">{label}:</strong> <span className="blurred" aria-hidden>{fake}</span></span>
-      <Link href={href} data-onboard="" className="inline-flex items-center gap-1 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Show contact</Link>
+      <Link prefetch={false} href={href} data-onboard="" className="inline-flex items-center gap-1 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Show contact</Link>
     </p>
   );
 }
@@ -408,7 +410,7 @@ function PriceTable({ prices, member, more }: { prices: Price[]; member: boolean
     <div className="card overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
         <h3 className="font-display text-sm font-extrabold text-heading">Markets and Prices</h3>
-        {more ? <Link href={more} className="text-[13px] font-semibold">See all prices</Link> : null}
+        {more ? <Link prefetch={false} href={more} className="text-[13px] font-semibold">See all prices</Link> : null}
       </div>
       <div className="overflow-x-auto">
         <table className="table-base min-w-[620px]">

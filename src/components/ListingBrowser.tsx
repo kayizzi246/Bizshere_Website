@@ -264,17 +264,20 @@ function SupplierCard({ i }: { i: BrowseListing }) {
     <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
       <div className="relative">
         <WishlistHeart id={i.id} className="absolute right-2 top-2 z-10" />
-        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-[14px] bg-brand-tint sm:aspect-[16/10]">
+        {/* The same size on every card. Product photos often come with white edges, so the picture is
+            zoomed in a little to fill the box (and a little more on hover). */}
+        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-[14px] bg-brand-tint">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-          {i.picture ? <img src={i.picture} alt="" loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" /> : (
+          {i.picture ? <img src={i.picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full scale-[1.12] object-cover transition duration-300 group-hover:scale-[1.18]" /> : (
             <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name="supplier" className="h-9 w-9" /></span>
           )}
           {i.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{i.primaryCategory.name}</span> : null}
         </Link>
       </div>
       <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">
-        <Link href={i.href} className="font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name(i.title)}</Link>
-        {i.summary ? <p className="line-clamp-2 text-[12px] leading-snug text-ink-muted sm:text-[13px]">{i.summary}</p> : null}
+        {/* Two lines kept for the name and for the summary on every card, so the cards line up */}
+        <Link href={i.href} className="line-clamp-2 min-h-[2.5em] font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name(i.title)}</Link>
+        <p className="line-clamp-2 min-h-[2.75em] text-[12px] leading-snug text-ink-muted sm:text-[13px]">{i.summary ?? ""}</p>
         {i.country ? <p className="flex items-center gap-1 text-[12px] text-ink-soft sm:text-[13px]"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /><span className="truncate">{i.country}</span></p> : null}
         {i.sells ? (
           <p className="flex items-center gap-2 rounded-xl bg-page px-2.5 py-2">

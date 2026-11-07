@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "./auth";
 import { prisma } from "./prisma";
 import { AREA_KEYS, contentArea } from "./admin-areas";
+import { shortMemo } from "./memo";
 
 /**
  * Server-side access rules.
@@ -31,16 +32,19 @@ export const getViewer = cache(async function getViewer(): Promise<Viewer> {
   const isStaff = role === "EDITOR" || role === "ADMIN";
   if (isStaff) return { userId: id, name: name ?? null, role, isMember: true, isStaff };
 
-  const now = new Date();
-  const subs = await prisma.subscription.findMany({
-    where: {
-      status: { in: ["ACTIVE", "TRIAL"] },
-      OR: [{ currentPeriodEnd: null }, { currentPeriodEnd: { gt: now } }],
-      AND: [{ OR: [{ userId: id }, { organization: { members: { some: { userId: id } } } }] }],
-    },
-    include: { plan: true },
+  // Shared for a few seconds between requests that arrive together (prefetches): src/lib/memo.ts
+  const isMember = await shortMemo(`member:${id}`, 5000, async () => {
+    const now = new Date();
+    const subs = await prisma.subscription.findMany({
+      where: {
+        status: { in: ["ACTIVE", "TRIAL"] },
+        OR: [{ currentPeriodEnd: null }, { currentPeriodEnd: { gt: now } }],
+        AND: [{ OR: [{ userId: id }, { organization: { members: { some: { userId: id } } } }] }],
+      },
+      select: { plan: { select: { entitlements: true } } },
+    });
+    return subs.some((s) => (s.plan.entitlements as Entitlements)?.fullDetail === true);
   });
-  const isMember = subs.some((s) => (s.plan.entitlements as Entitlements)?.fullDetail === true);
   return { userId: id, name: name ?? null, role, isMember, isStaff };
 });
 

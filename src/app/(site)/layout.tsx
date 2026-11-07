@@ -8,6 +8,7 @@ import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
 import { WishlistProvider } from "@/components/Wishlist";
 import { prisma } from "@/lib/prisma";
+import { shortMemo } from "@/lib/memo";
 import { DIRECTORIES, PAID_PATHS } from "@/config/directories";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -20,8 +21,9 @@ const SERVICES = DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, nav: d.ti
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [viewer, memberPlan] = await Promise.all([getViewer(), cachedMemberPlan()]);
   // The viewer's wishlist ids, shared with every heart on the page (src/components/Wishlist.tsx)
+  // Shared for a few seconds between requests that arrive together, as when a page prefetches its links (src/lib/memo.ts)
   const wishlist = viewer.userId
-    ? (await prisma.savedItem.findMany({ where: { userId: viewer.userId }, select: { contentItemId: true } })).map((s) => s.contentItemId)
+    ? await shortMemo(`wishlist:${viewer.userId}`, 5000, async () => (await prisma.savedItem.findMany({ where: { userId: viewer.userId! }, select: { contentItemId: true } })).map((s) => s.contentItemId))
     : [];
   const plan = popupPlan(memberPlan);
 

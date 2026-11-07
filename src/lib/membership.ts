@@ -15,6 +15,7 @@ import { sendSms } from "./sms";
 import { sendEmail } from "./email";
 import { site } from "@/config/site";
 import { date, money } from "./format";
+import { forgetMemo } from "./memo";
 
 export type Settled = "SUCCEEDED" | "PENDING" | "FAILED" | "CANCELLED" | "REFUNDED";
 
@@ -82,6 +83,8 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
   });
   if (!applied) return "SUCCEEDED";
 
+  // The membership check shared for a few seconds (src/lib/memo.ts) must not hide the new access
+  if (sub.userId) forgetMemo(`member:${sub.userId}`);
   await audit(sub.userId, "payment.succeeded", "payment", payment.id, { method: s.method, code: s.confirmationCode });
   const listing = isListing(sub.plan?.code);
   if (listing && sub.organizationId) await partnerPaid(sub.organizationId);
