@@ -176,6 +176,26 @@ select {
 @keyframes late-safety { to { opacity: 1; transform: none; } }
 .reveal-ready [data-reveal-late][data-reveal][data-shown]:not([data-done]) { transition: opacity 800ms var(--ease-out), transform 800ms var(--ease-out); }
 
+/* The homepage "go" buttons (Go in HomeFeatures.tsx): they lift with a shine sweeping across on hover, shine once as
+   their block arrives, and the arrow nudges forward now and then. The arrow moves with `translate`, so it never
+   fights the hover `transform`. Still for visitors who ask for less motion. */
+.go-btn { position: relative; isolation: isolate; overflow: hidden; transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), background-color 0.2s, color 0.2s; }
+.go-btn::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.45) 50%, transparent 70%); transform: translateX(-130%); }
+.go-arrow { animation: go-nudge 2.6s ease-in-out infinite; }
+.go-btn:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .go-btn:hover { transform: translateY(-2px); filter: brightness(0.93); box-shadow: 0 10px 22px -8px rgb(7 26 51 / 0.45); }
+  .go-btn:hover::after { transform: translateX(130%); transition: transform 0.7s var(--ease-out); }
+  .go-btn:hover .go-arrow { animation: none; }
+}
+[data-shown] .go-btn::after { animation: go-shine 1s var(--ease-out) 0.7s 1; }
+@keyframes go-shine { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+@keyframes go-nudge { 0%, 70%, 100% { translate: 0 0; } 80% { translate: 4px 0; } 90% { translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .go-btn, .go-btn::after, .go-arrow { animation: none; transition: none; }
+  .go-btn:hover { transform: none; }
+}
+
 /* Hero: children rise in one after another on page load */
 .hero-rise > * { animation: rise 0.4s var(--ease-out) both; }
 .hero-rise > *:nth-child(2) { animation-delay: 0.05s; }

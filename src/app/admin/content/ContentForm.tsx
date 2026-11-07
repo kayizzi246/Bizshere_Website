@@ -37,7 +37,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
     ...(mainFields.length ? [[slug(MAIN), mainTitle] as [string, string]] : []),
     ...(dir.children ?? []).map((c) => [slug(c.label), c.label] as [string, string]),
     ...extraGroups.map((g) => [slug(g), g] as [string, string]),
-    ["s-publish", "Publishing"],
+    ["s-publish", "Who can see it"],
     ["s-advanced", "Advanced settings"],
   ];
   const linkSelect = dir.link ? <Select name={dir.link.field} label={dir.link.label} defaultValue={v(dir.link.field)} error={err(dir.link.field)} options={[{ value: "", label: values?.id ? "Keep the current one" : "Create a new one" }, ...options.link]} /> : null;
@@ -93,12 +93,8 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         );
       })}
 
-      <Section id="s-publish" title="Publishing" note="Only live pages show on the website.">
+      <Section id="s-publish" title="Who can see it" note="Live or draft is chosen next to Save, at the bottom of the screen.">
         <Row>
-          <Select name="publicationStatus" label="Status" defaultValue={v("publicationStatus") || "PUBLISHED"} error={err("publicationStatus")} options={[
-            { value: "DRAFT", label: "Draft: not on the website yet" }, { value: "IN_REVIEW", label: "Waiting for review: not on the website yet" },
-            { value: "PUBLISHED", label: "Live on the website" }, { value: "ARCHIVED", label: "Archived: taken off the website" },
-          ]} />
           <Select name="accessLevel" label="Who sees the full details?" defaultValue={v("accessLevel") || (type === "BUSINESS_TIP" ? "PUBLIC" : "PREVIEW")} error={err("accessLevel")} options={[
             { value: "PREVIEW", label: "Members only; everyone sees a preview" }, { value: "PUBLIC", label: "Everyone, free" }, { value: "MEMBERS", label: "Members only, with no preview" },
           ]} />
@@ -124,7 +120,21 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         {values.id ? <Row><Input name="revisionNote" label="What changed? (kept in the revision history)" /></Row> : null}
       </Fold>
 
-      <div className="flex justify-end"><Submit /></div>
+      {/* Always in view at the bottom of the screen: where the page goes, and Save */}
+      <div className="sticky bottom-0 z-20 -mx-1 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface/95 p-3 shadow-[0_-8px_24px_rgb(7_26_51/0.08)] backdrop-blur sm:mx-0">
+        <label className="flex min-w-0 flex-1 items-center gap-2.5 text-sm font-bold text-heading">
+          <span className="shrink-0">Show it:</span>
+          <select name="publicationStatus" defaultValue={v("publicationStatus") || "PUBLISHED"} aria-invalid={Boolean(err("publicationStatus"))}
+            className="input min-h-[46px] min-w-0 max-w-[280px] flex-1 font-semibold">
+            <option value="PUBLISHED">Live on the website</option>
+            <option value="DRAFT">Draft: not on the website</option>
+            <option value="IN_REVIEW">Waiting for a check</option>
+            <option value="ARCHIVED">Hidden</option>
+          </select>
+        </label>
+        {state?.errors ? <span className="text-[13px] font-semibold text-bad-fg">Fix the fields in red first.</span> : null}
+        <Submit />
+      </div>
       </div>
     </form>
   );

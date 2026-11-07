@@ -55,8 +55,8 @@ export function SelectedActions({ review, archive, remove }: { review: (form: Fo
       {all && ticked < all ? <button type="button" onClick={() => pick(true)} className="min-h-[44px] px-2 font-semibold text-brand hover:text-brand-dark">Select all {all}</button> : null}
       {ticked ? <button type="button" onClick={() => pick(false)} className="min-h-[44px] px-2 font-semibold text-ink-soft hover:text-brand">Clear</button> : null}
       <span className="ml-auto flex flex-wrap items-center gap-2">
-        <button formAction={review} disabled={!ticked} className="btn-outline min-h-[44px] px-3 disabled:cursor-not-allowed disabled:opacity-50">Send for re-review</button>
-        <button formAction={archive} disabled={!ticked} className="btn-outline min-h-[44px] px-3 disabled:cursor-not-allowed disabled:opacity-50">Archive</button>
+        <button formAction={review} disabled={!ticked} title="Takes them off the website until someone checks them" className="btn-outline min-h-[44px] px-3 disabled:cursor-not-allowed disabled:opacity-50">Take off to check</button>
+        <button formAction={archive} disabled={!ticked} title="Hides them from the website; they stay in the admin" className="btn-outline min-h-[44px] px-3 disabled:cursor-not-allowed disabled:opacity-50">Hide</button>
         {remove && ticked ? (
           <ConfirmButton action={remove} title={ticked === all && all > 1 ? `Delete all ${pages}?` : `Delete ${pages}?`} message={`${ticked === 1 ? "This page and everything attached to it" : "These pages and everything attached to them"} will be removed from the database.`} className="h-[38px]">
             {ticked === all && all > 1 ? `Delete all ${ticked}` : `Delete ${ticked}`}

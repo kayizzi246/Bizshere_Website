@@ -7,6 +7,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
+import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
 import { PanelParticles } from "./PanelParticles";
@@ -34,7 +35,7 @@ async function records() {
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
   const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 4 }),
+    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 8 }),
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "GUIDE", ...live }, select: item, orderBy: [...newest], take: 3 }),
@@ -54,14 +55,33 @@ const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], 
 // Shown until the first tips and topics are in
 const TIP_POINTS: [LucideIcon, string][] = [[Coins, "Money"], [Megaphone, "Marketing"], [Users, "Customers"], [Store, "Running a shop"]];
 const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"], [Users, "Meet owners"], [Store, "Find stock"], [Lightbulb, "Share ideas"]];
-// The experts panel: plum, a colour no other block uses, with the orange accent
+/**
+ * One colour per service, used for everything that service shows here (its panel or button, its label,
+ * its chips and its animation), so the colour alone says which service it is. Written out in full so
+ * Tailwind keeps every class. `solid`: the colour with readable text on it. `ink`: the colour as text
+ * on white. `onColour`: a white button or label sitting on that service's own panel.
+ */
+const S = {
+  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-white text-[#0F5B3E] hover:text-[#0F5B3E]" },
+  machines: { solid: "bg-navy text-white hover:text-white", ink: "text-navy", onColour: "bg-white text-navy hover:text-navy" },
+  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-white text-accent-dark hover:text-accent-dark" },
+  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-white text-brand-dark hover:text-brand-dark" },
+  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-white text-[#4A1D6B] hover:text-[#4A1D6B]" },
+  tools: { solid: "bg-[#0F766E] text-white hover:text-white", ink: "text-[#0F766E]", onColour: "" },
+  tips: { solid: "bg-[#BE185D] text-white hover:text-white", ink: "text-[#BE185D]", onColour: "" },
+  forum: { solid: "bg-[#EAB308] text-ink hover:text-ink", ink: "text-[#8A6A00]", onColour: "" },
+  guides: { solid: "bg-[#4338CA] text-white hover:text-white", ink: "text-[#4338CA]", onColour: "" },
+  news: { solid: "bg-[#8B5E1A] text-white hover:text-white", ink: "text-[#8B5E1A]", onColour: "" },
+  prices: { solid: "bg-[#C8102E] text-white hover:text-white", ink: "text-[#C8102E]", onColour: "" },
+  websites: { solid: "bg-[#475467] text-white hover:text-white", ink: "text-[#475467]", onColour: "" },
+} as const;
 const PLUM = "bg-[#4A1D6B]";
 
 // The tag on each funding row: what kind of money it is, at a glance.
 const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark", GRANT: "bg-[#E6F4EC] text-[#1F7A4D]", EQUITY: "bg-accent-tint text-accent-dark" };
 
-// A supplier with no photo yet gets a bold initial, in turn from the brand colours.
-const MONOGRAM = ["bg-navy text-white", "bg-accent text-ink", "bg-brand-tint text-brand-dark", "bg-accent-tint text-accent-dark"];
+// A supplier with no photo yet gets a bold initial, in shades of the Suppliers blue.
+const MONOGRAM = ["bg-brand-dark text-white", "bg-brand-tint text-brand-dark", "bg-navy text-white", "bg-[#D6E9F7] text-brand-dark"];
 
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), with the length chosen. */
 const pay = (period: MemberPeriod) => ({ href: `/membership?onboard=pay&period=${period}&next=%2Fbusiness-ideas`, "data-pay": "", "data-period": period, "data-next": "/business-ideas" });
@@ -78,45 +98,46 @@ const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] l
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
 const cardHeading = "text-hero text-[20px] leading-[1.2] text-black sm:text-[23px] lg:text-[26px]";
 
-const Label = ({ href, tone = "text-brand" }: { href: string; tone?: string }) => {
+const Label = ({ href, pill }: { href: string; pill: string }) => {
   const d = directory(href);
-  return <span className={`inline-flex items-center gap-1.5 text-[13px] font-bold sm:text-[14px] ${tone}`}><Icon name={d.icon} className="h-4 w-4" />{d.title}</span>;
+  return <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${pill}`}><Icon name={d.icon} className="h-4 w-4" />{d.title}</span>;
 };
 
 const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-white", children }: { href: string; tone?: string; children: React.ReactNode }) => (
-  <Link href={href} className={`group mt-1 inline-flex h-12 items-center gap-1.5 rounded-full px-6 text-[15px] font-bold ${tone}`}>
-    {children}<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
+  <Link href={href} className={`go-btn group mt-1 inline-flex h-12 items-center gap-1.5 rounded-full px-6 text-[15px] font-bold ${tone}`}>
+    {children}<ArrowRight aria-hidden className="go-arrow h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" />
   </Link>
 );
 
 /**
  * One part: name, heading, sentence, what it holds and a button at the bottom, so two side by side line up.
  */
-function Card({ href, title, text, action, mark, button, dark = false, children }: { href: string; title: string; text: string; action: string; mark: string; button?: string; dark?: boolean; children: React.ReactNode }) {
+function Card({ href, title, text, action, colour, dark = false, art, children }: { href: string; title: string; text: string; action: string; colour: string; dark?: boolean; art?: string; children: React.ReactNode }) {
   return (
     <li data-reveal="" className="rise-soft">
       <div className="flex h-full flex-col items-center gap-3 text-center">
-        <Label href={href} tone={mark} />
+        {art ? <LottieArt src={art} className="h-24 w-24" /> : null}
+        <Label href={href} pill={colour} />
         <h3 className={dark ? "text-hero text-[23px] leading-[1.2] text-white sm:text-[27px] lg:text-[30px]" : cardHeading}>{title}</h3>
         <p className={`mx-auto max-w-lg text-[15px] leading-relaxed sm:text-[16px] ${dark ? "text-white" : "text-ink-soft"}`}>{text}</p>
         <div className="w-full flex-1">{children}</div>
-        <span className="mt-auto pt-1"><Go href={href} tone={button}>{action}</Go></span>
+        <span className="mt-auto pt-1"><Go href={href} tone={colour}>{action}</Go></span>
       </div>
     </li>
   );
 }
 
 /** A panel in a full brand colour, joined to the one beside it: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
-function Panel({ href, title, text, action, tint, words, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; children: React.ReactNode }) {
+function Panel({ href, title, text, action, tint, words, onColour, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; onColour: string; children: React.ReactNode }) {
   return (
-    <li data-reveal="" className={`rise-soft flex flex-col gap-4 p-5 sm:p-7 ${tint}`}>
+    <li data-reveal="" className={`rise-soft flex flex-col gap-3 p-5 sm:p-6 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
-        <Label href={href} tone="" />
+        <Label href={href} pill={onColour} />
         <h3 className="text-hero text-[27px] leading-[1.1] sm:text-[33px] md:text-[27px] lg:text-[33px] xl:text-[40px]">{title}</h3>
         <p className="max-w-lg text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
-      <span><Go href={href} tone="bg-white text-heading hover:bg-navy hover:text-white">{action}</Go></span>
+      <span><Go href={href} tone={onColour}>{action}</Go></span>
     </li>
   );
 }
@@ -149,8 +170,8 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
     {items.map((r, n) => (
       <li key={r.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
         <Link href={itemHref(r)} className="group flex flex-col gap-0.5 py-3 text-white hover:text-white">
-          {note && r.publishedAt ? <span className="text-[12px] font-semibold text-accent">{date(r.publishedAt)}</span> : null}
-          <span className="font-display text-[16px] font-extrabold leading-snug group-hover:text-accent">{clean(r.title)}</span>
+          {note && r.publishedAt ? <span className="text-[12px] font-semibold text-white/70">{date(r.publishedAt)}</span> : null}
+          <span className="font-display text-[16px] font-extrabold leading-snug decoration-2 underline-offset-4 group-hover:underline">{clean(r.title)}</span>
           {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-white/85">{r.shortSummary}</span> : null}
         </Link>
       </li>
@@ -188,10 +209,10 @@ export async function HomeFeatures() {
       <div data-ideas="" data-reveal="" data-reveal-late="" className={`relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-[#0F5B3E] p-5 sm:p-8 ${fan.length ? "lg:grid-cols-2 lg:gap-10" : ""}`}>
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/business-ideas").title}</span>
+          <Label href="/business-ideas" pill={S.ideas.onColour} />
           <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Business plans with the real costs</h3>
-          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Not sure what to start? Browse ready plans with every requirement and a line-by-line budget, in small, medium and large sizes.</p>
-          <Go href="/business-ideas" tone="bg-accent text-ink hover:bg-white hover:text-ink">See business ideas</Go>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Ready plans with every cost, line by line.</p>
+          <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {fan.length ? (
           <FanTilt>
@@ -215,13 +236,13 @@ export async function HomeFeatures() {
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-navy p-5 sm:p-8 ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/machines").title}</span>
+          <Label href="/machines" pill={S.machines.onColour} />
           <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">The right machine for the job</h3>
-          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">{directory("/machines").text}</p>
-          <Go href="/machines" tone="bg-accent text-ink hover:bg-white hover:text-ink">See business machines</Go>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">What each machine does and costs.</p>
+          <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
         {machines.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-3xl bg-brand-dark p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2.5 rounded-3xl bg-[#14305A] p-3 sm:p-4">
             {machines.map((m, n) => {
               const x = m.machine;
               const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
@@ -239,7 +260,7 @@ export async function HomeFeatures() {
                     {m.shortSummary ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{m.shortSummary}</span> : null}
                   </span>
                   {hasPrice ? (locked
-                    ? <span className="flex shrink-0 items-center gap-1.5 text-accent"><span aria-hidden className="select-none text-hero text-[18px] text-white blur-[6px] sm:text-[22px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
+                    ? <span className="flex shrink-0 items-center gap-1.5 text-white/80"><span aria-hidden className="select-none text-hero text-[18px] text-white blur-[6px] sm:text-[22px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
                     : <span className="shrink-0 text-hero text-[16px] leading-tight sm:text-right sm:text-[22px]">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>) : null}
                   </span>
                 </Link>
@@ -247,26 +268,26 @@ export async function HomeFeatures() {
             })}
             {!viewer.isMember ? (
               <p className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl bg-white px-4 py-2.5 text-[14px] font-semibold text-heading">
-                <span className="inline-flex items-center gap-2"><LockKeyhole aria-hidden className="h-4 w-4 text-brand" />Prices and where to buy</span>
-                <span className="rounded-lg bg-brand-dark px-2.5 py-1 text-[13px] font-bold text-white">For members</span>
+                <span className="inline-flex items-center gap-2"><LockKeyhole aria-hidden className="h-4 w-4 text-navy" />Prices and where to buy</span>
+                <span className="rounded-lg bg-navy px-2.5 py-1 text-[13px] font-bold text-white">For members</span>
               </p>
             ) : null}
           </div>
         ) : null}
       </div>
         <ul data-panels="" className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mt-5 sm:gap-5 md:grid-cols-2">
-          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink"
-            text="Need money to start or grow? Compare banks, government programmes and other lenders.">
+          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink" onColour={S.funding.onColour}
+            text="Banks, government and other lenders.">
             <ul className="flex h-full flex-col gap-2">
               {funding.map((f, n) => {
                 const org = f.fundingProgramme?.provider.organization;
                 const type = f.fundingProgramme?.fundingType;
                 return (
                   <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className="flex-1">
-                    <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white p-3 text-heading hover:text-heading">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
+                    <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white px-3 py-2 text-heading hover:text-heading">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[15px] font-bold group-hover:text-brand">{clean(f.title)}</span>
+                        <span className="truncate font-display text-[15px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
                         {org ? <span className="truncate text-[13px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
                       </span>
                       {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[12px] font-bold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
@@ -277,8 +298,8 @@ export async function HomeFeatures() {
             </ul>
           </Panel>
 
-          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand" words="text-white"
-            text="Looking for stock or materials? Find suppliers in Uganda and abroad, with contacts our team has checked.">
+          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand" words="text-white" onColour={S.suppliers.onColour}
+            text="Checked suppliers in Uganda and abroad.">
             {/* Runs to the panel's edges, where it fades into the blue (.marquee-soft in globals.css) */}
             <div className="marquee marquee-soft -mx-5 h-full sm:-mx-7">
               <div className="marquee-viewport h-full overflow-hidden">
@@ -292,7 +313,7 @@ export async function HomeFeatures() {
                         return (
                           <li key={n} className="w-[200px] shrink-0 sm:w-[220px]">
                             <Link href={`/suppliers/${x.slug}`} tabIndex={dup ? -1 : undefined} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-heading hover:text-heading">
-                              <span className={`relative flex min-h-[150px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                              <span className={`relative flex min-h-[125px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
                                 {picture ? <img src={picture} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" /> : <span aria-hidden className="font-display text-[44px] font-extrabold leading-none">{name.charAt(0)}</span>}
                               </span>
@@ -319,11 +340,11 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden ${PLUM} p-5 sm:p-8 ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/experts").title}</span>
+          <Label href="/experts" pill={S.experts.onColour} />
           <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Advice from people who know</h3>
-          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Don&apos;t guess on the hard parts. Talk to checked advisors and see the services they offer and the jobs they&apos;ve done.</p>
-          <Points points={EXPERT_POINTS} mark="text-accent" tint="bg-white/10 text-white" start />
-          <Go href="/experts" tone="bg-accent text-ink hover:bg-white hover:text-ink">Find an expert</Go>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Checked advisors for the hard parts.</p>
+          <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
+          <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
         {experts.length ? (
           <div className="relative flex flex-col gap-2.5 rounded-3xl bg-[#5E2A85] p-3 sm:p-4">
@@ -333,7 +354,7 @@ export async function HomeFeatures() {
               const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
               return (
                 <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-2xl ${PLUM} p-2.5 text-white transition-colors hover:bg-black hover:text-white sm:gap-4`}>
-                  <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent font-display text-[24px] font-extrabold text-ink sm:h-20 sm:w-20">
+                  <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[24px] font-extrabold text-[#4A1D6B] sm:h-20 sm:w-20">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
                   </span>
@@ -342,7 +363,7 @@ export async function HomeFeatures() {
                     {role ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{role}</span> : null}
                     {c?.district ? <span className="flex items-center gap-1 text-[12px] text-white/70"><MapPin aria-hidden className="h-3.5 w-3.5" />{c.district}</span> : null}
                   </span>
-                  <ArrowRight aria-hidden className="mr-1 h-5 w-5 shrink-0 text-accent transition-transform duration-150 group-hover:translate-x-0.5" />
+                  <ArrowRight aria-hidden className="mr-1 h-5 w-5 shrink-0 text-white transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>
               );
             })}
@@ -354,35 +375,35 @@ export async function HomeFeatures() {
       {/* Tools, and the two newest services: Business Tips and the Business Forum */}
       <div className="container-site py-8 sm:py-12">
         <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-10">
-      <Card href="/tools" title="Your numbers, done in minutes" action="Open the tools" mark="text-accent-dark" button="bg-accent text-ink hover:bg-accent-dark hover:text-white"
-        text="Stop working it out by hand. Use ready calculators and templates for the sums every business has to do.">
-        <Points points={TOOL_POINTS} mark="text-ink" tint="bg-accent text-ink" />
+      <Card href="/tools" art="/lottie/tools.json" title="Your numbers, done in minutes" action="Open the tools" colour={S.tools.solid}
+        text="Ready calculators and templates.">
+        <Points points={TOOL_POINTS} mark="text-white" tint={S.tools.solid} />
       </Card>
 
-      <Card href="/tips" title="Tips that save you money" action="Read the tips" mark="text-[#0F5B3E]" button="bg-[#0F5B3E] text-white hover:bg-[#0B4630] hover:text-white"
-        text="Short, practical tips from people running businesses, with remarks from members who tried them.">
+      <Card href="/tips" art="/lottie/tips.json" title="Tips that save you money" action="Read the tips" colour={S.tips.solid}
+        text="Short tips that work, with members' remarks.">
         {tips.length
-          ? <Rows tone="group-hover:text-[#0F5B3E]" items={tips.map((x) => ({ href: `/tips/${x.slug}`, title: clean(x.title), sub: x.primaryCategory?.name ?? "Business tip" }))} />
-          : <Points points={TIP_POINTS} mark="text-white" tint="bg-[#0F5B3E] text-white" />}
+          ? <Rows tone="group-hover:text-[#BE185D]" items={tips.map((x) => ({ href: `/tips/${x.slug}`, title: clean(x.title), sub: x.primaryCategory?.name ?? "Business tip" }))} />
+          : <Points points={TIP_POINTS} mark="text-white" tint={S.tips.solid} />}
       </Card>
 
-      <Card href="/forum" title="Talk to other owners" action="Join the conversation" mark="text-brand"
-        text="Ask a question, answer one, find stock and partners. It works like a WhatsApp group for business.">
+      <Card href="/forum" art="/lottie/forum.json" title="Talk to other owners" action="Join the conversation" colour={S.forum.solid}
+        text="Ask, answer and meet other owners.">
         {topics.length
-          ? <Rows tone="group-hover:text-brand" items={topics.map((x) => ({ href: `/forum/${x.id}`, title: x.title, sub: `${x._count.posts} message${x._count.posts === 1 ? "" : "s"}` }))} />
-          : <Points points={FORUM_POINTS} mark="text-white" tint="bg-brand-dark text-white" />}
+          ? <Rows tone="group-hover:text-[#8A6A00]" items={topics.map((x) => ({ href: `/forum/${x.id}`, title: x.title, sub: `${x._count.posts} message${x._count.posts === 1 ? "" : "s"}` }))} />
+          : <Points points={FORUM_POINTS} mark="text-ink" tint={S.forum.solid} />}
       </Card>
         </ul>
       </div>
 
-      {/* Learn and keep up: navy, so the orange buttons stand out most here */}
+      {/* Learn and keep up: on navy */}
       <div data-reading="" className="bg-navy">
       <div className="container-site py-8 sm:py-12">
         <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
-          <Card dark href="/guides" title="Step-by-step help" action="See all guides" mark="text-accent" button="bg-accent text-ink hover:bg-white hover:text-ink" text={directory("/guides").text}>
+          <Card dark href="/guides" title="Step-by-step help" action="See all guides" colour={S.guides.solid} text="Registration, licences, EFRIS and tax.">
             <Reading items={guides} />
           </Card>
-          <Card dark href="/news" title="Know what is changing" action="Read the news" mark="text-accent" button="bg-accent text-ink hover:bg-white hover:text-ink" text={directory("/news").text}>
+          <Card dark href="/news" title="Know what is changing" action="Read the news" colour={S.news.solid} text="What is new for business in Uganda.">
             <Reading items={news} note />
           </Card>
         </ul>
@@ -391,14 +412,14 @@ export async function HomeFeatures() {
 
       <div className="container-site py-8 sm:py-12">
         <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
-          <Card href="/prices" title="What things cost today" action="Check market prices" mark="text-accent-dark" button="bg-accent text-ink hover:bg-accent-dark hover:text-white" text={directory("/prices").text}>
+          <Card href="/prices" title="What things cost today" action="Check market prices" colour={S.prices.solid} text="Today's prices, market by market.">
             <ul className="flex flex-wrap justify-center gap-2">
-              {products.map((x) => <li key={x.name} className="rounded-full bg-accent px-3 py-1.5 text-[13px] font-semibold text-ink">{x.name}</li>)}
+              {products.map((x) => <li key={x.name} className="rounded-full bg-[#FDE8EB] px-3 py-1.5 text-[13px] font-semibold text-[#C8102E]">{x.name}</li>)}
             </ul>
           </Card>
-          <Card href="/websites" title="The websites you will need" action="See useful websites" mark="text-brand" text={directory("/websites").text}>
+          <Card href="/websites" title="The websites you will need" action="See useful websites" colour={S.websites.solid} text="Government and business sites in one list.">
             <ul className="flex flex-wrap justify-center gap-2">
-              {websites.map((w) => <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-brand-dark px-3 py-1.5 text-[13px] font-semibold text-white hover:bg-navy hover:text-white">{clean(w.title)}</Link></li>)}
+              {websites.map((w) => <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-[#EEF0F3] px-3 py-1.5 text-[13px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{clean(w.title)}</Link></li>)}
             </ul>
           </Card>
         </ul>

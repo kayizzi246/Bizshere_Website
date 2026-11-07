@@ -45,7 +45,7 @@ const dt = (name: string, label: string, group?: string): Field => ({ name, labe
 const l = (name: string, label: string, group?: string): Field => ({ name, label, kind: "list", group, help: "Comma-separated" });
 const u = (name: string, label: string, group?: string): Field => ({ name, label, kind: "url", group });
 const e = (name: string, label: string, options: string[], group?: string): Field => ({ name, label, kind: "enum", options, group });
-const cur = (group?: string): Field => ({ name: "currency", label: "Currency (ISO code)", kind: "text", group, help: "e.g. UGX, USD" });
+const cur = (group?: string): Field => ({ name: "currency", label: "Currency", kind: "text", group, help: "e.g. UGX or USD" });
 
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
 const SUPPLIER_MORE = "What else they offer";
@@ -85,7 +85,7 @@ export const DIRECTORIES: Directory[] = [
     children: [{ key: "ideaSteps", label: "Startup steps", help: "One step per line: Title | description" }],
   },
   {
-    type: "MACHINE", label: "Machine", model: "machine",
+    type: "MACHINE", label: "Business machine", model: "machine",
     labels: { title: "Machine name", shortSummary: "Brief", overview: "Description", category: "Category" },
     fields: [
       ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
@@ -105,7 +105,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "SUPPLIER", label: "Supplier", model: "supplier",
+    type: "SUPPLIER", label: "Trusted supplier", model: "supplier",
     link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
     labels: {
       title: "Business name", shortSummary: "Short description (optional)", overview: "About the business (optional)", category: "Category",
@@ -125,7 +125,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "FUNDING_PROGRAMME", label: "Funding programme", model: "fundingProgramme",
+    type: "FUNDING_PROGRAMME", label: "Funding source", model: "fundingProgramme",
     link: { field: "providerId", label: "Fund provider" },
     labels: { title: "Fund name", shortSummary: "Brief", overview: "Description (optional)", category: "Category" },
     fields: [
@@ -158,7 +158,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "GUIDE", label: "Business information / guideline", model: "guide",
+    type: "GUIDE", label: "Business guide", model: "guide",
     labels: { title: "Title", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
       t("resourceType", "Doc type", MAIN, "e.g. Guideline, Book, Video, Website, Investment opportunity, Form"),
@@ -176,7 +176,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "CONSULTANT", label: "Consultant / expert", model: "consultant",
+    type: "CONSULTANT", label: "Business expert", model: "consultant",
     labels: { title: "Page title (usually the consultant's name)", shortSummary: "Brief (optional)", overview: "Profile", category: "Category" },
     fields: [
       { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, t("businessName", "Business name", MAIN), l("specialties", "Specialty", MAIN),
@@ -208,7 +208,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "TOOL", label: "Tool / template", model: "tool",
+    type: "TOOL", label: "Business tool", model: "tool",
     labels: { title: "Tool name", shortSummary: "Brief (optional)", overview: "Description", category: "Category" },
     fields: [
       { ...e("toolType", "Tool type", ["TEMPLATE", "CALCULATOR", "CHECKLIST"], MAIN), required: true }, { ...u("downloadUrl", "Download file", MAIN), upload: "file" },
@@ -233,7 +233,7 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    type: "NEWS", label: "News article", model: "news",
+    type: "NEWS", label: "Business news", model: "news",
     fields: [
       e("articleType", "Type", ["NEWS", "REPORT", "ANALYSIS", "OPINION"], "Article"), ta("standfirst", "Standfirst", "Article"), { name: "body", label: "Body", kind: "textarea", group: "Article" },
       t("author", "Author", "Attribution"), t("publisher", "Publisher", "Attribution"), u("originalUrl", "Original URL", "Attribution"), l("sourceLinks", "Source links", "Attribution"), t("imageCredit", "Image credit", "Attribution"),

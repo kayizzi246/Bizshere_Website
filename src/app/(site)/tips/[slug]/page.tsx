@@ -46,7 +46,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
     <div className="container-site flex max-w-3xl flex-col gap-6 py-6">
       <Crumbs trail={[["/tips", "Business Tips"]]} title={item.title} />
       <article className="flex flex-col gap-4">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#DCF3E6] px-3 py-1 text-[13px] font-bold text-[#0F5B3E]"><Sparkles aria-hidden className="h-4 w-4" />{item.primaryCategory?.name ?? "Business tip"}</span>
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#FCE7F1] px-3 py-1 text-[13px] font-bold text-[#BE185D]"><Sparkles aria-hidden className="h-4 w-4" />{item.primaryCategory?.name ?? "Business tip"}</span>
         <h1 className="text-page-title">{item.title}</h1>
         <span className="text-sm text-ink-muted">Published {date(item.publishedAt ?? item.updatedAt)}</span>
         <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "Business tip", icon: "tip" }} />
@@ -63,7 +63,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
 
       {/* Members' remarks */}
       <section id="remarks" className="flex scroll-mt-28 flex-col gap-4">
-        <h2 className="flex items-center gap-2 font-display text-[20px] font-extrabold text-heading"><MessageCircle aria-hidden className="h-5 w-5 text-[#0F5B3E]" />Members&apos; remarks <span className="text-base font-semibold text-ink-muted">({remarks.length})</span></h2>
+        <h2 className="flex items-center gap-2 font-display text-[20px] font-extrabold text-heading"><MessageCircle aria-hidden className="h-5 w-5 text-[#BE185D]" />Members&apos; remarks <span className="text-base font-semibold text-ink-muted">({remarks.length})</span></h2>
         {note === "sent" ? <p role="status" className="rounded-xl bg-brand-tint p-3 text-sm font-bold text-brand-dark">Thank you. Your remark is up.</p> : note ? <p role="alert" className="rounded-xl bg-bad-bg p-3 text-sm font-semibold text-bad-fg">Not added. {note}</p> : null}
         {remarks.length ? (
           <ol className="flex flex-col gap-3">
@@ -71,7 +71,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
               const team = r.author.role === "ADMIN" || r.author.role === "EDITOR";
               return (
                 <li key={r.id} className="flex gap-3">
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold ${team ? "bg-brand text-white" : "bg-[#DCF3E6] text-[#0F5B3E]"}`}>{(team ? "B" : shortName(r.author.name).charAt(0)).toUpperCase()}</span>
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold ${team ? "bg-brand text-white" : "bg-[#FCE7F1] text-[#BE185D]"}`}>{(team ? "B" : shortName(r.author.name).charAt(0)).toUpperCase()}</span>
                   <div className="flex min-w-0 flex-1 flex-col gap-1 rounded-2xl rounded-tl-md border border-line bg-surface px-4 py-3">
                     <span className="flex flex-wrap items-baseline justify-between gap-2">
                       <span className="text-[14px] font-bold text-heading">{team ? "BizSphere team" : shortName(r.author.name)}</span>
@@ -91,7 +91,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
             <label className="label">Add your remark
               <textarea name="body" required maxLength={1000} rows={3} placeholder="Has this worked for you? Add what you have learned." className="input py-2.5" />
             </label>
-            <button className="btn-primary self-end bg-[#0F5B3E] px-6 hover:bg-[#0B4630]">Post remark</button>
+            <button className="btn-primary self-end bg-[#BE185D] px-6 hover:bg-[#9D174D]">Post remark</button>
           </form>
         ) : (
           <p className="flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-line-strong p-4 text-sm text-ink-soft">

@@ -92,6 +92,13 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
       const url = new URL(a.href, location.href);
       // Only single items (/business-ideas/small-bakery); the lists themselves (/business-ideas) open for everyone
       if (url.origin !== location.origin || OPEN_PATHS.includes(url.pathname) || /\/(pdf|file)$/.test(url.pathname) || !paths.some((p) => url.pathname.startsWith(`${p}/`))) return;
+      // On the homepage, an item opens its service (/machines/hammer-mill → /machines), where every one of
+      // them is listed; paying starts there, from an item. Get full access buttons (data-pay) still pay here.
+      if (location.pathname === "/") {
+        e.preventDefault();
+        router.push(paths.filter((p) => url.pathname.startsWith(`${p}/`)).sort((x, y) => y.length - x.length)[0]);
+        return;
+      }
     } else if (!a.hasAttribute("data-onboard")) return;
     e.preventDefault();
     openAt(a.getAttribute("href") ?? "/", "MONTHLY", false);
