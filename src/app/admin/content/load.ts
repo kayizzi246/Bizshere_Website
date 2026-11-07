@@ -45,7 +45,7 @@ export async function loadValues(id: string) {
       relatedFrom: { include: { toItem: { select: { slug: true } } }, orderBy: { displayOrder: "asc" } },
       revisions: { include: { editor: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 10 },
       businessIdea: { include: { steps: { orderBy: { stepNumber: "asc" } } } },
-      machine: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } }, fundingProgramme: true, investmentOpportunity: true,
+      machine: true, businessTip: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } }, fundingProgramme: true, investmentOpportunity: true,
       guide: { include: { steps: { orderBy: { stepNumber: "asc" } }, documents: true } },
       consultant: true,
       recipe: { include: { ingredients: { orderBy: { order: "asc" } }, steps: { orderBy: { stepNumber: "asc" } } } },

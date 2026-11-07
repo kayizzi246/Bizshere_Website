@@ -109,7 +109,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
             <div className="flex min-w-0 flex-col gap-6">
               {about ? (
                 <section className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
-                  <h2 className="font-display text-lg font-extrabold text-heading">About {name}</h2>
+                  <h2 className="font-display text-lg font-extrabold text-heading">{name}</h2>
                   <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{about}</p>
                 </section>
               ) : null}
@@ -135,7 +135,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                   ))}
                 </dl>
               ) : null}
-              <p className="border-t border-line pt-3 text-[12px] leading-snug text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
+              <p className="border-t border-line pt-3 text-[12px] leading-snug text-ink-muted">Always do your due diligence before dealing with any supplier and take caution before making any payments.</p>
             </aside>
           </div>
         </div>

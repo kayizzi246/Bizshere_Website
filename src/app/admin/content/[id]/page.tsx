@@ -74,7 +74,8 @@ export default async function EditContentPage({ params, searchParams }: { params
           <Link href={itemHref(item)} className="btn-outline" target="_blank">View page ↗</Link>
         </div>
       </div>
-      {searchParams.saved && !searchParams.in ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
+      {searchParams.saved === "1" && !searchParams.in && item.publicationStatus !== "PUBLISHED" ? <p role="alert" className="rounded-xl bg-warn-bg p-4 text-sm font-bold text-warn-fg">Saved, but this is NOT on the website yet. To show it, set Status to &quot;Live on the website&quot; under Publishing, then Save.</p> : null}
+      {searchParams.saved && !searchParams.in && (searchParams.saved !== "1" || item.publicationStatus === "PUBLISHED") ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
       {searchParams.error && !searchParams.in ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
 
       <ContentForm type={item.contentType} options={options} values={values} multi={multi} />

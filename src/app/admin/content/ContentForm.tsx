@@ -55,8 +55,8 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
 
       <Section id="s-name" title="Basics">
         <Row><Input name="title" label={`${lb.title ?? "Title"} *`} defaultValue={v("title")} error={err("title")} required /></Row>
-        <TextArea name="shortSummary" label={lb.shortSummary ?? "Short summary"} help="One or two lines, shown on its card in the list." defaultValue={v("shortSummary")} rows={2} />
-        <TextArea name="overview" label={lb.overview ?? "Overview"} defaultValue={v("overview")} rows={4} />
+        {type === "BUSINESS_TIP" ? null : <TextArea name="shortSummary" label={lb.shortSummary ?? "Short summary"} help="One or two lines, shown on its card in the list." defaultValue={v("shortSummary")} rows={2} />}
+        <TextArea name="overview" label={lb.overview ?? "Overview"} defaultValue={v("overview")} rows={type === "BUSINESS_TIP" ? 8 : 4} error={err("overview")} />
         <Row>
           <Select name="primaryCategoryId" label={lb.category ?? "Category"} defaultValue={v("primaryCategoryId")} options={[{ value: "", label: "Choose…" }, ...options.primaryCategories]} />
           <Input name="newCategory" label="Not in the list? Add a new category" error={err("newCategory")} help="Type its name. It is added and chosen when you save." maxLength={80} />
@@ -95,11 +95,11 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
 
       <Section id="s-publish" title="Publishing" note="Only live pages show on the website.">
         <Row>
-          <Select name="publicationStatus" label="Status" defaultValue={v("publicationStatus") || "DRAFT"} error={err("publicationStatus")} options={[
+          <Select name="publicationStatus" label="Status" defaultValue={v("publicationStatus") || "PUBLISHED"} error={err("publicationStatus")} options={[
             { value: "DRAFT", label: "Draft: not on the website yet" }, { value: "IN_REVIEW", label: "Waiting for review: not on the website yet" },
             { value: "PUBLISHED", label: "Live on the website" }, { value: "ARCHIVED", label: "Archived: taken off the website" },
           ]} />
-          <Select name="accessLevel" label="Who sees the full details?" defaultValue={v("accessLevel") || "PREVIEW"} error={err("accessLevel")} options={[
+          <Select name="accessLevel" label="Who sees the full details?" defaultValue={v("accessLevel") || (type === "BUSINESS_TIP" ? "PUBLIC" : "PREVIEW")} error={err("accessLevel")} options={[
             { value: "PREVIEW", label: "Members only; everyone sees a preview" }, { value: "PUBLIC", label: "Everyone, free" }, { value: "MEMBERS", label: "Members only, with no preview" },
           ]} />
         </Row>

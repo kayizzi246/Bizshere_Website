@@ -6,7 +6,7 @@ export type ProductRow = {
   availability: string | null; priceMin: unknown; priceMax: unknown; currency: string; imageUrl: string | null; status: string;
 };
 
-const TONE: Record<string, string> = { PUBLISHED: "bg-brand-tint text-brand-dark", IN_REVIEW: "bg-warn-bg text-warn-fg", ARCHIVED: "bg-bad-bg text-bad-fg" };
+const TONE: Record<string, string> = { PUBLISHED: "bg-brand-tint text-brand-dark", IN_REVIEW: "bg-warn-bg text-warn-fg", DRAFT: "bg-info-bg text-info-fg", ARCHIVED: "bg-bad-bg text-bad-fg" };
 
 /**
  * A supplier's products as one table: everything about a product on one row, with its status and

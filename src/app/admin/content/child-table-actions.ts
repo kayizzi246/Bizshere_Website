@@ -27,11 +27,14 @@ export async function saveChildRow(form: FormData) {
   const p = await parentIds(contentItemId);
   const scope = p ? table.scope(p) : null;
   if (!p || !scope) return back(contentItemId, table.key, "error=" + encodeURIComponent(`Link this record to an organization before adding ${table.label.toLowerCase()}.`));
+  // A product can be saved unfinished as a draft (off the website), then finished and published later.
+  const draft = table.key === "listings" && Boolean(s(form, "draft"));
+  const publish = table.key === "listings" && Boolean(s(form, "publish"));
 
   const errors: Record<string, string> = {};
   const data: Record<string, unknown> = {};
   for (const f of table.fields) {
-    const raw = s(form, `c_${f.name}`);
+    const raw = f.name === "status" && draft ? "DRAFT" : f.name === "status" && publish ? "PUBLISHED" : s(form, `c_${f.name}`);
     if (f.required && raw === "") { errors[f.name] = "Required"; continue; }
     if (f.kind === "ref") {
       // Only ids offered in the form are accepted (tool versions: this tool's only).
@@ -55,23 +58,26 @@ export async function saveChildRow(form: FormData) {
   if (data.priceMin && data.priceMax && Number(data.priceMin) > Number(data.priceMax)) [data.priceMin, data.priceMax] = [data.priceMax, data.priceMin];
   if (Object.keys(errors).length) {
     const msg = Object.entries(errors).map(([k, v]) => `${table.fields.find((f) => f.name === k)?.label ?? k}: ${v}`).join("; ");
-    // `f`: the form stays the same one, so what was typed stays in it
-    return back(contentItemId, table.key, `error=${encodeURIComponent(msg)}&f=${encodeURIComponent(s(form, "formKey"))}`);
+    // `f`: the form stays the same one, so what was typed stays in it. `product`: so does a product being edited.
+    const open = table.key === "listings" && rowId ? `&product=${encodeURIComponent(rowId)}` : "";
+    return back(contentItemId, table.key, `error=${encodeURIComponent(msg)}&f=${encodeURIComponent(s(form, "formKey"))}${open}`);
   }
 
   // A supplier product's price date is the day its price was last saved (as in the seller's dashboard).
   if (table.key === "listings") data.quotedAt = data.priceMin || data.priceMax ? new Date() : null;
   const model = delegate(prisma, table.model);
+  let savedId = rowId;
   if (rowId) {
     const { count } = await model.updateMany({ where: { id: rowId, ...scope }, data });
     if (!count) return back(contentItemId, table.key, "error=Row+not+found");
   } else {
-    await model.create({ data: { ...data, ...(table.link?.(p) ?? {}) } });
+    savedId = (await model.create({ data: { ...data, ...(table.link?.(p) ?? {}) } })).id;
   }
   await audit(editor.id, rowId ? "child.updated" : "child.created", table.model, contentItemId, { table: table.key });
   revalidatePath(`/admin/content/${contentItemId}`);
   revalidateTag(SITE_DATA);
-  back(contentItemId, table.key, s(form, "another") ? "saved=child&added=1" : "saved=child");
+  // A draft comes back open, with everything in it, to carry on from where it was left
+  back(contentItemId, table.key, draft ? `saved=draft&product=${encodeURIComponent(savedId)}` : s(form, "another") ? "saved=child&added=1" : "saved=child");
 }
 
 export async function deleteChildRow(form: FormData) {

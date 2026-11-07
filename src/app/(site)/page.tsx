@@ -34,12 +34,12 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            about 100px above and 140px below (raised from 35/46, then 48/64, then 64/80, then 80/112); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
+            about 76px above and 100px below (brought down from 100/140, Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[140px] pt-2 sm:pt-[72px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[100px] pt-2 sm:pt-[48px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
@@ -57,11 +57,12 @@ export default async function HomePage() {
 
             <HomeSearch />
 
-            {/* Every directory as a link tile: on phones bigger tiles with a dotted border, two to a row, from sm a quiet hairline tile */}
+            {/* Every directory as a link tile: on phones bigger tiles with a dotted border, two to a row, from sm a quiet hairline tile,
+                padded just enough for the twelve to sit in three rows of four on a laptop */}
             <ul aria-label="Directories" className="mt-4 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-lg border-2 border-dotted border-white/50 bg-white/[0.05] px-3 py-2.5 text-[15px] font-medium leading-tight text-white/90 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[38px] sm:border sm:border-solid sm:border-white/15 sm:px-3 sm:py-1.5 sm:text-[14px]">
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-lg border-2 border-dotted border-white/50 bg-white/[0.05] px-3 py-2.5 text-[15px] font-medium leading-tight text-white/90 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[38px] sm:border sm:border-solid sm:border-white/15 sm:px-2.5 sm:py-1.5 sm:text-[14px]">
                     <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4" />
                     {d.title}
                   </Link>

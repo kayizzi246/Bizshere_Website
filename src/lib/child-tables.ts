@@ -114,7 +114,7 @@ export const CHILD_TABLES: ChildTable[] = [
       d("priceMin", "Price from", { member: true, help: "Leave empty if you don't know it" }), d("priceMax", "Price to", { member: true, help: "Only for a price range" }), t("currency", "Currency"),
       t("unit", "Package unit", { help: "e.g. piece, 50 kg bag" }), d("minimumOrderQuantity", "Minimum order", { help: "How many, e.g. 10" }), t("availability", "Availability", { help: "e.g. In stock, 2 weeks" }),
       ta("specifications", "Description"),
-      e("status", "Show on the website?", ["PUBLISHED", "IN_REVIEW", "ARCHIVED"], { required: true, internal: true, optionLabels: { PUBLISHED: "Yes, live", IN_REVIEW: "Not yet: waiting for approval", ARCHIVED: "No, hidden" } }),
+      e("status", "Show on the website?", ["PUBLISHED", "IN_REVIEW", "DRAFT", "ARCHIVED"], { required: true, internal: true, optionLabels: { PUBLISHED: "Yes, live", IN_REVIEW: "Not yet: waiting for approval", DRAFT: "Not yet: draft, still adding details", ARCHIVED: "No, hidden" } }),
     ],
     heading: "productName", orderBy: { createdAt: "desc" }, publicWhere: { status: "PUBLISHED" },
   },

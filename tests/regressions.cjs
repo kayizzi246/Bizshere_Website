@@ -234,3 +234,23 @@ for (const [label, status, expected] of [['new listing', 'PENDING', 'waits'], ['
     assert.deepEqual(JSON.parse(JSON.stringify(calls)), expected === 'waits' ? [['draft', 'DRAFT', 'IN_REVIEW']] : [['org', 'ACTIVE'], ['item', 'PUBLISHED']]);
   });
 }
+
+test('a web address typed without https:// is accepted, and a broken one is still refused', () => {
+  const { parseField } = load('src/lib/field-parse.ts', { '@prisma/client': { Prisma: { Decimal: String, DbNull: null } } });
+  const read = (raw) => { const errors = {}; const v = parseField({ name: 'w', kind: 'url' }, raw, errors); return errors.w ? 'refused' : v; };
+  assert.equal(read('www.example.com'), 'https://www.example.com');
+  assert.equal(read('example.co.ug/about'), 'https://example.co.ug/about');
+  assert.equal(read('https://example.com'), 'https://example.com');
+  assert.equal(read('/uploads/profile.pdf'), '/uploads/profile.pdf');
+  assert.equal(read('not a website'), 'refused');
+  assert.equal(read('name@example.com'), 'refused');
+});
+
+test('forum names never show a phone number or email', () => {
+  const { shortName } = load('src/lib/forum.ts', {});
+  assert.equal(shortName('Martin Venus'), 'Martin V.');
+  assert.equal(shortName('Grace'), 'Grace');
+  assert.equal(shortName('+256 700 123456'), 'Member');
+  assert.equal(shortName('grace@example.com'), 'Member');
+  assert.equal(shortName(''), 'Member');
+});

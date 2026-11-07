@@ -107,7 +107,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
                     {!s.phone && !s.email ? <Link href={back} className="text-sm font-semibold">See the supplier&apos;s page →</Link> : null}
                   </div>
                 )}
-                <p className="text-xs text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
+                <p className="text-xs text-ink-muted">Always do your due diligence before dealing with any supplier and take caution before making any payments.</p>
               </div>
             </div>
           </div>

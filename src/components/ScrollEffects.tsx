@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
  *
  *   data-reveal              fades and rises into view the first time it scrolls on screen.
  *                            style={{ "--d": "120ms" }} staggers it.
+ *   data-reveal-late         with data-reveal: a surprise. Stays hidden, even on screen, until the visitor
+ *                            has scrolled and it is well in view; anything data-reveal inside it waits too.
  *   data-count="42"          counts up from 0 to 42 when it comes into view.
  *
  * Plus a thin reading-progress bar under the header.
@@ -39,12 +41,21 @@ export function ScrollEffects() {
       for (const e of entries) if (e.isIntersecting) { show(e.target as HTMLElement); io?.unobserve(e.target); }
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.1 }) : null;
 
+    // Only after a real scroll, so a tall screen doesn't give the surprise away on arrival.
+    const late = () => {
+      if (!io || window.scrollY < 40) return;
+      for (const el of document.querySelectorAll<HTMLElement>("[data-reveal-late]:not([data-shown]), [data-reveal-late] [data-reveal]:not([data-shown])")) {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.8) show(el);
+      }
+    };
+
     const seen = new WeakSet<Element>();
     const scan = () => {
       for (const el of document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown]), [data-count]:not([data-counted])")) {
         if (seen.has(el)) continue;
         seen.add(el);
         if (!io) show(el);
+        else if (el.closest("[data-reveal-late]")) continue;
         // Anything already on screen, or scrolled past, is shown at once (no flash, no wait).
         else if (el.getBoundingClientRect().top < window.innerHeight) {
           if (el.hasAttribute("data-reveal")) {
@@ -54,15 +65,17 @@ export function ScrollEffects() {
           if (el.dataset.count) countUp(el, reduce);
         } else io.observe(el);
       }
+      late();
     };
     scan();
+    window.addEventListener("scroll", late, { passive: true });
     // Only content further down is hidden, and only from this point on (`reveal-ready`), so a
     // script that never runs can never leave the page blank.
     if (watch) document.documentElement.classList.add("reveal-ready");
     let frame = 0; // runs before the next paint, so new content never flashes
     const mo = new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; scan(); }); });
     mo.observe(document.body, { childList: true, subtree: true });
-    return () => { mo.disconnect(); io?.disconnect(); cancelAnimationFrame(frame); };
+    return () => { mo.disconnect(); io?.disconnect(); cancelAnimationFrame(frame); window.removeEventListener("scroll", late); };
   }, []);
 
   // Reading progress

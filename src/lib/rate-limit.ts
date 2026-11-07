@@ -56,4 +56,10 @@ export const LIMITS = {
   checkoutPerUser: [10, 600],
   /** Correction reports from one IP address. */
   correctionsPerIp: [5, 3600],
+  /** Chat messages one person can send a minute. */
+  forumMessagePerUser: [20, 60],
+  /** New forum topics one person can start an hour. */
+  forumTopicPerUser: [5, 3600],
+  /** Remarks under tips one person can add in 10 minutes. */
+  tipRemarkPerUser: [10, 600],
 } as const satisfies Record<string, readonly [number, number]>;

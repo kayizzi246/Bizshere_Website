@@ -10,12 +10,13 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Supplier products" };
 
 const LIMIT = 300;
-const STATUS_LABELS = { PUBLISHED: "Live", IN_REVIEW: "Waiting for approval", ARCHIVED: "Hidden" };
+const STATUS_LABELS = { PUBLISHED: "Live", IN_REVIEW: "Waiting for approval", DRAFT: "Draft", ARCHIVED: "Hidden" };
 const TABS = [
   { key: "waiting", label: "Waiting for approval", status: "IN_REVIEW" },
   { key: "live", label: "Live", status: "PUBLISHED" },
   { key: "hidden", label: "Hidden", status: "ARCHIVED" },
   { key: "all", label: "All products", status: null },
+  { key: "drafts", label: "Drafts", status: "DRAFT" },
 ] as const;
 
 /**

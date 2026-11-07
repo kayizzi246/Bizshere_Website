@@ -30,9 +30,10 @@ export const TABS: { id: Tab; label: string }[] = [
   { id: "PRICES", label: "Markets and Prices" },
   { id: "WEBSITE", label: "Useful Websites" },
   { id: "NEWS", label: "Business News" },
+  { id: "BUSINESS_TIP", label: "Business Tips" },
 ];
 
-export const ALL_TYPES: ContentType[] = ["BUSINESS_IDEA", "MACHINE", "SUPPLIER", "FUNDING_PROGRAMME", "GUIDE", "CONSULTANT", "TOOL", "WEBSITE", "NEWS"];
+export const ALL_TYPES: ContentType[] = ["BUSINESS_IDEA", "MACHINE", "SUPPLIER", "FUNDING_PROGRAMME", "GUIDE", "CONSULTANT", "TOOL", "WEBSITE", "NEWS", "BUSINESS_TIP"];
 
 export const parseTab = (v: string | undefined): Tab => TABS.find((t) => t.id === v)?.id ?? "ALL";
 
@@ -160,6 +161,8 @@ export async function filtersFor(tab: Tab): Promise<Filter[]> {
         yes("noAccount", "No account needed"),
       ];
     }
+    case "BUSINESS_TIP":
+      return [await category()];
     case "NEWS": {
       const rows = await prisma.newsArticle.findMany({ where: pub, select: { publisher: true } });
       return [

@@ -21,7 +21,7 @@ const STAGES: BusinessStage[] = ["IDEA", "STARTING", "GROWING", "ESTABLISHED"];
 const DELEGATE = {
   businessIdea: "businessIdea", machine: "machine", supplier: "supplier", fundingProgramme: "fundingProgramme",
   investmentOpportunity: "investmentOpportunity", guide: "guide", consultant: "consultant", recipe: "recipe",
-  tool: "tool", website: "usefulWebsite", news: "newsArticle",
+  tool: "tool", website: "usefulWebsite", news: "newsArticle", businessTip: "businessTip",
 } as const;
 
 // The specialised models share the same upsert-by-contentItemId shape; the field
@@ -88,6 +88,8 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   const slug = slugify(str(form.get("slug")) || title);
   const clash = await prisma.contentItem.findFirst({ where: { slug, NOT: id ? { id } : undefined }, select: { id: true } });
   if (clash) errors.slug = "Another page already uses this web address";
+
+  if (type === "BUSINESS_TIP" && !str(form.get("overview"))) errors.overview = "Required";
 
   const status = str(form.get("publicationStatus")) as PublicationStatus;
   const access = str(form.get("accessLevel")) as AccessLevel;

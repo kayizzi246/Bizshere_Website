@@ -17,6 +17,8 @@ export const CATEGORY_KINDS: { kind: CategoryKind; label: string }[] = [
   { kind: "NEWS_CATEGORY", label: "News" },
   { kind: "BUSINESS_TYPE", label: "Business types" },
   { kind: "RECIPE_CATEGORY", label: "Recipes" },
+  { kind: "TIP_CATEGORY", label: "Business tips" },
+  { kind: "FORUM_CATEGORY", label: "Forum" },
 ];
 
 export const kindLabel = (kind: string) => CATEGORY_KINDS.find((k) => k.kind === kind)?.label ?? kind;
@@ -34,6 +36,7 @@ export const DIRECTORY_KINDS: Record<ContentType, CategoryKind[]> = {
   TOOL: ["TOOL_CATEGORY"],
   WEBSITE: ["WEBSITE_CATEGORY"],
   NEWS: ["NEWS_CATEGORY"],
+  BUSINESS_TIP: ["TIP_CATEGORY"],
 };
 
 export const categorySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 80);

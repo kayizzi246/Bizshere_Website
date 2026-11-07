@@ -323,7 +323,7 @@ function Group({ title, last, children }: { title: string; last?: boolean; child
 const Lock = () => <LockKeyhole aria-label="Members only" className="h-3.5 w-3.5 text-accent-dark" />;
 
 const LABEL_TONE: Record<string, string> = { FUNDING_PROGRAMME: "text-accent-dark", INVESTMENT_OPPORTUNITY: "text-accent-dark", CONSULTANT: "text-accent-dark" };
-const ICON: Record<string, string> = { BUSINESS_IDEA: "idea", MACHINE: "machine", SUPPLIER: "supplier", FUNDING_PROGRAMME: "funding", GUIDE: "guide", CONSULTANT: "expert", TOOL: "tool", WEBSITE: "link", NEWS: "news", INVESTMENT_OPPORTUNITY: "funding" };
+const ICON: Record<string, string> = { BUSINESS_IDEA: "idea", MACHINE: "machine", SUPPLIER: "supplier", FUNDING_PROGRAMME: "funding", GUIDE: "guide", CONSULTANT: "expert", TOOL: "tool", WEBSITE: "link", NEWS: "news", BUSINESS_TIP: "tip", INVESTMENT_OPPORTUNITY: "funding" };
 
 /** One result: picture (or icon), type, title, facts, a per-directory extra and the actions. */
 function ResultCard({ r, member, saved, back }: { r: ResultRow; member: boolean; saved: boolean; back: string }) {

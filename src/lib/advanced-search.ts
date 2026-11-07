@@ -25,6 +25,7 @@ export const GROUPS: { id: string; label: string; types: ContentType[] }[] = [
   { id: "tools", label: "Business Tools", types: ["TOOL"] },
   { id: "websites", label: "Useful Websites", types: ["WEBSITE"] },
   { id: "news", label: "Business News", types: ["NEWS"] },
+  { id: "tips", label: "Business Tips", types: ["BUSINESS_TIP"] },
 ];
 export const PRICES_GROUP = { id: "prices", label: "Markets and Prices" };
 export const CONDITIONS: [MachineCondition, string][] = [["NEW", "New"], ["USED", "Used"], ["REFURBISHED", "Refurbished"]];

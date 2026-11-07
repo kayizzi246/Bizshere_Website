@@ -24,7 +24,7 @@ export type ChildList = { key: "ideaSteps" | "guideSteps" | "recipeSteps" | "rec
 export type Directory = {
   type: ContentType;
   label: string;
-  model: "businessIdea" | "machine" | "supplier" | "fundingProgramme" | "investmentOpportunity" | "guide" | "consultant" | "recipe" | "tool" | "website" | "news";
+  model: "businessIdea" | "machine" | "supplier" | "fundingProgramme" | "investmentOpportunity" | "guide" | "consultant" | "recipe" | "tool" | "website" | "news" | "businessTip";
   /** Extra required link chosen in the form. */
   link?: { field: "organizationId" | "providerId"; label: string; /** Rarely needed: kept under Advanced settings, with this explanation. */ advanced?: string };
   /** Form labels for the shared fields, in the client's wording (e.g. "Machine name", "Brief"). */
@@ -241,6 +241,12 @@ export const DIRECTORIES: Directory[] = [
       ta("whatChanged", "What changed", "Practical value"), ta("whoAffected", "Who is affected", "Practical value"), ta("nextAction", "Suggested next action", "Practical value"),
       t("correctionStatus", "Correction status", "Corrections"), ta("updateNotes", "Update notes", "Corrections"),
     ],
+  },
+  {
+    // Title, category and details are all in Basics; members' remarks are added on the tip's page.
+    type: "BUSINESS_TIP", label: "Business tip", model: "businessTip",
+    labels: { title: "Title", overview: "Details *", category: "Category" },
+    fields: [],
   },
 ];
 

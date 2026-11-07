@@ -54,6 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/prices", label: "Market prices", icon: "prices", area: "prices" },
     { href: "/admin/updates", label: "Homepage updates", icon: "megaphone", area: "homepage" },
     { href: "/admin/video", label: "Homepage video", icon: "video", area: "homepage" },
+    { href: "/admin/forum", label: "Forum and remarks", icon: "forum", area: "community" },
     { section: "People" },
     { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },
     { href: "/admin/supplier-logins", label: "Supplier logins", icon: "supplier", area: "suppliers" },

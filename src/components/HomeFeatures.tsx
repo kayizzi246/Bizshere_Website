@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Check, FileText, LockKeyhole, MapPin, Percent, Ship, Sprout, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Check, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { PERIOD_INFO, PLAN_PERIODS, popupPlan, type MemberPeriod } from "@/lib/billing";
@@ -13,10 +13,10 @@ import { PanelParticles } from "./PanelParticles";
 
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
- * feature, words on the left and a fan of photos on the right; Business Machines with the words and
- * photos swapped, so the page swings as it flows; then Funding and Suppliers as two
- * joined panels (Panel below) with real listings in them; then Experts and Tools side by side on
- * white (Card below); Guides and News on a navy band; Market Prices and Useful Websites on
+ * panel in green, words on the left and a fan of photos on the right; Business Machines in navy with the
+ * words and photos swapped, so the page swings as it flows; then Funding and Suppliers as two
+ * joined panels (Panel below) with real listings in them; then Experts as a plum panel with real experts; then Tools, Business Tips and the
+ * Business Forum side by side on white (Card below); Guides and News on a navy band; Market Prices and Useful Websites on
  * white; then the offer: what members get and the prices. The price is also under the
  * title, and join buttons open the sign-up and payment pop-up right here. Members see no selling. Every heading is black, in the heaviest weight, and the words
  * are centred on every screen size.
@@ -32,7 +32,7 @@ async function records() {
   const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
   const live = { publicationStatus: "PUBLISHED" } as const;
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
-  const [ideas, funding, suppliers, machines, guides, news, websites, products] = await Promise.all([
+  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 4 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 8 }),
@@ -41,12 +41,21 @@ async function records() {
     prisma.contentItem.findMany({ where: { contentType: "NEWS", ...live }, select: item, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "WEBSITE", ...live }, select: item, orderBy: [...newest], take: 6 }),
     prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
+    // Public fields only: name, title, specialties and district. Contacts stay on the member profile.
+    prisma.contentItem.findMany({ where: { contentType: "CONSULTANT", ...live }, select: { slug: true, title: true, contentType: true, consultant: { select: { fullName: true, professionalTitle: true, photoUrl: true, specialties: true, district: true } } }, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_TIP", ...live }, select: { slug: true, title: true, primaryCategory: { select: { name: true } } }, orderBy: [...newest], take: 3 }),
+    prisma.forumTopic.findMany({ where: { status: { not: "HIDDEN" } }, select: { id: true, title: true, _count: { select: { posts: { where: { hiddenAt: null } } } } }, orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }], take: 3 }),
   ]);
-  return { ideas, funding, suppliers, machines, guides, news, websites, products };
+  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics };
 }
 
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
 const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], [FileText, "Business plans"], [TrendingUp, "Cash flow"]];
+// Shown until the first tips and topics are in
+const TIP_POINTS: [LucideIcon, string][] = [[Coins, "Money"], [Megaphone, "Marketing"], [Users, "Customers"], [Store, "Running a shop"]];
+const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"], [Users, "Meet owners"], [Store, "Find stock"], [Lightbulb, "Share ideas"]];
+// The experts panel: plum, a colour no other block uses, with the orange accent
+const PLUM = "bg-[#4A1D6B]";
 
 // The tag on each funding row: what kind of money it is, at a glance.
 const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark", GRANT: "bg-[#E6F4EC] text-[#1F7A4D]", EQUITY: "bg-accent-tint text-accent-dark" };
@@ -103,7 +112,7 @@ function Panel({ href, title, text, action, tint, words, children }: { href: str
     <li data-reveal="" className={`rise-soft flex flex-col gap-4 p-5 sm:p-7 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} tone="" />
-        <h3 className="text-hero text-[20px] leading-[1.2] sm:text-[23px] lg:text-[26px]">{title}</h3>
+        <h3 className="text-hero text-[27px] leading-[1.1] sm:text-[33px] md:text-[27px] lg:text-[33px] xl:text-[40px]">{title}</h3>
         <p className="max-w-lg text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
@@ -112,10 +121,24 @@ function Panel({ href, title, text, action, tint, words, children }: { href: str
   );
 }
 
-const Points = ({ points, mark, tint }: { points: [LucideIcon, string][]; mark: string; tint: string }) => (
-  <ul className="flex flex-wrap justify-center gap-2">
+const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, string][]; mark: string; tint: string; start?: boolean }) => (
+  <ul className={`flex flex-wrap gap-2 ${start ? "justify-start" : "justify-center"}`}>
     {points.map(([Glyph, label]) => (
       <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
+    ))}
+  </ul>
+);
+
+/** Rows on a white card: a name and a short line under it, each a link, a hairline between. */
+const Rows = ({ items, tone }: { items: { href: string; title: string; sub: string }[]; tone: string }) => (
+  <ul className="mx-auto flex w-full max-w-md flex-col divide-y divide-line text-left">
+    {items.map((r, n) => (
+      <li key={r.href} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
+        <Link href={r.href} className="group flex flex-col gap-0.5 py-2.5 text-heading hover:text-heading">
+          <span className={`line-clamp-1 font-display text-[15px] font-extrabold leading-snug ${tone}`}>{r.title}</span>
+          <span className="line-clamp-1 text-[13px] text-ink-muted">{r.sub}</span>
+        </Link>
+      </li>
     ))}
   </ul>
 );
@@ -136,7 +159,7 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
   const plan = popupPlan(memberPlan);
   const offered = PLAN_PERIODS.filter((p) => plan.amounts[p]);
   const price = (p: MemberPeriod) => `${plan.currency} ${plan.amounts[p]!.toLocaleString("en-UG")}`;
@@ -151,8 +174,7 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="max-w-3xl text-hero text-[27px] leading-[1.12] text-black sm:text-[35px] lg:text-[42px]">Everything a business needs, on one platform</h2>
-        <p className="max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">BizSphere-Ug brings business plans, funding, suppliers, expert help and tools together, so you can decide with real information.</p>
+        <h2 className="text-hero text-[36px] leading-[1.05] text-black sm:text-[52px] lg:text-[68px]">Everything a business needs</h2>
         {sell ? (
           <div className="mt-2 flex flex-col items-center gap-2">
             <Link {...pay(start)} className={joinButton}>Get full access<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
@@ -161,12 +183,15 @@ export async function HomeFeatures() {
         ) : null}
       </div>
 
-      <div className="container-site grid grid-cols-[minmax(0,1fr)] items-center gap-6 py-10 sm:py-12 lg:grid-cols-2 lg:gap-12">
-        <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
-          <Label href="/business-ideas" />
-          <h3 className={heading}>Business plans with the real costs</h3>
-          <p className={body}>Not sure what to start? Browse ready plans with every requirement and a line-by-line budget, in small, medium and large sizes.</p>
-          <Go href="/business-ideas">See business ideas</Go>
+      {/* Business Ideas: a panel like the machines below it, in green, a colour no other panel uses */}
+      <div className="container-site pb-4 pt-8 sm:pb-5 sm:pt-10">
+      <div data-ideas="" data-reveal="" data-reveal-late="" className={`relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-[#0F5B3E] p-5 sm:p-8 ${fan.length ? "lg:grid-cols-2 lg:gap-10" : ""}`}>
+        <PanelParticles />
+        <div data-reveal="" className="relative flex flex-col items-start gap-4">
+          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/business-ideas").title}</span>
+          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Business plans with the real costs</h3>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Not sure what to start? Browse ready plans with every requirement and a line-by-line budget, in small, medium and large sizes.</p>
+          <Go href="/business-ideas" tone="bg-accent text-ink hover:bg-white hover:text-ink">See business ideas</Go>
         </div>
         {fan.length ? (
           <FanTilt>
@@ -182,6 +207,7 @@ export async function HomeFeatures() {
             })}
           </FanTilt>
         ) : null}
+      </div>
       </div>
 
       {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
@@ -288,16 +314,63 @@ export async function HomeFeatures() {
         </ul>
       </div>
 
-      <div className="container-site py-8 sm:py-12">
-        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
-      <Card href="/experts" title="Advice from people who know" action="Find an expert" mark="text-brand"
-        text="Don't guess on the hard parts. Talk to checked advisors and see the services they offer and the jobs they've done.">
-        <Points points={EXPERT_POINTS} mark="text-white" tint="bg-brand-dark text-white" />
-      </Card>
+      {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
+      <div className="container-site pt-8 sm:pt-12">
+      <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden ${PLUM} p-5 sm:p-8 ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+        <PanelParticles />
+        <div data-reveal="" className="relative flex flex-col items-start gap-4">
+          <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">{directory("/experts").title}</span>
+          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Advice from people who know</h3>
+          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Don&apos;t guess on the hard parts. Talk to checked advisors and see the services they offer and the jobs they&apos;ve done.</p>
+          <Points points={EXPERT_POINTS} mark="text-accent" tint="bg-white/10 text-white" start />
+          <Go href="/experts" tone="bg-accent text-ink hover:bg-white hover:text-ink">Find an expert</Go>
+        </div>
+        {experts.length ? (
+          <div className="relative flex flex-col gap-2.5 rounded-3xl bg-[#5E2A85] p-3 sm:p-4">
+            {experts.map((e, n) => {
+              const c = e.consultant;
+              const name = clean(c?.fullName || e.title);
+              const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
+              return (
+                <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-2xl ${PLUM} p-2.5 text-white transition-colors hover:bg-black hover:text-white sm:gap-4`}>
+                  <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent font-display text-[24px] font-extrabold text-ink sm:h-20 sm:w-20">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+                    {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="font-display text-[16px] font-extrabold leading-tight sm:text-[19px]">{name}</span>
+                    {role ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{role}</span> : null}
+                    {c?.district ? <span className="flex items-center gap-1 text-[12px] text-white/70"><MapPin aria-hidden className="h-3.5 w-3.5" />{c.district}</span> : null}
+                  </span>
+                  <ArrowRight aria-hidden className="mr-1 h-5 w-5 shrink-0 text-accent transition-transform duration-150 group-hover:translate-x-0.5" />
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+      </div>
 
+      {/* Tools, and the two newest services: Business Tips and the Business Forum */}
+      <div className="container-site py-8 sm:py-12">
+        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-10">
       <Card href="/tools" title="Your numbers, done in minutes" action="Open the tools" mark="text-accent-dark" button="bg-accent text-ink hover:bg-accent-dark hover:text-white"
         text="Stop working it out by hand. Use ready calculators and templates for the sums every business has to do.">
         <Points points={TOOL_POINTS} mark="text-ink" tint="bg-accent text-ink" />
+      </Card>
+
+      <Card href="/tips" title="Tips that save you money" action="Read the tips" mark="text-[#0F5B3E]" button="bg-[#0F5B3E] text-white hover:bg-[#0B4630] hover:text-white"
+        text="Short, practical tips from people running businesses, with remarks from members who tried them.">
+        {tips.length
+          ? <Rows tone="group-hover:text-[#0F5B3E]" items={tips.map((x) => ({ href: `/tips/${x.slug}`, title: clean(x.title), sub: x.primaryCategory?.name ?? "Business tip" }))} />
+          : <Points points={TIP_POINTS} mark="text-white" tint="bg-[#0F5B3E] text-white" />}
+      </Card>
+
+      <Card href="/forum" title="Talk to other owners" action="Join the conversation" mark="text-brand"
+        text="Ask a question, answer one, find stock and partners. It works like a WhatsApp group for business.">
+        {topics.length
+          ? <Rows tone="group-hover:text-brand" items={topics.map((x) => ({ href: `/forum/${x.id}`, title: x.title, sub: `${x._count.posts} message${x._count.posts === 1 ? "" : "s"}` }))} />
+          : <Points points={FORUM_POINTS} mark="text-white" tint="bg-brand-dark text-white" />}
       </Card>
         </ul>
       </div>

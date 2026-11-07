@@ -15,7 +15,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { Suspense } from "react";
 import { popupPlan } from "@/lib/billing";
 
-const SERVICES = DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, nav: d.title }));
+const SERVICES = DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, nav: d.title, text: d.text }));
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [viewer, memberPlan] = await Promise.all([getViewer(), cachedMemberPlan()]);

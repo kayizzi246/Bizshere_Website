@@ -39,7 +39,7 @@ const STATUS = {
   IN_REVIEW: { label: "Waiting for approval", cls: "bg-accent-tint text-accent-dark", Icon: Clock },
   ARCHIVED: { label: "Not approved", cls: "bg-bad-bg text-bad-fg", Icon: XCircle },
 } as const;
-const STATUS_LABELS = { PUBLISHED: STATUS.PUBLISHED.label, IN_REVIEW: STATUS.IN_REVIEW.label, ARCHIVED: STATUS.ARCHIVED.label };
+const STATUS_LABELS = { PUBLISHED: STATUS.PUBLISHED.label, IN_REVIEW: STATUS.IN_REVIEW.label, DRAFT: "Draft", ARCHIVED: STATUS.ARCHIVED.label };
 
 /**
  * Seller dashboard (/supplier): a seller signs in at /suppliers/login with their phone and PIN.

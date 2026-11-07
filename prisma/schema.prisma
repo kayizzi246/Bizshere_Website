@@ -42,6 +42,7 @@ enum ContentType {
   TOOL
   WEBSITE
   NEWS
+  BUSINESS_TIP
 }
 
 enum PublicationStatus {
@@ -82,6 +83,14 @@ enum CategoryKind {
   WEBSITE_CATEGORY
   NEWS_CATEGORY
   SERVICE_SPECIALTY
+  TIP_CATEGORY
+  FORUM_CATEGORY
+}
+
+enum ForumTopicStatus {
+  OPEN // anyone can read, members can write
+  CLOSED // can be read, no new messages
+  HIDDEN // taken off the website by the team
 }
 
 enum CheckType {
@@ -310,6 +319,11 @@ model User {
   alerts             Alert[]
   moderationEvents   ModerationEvent[]
   expertProfile      Consultant?          @relation("ExpertOwner")
+  tipRemarks         BusinessTipRemark[]  @relation("TipRemarkAuthor")
+  tipRemarksHidden   BusinessTipRemark[]  @relation("TipRemarkHiddenBy")
+  forumTopics        ForumTopic[]
+  forumPosts         ForumPost[]          @relation("ForumPostAuthor")
+  forumPostsHidden   ForumPost[]          @relation("ForumPostHiddenBy")
 
   @@map("users")
 }
@@ -440,6 +454,7 @@ model Category {
   children Category[] @relation("CategoryTree")
 
   primaryFor   ContentItem[]          @relation("PrimaryCategory")
+  forumTopics  ForumTopic[]
   contentLinks ContentCategory[]
   orgLinks     OrganizationCategory[]
   products     Product[]
@@ -515,6 +530,7 @@ model ContentItem {
   investmentOpportunity InvestmentOpportunity?
   guide                 Guide?
   consultant            Consultant?
+  businessTip           BusinessTip?
   recipe                Recipe?
   tool                  Tool?
   website               UsefulWebsite?
@@ -2028,4 +2044,80 @@ model RateLimit {
 
   @@index([resetAt])
   @@map("rate_limits")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Business Tips and the Business Forum
+// ─────────────────────────────────────────────────────────────
+
+/// A business tip. Its title, category and details are on the ContentItem (title, primaryCategoryId, overview).
+model BusinessTip {
+  id            String @id @default(cuid())
+  contentItemId String @unique
+
+  contentItem ContentItem         @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  remarks     BusinessTipRemark[]
+
+  @@map("business_tips")
+}
+
+/// A member's remark under a tip. Shows at once; the team can hide it at /admin/forum.
+model BusinessTipRemark {
+  id         String    @id @default(cuid())
+  tipId      String
+  authorId   String
+  body       String
+  hiddenAt   DateTime?
+  hiddenById String?
+  createdAt  DateTime  @default(now())
+
+  tip      BusinessTip @relation(fields: [tipId], references: [id], onDelete: Cascade)
+  author   User        @relation("TipRemarkAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  hiddenBy User?       @relation("TipRemarkHiddenBy", fields: [hiddenById], references: [id], onDelete: SetNull)
+
+  @@index([tipId, createdAt])
+  @@map("business_tip_remarks")
+}
+
+/// A conversation in the forum: a title, who started it, and its messages.
+model ForumTopic {
+  id         String           @id @default(cuid())
+  title      String
+  categoryId String?
+  authorId   String
+  status     ForumTopicStatus @default(OPEN)
+  isPinned   Boolean          @default(false)
+  /// Time of the newest message, so the busiest topics come first.
+  lastPostAt DateTime         @default(now())
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  category Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  posts    ForumPost[]
+
+  @@index([status, isPinned, lastPostAt])
+  @@index([categoryId])
+  @@map("forum_topics")
+}
+
+/// One chat message in a topic, optionally answering an earlier message.
+model ForumPost {
+  id         String    @id @default(cuid())
+  topicId    String
+  authorId   String
+  body       String
+  replyToId  String?
+  hiddenAt   DateTime?
+  hiddenById String?
+  createdAt  DateTime  @default(now())
+
+  topic    ForumTopic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author   User        @relation("ForumPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  replyTo  ForumPost?  @relation("ForumReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies  ForumPost[] @relation("ForumReply")
+  hiddenBy User?       @relation("ForumPostHiddenBy", fields: [hiddenById], references: [id], onDelete: SetNull)
+
+  @@index([topicId, createdAt])
+  @@map("forum_posts")
 }

@@ -166,6 +166,16 @@ select {
 .reveal-ready .rise-soft[data-reveal]:not([data-shown]) { opacity: 0; transform: translateY(28px); }
 .reveal-ready .rise-soft[data-reveal][data-shown]:not([data-done]) { transition: opacity 600ms var(--ease-out) var(--d, 0ms), transform 600ms var(--ease-out) var(--d, 0ms); }
 
+/* A surprise (data-reveal-late, the homepage's Business Ideas panel): never seen until the visitor scrolls to it,
+   then a bigger rise. Hidden from the first paint, as a slow connection would otherwise show it before the script
+   runs; if the script never runs, it appears by itself after 8 seconds. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  html [data-reveal][data-reveal-late]:not([data-shown]) { opacity: 0; transform: translateY(80px); }
+  html:not(.reveal-ready) [data-reveal][data-reveal-late]:not([data-shown]) { animation: late-safety 0.4s 8s forwards; }
+}
+@keyframes late-safety { to { opacity: 1; transform: none; } }
+.reveal-ready [data-reveal-late][data-reveal][data-shown]:not([data-done]) { transition: opacity 800ms var(--ease-out), transform 800ms var(--ease-out); }
+
 /* Hero: children rise in one after another on page load */
 .hero-rise > * { animation: rise 0.4s var(--ease-out) both; }
 .hero-rise > *:nth-child(2) { animation-delay: 0.05s; }

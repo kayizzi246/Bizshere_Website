@@ -8,11 +8,11 @@ import { WishlistLink } from "./Wishlist";
 
 // Header links after Home, each with a hover card. The names are long, so Business Experts waits for
 // wide screens (1536px+); every directory is also on the homepage and in the phone menu.
-const NAV = ["/business-ideas", "/funding", "/prices", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
+const NAV = ["/business-ideas", "/funding", "/prices", "/forum", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 const WIDE_ONLY = "/experts";
 
 // For businesses that want to be listed: they register, pay and our team checks the listing.
-const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "text-accent"], ["/experts/join", "Become an Expert", "expert", "text-brand"]];
+const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "bg-accent text-[#071A33] hover:text-[#071A33]"], ["/experts/join", "Become an Expert", "expert", "bg-brand text-white hover:bg-brand-dark hover:text-white"]];
 
 // Navigation links in Manrope (style guide); buttons (Log in, Get started) in Inter.
 const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
@@ -88,14 +88,11 @@ export async function SiteHeader() {
         </div>
 
         {/* Wide screens: a tab growing out of the bar, under the buttons. Phones and tablets have these in the menu. */}
-        <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-7 items-center gap-3 rounded-b-2xl bg-white px-4 lg:flex">
-          {JOIN.map(([href, label, icon, tone], n) => (
-            <span key={label} className="flex items-center gap-3">
-              {n ? <span aria-hidden className="h-1 w-1 rounded-full bg-line" /> : null}
-              <Link href={href} className="group inline-flex items-center gap-1.5 whitespace-nowrap font-display text-[12px] font-bold text-heading transition-colors hover:text-brand">
-                <Icon name={icon} className={`h-3.5 w-3.5 transition-transform duration-150 group-hover:-translate-y-px ${tone}`} />{label}
-              </Link>
-            </span>
+        <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-10 items-center gap-2 rounded-b-2xl bg-white px-3 lg:flex">
+          {JOIN.map(([href, label, icon, tone]) => (
+            <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[12px] font-bold shadow-sm transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
+              <Icon name={icon} className="h-3.5 w-3.5" />{label}
+            </Link>
           ))}
         </nav>
       </div>

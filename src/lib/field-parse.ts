@@ -40,10 +40,13 @@ export function parseField(f: Pick<Field, "name" | "kind" | "options">, raw: str
     case "enum":
       if (!f.options?.includes(raw)) errors[f.name] = "Choose an option";
       return raw;
-    case "url":
+    case "url": {
+      // "www.example.com" or "example.com": the meaning is clear, so add the https:// for them
+      const web = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#]\S*)?$/i.test(raw) ? `https://${raw}` : raw;
       // A full web address, or a path to a file on this site such as /ideas/bakery.jpg
-      if (!/^(https?:\/\/|\/[^/])/i.test(raw)) errors[f.name] = "Must start with https:// (or / for a file on this site)";
-      return raw;
+      if (!/^(https?:\/\/|\/[^/])/i.test(web)) errors[f.name] = "Must start with https:// (or / for a file on this site)";
+      return web;
+    }
     case "json":
       try { return JSON.parse(raw); } catch { errors[f.name] = "Invalid JSON"; return null; }
     default: return raw;

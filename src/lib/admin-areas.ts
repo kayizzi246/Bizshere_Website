@@ -23,6 +23,7 @@ export const AREAS: Area[] = [
   { key: "suppliers", label: "Suppliers: sign-ups, logins and products", group: "People" },
   { key: "experts", label: "Experts: logins, work and reviews", group: "People" },
   { key: "homepage", label: "Homepage updates and video", group: "Site" },
+  { key: "community", label: "Forum and tip remarks", group: "Site", help: "Close or hide topics, hide messages and remarks" },
 ];
 
 export const AREA_KEYS = AREAS.map((a) => a.key);

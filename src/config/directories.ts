@@ -12,10 +12,12 @@ import type { ContentType } from "@prisma/client";
 export type Directory = {
   href: string;
   icon: string;
-  type: ContentType | "PRICES";
+  type: ContentType | "PRICES" | "FORUM";
   unit: [string, string];
   title: string;
   text: string;
+  /** Open to everyone: links here never show the sign-up pop-up. Only writing in them is for members. */
+  free?: boolean;
 };
 
 export const DIRECTORIES: Directory[] = [
@@ -69,6 +71,16 @@ export const DIRECTORIES: Directory[] = [
     title: "Business News",
     text: "Latest business, education and career news.",
   },
+  {
+    href: "/tips", icon: "tip", type: "BUSINESS_TIP", unit: ["tip", "tips"], free: true,
+    title: "Business Tips",
+    text: "Short, practical tips for running a business, with remarks from members.",
+  },
+  {
+    href: "/forum", icon: "forum", type: "FORUM", unit: ["topic", "topics"], free: true,
+    title: "Business Forum",
+    text: "Ask questions and chat with other business people, like a WhatsApp group.",
+  },
 ];
 
 /**
@@ -76,7 +88,7 @@ export const DIRECTORIES: Directory[] = [
  * (/business-ideas/small-bakery) show the sign-up and payment pop-up. Investment opportunities (listed
  * under Funding Sources) and recipes aren't directories of their own, but their items are paid too.
  */
-export const PAID_PATHS = [...DIRECTORIES.map((d) => d.href), "/opportunities", "/recipes"];
+export const PAID_PATHS = [...DIRECTORIES.filter((d) => !d.free).map((d) => d.href), "/opportunities", "/recipes"];
 
 /** Title and description for a directory's list page. */
 export const directory = (href: string) => DIRECTORIES.find((d) => d.href === href)!;

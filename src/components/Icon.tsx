@@ -1,7 +1,7 @@
 import {
   ArrowRight, Bell, BookOpen, Calculator, CalendarDays, Check, ChefHat, Download, Factory, Landmark, Lightbulb, Link2,
   Mail, MapPin, Menu, Newspaper, Phone, PlayCircle, Search, ShieldCheck, Store, TrendingUp, UserRound, Warehouse, type LucideIcon,
-  ExternalLink, Files, Flag, Inbox, LayoutDashboard, Megaphone, Plus, Rocket, Users, Wallet, X,
+  ExternalLink, Files, Flag, Inbox, LayoutDashboard, Megaphone, MessagesSquare, Plus, Rocket, Sparkles, Users, Wallet, X,
 } from "lucide-react";
 
 /** Site icons by name, drawn with Lucide. Pages refer to icons by these names only. */
@@ -16,6 +16,8 @@ const ICONS: Record<string, LucideIcon> = {
   tool: Calculator,
   recipe: ChefHat,
   news: Newspaper,
+  tip: Sparkles,
+  forum: MessagesSquare,
   search: Search,
   check: Check,
   shield: ShieldCheck,

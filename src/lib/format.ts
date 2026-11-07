@@ -74,6 +74,7 @@ export const contentTypeLabel: Record<string, string> = {
   TOOL: "Tool",
   WEBSITE: "Website",
   NEWS: "News",
+  BUSINESS_TIP: "Business tip",
 };
 
 export const contentTypePath: Record<string, string> = {
@@ -88,6 +89,7 @@ export const contentTypePath: Record<string, string> = {
   TOOL: "/tools",
   WEBSITE: "/websites",
   NEWS: "/news",
+  BUSINESS_TIP: "/tips",
 };
 
 /** Detail URL for any content item. */
@@ -111,6 +113,7 @@ export const GUIDE_TABS: [string, string][] = [
   ["/tools", "Business Tools"],
   ["/websites", "Useful Websites"],
   ["/news", "Business News"],
+  ["/tips", "Business Tips"],
 ];
 
 export const FUNDING_TABS: [string, string][] = [
