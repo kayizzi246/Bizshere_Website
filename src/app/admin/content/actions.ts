@@ -103,6 +103,8 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     if (f.required && (v === null || v === "")) errors[f.name] = "Required";
     specialised[f.name] = v;
   }
+  // An expert's name: typed once, as the page title, unless it is different
+  if (type === "CONSULTANT" && !specialised.fullName && title) specialised.fullName = title;
   // Left empty, a new page gets its own organization or fund provider (made below, with the page);
   // an existing page keeps the one it has.
   const linkId = dir.link ? str(form.get(dir.link.field)) : "";

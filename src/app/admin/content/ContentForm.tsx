@@ -141,7 +141,8 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
 }
 
 function FieldInput({ f: raw, value, error, member }: { f: Field; value: string; error?: string; member?: boolean }) {
-  const f = member ? { ...raw, label: `${raw.label} (members only)` } : raw;
+  // A * on every field that must be filled in, so nothing stops a save without saying why
+  const f = { ...raw, label: `${raw.label}${raw.required ? " *" : ""}${member ? " (members only)" : ""}` };
   const name = `f_${f.name}`;
   if (f.kind === "textarea" || f.kind === "json") return <div className="flex-[1_1_100%]"><TextArea name={name} label={f.label} defaultValue={value} help={f.help} error={error} rows={f.kind === "json" ? 3 : 3} mono={f.kind === "json"} /></div>;
   if (f.kind === "bool") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Unknown" }, { value: "true", label: "Yes" }, { value: "false", label: "No" }]} />;

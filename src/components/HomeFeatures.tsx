@@ -196,8 +196,9 @@ export async function HomeFeatures() {
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="text-hero text-[36px] leading-[1.05] text-black sm:text-[52px] lg:text-[68px]">Everything a business needs</h2>
+        {/* Not on phones: the page goes straight on to the services */}
         {sell ? (
-          <div className="mt-2 flex flex-col items-center gap-2">
+          <div className="mt-2 hidden flex-col items-center gap-2 sm:flex">
             <Link {...pay(start)} className={joinButton}>Get full access<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
             <span className="text-[15px] text-ink-soft">From <strong className="font-extrabold text-heading">{price(lowest)}</strong> a {PERIOD_INFO[lowest].per}. Pay with mobile money or card.</span>
           </div>
@@ -425,7 +426,8 @@ export async function HomeFeatures() {
         </ul>
       </div>
 
-      <div className="bg-brand text-white">
+      {/* The membership offer: not on phones */}
+      <div data-offer="" className="hidden bg-brand text-white sm:block">
         <div data-reveal="" className="rise-soft container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
           <h2 className="text-hero text-[20px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
           {sell ? (

@@ -179,7 +179,7 @@ export const DIRECTORIES: Directory[] = [
     type: "CONSULTANT", label: "Business expert", model: "consultant",
     labels: { title: "Page title (usually the consultant's name)", shortSummary: "Brief (optional)", overview: "Profile", category: "Category" },
     fields: [
-      { name: "fullName", label: "Consultant name", kind: "text", required: true, group: MAIN }, t("businessName", "Business name", MAIN), l("specialties", "Specialty", MAIN),
+      { name: "fullName", label: "Consultant name", kind: "text", group: MAIN, help: "Leave empty to use the page title" }, t("businessName", "Business name", MAIN), l("specialties", "Specialty", MAIN),
       t("address", "Address", MAIN), { ...u("profileUrl", "Profile (download)", MAIN), upload: "file" },
       t("country", "Country", MAIN), t("district", "District", MAIN),
       t("email", "Email", MAIN, "Shown to members only"), t("phone", "Phone", MAIN, "Shown to members only"), u("website", "Website", MAIN),
