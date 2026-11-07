@@ -29,7 +29,9 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [picked, setPicked] = useState<Set<string>>(new Set()); // ticked rows, by key
   const fileInput = useRef<HTMLInputElement>(null);
+  const allBox = useRef<HTMLInputElement>(null);
   const photoInput = useRef<HTMLInputElement>(null);
   const photoFor = useRef<string | null>(null);
   const firstBox = useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
   const dirty = removed.length > 0 || JSON.stringify(rows) !== JSON.stringify(saved);
   const live = saved.filter((r) => r.status === "PUBLISHED").length;
 
-  const start = () => { setRows(saved); setRemoved([]); setErrors({}); setMessage(null); setExpanded(null); setQ(""); setOpen(true); };
+  const start = () => { setRows(saved); setRemoved([]); setErrors({}); setMessage(null); setExpanded(null); setQ(""); setPicked(new Set()); setOpen(true); };
   const close = () => {
     if (busy) return;
     if (dirty && !window.confirm("Close without saving? Your changes to the products will be lost.")) return;
@@ -68,6 +70,18 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
     else setRows((all) => all.filter((x) => x.key !== r.key));
   };
   const undo = (id: string) => setRemoved((ids) => ids.filter((x) => x !== id));
+
+  // Ticking rows: one by one, or all the products shown (after a search, only those)
+  const kept = (r: ProductDraft) => !(r.id && removed.includes(r.id));
+  const tick = (key: string) => setPicked((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  const tickAll = (on: boolean) => setPicked(on ? new Set(shown.filter(kept).map((r) => r.key)) : new Set());
+  // Ticked products go: saved ones are kept aside until Save (each can be undone), new ones are simply dropped
+  const removePicked = () => {
+    const chosen = rows.filter((r) => picked.has(r.key) && kept(r));
+    setRemoved((ids) => [...ids, ...chosen.filter((r) => r.id).map((r) => r.id!)]);
+    setRows((all) => all.filter((r) => !(picked.has(r.key) && !r.id)));
+    setPicked(new Set());
+  };
 
   // A spreadsheet: .xlsx read in the browser, or CSV; its products are added to the table to check, then Save
   const importFile = async (file: File) => {
@@ -132,6 +146,11 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
     const term = q.trim().toLowerCase();
     return term ? rows.filter((r) => r.productName.toLowerCase().includes(term)) : rows;
   }, [rows, q]);
+  const shownKept = shown.filter(kept);
+  const allPicked = shownKept.length > 0 && shownKept.every((r) => picked.has(r.key));
+  const somePicked = shownKept.some((r) => picked.has(r.key));
+  // The heading tick shows a dash when only some are ticked
+  useEffect(() => { if (allBox.current) allBox.current.indeterminate = somePicked && !allPicked; }, [somePicked, allPicked, open]);
 
   const box = "input min-h-[40px] w-full min-w-0 px-2.5 text-[13px]";
 
@@ -171,6 +190,12 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
               <button type="button" onClick={template} className="min-h-[42px] px-2 text-[13px] font-semibold text-brand hover:text-brand-dark"><Download aria-hidden className="mr-1 inline h-4 w-4" />Download template</button>
               <input ref={fileInput} type="file" accept=".xlsx,.csv,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])} />
               <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
+              {picked.size ? (
+                <span className="flex items-center gap-1.5">
+                  <button type="button" onClick={removePicked} className="btn-danger min-h-[42px] px-4 text-[14px]"><Trash2 aria-hidden className="h-4 w-4" />Delete selected ({picked.size})</button>
+                  <button type="button" onClick={() => setPicked(new Set())} className="min-h-[42px] px-2 text-[13px] font-semibold text-ink-soft hover:text-heading">Clear</button>
+                </span>
+              ) : null}
               <label className="ml-auto flex min-w-[180px] flex-1 items-center gap-2 rounded-xl border border-line bg-surface px-3 sm:max-w-[260px] sm:flex-none">
                 <Search aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />
                 <span className="sr-only">Find a product</span>
@@ -183,9 +208,9 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
             {/* The products */}
             <div className="flex-1 overflow-auto">
               {shown.length ? (
-                <table className="w-full min-w-[920px] border-collapse text-left text-[13px]">
+                <table className="w-full min-w-[960px] border-collapse text-left text-[13px]">
                   <thead className="sticky top-0 z-10 bg-surface text-[11px] font-semibold uppercase tracking-wider text-ink-muted shadow-[0_1px_0_rgb(0_0_0/0.08)]">
-                    <tr><th className="w-[88px] px-3 py-2.5">Photo</th><th className="px-2 py-2.5">Product name *</th><th className="w-[120px] px-2 py-2.5">Price from</th><th className="w-[120px] px-2 py-2.5">Price to</th><th className="w-[130px] px-2 py-2.5">Package unit</th><th className="w-[130px] px-2 py-2.5">Availability</th><th className="w-[120px] px-2 py-2.5">Show</th><th className="w-[96px] px-3 py-2.5"><span className="sr-only">Actions</span></th></tr>
+                    <tr><th className="w-10 py-2.5 pl-4"><input ref={allBox} type="checkbox" checked={allPicked} onChange={(e) => tickAll(e.target.checked)} aria-label={q ? "Select all products found" : "Select all products"} className="h-[17px] w-[17px] cursor-pointer accent-brand" /></th><th className="w-[88px] px-3 py-2.5">Photo</th><th className="px-2 py-2.5">Product name *</th><th className="w-[120px] px-2 py-2.5">Price from</th><th className="w-[120px] px-2 py-2.5">Price to</th><th className="w-[130px] px-2 py-2.5">Package unit</th><th className="w-[130px] px-2 py-2.5">Availability</th><th className="w-[120px] px-2 py-2.5">Show</th><th className="w-[96px] px-3 py-2.5"><span className="sr-only">Actions</span></th></tr>
                   </thead>
                   <tbody>
                     {shown.map((r, n) => {
@@ -193,7 +218,8 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
                       const err = errors[r.key];
                       const more = expanded === r.key;
                       return [
-                        <tr key={r.key} className={`border-t border-line align-middle ${gone ? "bg-page opacity-60" : err ? "bg-bad-bg/40" : !r.id ? "bg-brand-tint/40" : ""}`}>
+                        <tr key={r.key} className={`border-t border-line align-middle ${gone ? "bg-page opacity-60" : picked.has(r.key) ? "bg-brand-tint/70" : err ? "bg-bad-bg/40" : !r.id ? "bg-brand-tint/40" : ""}`}>
+                          <td className="py-2 pl-4"><input type="checkbox" disabled={gone} checked={picked.has(r.key)} onChange={() => tick(r.key)} aria-label={`Select ${r.productName || "this product"}`} className="h-[17px] w-[17px] cursor-pointer accent-brand disabled:cursor-default" /></td>
                           <td className="px-3 py-2">
                             <button type="button" disabled={gone} onClick={() => pickPhoto(r.key)} aria-label={r.imageUrl ? `Change the photo of ${r.productName || "this product"}` : `Add a photo to ${r.productName || "this product"}`}
                               className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border border-dashed border-line-strong bg-page text-ink-muted hover:border-brand hover:text-brand">
@@ -226,10 +252,10 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
                             </span>
                           </td>
                         </tr>,
-                        err && !gone ? <tr key={r.key + "-err"} className="bg-bad-bg/40"><td /><td colSpan={7} className="px-2 pb-2 text-[12px] font-semibold text-bad-fg">{err}</td></tr> : null,
+                        err && !gone ? <tr key={r.key + "-err"} className="bg-bad-bg/40"><td /><td /><td colSpan={7} className="px-2 pb-2 text-[12px] font-semibold text-bad-fg">{err}</td></tr> : null,
                         more && !gone ? (
                           <tr key={r.key + "-more"} className="bg-page/70">
-                            <td />
+                            <td /><td />
                             <td colSpan={7} className="px-2 pb-3 pt-1">
                               <div className="grid gap-2 sm:grid-cols-[110px_140px_minmax(0,1fr)]">
                                 <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">Currency<input value={r.currency} maxLength={3} onChange={(e) => set(r.key, { currency: e.target.value.toUpperCase() })} className={box} /></label>

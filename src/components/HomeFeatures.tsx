@@ -293,9 +293,9 @@ export async function HomeFeatures() {
                         return (
                           <li key={n} className="w-[200px] shrink-0 sm:w-[220px]">
                             <Link href={`/suppliers/${x.slug}`} tabIndex={dup ? -1 : undefined} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-heading hover:text-heading">
-                              <span className={`relative flex min-h-[125px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                              <span className={`relative flex min-h-[150px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                                {picture ? <img src={picture} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]" /> : <span aria-hidden className="font-display text-[44px] font-extrabold leading-none">{name.charAt(0)}</span>}
+                                {picture ? <img src={picture} alt="" className="absolute inset-0 h-full w-full scale-[1.08] object-cover transition-transform duration-300 group-hover:scale-[1.14]" /> : <span aria-hidden className="font-display text-[44px] font-extrabold leading-none">{name.charAt(0)}</span>}
                               </span>
                               <span className="flex min-w-0 flex-col gap-0.5 p-3">
                                 <span className="line-clamp-1 font-display text-[14px] font-extrabold leading-tight group-hover:text-brand">{name}</span>
