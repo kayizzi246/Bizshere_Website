@@ -24,6 +24,10 @@ export type BrowseListing = {
   text: string;
   /** An outside address (useful websites): the table row goes straight there. */
   external?: string | null;
+  /** Funding: where to apply, on the provider's own website. Member detail: `null` with `applyLocked`. */
+  apply?: string | null;
+  /** This viewer isn't a member: Apply now opens the join and payment pop-up instead. */
+  applyLocked?: boolean;
   /** Where it comes from or who sells it (machines: their sources). `null` with `locked`: member detail. */
   source?: string | null;
   /** Price as text, e.g. "UGX 8M – 15M". */
@@ -290,11 +294,15 @@ function SupplierCard({ i }: { i: BrowseListing }) {
 }
 
 /**
- * Table view (funding, useful websites): name, detail, category and check date in columns, the
- * wishlist heart at the end. A row with an outside address opens that website directly.
+ * Table view (funding, useful websites): name, detail and category in columns, then (funding) Apply
+ * now and the wishlist heart. A row with an outside address opens that website directly. Apply now
+ * goes straight to the provider's own page for members; for everyone else it opens the join and
+ * payment pop-up (data-pay, src/components/Onboarding.tsx), and the address is never sent.
  * Phones get the same rows stacked.
  */
 function ListingTable({ rows }: { rows: BrowseListing[] }) {
+  const applying = rows.some((r) => r.apply || r.applyLocked);
+  const applyButton = "inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[14px] font-bold";
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-white">
       <table className="w-full text-left text-[16px]">
@@ -303,7 +311,7 @@ function ListingTable({ rows }: { rows: BrowseListing[] }) {
             <th className="px-4 py-3 font-bold">Name</th>
             <th className="px-4 py-3 font-bold">Details</th>
             <th className="px-4 py-3 font-bold">Category</th>
-            <th className="px-4 py-3 font-bold">Checked</th>
+            {applying ? <th className="px-4 py-3 font-bold"><span className="sr-only">Apply</span></th> : null}
             <th className="w-12 px-2 py-3"><span className="sr-only">Wishlist</span></th>
           </tr>
         </thead>
@@ -322,9 +330,20 @@ function ListingTable({ rows }: { rows: BrowseListing[] }) {
                   {r.summary ? <span className="mt-0.5 block text-[14px] leading-snug text-ink-muted md:hidden">{r.summary}</span> : null}
                   {r.external ? <span className="block truncate text-[12px] text-ink-muted">{r.external.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span> : null}
                 </td>
-                <td className="text-[15px] text-ink-soft md:px-4 md:py-3">{r.extra ?? <span className="hidden md:inline">—</span>}</td>
+                <td className="text-[15px] text-ink-soft md:px-4 md:py-3">
+                  {r.extra ?? <span className="hidden md:inline">—</span>}
+                  {r.applyLocked ? <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-page px-2 py-0.5 align-middle text-[12px] font-semibold text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />More for members</span> : null}
+                </td>
                 <td className="text-[15px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
-                <td className="whitespace-nowrap text-[14px] text-ink-muted md:px-4 md:py-3">Checked {r.reviewed}</td>
+                {applying ? (
+                  <td className="pt-1.5 md:px-4 md:py-3 md:text-right">
+                    {r.apply ? (
+                      <a href={r.apply} target="_blank" rel="noopener noreferrer" className={`${applyButton} bg-brand text-white hover:bg-brand-dark hover:text-white`}>Apply now<span aria-hidden>↗</span></a>
+                    ) : r.applyLocked ? (
+                      <Link href={`/membership?onboard=pay&next=${encodeURIComponent(r.href)}`} data-pay="" data-next={r.href} className={`${applyButton} border border-brand text-brand hover:bg-brand hover:text-white`}><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Apply now</Link>
+                    ) : null}
+                  </td>
+                ) : null}
                 <td className="md:px-2 md:py-3"><WishlistHeart id={r.id} className="border border-line" /></td>
               </tr>
             );

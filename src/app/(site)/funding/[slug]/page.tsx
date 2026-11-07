@@ -110,6 +110,11 @@ export default async function FundingPage({ params }: { params: { slug: string }
               <h1 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[38px]">{name}</h1>
               <p className="text-[16px] font-semibold">From {provider}{category ? ` · ${category}` : ""}</p>
               {item.shortSummary ? <p className="max-w-2xl text-[17px] leading-relaxed">{item.shortSummary}</p> : null}
+              {viewer.isMember && f.officialTermsUrl ? (
+                <a data-visit="" href={f.officialTermsUrl} target="_blank" rel="noopener noreferrer" className="go-btn inline-flex h-12 items-center gap-2 rounded-xl bg-white px-6 text-[15px] font-bold text-heading hover:text-heading">
+                  Apply now<ExternalLink aria-hidden className="h-4 w-4" />
+                </a>
+              ) : null}
               {gated ? (
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
                   <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-[15px] font-bold text-heading hover:bg-accent hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />See the full terms</Link>
@@ -229,11 +234,12 @@ export default async function FundingPage({ params }: { params: { slug: string }
             {/* ── What to do next ── */}
             <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-32">
               {gated ? <MemberValue back={path} unlocks={lockedTerms} plan={plan} /> : null}
-              {f.officialTermsUrl ? (
+              {/* Where to apply: member detail, never sent to a visitor who hasn't paid */}
+              {viewer.isMember && f.officialTermsUrl ? (
                 <a data-visit="" href={f.officialTermsUrl} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 rounded-2xl bg-navy p-3.5 text-white transition-colors hover:bg-brand hover:text-white">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15"><Globe aria-hidden className="h-5 w-5" /></span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="font-display text-[16px] font-extrabold leading-tight">Visit official website</span>
+                    <span className="font-display text-[16px] font-extrabold leading-tight">Apply now</span>
                     <span className="truncate text-[13px] text-white/80">{f.officialTermsUrl.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}</span>
                   </span>
                   <ExternalLink aria-hidden className="h-5 w-5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />

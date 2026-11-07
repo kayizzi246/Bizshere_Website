@@ -337,7 +337,7 @@ export async function HomeFeatures() {
       </div>
 
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
-      <div className="container-site pt-8 sm:pt-12">
+      <div className="container-site pt-4 sm:pt-5">
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden ${PLUM} p-5 sm:p-8 ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">

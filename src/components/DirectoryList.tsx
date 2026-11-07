@@ -11,7 +11,7 @@ import type { SearchParams } from "@/lib/directory-search";
  * (ListingBrowser): hero with the search box, category chips, sort and a paged grid. Searching and
  * filtering happen on the page itself, so visitors never leave it.
  */
-export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, facts }: {
+export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, apply, applyLocked = false, facts }: {
   /** This page's address; the address bar keeps the search here. */
   path: string;
   searchParams: SearchParams;
@@ -28,6 +28,9 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   images?: (ids: string[]) => Promise<Record<string, string>>;
   /** Outside address per item (useful websites): table rows link straight to it. */
   links?: (ids: string[]) => Promise<Record<string, string>>;
+  /** Funding: where to apply, per item. Pass it for members only; `applyLocked` for everyone else, whose Apply now opens the join and payment pop-up. */
+  apply?: (ids: string[]) => Promise<Record<string, string>>;
+  applyLocked?: boolean;
   /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and what they sell for the supplier cards. */
   facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean; country?: string | null; sells?: string | null }>>;
 }) {
@@ -40,6 +43,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   const extra = meta ? await meta(rows.map((i) => i.id)) : {};
   const pictures = images ? await images(rows.map((i) => i.id)) : null;
   const outside = links ? await links(rows.map((i) => i.id)) : {};
+  const applyAt = apply ? await apply(rows.map((i) => i.id)) : {};
   const cardFacts = facts ? await facts(rows.map((i) => i.id)) : {};
   const dir = DIRECTORIES.find((d) => d.type === types[0]);
   const icon = dir?.icon ?? (types[0] === "INVESTMENT_OPPORTUNITY" ? "funding" : "link");
@@ -49,6 +53,8 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
     extra: extra[i.id] || null,
     picture: pictures?.[i.id] ?? null,
     external: outside[i.id] ?? null,
+    apply: applyAt[i.id] ?? null,
+    applyLocked,
     ...(cardFacts[i.id] ?? {}),
     // Cards without a photo (tools) show the longer overview, cut to a few lines
     description: i.overview ? i.overview.slice(0, 400) : null,

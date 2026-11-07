@@ -267,7 +267,7 @@ export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
 export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
   MACHINE: { fields: ["priceMin", "priceMax", "sources"] },
   SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
-  FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
+  FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },
   CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl", "profileUrl"] },
   GUIDE: { fields: ["downloadUrl"] },
