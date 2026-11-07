@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/SiteHeader";
+import { HeaderAutoHide } from "@/components/HeaderAutoHide";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollEffects } from "@/components/ScrollEffects";
 import { SmoothScroll } from "@/components/SmoothScroll";
@@ -34,6 +35,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <div className="flex min-h-screen flex-col">
         <Suspense fallback={null}><NavProgress /></Suspense>
         <SiteHeader />
+        <HeaderAutoHide />
         <ScrollEffects />
         <SmoothScroll />
         <main className="flex-1">{children}</main>

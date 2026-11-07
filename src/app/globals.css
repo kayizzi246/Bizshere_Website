@@ -330,6 +330,14 @@ main > div:not([class]):first-child > :is(div, article).bg-page:first-child:not(
   .req-card:hover { transform: none; }
 }
 
+/* The header slides away while scrolling down and back on scrolling up (src/components/HeaderAutoHide.tsx).
+   A search bar pinned under it (StickySearch) moves up into the space while it is away. */
+[data-site-header] { transition: transform 0.3s var(--ease-out); }
+[data-site-header][data-hidden] { transform: translateY(calc(-100% - 12px)); }
+[data-sticky-search] { transition: top 0.3s var(--ease-out); }
+body:has([data-site-header][data-hidden]) [data-sticky-search] { top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) { [data-site-header], [data-sticky-search] { transition: none; } }
+
 /* A page marked data-bare stands alone: none of the site around it (the staff sign-in). */
 body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: none; }
 

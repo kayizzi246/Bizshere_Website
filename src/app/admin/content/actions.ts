@@ -85,9 +85,19 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
 
   const title = str(form.get("title"));
   if (title.length < 2) errors.title = "Required";
-  const slug = slugify(str(form.get("slug")) || title);
-  const clash = await prisma.contentItem.findFirst({ where: { slug, NOT: id ? { id } : undefined }, select: { id: true } });
-  if (clash) errors.slug = "Another page already uses this web address";
+  // The web address comes from the name unless one is typed (Advanced settings). Two pages with the same
+  // name (two branches, two experts called the same) is normal, so one made from the name gets a number
+  // ("kampala-traders-2") instead of an error; only an address typed by hand that is taken is refused.
+  const typedSlug = slugify(str(form.get("slug")));
+  let slug = typedSlug || slugify(title);
+  const taken = (s: string) => prisma.contentItem.findFirst({ where: { slug: s, NOT: id ? { id } : undefined }, select: { id: true } });
+  if (await taken(slug)) {
+    if (typedSlug) errors.slug = "Another page already uses this web address. Change it, or leave it empty to make one from the name.";
+    else {
+      const base = slug;
+      for (let n = 2; await taken(slug); n++) slug = `${base}-${n}`.slice(0, 80);
+    }
+  }
 
   if (type === "BUSINESS_TIP" && !str(form.get("overview"))) errors.overview = "Required";
 
