@@ -319,9 +319,9 @@ function ListingTable({ rows }: { rows: BrowseListing[] }) {
           {rows.map((r, n) => {
             const label = name(r.title);
             const link = r.external ? (
-              <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
+              <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-display text-[18px] font-bold leading-snug text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
             ) : (
-              <Link href={r.href} className="font-bold text-heading hover:text-brand">{label}</Link>
+              <Link href={r.href} className="font-display text-[18px] font-bold leading-snug text-heading hover:text-brand">{label}</Link>
             );
             return (
               <tr key={r.id} id={r.slug} className={`flex flex-col gap-0.5 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
