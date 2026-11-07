@@ -2,8 +2,6 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Calculator, Check, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { PERIOD_INFO, PLAN_PERIODS, popupPlan, type MemberPeriod } from "@/lib/billing";
-import { cachedMemberPlan } from "@/lib/cached";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
@@ -83,15 +81,8 @@ const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark"
 // A supplier with no photo yet gets a bold initial, in shades of the Suppliers blue.
 const MONOGRAM = ["bg-brand-dark text-white", "bg-brand-tint text-brand-dark", "bg-navy text-white", "bg-[#D6E9F7] text-brand-dark"];
 
-/** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), with the length chosen. */
-const pay = (period: MemberPeriod) => ({ href: `/membership?onboard=pay&period=${period}&next=%2Fbusiness-ideas`, "data-pay": "", "data-period": period, "data-next": "/business-ideas" });
-const BENEFITS = ["Full business plans and budgets", "Supplier and expert contacts", "Funding amounts and terms", "Machine prices and price history", "Tools, templates and downloads"];
-const LENGTHS: Record<MemberPeriod, { title: string; text: string }> = {
-  DAILY: { title: "Day pass", text: "Research an idea in a day" },
-  WEEKLY: { title: "Weekly", text: "Compare ideas and call suppliers" },
-  MONTHLY: { title: "Monthly", text: "Plan and start your business" },
-  YEARLY: { title: "Yearly", text: "Run and grow your business" },
-};
+/** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
+const pay = { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" };
 const joinButton = "group inline-flex h-[52px] items-center justify-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white";
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
@@ -180,13 +171,8 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
-  const plan = popupPlan(memberPlan);
-  const offered = PLAN_PERIODS.filter((p) => plan.amounts[p]);
-  const price = (p: MemberPeriod) => `${plan.currency} ${plan.amounts[p]!.toLocaleString("en-UG")}`;
-  const lowest = offered[0];
-  const start = offered.includes("MONTHLY") ? "MONTHLY" : lowest;
-  const sell = !viewer.isMember && !viewer.isStaff && Boolean(start);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics }, viewer] = await Promise.all([records(), getViewer()]);
+  const sell = !viewer.isMember && !viewer.isStaff;
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
   // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
@@ -196,13 +182,6 @@ export async function HomeFeatures() {
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="text-hero text-[36px] leading-[1.05] text-black sm:text-[52px] lg:text-[68px]">Everything a business needs</h2>
-        {/* Not on phones: the page goes straight on to the services */}
-        {sell ? (
-          <div className="mt-2 hidden flex-col items-center gap-2 sm:flex">
-            <Link {...pay(start)} className={joinButton}>Get full access<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
-            <span className="text-[15px] text-ink-soft">From <strong className="font-extrabold text-heading">{price(lowest)}</strong> a {PERIOD_INFO[lowest].per}. Pay with mobile money or card.</span>
-          </div>
-        ) : null}
       </div>
 
       {/* Business Ideas: a panel like the machines below it, in green, a colour no other panel uses */}
@@ -426,35 +405,16 @@ export async function HomeFeatures() {
         </ul>
       </div>
 
-      {/* The membership offer: not on phones */}
-      <div data-offer="" className="hidden bg-brand text-white sm:block">
-        <div data-reveal="" className="rise-soft container-site flex flex-col items-center gap-3 py-10 text-center sm:py-12">
-          <h2 className="text-hero text-[20px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
-          {sell ? (
-            <>
-              <p className="max-w-md text-[16px] leading-relaxed text-white/90 sm:text-[18px]">One membership opens all of this:</p>
-              <ul className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-1.5">
-                {BENEFITS.map((b) => <li key={b} className="flex items-center gap-1.5 text-[15px] font-semibold"><Check aria-hidden className="h-4 w-4 shrink-0 text-accent" strokeWidth={3} />{b}</li>)}
-              </ul>
-              <ul className="mt-3 grid w-full max-w-4xl grid-cols-2 gap-2.5 text-left sm:gap-3 lg:grid-cols-4">
-                {offered.map((p) => (
-                  <li key={p}>
-                    <Link {...pay(p)} className="group flex h-full flex-col gap-1 rounded-2xl bg-white p-4 text-heading hover:text-heading">
-                      <span className="text-[14px] font-bold text-ink-soft">{LENGTHS[p].title}</span>
-                      <span className="font-display text-[20px] font-extrabold leading-tight sm:text-[23px]">{price(p)}</span>
-                      <span className="text-[13px] leading-snug text-ink-muted">{LENGTHS[p].text}</span>
-                      <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[14px] font-bold text-brand">Choose<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-[14px] text-white/90">Pay with MTN MoMo, Airtel Money, Visa or Mastercard.</p>
-            </>
-          ) : (
-            <Link href="/business-ideas" className={`${joinButton} mt-2`}>Browse business ideas<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
-          )}
+      {/* One way in, for anyone who isn't a member yet: the same as the header's Get started (sign up, or
+          pay when already signed in). Not on phones. */}
+      {sell ? (
+        <div data-offer="" className="hidden bg-brand text-white sm:block">
+          <div data-reveal="" className="rise-soft container-site flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-8 text-center">
+            <h2 className="text-hero text-[22px] leading-[1.2] sm:text-[26px]">Start using BizSphere-Ug today</h2>
+            <Link {...(viewer.userId ? pay : { href: "/signup" })} className={joinButton}>Get started<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 }
