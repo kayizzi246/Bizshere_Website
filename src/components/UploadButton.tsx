@@ -6,6 +6,30 @@ import { upload } from "@vercel/blob/client";
 import { allowedTypes, MAX_CLOUD_BYTES, MAX_LOCAL_BYTES, type UploadKind } from "@/lib/uploads";
 
 /**
+ * Sends one file to storage (Vercel Blob, or public/uploads in local development) and returns its
+ * address. Images are made smaller first. Also used by the admin's product window.
+ */
+export async function uploadFile(original: File, kind: UploadKind): Promise<string> {
+  if (!allowedTypes(kind).includes(original.type)) throw new Error(kind === "image" ? "Choose a JPG, PNG, WebP or GIF image." : "Choose a PDF, image or Office document.");
+  const file = await shrink(original);
+  const { mode } = await fetch("/api/admin/upload").then((r) => r.json());
+  if (mode === "cloud") {
+    if (file.size > MAX_CLOUD_BYTES) throw new Error("File is larger than 50 MB.");
+    return (await upload(file.name, file, { access: "public", handleUploadUrl: "/api/admin/upload", contentType: file.type })).url;
+  }
+  if (mode === "local") {
+    if (file.size > MAX_LOCAL_BYTES) throw new Error("File is larger than 20 MB.");
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/admin/upload", { method: "POST", body });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error ?? "Upload failed");
+    return json.url;
+  }
+  throw new Error("Uploads are not set up yet. In Vercel, open Storage → Create → Blob and connect it to this project.");
+}
+
+/**
  * "Upload" next to a link field in the admin forms. Sends the file to storage (Vercel Blob,
  * or public/uploads in local development), then fills the field in the same form with the
  * file's address, so saving the form saves the link as usual.
@@ -18,24 +42,7 @@ export function UploadButton({ target, kind }: { target: string; kind: UploadKin
   const pick = async (original: File) => {
     setState({ busy: true, name: original.name });
     try {
-      if (!allowedTypes(kind).includes(original.type)) throw new Error(kind === "image" ? "Choose a JPG, PNG, WebP or GIF image." : "Choose a PDF, image or Office document.");
-      const file = await shrink(original);
-      const { mode } = await fetch("/api/admin/upload").then((r) => r.json());
-      let url: string;
-      if (mode === "cloud") {
-        if (file.size > MAX_CLOUD_BYTES) throw new Error("File is larger than 50 MB.");
-        url = (await upload(file.name, file, { access: "public", handleUploadUrl: "/api/admin/upload", contentType: file.type })).url;
-      } else if (mode === "local") {
-        if (file.size > MAX_LOCAL_BYTES) throw new Error("File is larger than 20 MB.");
-        const body = new FormData();
-        body.append("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error ?? "Upload failed");
-        url = json.url;
-      } else {
-        throw new Error("Uploads are not set up yet. In Vercel, open Storage → Create → Blob and connect it to this project.");
-      }
+      const url = await uploadFile(original, kind);
       // Fill the link field next to this button, and tell React-free listeners it changed.
       const field = ref.current?.form?.elements.namedItem(target) as HTMLInputElement | null;
       if (field) {

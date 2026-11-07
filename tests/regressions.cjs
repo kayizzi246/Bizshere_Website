@@ -272,3 +272,33 @@ test('requests that arrive together share one lookup, and a failed one is not re
   await assert.rejects(failing());
   assert.equal(tries, 2);
 });
+
+test('product import reads CSV files people already have', () => {
+  const { parseCsv, productsFromRows } = load('src/lib/product-import.ts', {});
+  // Quotes, a comma inside a name, a byte-order mark, Windows line endings and loose column names
+  const csv = '\uFEFFProduct,Price (UGX),Price to,Unit,MOQ,Stock,Details,Status\r\n"Flour, grade 1",65000,,50 kg bag,2,In stock,"Fine ""white"" flour",live\r\nSugar,"180,000",195000,bag,,,,Draft\r\n,,,,,,,\r\n,5000,,,,,,\r\n';
+  const { products, skipped, error } = productsFromRows(parseCsv(csv));
+  assert.equal(error, undefined);
+  assert.equal(products.length, 2);
+  assert.equal(skipped, 1); // the row with a price but no name
+  assert.equal(products[0].productName, 'Flour, grade 1');
+  assert.equal(products[0].priceMin, '65000');
+  assert.equal(products[0].unit, '50 kg bag');
+  assert.equal(products[0].minimumOrderQuantity, '2');
+  assert.equal(products[0].specifications, 'Fine "white" flour');
+  assert.equal(products[0].status, 'PUBLISHED');
+  assert.equal(products[1].priceMin, '180,000'); // checked and cleaned by the server on Save
+  assert.equal(products[1].status, 'DRAFT');
+  assert.equal(products[1].currency, 'UGX');
+  // Semicolons, as Excel saves CSV in some countries
+  const semi = productsFromRows(parseCsv('Name;Price;Show\nRice;4500;hidden\n'));
+  assert.equal(semi.products[0].productName, 'Rice');
+  assert.equal(semi.products[0].status, 'ARCHIVED');
+  // Excel sheets give numbers as numbers
+  const sheet = productsFromRows([['Product name', 'Price from'], ['Oil', 12000]]);
+  assert.equal(sheet.products[0].priceMin, '12000');
+  // No product name column: a clear message, nothing added
+  const none = productsFromRows([['Price', 'Unit'], [100, 'kg']]);
+  assert.equal(none.products.length, 0);
+  assert.match(none.error, /product name column/i);
+});

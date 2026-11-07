@@ -9,6 +9,8 @@ import { requireItemArea } from "@/lib/access";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ChildEditors } from "../ChildEditors";
 import { ChildTableEditor } from "../ChildTableEditor";
+import { ProductsManager } from "../ProductsManager";
+import { loadProducts } from "../products-data";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Edit content" };
@@ -18,10 +20,12 @@ export default async function EditContentPage({ params, searchParams }: { params
   const loaded = await loadValues(params.id);
   if (!loaded) notFound();
   const { item, values, multi } = loaded;
-  const [options, checks, corrections] = await Promise.all([
+  const supplierId = item.contentType === "SUPPLIER" ? item.supplier?.id : undefined;
+  const [options, checks, corrections, products] = await Promise.all([
     loadOptions(item.contentType, item.primaryCategoryId),
     prisma.verificationCheck.findMany({ where: { contentItemId: item.id }, include: { checkedBy: { select: { name: true } } }, orderBy: { checkedAt: "desc" } }),
     prisma.correctionReport.count({ where: { contentItemId: item.id, status: "PENDING" } }),
+    supplierId ? loadProducts(supplierId) : Promise.resolve([]),
   ]);
 
   const record = (
@@ -75,13 +79,14 @@ export default async function EditContentPage({ params, searchParams }: { params
         </div>
       </div>
       {searchParams.saved === "1" && !searchParams.in && item.publicationStatus !== "PUBLISHED" ? <p role="alert" className="rounded-xl bg-warn-bg p-4 text-sm font-bold text-warn-fg">Saved, but this is NOT on the website yet. To show it, set Status to &quot;Live on the website&quot; under Publishing, then Save.</p> : null}
-      {searchParams.saved && !searchParams.in && (searchParams.saved !== "1" || item.publicationStatus === "PUBLISHED") ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. You can add this supplier's products below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
+      {searchParams.saved && !searchParams.in && (searchParams.saved !== "1" || item.publicationStatus === "PUBLISHED") ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. Add this supplier's products with Manage products, below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
       {searchParams.error && !searchParams.in ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
 
       <ContentForm type={item.contentType} options={options} values={values} multi={multi} />
 
-      {/* A supplier: the products come straight after the details; the rest is rarely needed. */}
-      {item.contentType === "SUPPLIER" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} only={["listings"]} editRow={searchParams.product} notice={searchParams} /> : null}
+      {/* A supplier: the products come straight after the details, in their own window (one Save on this page,
+          one in the window); the rest is rarely needed. */}
+      {supplierId ? <ProductsManager contentItemId={item.id} supplierName={item.title} initial={products} /> : null}
 
       {item.contentType === "SUPPLIER" ? (
         <details open={Boolean(searchParams.in && searchParams.in !== "listings")} className="group/more rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
