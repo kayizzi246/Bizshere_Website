@@ -97,7 +97,11 @@ const text = (w: string): Prisma.ContentItemWhereInput => ({
 // "Only for these directories" filters: other directories pass through unchanged.
 const onlyFor = (types: ContentType[], where: Prisma.ContentItemWhereInput): Prisma.ContentItemWhereInput => ({ OR: [{ contentType: { notIn: types } }, where] });
 
-export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
+/**
+ * `newSince` (saved-search alerts, src/lib/jobs.ts): only pages published after that moment, and no
+ * "close matches" when nothing matches every word, so an alert only fires on real results.
+ */
+export async function advancedSearch(p: Parsed, opts: { member: boolean; newSince?: Date }) {
   const types = GROUPS.filter((g) => p.show.includes(g.id)).flatMap((g) => g.types);
   if (!types.length) return { total: 0, rows: [] as Awaited<ReturnType<typeof loadRows>>, loose: false };
   const since = p.updated ? new Date(Date.now() - Number(p.updated) * 86_400_000) : null;
@@ -113,6 +117,7 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
     ? (await prisma.contentItem.findMany({ where: { contentType: { in: types }, OR: leaveOut.map(text) }, select: { id: true } })).map((r) => r.id)
     : [];
   const and: Prisma.ContentItemWhereInput[] = [
+    ...(opts.newSince ? [{ publishedAt: { gt: opts.newSince } }] : []),
     ...(excluded.length ? [{ id: { notIn: excluded } }] : []),
     ...(topic ? [termWhere(asWords(topic.words))] : []),
     ...(p.phrase ? [text(p.phrase)] : []),
@@ -141,7 +146,7 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean }) {
   const hits = new Map<string, number>();
 
   // Nothing matches every word: show pages that match most of them, best first, and say so.
-  const loose = candidates.length === 0 && terms.length > 1;
+  const loose = candidates.length === 0 && terms.length > 1 && !opts.newSince;
   if (loose) {
     const perTerm = await Promise.all(terms.map((t) => prisma.contentItem.findMany({ where: { AND: [base, termWhere(t)] }, take: 1000, select })));
     const byId = new Map<string, (typeof candidates)[number]>();

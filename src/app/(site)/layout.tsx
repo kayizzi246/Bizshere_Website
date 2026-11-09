@@ -7,6 +7,7 @@ import { NavProgress } from "@/components/NavProgress";
 import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { WishlistProvider } from "@/components/Wishlist";
 import { prisma } from "@/lib/prisma";
 import { shortMemo } from "@/lib/memo";
@@ -43,6 +44,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <QuickLinks services={SERVICES} />
         <ServiceRail services={SERVICES} />
         <CookieNotice />
+        <InstallPrompt />
       </div>
       </WishlistProvider>
     </OnboardingGate>

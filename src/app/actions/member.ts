@@ -124,7 +124,8 @@ export async function saveSearch(form: FormData) {
   const query = String(form.get("q") ?? form.get("query") ?? "").trim();
   const user = await requireUser(`/search?${params}`);
   const types = form.getAll("show").map(String);
-  await prisma.savedSearch.create({ data: { userId: user.id, query, filters: { types, params: params.toString() }, alert: form.get("alert") === "on" } });
+  // "Save this search" has a bell: new results are sent (src/lib/jobs.ts savedSearchAlerts); each can be turned off at /account.
+  await prisma.savedSearch.create({ data: { userId: user.id, query, filters: { types, params: params.toString() }, alert: true } });
   revalidatePath("/account");
   redirect("/account?saved=search");
 }
@@ -132,6 +133,20 @@ export async function saveSearch(form: FormData) {
 export async function deleteSavedSearch(form: FormData) {
   const user = await requireUser();
   await prisma.savedSearch.deleteMany({ where: { id: String(form.get("id")), userId: user.id } });
+  revalidatePath("/account");
+}
+
+/** A saved search's alert on or off (only the owner's own). */
+export async function setSearchAlert(form: FormData) {
+  const user = await requireUser();
+  await prisma.savedSearch.updateMany({ where: { id: String(form.get("id")), userId: user.id }, data: { alert: form.get("on") === "1" } });
+  revalidatePath("/account");
+}
+
+/** The weekly "what's new" SMS on or off (src/lib/jobs.ts weeklyDigest). */
+export async function setDigest(form: FormData) {
+  const user = await requireUser();
+  await prisma.user.update({ where: { id: user.id }, data: { digestSms: form.get("on") === "1" } });
   revalidatePath("/account");
 }
 

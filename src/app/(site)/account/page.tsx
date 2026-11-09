@@ -5,7 +5,7 @@ import { getViewer } from "@/lib/access";
 import { contentTypeLabel, date, itemHref } from "@/lib/format";
 import { MembershipPanel } from "@/components/MembershipPanel";
 import { GlassSelect } from "@/components/GlassSelect";
-import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, toggleSave } from "@/app/actions/member";
+import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, setDigest, setSearchAlert, toggleSave } from "@/app/actions/member";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My account" };
@@ -52,12 +52,30 @@ export default async function AccountPage() {
           <h2 className="text-lg font-extrabold">Alerts {unread ? <span className="badge-warn ml-1">{unread} new</span> : null}</h2>
           {unread ? <form action={markAlertsRead}><button className="btn-outline min-h-[44px] px-3">Mark all read</button></form> : null}
         </div>
-        {alerts.length === 0 ? <p className="text-sm text-ink-muted">No alerts yet. Save funding programmes or searches to get deadline and update alerts.</p> : alerts.map((a) => (
+        {alerts.length === 0 ? <p className="text-sm text-ink-muted">No alerts yet. Save a search, or a funding programme to your wishlist, and we&apos;ll tell you what&apos;s new.</p> : alerts.map((a) => (
           <div key={a.id} className={`flex flex-wrap justify-between gap-2 border-t border-line pt-3 ${a.readAt ? "text-ink-muted" : ""}`}>
             <span className="flex flex-col"><span className="font-bold">{a.link ? <Link href={a.link}>{a.title}</Link> : a.title}</span>{a.body ? <span className="text-sm">{a.body}</span> : null}</span>
             <span className="text-xs text-ink-muted">{date(a.createdAt)}</span>
           </div>
         ))}
+      </section>
+
+      {/* The weekly "what's new" text (src/lib/jobs.ts weeklyDigest): only for those who turn it on */}
+      <section id="weekly" className="card flex scroll-mt-28 flex-wrap items-center justify-between gap-4 p-6">
+        <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-1">
+          <h2 className="text-lg font-extrabold">Weekly SMS: what&apos;s new</h2>
+          <p className="text-sm text-ink-muted">
+            {user.phone
+              ? user.digestSms ? `On. Every Monday we text ${user.phone} what was added that week: new funding, suppliers, business ideas and tips. Nothing is sent in a week with nothing new.` : "One short text a week, on Monday: new funding, suppliers, business ideas and tips. Free, and you can turn it off any time."
+              : "Sign in with your phone number to get a short text every Monday with what's new."}
+          </p>
+        </div>
+        {user.phone ? (
+          <form action={setDigest}>
+            <input type="hidden" name="on" value={user.digestSms ? "0" : "1"} />
+            <button className={user.digestSms ? "btn-outline min-h-[44px] px-4" : "btn-primary min-h-[44px] px-5"}>{user.digestSms ? "Turn off" : "Text me each week"}</button>
+          </form>
+        ) : null}
       </section>
 
       <div className="flex flex-wrap items-start gap-6">
@@ -109,11 +127,16 @@ export default async function AccountPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="card flex min-w-0 flex-[1_1_420px] flex-col gap-3 p-6">
-          <h2 className="text-lg font-extrabold">Saved searches</h2>
+          <h2 id="searches" className="scroll-mt-28 text-lg font-extrabold">Saved searches</h2>
+          <p className="text-sm text-ink-muted">With alerts on, we tell you here{user.phone ? ", and by SMS," : ""} when something new matches (at most one text a day).</p>
           {searches.length === 0 ? <p className="text-sm text-ink-muted">Run a search and choose &ldquo;Save this search&rdquo;.</p> : searches.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 border-t border-line pt-3">
               <Link href={savedSearchHref(s.query, s.filters)} className="font-bold">{s.query || "All content"}</Link>
-              <span className="flex items-center gap-2 text-xs text-ink-muted">{s.alert ? <span className="badge-info">Alerts on</span> : null}<form action={deleteSavedSearch}><input type="hidden" name="id" value={s.id} /><button className="font-bold text-bad-fg">Delete</button></form></span>
+              <span className="flex items-center gap-3 text-xs text-ink-muted">
+                <form action={setSearchAlert}><input type="hidden" name="id" value={s.id} /><input type="hidden" name="on" value={s.alert ? "0" : "1"} />
+                  <button aria-label={s.alert ? `Turn alerts off for ${s.query || "this search"}` : `Turn alerts on for ${s.query || "this search"}`} className={s.alert ? "badge-info" : "rounded-full border border-line px-2 py-0.5 font-semibold text-ink-soft hover:border-brand hover:text-brand"}>{s.alert ? "Alerts on ✓" : "Alerts off"}</button>
+                </form>
+                <form action={deleteSavedSearch}><input type="hidden" name="id" value={s.id} /><button className="font-bold text-bad-fg">Delete</button></form></span>
             </div>
           ))}
         </section>

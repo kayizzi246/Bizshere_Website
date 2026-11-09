@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
@@ -16,6 +16,9 @@ const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variabl
 // headlines use it (.text-hero in globals.css), at the client's request (Manrope stops at 800).
 const heroFont = Inter({ subsets: ["latin"], weight: "900", variable: "--font-hero", display: "swap" });
 const manrope = Manrope({ subsets: ["latin"], weight: ["500", "600", "700", "800"], variable: "--font-manrope", display: "swap" });
+
+// The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
+export const viewport: Viewport = { themeColor: "#071A33" };
 
 export const metadata: Metadata = {
   title: { default: "BizSphere-Ug", template: "%s | BizSphere-Ug" },

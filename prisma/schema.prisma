@@ -290,6 +290,11 @@ model User {
   adminAreas   String[]  @default([])
   isSuspended  Boolean   @default(false)
   lastActiveAt DateTime?
+  /// Weekly "what's new" SMS (src/lib/jobs.ts weeklyDigest): only for people who turned it on at /account.
+  digestSms    Boolean   @default(false)
+  digestSentAt DateTime?
+  /// Last saved-search alert texted: at most one a day (src/lib/jobs.ts savedSearchAlerts).
+  alertSmsAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -1797,7 +1802,8 @@ model SavedSearch {
   userId    String
   query     String
   filters   Json?
-  alert     Boolean   @default(false)
+  /// New results are sent to the person (src/lib/jobs.ts savedSearchAlerts); "Save this search" has a bell.
+  alert     Boolean   @default(true)
   lastRunAt DateTime?
   createdAt DateTime  @default(now())
 

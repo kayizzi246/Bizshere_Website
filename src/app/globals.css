@@ -44,12 +44,18 @@
 }
 
 @layer base {
+  /* Site-wide text spacing (client, 9 Nov 2026): letter spacing 0.2–0.5px, word spacing 2–4px, line height
+     1.5–1.6, reading text 16–18px. Headings keep their own tight spacing (big bold titles look broken spaced
+     out), and buttons, menus and tabs keep normal word spacing so they still fit their boxes. */
   body {
     @apply bg-white text-ink antialiased font-sans;
+    font-size: 16px;
     line-height: 1.6;
-    letter-spacing: 0;
+    letter-spacing: 0.3px;
     font-feature-settings: "cv11", "ss01"; /* Inter: single-storey a, open digits */
   }
+  :where(p, li, dd, td, blockquote, label) { word-spacing: 2px; }
+  :where(h1, h2, h3, h4, h5, h6) { letter-spacing: -0.01em; word-spacing: normal; }
 
   /* Manrope for headings and titles; Inter (the body font) everywhere else. */
   h1, h2, h3, h4, h5, h6 {
@@ -362,3 +368,12 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 .under-header { margin-top: calc(-1 * var(--hh)); border-top: var(--hh) solid transparent; background-origin: border-box; }
 /* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
+
+/* Reading text at least 16px (client, 9 Nov 2026): a paragraph set at 14–15px is raised to 16px. On phones
+   always; from 640px only when it has no larger size of its own there. Captions of 13px and under stay small. */
+@media (max-width: 639.98px) {
+  p:is(.text-\[14px\], .text-\[15px\], .text-sm) { font-size: 16px; line-height: 1.55; }
+}
+@media (min-width: 640px) {
+  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([class*="sm:text-"]):not([class*="md:text-"]):not([class*="lg:text-"]) { font-size: 16px; line-height: 1.55; }
+}
