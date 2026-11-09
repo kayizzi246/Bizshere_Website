@@ -32,14 +32,8 @@ export default async function HomePage() {
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
-      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with a blue light in the bottom-right corner */}
+      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with the soft light over the headline */}
       <section className="under-header-pad relative isolate overflow-hidden bg-navy text-white">
-        {/* The light (client, 9 Nov 2026): a blue glow coming in from the bottom-right corner, brightest at the
-            corner and fading into the navy. Clipped by the section (overflow-hidden). Decoration only, behind everything. */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <span className="absolute -bottom-[260px] -right-[220px] h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(26,120,235,0.55),rgba(21,100,205,0.22)_50%,rgba(7,26,51,0)_100%)] sm:-bottom-[320px] sm:-right-[260px] sm:h-[820px] sm:w-[980px]" />
-          <span className="absolute -bottom-[110px] -right-[90px] h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(70,155,255,0.38),rgba(70,155,255,0)_100%)] sm:-bottom-[140px] sm:-right-[110px] sm:h-[400px] sm:w-[460px]" />
-        </div>
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 72px above and 96px below (9 Nov 2026, with bigger directory tiles); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
@@ -48,6 +42,9 @@ export default async function HomePage() {
         </div>
         <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[100px] pt-3 sm:pb-[96px] sm:pt-[44px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="relative flex min-w-0 flex-col items-start">
+            {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
+                headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
+            <span aria-hidden className="pointer-events-none absolute left-1/2 top-[-130px] -z-10 h-[300px] w-[620px] max-w-[160vw] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_100%_at_50%_0%,rgba(0,170,255,0.42)_0%,rgba(0,105,255,0.20)_45%,rgba(0,48,130,0.06)_75%,transparent_100%)] blur-[18px] [mask-image:linear-gradient(to_bottom,transparent_0%,#000_35%,#000_70%,transparent_100%)] sm:left-[300px] sm:top-[-140px] sm:h-[340px]" />
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the

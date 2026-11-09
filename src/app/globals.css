@@ -265,18 +265,6 @@ select {
 /* The homepage hero keeps the light but holds it still: calmer for a page people open every day. */
 .hero-still { animation: none; }
 
-/* Spotlight heroes (.hero-spotlight), the client's example (9 Nov 2026): the navy with a soft blue glow
-   from the top, a small soft cyan-to-blue light shining down onto the title, faded on every side so it blends
-   into the navy (no hard edge, no line: client's request, 9 Nov 2026). The light is the section's own pseudo-elements (z-index -1 inside .isolate), so it sits
-   behind the text and never takes a click. Phones get a wider beam. */
-.hero-spotlight { position: relative; isolation: isolate; background-color: #071A33; background-repeat: no-repeat; background-origin: border-box;
-  background-image: radial-gradient(ellipse 52% 85% at 50% 20%, rgba(0, 72, 165, 0.40), transparent 85%); }
-.hero-spotlight::before { content: ""; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 620px; height: 260px;
-  background: radial-gradient(ellipse 50% 100% at 50% 0%, rgba(0, 170, 255, 0.42) 0%, rgba(0, 105, 255, 0.20) 45%, rgba(0, 48, 130, 0.06) 75%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, #000 70%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, #000 35%, #000 70%, transparent 100%);
-  filter: blur(18px); z-index: -1; pointer-events: none; }
-@media (max-width: 600px) { .hero-spotlight::before { width: 100vw; } }
-
 @keyframes mesh-drift-1 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   33% { transform: translate3d(7%, -9%, 0) scale(1.16); }
