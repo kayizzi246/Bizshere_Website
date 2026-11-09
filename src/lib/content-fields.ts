@@ -297,6 +297,8 @@ export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; group
   CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl", "profileUrl"] },
   GUIDE: { fields: ["downloadUrl"] },
   TOOL: { fields: ["downloadUrl", "calculatorRoute"] },
+  // A useful website's address and links: what membership opens (client, 9 Nov 2026)
+  WEBSITE: { fields: ["canonicalUrl", "pricingUrl", "redirectUrl"] },
 };
 
 export const isMemberOnly = (type: ContentType, f: Field) => {

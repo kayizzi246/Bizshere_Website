@@ -93,6 +93,17 @@ export const contentTypePath: Record<string, string> = {
 };
 
 /** Detail URL for any content item. */
+/**
+ * A useful website's name for display. Some were named with their address ("Https://fundrazr.com/"): that
+ * shows as the domain ("fundrazr.com"), or, for a visitor who may not see the address, as its type.
+ */
+export function websiteName(title: string, opts: { hideAddress?: boolean; siteType?: string | null } = {}) {
+  const t = title.replace(/^Sample:\s*/i, "").trim();
+  if (!/^(https?:\/\/|www\.)/i.test(t)) return t;
+  if (opts.hideAddress) return opts.siteType || "Useful website";
+  return t.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/+$/, "").toLowerCase();
+}
+
 export const itemHref = (i: { contentType: string; slug: string }) => `${contentTypePath[i.contentType]}/${i.slug}`;
 
 /** "Yes" / "No" / "—" for nullable booleans (unknown is not "No"). */

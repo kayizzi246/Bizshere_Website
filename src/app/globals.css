@@ -370,10 +370,11 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
 
 /* Reading text at least 16px (client, 9 Nov 2026): a paragraph set at 14–15px is raised to 16px. On phones
-   always; from 640px only when it has no larger size of its own there. Captions of 13px and under stay small. */
+   always; from 640px only when it has no larger size of its own there. Captions of 13px and under stay small,
+   and so does a paragraph marked data-size, sized on purpose (the homepage panels, client request). */
 @media (max-width: 639.98px) {
-  p:is(.text-\[14px\], .text-\[15px\], .text-sm) { font-size: 16px; line-height: 1.55; }
+  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([data-size]) { font-size: 16px; line-height: 1.55; }
 }
 @media (min-width: 640px) {
-  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([class*="sm:text-"]):not([class*="md:text-"]):not([class*="lg:text-"]) { font-size: 16px; line-height: 1.55; }
+  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([data-size]):not([class*="sm:text-"]):not([class*="md:text-"]):not([class*="lg:text-"]) { font-size: 16px; line-height: 1.55; }
 }

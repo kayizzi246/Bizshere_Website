@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Calculator, Check, Coins, FileText, Lightbulb, Lo
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
-import { compactRange, date, itemHref } from "@/lib/format";
+import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
 import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
@@ -38,7 +38,7 @@ async function records() {
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "GUIDE", ...live }, select: item, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "NEWS", ...live }, select: item, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "WEBSITE", ...live }, select: item, orderBy: [...newest], take: 6 }),
+    prisma.contentItem.findMany({ where: { contentType: "WEBSITE", ...live }, select: { slug: true, title: true, contentType: true, accessLevel: true, website: { select: { siteType: true } } }, orderBy: [...newest], take: 6 }),
     prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
     // Public fields only: name, title, specialties and district. Contacts stay on the member profile.
     prisma.contentItem.findMany({ where: { contentType: "CONSULTANT", ...live }, select: { slug: true, title: true, contentType: true, consultant: { select: { fullName: true, professionalTitle: true, photoUrl: true, specialties: true, district: true } } }, orderBy: [...newest], take: 3 }),
@@ -47,6 +47,8 @@ async function records() {
 }
 
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
+/** Websites a visitor who hasn't paid sees in full on the homepage card; the rest are locked. */
+const FREE_WEBSITES = 2;
 const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], [FileText, "Business plans"], [TrendingUp, "Cash flow"]];
 // The Tools, Tips and Forum cards look alike: an icon, a title, a line and these pills
 const TIP_POINTS: [LucideIcon, string][] = [[Coins, "Money"], [Megaphone, "Marketing"], [Users, "Customers"], [Store, "Running a shop"]];
@@ -123,7 +125,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} pill={onColour} />
         <h3 className="text-hero text-[24px] leading-[1.1] sm:text-[29px] md:text-[24px] lg:text-[29px] xl:text-[34px]">{title}</h3>
-        <p className="max-w-lg text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
+        <p data-size="" className="max-w-lg text-[14px] font-medium leading-relaxed sm:text-[15px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
       <span><Go href={href} tone={onColour}>{action}</Go></span>
@@ -162,7 +164,7 @@ export async function HomeFeatures() {
   // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
 
   return (
-    <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
+    <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="text-hero text-[32px] leading-[1.05] text-black sm:text-[44px] lg:text-[56px]">Everything a business needs</h2>
       </div>
@@ -219,12 +221,12 @@ export async function HomeFeatures() {
                   {/* Phones: the price under the name, so the name has the whole width */}
                   <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                   <span className="flex min-w-0 flex-col">
-                    <span className="font-display text-[16px] font-extrabold leading-tight sm:text-[19px]">{clean(m.title)}</span>
-                    {m.shortSummary ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{m.shortSummary}</span> : null}
+                    <span className="font-display text-[15px] font-extrabold leading-tight sm:text-[16px]">{clean(m.title)}</span>
+                    {m.shortSummary ? <span className="line-clamp-1 text-[12px] text-white/85 sm:text-[13px]">{m.shortSummary}</span> : null}
                   </span>
                   {hasPrice ? (locked
-                    ? <span className="flex shrink-0 items-center gap-1.5 text-white/80"><span aria-hidden className="select-none text-hero text-[18px] text-white blur-[6px] sm:text-[22px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
-                    : <span className="shrink-0 text-hero text-[16px] leading-tight sm:text-right sm:text-[22px]">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>) : null}
+                    ? <span className="flex shrink-0 items-center gap-1.5 text-white/80"><span aria-hidden className="select-none text-hero text-[15px] text-white blur-[6px] sm:text-[18px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
+                    : <span className="shrink-0 text-hero text-[15px] leading-tight sm:text-right sm:text-[18px]">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>) : null}
                   </span>
                 </Link>
               );
@@ -250,10 +252,10 @@ export async function HomeFeatures() {
                     <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white px-3 py-2 text-heading hover:text-heading">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[15px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
-                        {org ? <span className="truncate text-[13px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
+                        <span className="truncate font-display text-[14px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
+                        {org ? <span className="truncate text-[12px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
                       </span>
-                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[12px] font-bold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
+                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
                     </Link>
                   </li>
                 );
@@ -277,9 +279,9 @@ export async function HomeFeatures() {
                         {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[22px] font-extrabold leading-none">{name.charAt(0)}</span>}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[15px] font-bold group-hover:text-brand">{name}</span>
-                        {sells ? <span className="truncate text-[13px] text-ink-soft">{sells}</span> : null}
-                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
+                        <span className="truncate font-display text-[14px] font-bold group-hover:text-brand">{name}</span>
+                        {sells ? <span className="truncate text-[12px] text-ink-soft">{sells}</span> : null}
+                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[11px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
                       </span>
                     </Link>
                   </li>
@@ -369,8 +371,16 @@ export async function HomeFeatures() {
             </ul>
           </Card>
           <Card href="/websites" title="The websites you will need" action="See useful websites" colour={S.websites.solid} text="Government and business sites in one list.">
+            {/* Pills, the same as the market prices card above (client, 9 Nov 2026). A visitor who hasn't paid
+                sees the first two and one pill for the rest, which opens the join and payment pop-up; the
+                other names are never sent. */}
             <ul className="flex flex-wrap justify-center gap-2">
-              {websites.map((w) => <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-[#EEF0F3] px-3 py-1.5 text-[13px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{clean(w.title)}</Link></li>)}
+              {(sell ? websites.slice(0, FREE_WEBSITES) : websites).map((w) => (
+                <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-[#EEF0F3] px-3 py-1.5 text-[13px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
+              ))}
+              {sell && websites.length > FREE_WEBSITES ? (
+                <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-[#475467] px-3 py-1.5 text-[13px] font-semibold text-white hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
+              ) : null}
             </ul>
           </Card>
         </ul>
