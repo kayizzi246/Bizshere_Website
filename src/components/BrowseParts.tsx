@@ -78,13 +78,17 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
           <button className="btn-primary col-span-2 h-11 shrink-0 rounded-xl px-6 text-[15px] font-semibold sm:ml-1">Search</button>
         </form>
         {popular.length ? (
-          <p className="flex flex-wrap items-center justify-center gap-1.5 text-[13px] text-white/60">
-            Popular:
-            {popular.map((e) => (
-              <button key={e} type="button" onClick={() => { onSearch(e); onSubmit(); }}
-                className="max-w-[14rem] truncate rounded-full border border-dotted border-white/40 bg-white/[0.05] px-2.5 py-0.5 text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white">{e}</button>
-            ))}
-          </p>
+          // Phones: one row to swipe sideways (long names stacked one per line and pushed the results down,
+          // client, 9 Nov 2026); from sm: centred and wrapping as before.
+          <div className="flex w-full max-w-3xl items-center gap-2 text-[13px] text-white/60 sm:w-auto sm:justify-center">
+            <span className="shrink-0">Popular:</span>
+            <div className="-mr-4 flex min-w-0 gap-1.5 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mr-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pr-0">
+              {popular.map((e) => (
+                <button key={e} type="button" onClick={() => { onSearch(e); onSubmit(); }}
+                  className="max-w-[11rem] shrink-0 truncate whitespace-nowrap rounded-full border border-dotted border-white/40 bg-white/[0.05] px-2.5 py-1 text-[12px] text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white sm:max-w-[14rem] sm:py-0.5 sm:text-[13px]">{e}</button>
+              ))}
+            </div>
+          </div>
         ) : null}
       </div>
     </header>
