@@ -32,15 +32,13 @@ export default async function HomePage() {
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
-      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with a blue spotlight over the headline */}
+      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with a blue light in the bottom-right corner */}
       <section className="under-header-pad relative isolate overflow-hidden bg-navy text-white">
-        {/* The light (client's example, 9 Nov 2026): a blue spotlight shining down from the top edge onto the
-            headline, brightest just above it and fading into the navy. Decoration only, behind everything. */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]">
-          <div className="container-site relative h-full">
-            <span className="absolute left-1/2 top-[-188px] h-[620px] w-[560px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,120,235,0.55),rgba(21,100,205,0.22)_50%,rgba(7,26,51,0)_100%)] sm:left-[-180px] sm:top-[-166px] sm:h-[700px] sm:w-[1000px] sm:translate-x-0" />
-            <span className="absolute left-1/2 top-[-48px] h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(70,155,255,0.38),rgba(70,155,255,0)_100%)] sm:left-[110px] sm:top-[-26px] sm:h-[380px] sm:w-[440px] sm:translate-x-0" />
-          </div>
+        {/* The light (client, 9 Nov 2026): a blue glow coming in from the bottom-right corner, brightest at the
+            corner and fading into the navy. Clipped by the section (overflow-hidden). Decoration only, behind everything. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <span className="absolute -bottom-[260px] -right-[220px] h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(26,120,235,0.55),rgba(21,100,205,0.22)_50%,rgba(7,26,51,0)_100%)] sm:-bottom-[320px] sm:-right-[260px] sm:h-[820px] sm:w-[980px]" />
+          <span className="absolute -bottom-[110px] -right-[90px] h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(70,155,255,0.38),rgba(70,155,255,0)_100%)] sm:-bottom-[140px] sm:-right-[110px] sm:h-[400px] sm:w-[460px]" />
         </div>
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 72px above and 96px below (9 Nov 2026, with bigger directory tiles); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
@@ -71,8 +69,8 @@ export default async function HomePage() {
             <ul aria-label="Directories" className="mt-5 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[54px] w-full items-center gap-2.5 rounded-xl border-2 border-dotted border-white/50 bg-white/[0.06] px-3 py-2.5 text-[15px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[46px] sm:border sm:border-solid sm:border-white/25 sm:px-3.5 sm:py-2.5 sm:text-[16px]">
-                    <Icon name={d.icon} className="h-5 w-5 shrink-0 text-accent" />
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border-2 border-dotted border-white/50 bg-white/[0.06] px-3 py-2.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:border sm:border-solid sm:border-white/25 sm:px-3 sm:py-2 sm:text-[15px]">
+                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent" />
                     {d.title}
                   </Link>
                 </li>
