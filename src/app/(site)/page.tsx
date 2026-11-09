@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
-import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { date, money } from "@/lib/format";
@@ -35,12 +35,12 @@ export default async function HomePage() {
       {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with the soft light over the headline */}
       <section className="under-header-pad relative isolate overflow-hidden bg-navy text-white">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            about 72px above and 96px below (9 Nov 2026, with bigger directory tiles); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
+            about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[100px] pt-3 sm:pb-[96px] sm:pt-[44px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[72px] pt-3 sm:pb-[72px] sm:pt-[36px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -75,7 +75,8 @@ export default async function HomePage() {
             </ul>
 
             <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <Link {...(viewer.userId && viewer.isMember ? { href: "/business-ideas" } : { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" })} className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">{viewer.isMember ? "Browse business ideas" : "Get full access"}<ChevronRight aria-hidden className="h-4 w-4" /></Link>
+              {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
+              <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
               <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
           </div>

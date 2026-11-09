@@ -161,10 +161,10 @@ export async function HomeFeatures() {
   const sell = !viewer.isMember && !viewer.isStaff;
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
-  // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
-
+  // Get started in the hero scrolls to #features. The smooth scroll already leaves 96px for the header
+  // (SmoothScroll), which slides away going down: -72px lands the section near the top.
   return (
-    <section id="features" className="scroll-mt-24 overflow-x-clip bg-white">
+    <section id="features" className="-scroll-mt-[72px] overflow-x-clip bg-white">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
         <h2 className="text-hero text-[32px] leading-[1.05] text-black sm:text-[44px] lg:text-[56px]">Everything a business needs</h2>
       </div>
