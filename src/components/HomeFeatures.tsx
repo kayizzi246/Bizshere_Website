@@ -2,8 +2,6 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Calculator, Check, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { cachedMemberPlan } from "@/lib/cached";
-import { popupPlan } from "@/lib/billing";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
@@ -33,7 +31,7 @@ async function records() {
   const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
   const live = { publicationStatus: "PUBLISHED" } as const;
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
-  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, counts] = await Promise.all([
+  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 6 }),
@@ -44,15 +42,11 @@ async function records() {
     prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
     // Public fields only: name, title, specialties and district. Contacts stay on the member profile.
     prisma.contentItem.findMany({ where: { contentType: "CONSULTANT", ...live }, select: { slug: true, title: true, contentType: true, consultant: { select: { fullName: true, professionalTitle: true, photoUrl: true, specialties: true, district: true } } }, orderBy: [...newest], take: 3 }),
-    // What's inside, for the membership offer (live counts: the proof that it is worth paying for)
-    prisma.contentItem.groupBy({ by: ["contentType"], where: { ...live, contentType: { in: ["FUNDING_PROGRAMME", "SUPPLIER", "BUSINESS_IDEA", "MACHINE", "CONSULTANT", "GUIDE"] } }, _count: { _all: true } }),
   ]);
-  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts, counts };
+  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts };
 }
 
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
-/** What membership opens, in the homepage offer. */
-const OFFER = ["Full business plans and budgets", "Supplier and expert contacts", "Funding amounts and terms", "Machine prices and where to buy"];
 /** Websites a visitor who hasn't paid sees in full on the homepage card; the rest are locked. */
 const FREE_WEBSITES = 2;
 const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], [FileText, "Business plans"], [TrendingUp, "Cash flow"]];
@@ -88,8 +82,6 @@ const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark"
 const MONOGRAM = ["bg-brand-dark text-white", "bg-brand-tint text-brand-dark", "bg-navy text-white", "bg-[#D6E9F7] text-brand-dark"];
 
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
-const pay = { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" };
-const joinButton = "group inline-flex h-[52px] items-center justify-center gap-1.5 rounded-full bg-accent px-8 text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white";
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[16px] leading-relaxed text-ink-soft sm:text-[17px]";
@@ -164,14 +156,8 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, counts }, viewer, memberPlan] = await Promise.all([records(), getViewer(), cachedMemberPlan()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
-  const plan = popupPlan(memberPlan);
-  const lowest = plan.daily ? `${plan.daily} a day` : plan.weekly ? `${plan.weekly} a week` : plan.monthly ? `${plan.monthly} a month` : null;
-  const count = (t: string) => counts.find((c) => c.contentType === t)?._count._all ?? 0;
-  // Only the counts there are: an empty directory isn't a selling point
-  const inside = ([["FUNDING_PROGRAMME", "Funding sources"], ["SUPPLIER", "Checked suppliers"], ["BUSINESS_IDEA", "Business plans"], ["MACHINE", "Machines with prices"], ["CONSULTANT", "Business experts"], ["GUIDE", "Step-by-step guides"]] as const)
-    .map(([t, label]) => [count(t), label] as const).filter(([n]) => n > 0);
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
   // Get started in the hero scrolls to #features. The smooth scroll already leaves 96px for the header
@@ -304,41 +290,6 @@ export async function HomeFeatures() {
           </Panel>
         </ul>
       </div>
-
-      {/* The membership offer, for anyone who isn't a member yet, on every screen (client: "convert and increase
-          sales", 9 Nov 2026): the lowest price first, what it opens, live counts of what is inside, the ways to
-          pay, and one clear button (sign up, or straight to payment when signed in). */}
-      {sell ? (
-        <div className="container-site pt-4 sm:pt-5">
-          <section data-offer="" data-reveal="" aria-label="Membership" className="rise-soft grid grid-cols-[minmax(0,1fr)] gap-6 rounded-3xl bg-navy p-6 text-white sm:p-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
-            <div className="flex flex-col items-start gap-3">
-              <span className="rounded-full bg-accent px-3 py-1 text-[12px] font-bold uppercase tracking-[0.06em] text-ink">Full access</span>
-              <h2 className="text-hero text-[28px] leading-[1.1] sm:text-[36px] lg:text-[40px]">{lowest ? <>Everything, from <span className="text-accent">{lowest}</span></> : "Everything, in one membership"}</h2>
-              <p data-size="" className="max-w-lg text-[15px] leading-relaxed text-white/80 sm:text-[16px]">One membership opens every page: full budgets, contacts, funding terms and downloads. Pay by the day, week, month or year.</p>
-              <ul className="grid w-full gap-2 sm:grid-cols-2">
-                {OFFER.map((t) => <li key={t} className="flex items-start gap-2 text-[15px] font-semibold leading-snug"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent" strokeWidth={3} />{t}</li>)}
-              </ul>
-              <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:items-center">
-                <Link {...(viewer.userId ? pay : { href: "/signup" })} className={joinButton}>Get full access<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></Link>
-                <Link href="/membership" className="inline-flex h-[52px] items-center justify-center rounded-full border border-white/25 px-7 text-[15px] font-semibold text-white hover:border-white hover:bg-white/10 hover:text-white">See all prices</Link>
-              </div>
-              <ul aria-label="Ways to pay" className="flex flex-wrap gap-2 pt-1 text-[12px] font-bold">
-                {["MTN MoMo", "Airtel Money", "Visa / Mastercard"].map((m) => <li key={m} className="rounded-md border border-white/20 px-2.5 py-1 text-white/90">{m}</li>)}
-              </ul>
-            </div>
-            {inside.length ? (
-              <ul aria-label="What is inside" className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                {inside.map(([n, label]) => (
-                  <li key={label} className="flex flex-col gap-0.5 rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10">
-                    <span className="text-hero text-[28px] leading-none text-white sm:text-[32px]">{n}</span>
-                    <span className="text-[13px] font-semibold text-white/75">{label}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </section>
-        </div>
-      ) : null}
 
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
       <div className="container-site pt-4 sm:pt-5">
