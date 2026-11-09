@@ -48,7 +48,8 @@ export default async function OpportunityPage({ params }: { params: { slug: stri
       <TwoColumn
         main={<>
           <Card title="The project">
-            <Prose text={o.projectDescription ?? item.overview} />
+            {/* The project description, then the admin's description when it adds something */}
+            <Prose text={[...new Set([o.projectDescription, item.overview].filter((x): x is string => Boolean(x?.trim())))].join("\n\n") || null} />
             <Rows rows={[["Type", o.opportunityType], ["Location", item.coverageNotes], ["Intended use of funds", o.useOfFunds]]} />
           </Card>
           <Card title="Proposed terms">

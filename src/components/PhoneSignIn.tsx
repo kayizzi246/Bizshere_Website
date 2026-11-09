@@ -5,6 +5,14 @@ import { signIn } from "next-auth/react";
 import { ArrowLeft, Smartphone } from "lucide-react";
 import { requestCode } from "@/app/actions/onboarding";
 
+/** Why the phone sign-in refused (thrown in src/lib/auth.ts). Anything else: the code. */
+const PHONE_ERRORS: Record<string, string> = {
+  "too-many": "Too many sign-in tries from this internet connection. Wait 15 minutes, then try again.",
+  suspended: "This account is paused. Contact us to open it again.",
+  staff: "This number belongs to a team account. Sign in with your password at the staff sign-in instead.",
+};
+const WRONG_CODE = "That code isn't right, or it has expired (codes last 10 minutes). Check the SMS, or send a new code.";
+
 /**
  * Passwordless sign-in: phone number first, then the one-time code we text.
  * New numbers get an account automatically, so sign-up and sign-in are the same.
@@ -23,6 +31,9 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   const [notice, setNotice] = useState<string | null>(null);
   const [wait, setWait] = useState(0);
   const codeInput = useRef<HTMLInputElement>(null);
+  // The code being checked. Phones that fill the code in from the SMS can fire twice: the first check signs
+  // in and uses the code up, and a second one used to show "wrong code" (Nov 2026). One check per code.
+  const checking = useRef<string | null>(null);
   const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[15px]";
 
   useEffect(() => { if (phone) codeInput.current?.focus(); }, [phone]);
@@ -32,7 +43,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
     return () => clearTimeout(t);
   }, [wait]);
 
-  // Each code is new and replaces the one before: only the newest SMS works.
+  // Each request texts a new code; the earlier ones keep working until they expire (src/lib/phone-codes.ts).
   async function send(raw: string, again = false) {
     setBusy(true);
     setError(null);
@@ -44,23 +55,26 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
       setLength(res.length);
       setWait(30);
       if (again) {
-        setNotice(`New code sent to ${res.phone}. Use the newest SMS: earlier codes no longer work.`);
+        setNotice(`New code sent to ${res.phone}. Any code from the last 10 minutes works.`);
         if (codeInput.current) { codeInput.current.value = ""; codeInput.current.focus(); }
       }
     } else setError(res.error);
   }
 
-  async function verify(code: string) {
-    if (!phone || busy) return;
+  async function verify(raw: string) {
+    const code = raw.replace(/\D/g, "");
+    if (!phone || !code || checking.current !== null) return;
+    checking.current = code;
     setBusy(true);
     setError(null);
     setNotice(null);
-    const r = await signIn("phone", { phone, code, redirect: false });
+    const r = await signIn("phone", { phone, code, redirect: false }).catch(() => null);
     setBusy(false);
     if (!r || r.error) {
-      setError("That code isn't right, or it has expired. Use the newest SMS, or send a new code.");
+      checking.current = null;
+      setError(!r ? "No connection. Check your internet and try again." : (r.error && PHONE_ERRORS[r.error]) || WRONG_CODE);
       if (codeInput.current) { codeInput.current.value = ""; codeInput.current.focus(); }
-    } else onSignedIn();
+    } else onSignedIn(); // stays locked: signed in
   }
 
   if (phone) {

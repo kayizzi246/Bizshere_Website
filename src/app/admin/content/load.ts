@@ -45,7 +45,8 @@ export async function loadValues(id: string) {
       relatedFrom: { include: { toItem: { select: { slug: true } } }, orderBy: { displayOrder: "asc" } },
       revisions: { include: { editor: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 10 },
       businessIdea: { include: { steps: { orderBy: { stepNumber: "asc" } } } },
-      machine: true, businessTip: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } }, fundingProgramme: true, investmentOpportunity: true,
+      machine: true, businessTip: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } },
+      fundingProgramme: { include: { provider: { select: { phone: true, email: true, country: true, organization: { select: { website: true, logoUrl: true } } } } } }, investmentOpportunity: true,
       guide: { include: { steps: { orderBy: { stepNumber: "asc" } }, documents: true } },
       consultant: true,
       recipe: { include: { ingredients: { orderBy: { order: "asc" } }, steps: { orderBy: { stepNumber: "asc" } } } },
@@ -59,6 +60,8 @@ export async function loadValues(id: string) {
   for (const f of dir.fields) values[`f_${f.name}`] = toFormValue(f, record?.[f.name]);
   if (dir.link && record) values[dir.link.field] = String(record[dir.link.field] ?? "");
   if (item.supplier) values.f_address = item.supplier.organization.locations[0]?.physicalAddress ?? "";
+  const funder = item.fundingProgramme?.provider;
+  if (funder) Object.assign(values, { f_funderPhone: funder.phone ?? "", f_funderEmail: funder.email ?? "", f_funderCountry: funder.country, f_funderWebsite: funder.organization.website ?? "", f_funderLogo: funder.organization.logoUrl ?? "" });
 
   const children: Record<string, string> = {
     ideaSteps: item.businessIdea?.steps.map((s) => [s.title, s.description].filter(Boolean).join(" | ")).join("\n") ?? "",

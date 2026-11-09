@@ -7,7 +7,7 @@
  * order's real status first. Safe to call any number of times: a payment is applied once.
  */
 import type { BillingPeriod, PaymentMethod, PaymentStatus } from "@prisma/client";
-import { prisma } from "./prisma";
+import { prisma, transaction } from "./prisma";
 import { periodEnd } from "./billing";
 import { orderStatus } from "./payments";
 import { audit } from "./audit";
@@ -71,7 +71,7 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
   // Paying early (renewing) adds to the time left rather than starting over.
   const from = sub.currentPeriodEnd && sub.currentPeriodEnd > new Date() && sub.status === "ACTIVE" ? sub.currentPeriodEnd : new Date();
   const end = periodEnd(from, period);
-  const applied = await prisma.$transaction(async (tx) => {
+  const applied = await transaction(async (tx) => {
     // Only one caller wins the change to SUCCEEDED, so the period is never added twice.
     const won = await tx.payment.updateMany({
       where: { id: payment.id, status: { in: RETRYABLE } },

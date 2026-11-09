@@ -35,6 +35,8 @@ export default async function RecipePage({ params }: { params: { slug: string } 
       brief={item.shortSummary}
       rows={[{ label: "Category", value: item.primaryCategory?.name }]}
       links={[{ label: "Watch the video", href: r.videoUrl, icon: "video" }]}
+      // Every other field filled in the admin (cuisine, servings, times, allergens, storage…); Remark has its own section below
+      details={{ type: "RECIPE", record: r as unknown as Record<string, unknown>, gated, skip: ["remarks", "videoUrl"] }}
       viewer={viewer}
       item={item}
       back={path}

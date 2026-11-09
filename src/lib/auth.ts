@@ -127,20 +127,22 @@ export const authOptions: NextAuthOptions = {
       name: "Phone and code",
       credentials: { phone: { label: "Phone", type: "tel" }, code: { label: "Code", type: "text" } },
       async authorize(raw, req) {
+        // Each refusal has its own reason (PHONE_ERRORS in src/components/PhoneSignIn.tsx): before, every one
+        // of them read "that code isn't right", even with the right code (Nov 2026).
         // Guessing codes for many numbers from one address
-        if (!(await allow(`login:ip:${ipFrom(headerOf(req))}`, ...LIMITS.loginPerIp))) return null;
+        if (!(await allow(`login:ip:${ipFrom(headerOf(req))}`, ...LIMITS.loginPerIp))) throw new Error("too-many");
         const phone = phoneKey(String(raw?.phone ?? ""));
-        if (!phone || !(await verifyCode(phone, String(raw?.code ?? "")))) return null;
+        if (!phone || !(await verifyCode(phone, String(raw?.code ?? "")))) throw new Error("wrong-code");
         let user = await prisma.user.findUnique({ where: { phone } });
         if (!user) {
           user = await prisma.user.create({ data: { name: phone, phone, role: "USER" } });
           await audit(user.id, "user.signed_up", "user", user.id, { via: "phone" });
         }
-        if (user.isSuspended) return null;
+        if (user.isSuspended) throw new Error("suspended");
         // Staff sign in with their password and then a code (the sign-in above): a code alone must not open the admin.
         if (isStaffRole(user.role)) {
           await audit(user.id, "auth.staff_phone_refused", "user", user.id);
-          return null;
+          throw new Error("staff");
         }
         // Demo account (OTP_TEST_PHONE): give it active member access so the owner can preview
         // paid pages on the live site. Only ever reached when the test env vars are set.

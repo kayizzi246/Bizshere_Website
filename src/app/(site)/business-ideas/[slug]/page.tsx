@@ -16,6 +16,7 @@ import { Icon } from "@/components/Icon";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { IdeaCard, PLAN_LABEL, PLAN_ORDER, points, titleCase } from "@/components/IdeaParts";
 import { DropHint } from "@/components/DropHint";
+import { FieldSections, visibleGroups } from "@/components/FieldSections";
 import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RecentStrip, RememberVisit } from "@/components/Recent";
@@ -101,10 +102,10 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   // All 14 rows always show, in the document's order; an empty one says "—".
   const join = (xs: string[]) => (xs.length ? xs.join(", ") : null);
   const template: [string, React.ReactNode, string | null][] = [
-    ["Business Idea", name, null],
+    ["Business Idea", name, idea.remarks],
     ["Business Size", size, null],
     ["Business Category", [item.primaryCategory?.name, idea.businessType].filter(Boolean).filter((v, n, a) => a.indexOf(v) === n).join(" · ") || null, null],
-    ["Business Description", item.shortSummary ?? item.overview, null],
+    ["Business Description", item.overview ?? item.shortSummary, null],
     ["Key Requirements", join(keyPoints), null],
     ["Best Location", join(locations), idea.locationNotes],
     ["Starting Capital", capitalFull, idea.capitalNotes],
@@ -224,6 +225,16 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             </div>
             </details>
           </section>
+
+          {/* ── Everything else filled in the admin beyond the template's 14 rows (concept, market, risks…) ── */}
+          {visibleGroups("BUSINESS_IDEA", idea as unknown as Record<string, unknown>).length ? (
+            <section id="more" className={card} data-reveal="">
+              <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
+                <summary className={dropHead}><SectionTitle n="+" kicker="In depth" title="More about this business" sub="The market, the running costs and the risks." icon={ClipboardList} /><DropHint /></summary>
+                <div className="mt-5 flex flex-col gap-4"><FieldSections bare type="BUSINESS_IDEA" record={idea as unknown as Record<string, unknown>} gated={gated} back={path} /></div>
+              </details>
+            </section>
+          ) : null}
 
           {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
           <section id="budget" className={card} data-reveal="">

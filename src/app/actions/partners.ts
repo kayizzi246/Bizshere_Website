@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { BillingPeriod } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { audit } from "@/lib/audit";
 import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD, periodEnd } from "@/lib/billing";
@@ -65,7 +65,7 @@ export async function registerPartner(form: FormData) {
   const slug = `${slugOf(d.name)}-${randomInt(1000, 9999)}`;
   const phone = user.phone;
 
-  await prisma.$transaction(async (tx) => {
+  await transaction(async (tx) => {
     const org = await tx.organization.create({ data: { legalName: d.business || d.name, accountType: kind.data === "supplier" ? "SUPPLIER" : "CONSULTANCY", status: "PENDING" } });
     await tx.organizationMember.create({ data: { userId, organizationId: org.id, role: "OWNER" } });
     // Stays a draft, out of sight, until it is paid for

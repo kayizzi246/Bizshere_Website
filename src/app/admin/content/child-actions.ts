@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type ClaimType, type RoundStatus, type ScenarioLevel } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import type { BudgetRow } from "./BudgetLinesEditor";
@@ -55,7 +55,7 @@ export async function saveBudgetScenario(form: FormData) {
     assumptions: s(form, "assumptions") || null,
     operatingScale: s(form, "operatingScale") || null,
   };
-  await prisma.$transaction(async (tx) => {
+  await transaction(async (tx) => {
     const scenario = await tx.budgetScenario.upsert({ where: { ideaId_level: { ideaId, level } }, create: { ideaId, level, ...data }, update: data });
     await tx.budgetLine.deleteMany({ where: { scenarioId: scenario.id } });
     await tx.budgetLine.createMany({ data: lines.map((l) => ({ ...l, scenarioId: scenario.id })) });

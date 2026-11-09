@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { z } from "zod";
 import type { CheckResult, CheckType } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { requireAdmin, requireArea, requireItemArea, staffAccess } from "@/lib/access";
 import { contentArea } from "@/lib/admin-areas";
 import { phoneKey } from "@/lib/phone-codes";
@@ -33,7 +33,7 @@ export async function decideSubmission(form: FormData) {
 
   const sub = await prisma.submission.findUniqueOrThrow({ where: { id }, include: { organization: { include: { supplier: true } }, supplierOffer: true } });
 
-  await prisma.$transaction(async (tx) => {
+  await transaction(async (tx) => {
     let contentItemId: string | null = sub.contentItemId;
 
     if (sub.type === "NEW_BUSINESS" && sub.organization) {

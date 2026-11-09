@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, isMemberOnly, MAIN, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
+import { directoryFor, FUNDER, isMemberOnly, MAIN, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import type { FormOptions } from "./load";
@@ -23,7 +23,9 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const lb = dir.labels ?? {};
   // What people need comes first, one screen of plain questions. Optional extras and the technical
   // settings fold away, and open by themselves when something inside needs fixing.
-  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN);
+  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER);
+  // A funding source's funder details sit with the fund provider choice, always open
+  const funderFields = dir.fields.filter((f) => f.group === FUNDER);
   const mainFields = dir.fields.filter((f) => f.group === MAIN);
   const slug = (g: string) => "s-" + g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const field = (f: Field) => <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} />;
@@ -69,6 +71,12 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
             {linkSelect}
             {values?.id ? null : <Input name="linkNew" label={`New ${dir.link.label.toLowerCase()} name`} defaultValue="" help={`Leave empty to use the ${(lb.title ?? "title").toLowerCase()}.`} />}
           </Row>
+          {funderFields.length ? (
+            <>
+              <p className="text-sm text-ink-muted">{values?.id ? "The funder's details. Shared by all its funds: a change here shows on each of them." : "The funder's details. Leave empty when you chose a funder above: what it already has is kept."}</p>
+              <div className="flex flex-wrap gap-3.5">{funderFields.map(field)}</div>
+            </>
+          ) : null}
         </Section>
       ) : null}
 

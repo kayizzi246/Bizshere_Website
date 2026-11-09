@@ -1,7 +1,7 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
 import { directory } from "@/config/directories";
-import { FUNDING_TABS } from "@/lib/format";
+import { compactRange, FUNDING_TABS } from "@/lib/format";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
@@ -10,20 +10,33 @@ export const metadata = { title: directory("/funding").title };
 const fundType = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
 /**
- * Funding Sources as a table. Members see who gives it and what it is for, and Apply now takes them
- * straight to the provider's own page. Visitors who haven't paid see the fund type only, and their
- * Apply now opens the join and payment pop-up: the apply address is never sent to them.
+ * Funding Sources as the client's template table (Nov 2026): S/N, Fund Name, Funds Provider, Fund Type,
+ * Country, Purpose and Funding Range. The range is member detail: visitors who haven't paid see a lock
+ * and the figure is never sent. Apply now takes members straight to the provider's own page; for
+ * everyone else it opens the join and payment pop-up, and the apply address is never sent to them.
  */
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/funding");
   const viewer = await getViewer();
-  const programmes = (ids: string[]) => prisma.fundingProgramme.findMany({ where: { contentItemId: { in: ids } }, include: { provider: { include: { organization: true } } } });
+  const programmes = (ids: string[]) => prisma.fundingProgramme.findMany({
+    where: { contentItemId: { in: ids } },
+    include: { contentItem: { select: { accessLevel: true } }, provider: { include: { organization: true } } },
+  });
 
-  async function meta(ids: string[]) {
+  async function cells(ids: string[]) {
     const rows = await programmes(ids);
-    return Object.fromEntries(rows.map((p) => [p.contentItemId, viewer.isMember
-      ? [fundType(p.fundingType), p.provider.organization.tradingName ?? p.provider.organization.legalName, p.providerCategory ?? p.provider.providerCategory].filter(Boolean).join(" · ")
-      : fundType(p.fundingType)]));
+    return Object.fromEntries(rows.map((p) => {
+      const org = p.provider.organization;
+      const range = compactRange(p.amountMin, p.amountMax, p.currency) ?? p.amountBasis;
+      const locked = Boolean(range) && p.contentItem.accessLevel !== "PUBLIC" && !viewer.isMember;
+      return [p.contentItemId, [
+        { label: "Funds provider", value: org.tradingName ?? org.legalName },
+        { label: "Fund type", value: fundType(p.fundingType) },
+        { label: "Country", value: p.provider.country },
+        { label: "Purpose", value: p.purpose },
+        { label: "Funding range", value: locked ? null : range, locked },
+      ]];
+    }));
   }
   // Where to apply: the programme's own link, or else the provider's website
   async function apply(ids: string[]) {
@@ -37,7 +50,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   }
 
   return (
-    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" meta={meta} variant="table" title={d.title} intro={d.text}
+    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" cells={cells} variant="table" title={d.title} intro={d.text}
       {...(viewer.isMember ? { apply } : { applyLocked: true })} />
   );
 }

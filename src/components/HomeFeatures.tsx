@@ -31,10 +31,10 @@ async function records() {
   const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
   const live = { publicationStatus: "PUBLISHED" } as const;
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
-  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics] = await Promise.all([
+  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 8 }),
+    prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 6 }),
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "GUIDE", ...live }, select: item, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "NEWS", ...live }, select: item, orderBy: [...newest], take: 3 }),
@@ -42,15 +42,13 @@ async function records() {
     prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
     // Public fields only: name, title, specialties and district. Contacts stay on the member profile.
     prisma.contentItem.findMany({ where: { contentType: "CONSULTANT", ...live }, select: { slug: true, title: true, contentType: true, consultant: { select: { fullName: true, professionalTitle: true, photoUrl: true, specialties: true, district: true } } }, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_TIP", ...live }, select: { slug: true, title: true, primaryCategory: { select: { name: true } } }, orderBy: [...newest], take: 3 }),
-    prisma.forumTopic.findMany({ where: { status: { not: "HIDDEN" } }, select: { id: true, title: true, _count: { select: { posts: { where: { hiddenAt: null } } } } }, orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }], take: 3 }),
   ]);
-  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics };
+  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts };
 }
 
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
 const TOOL_POINTS: [LucideIcon, string][] = [[Percent, "VAT"], [Users, "PAYE"], [FileText, "Business plans"], [TrendingUp, "Cash flow"]];
-// Shown until the first tips and topics are in
+// The Tools, Tips and Forum cards look alike: an icon, a title, a line and these pills
 const TIP_POINTS: [LucideIcon, string][] = [[Coins, "Money"], [Megaphone, "Marketing"], [Users, "Customers"], [Store, "Running a shop"]];
 const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"], [Users, "Meet owners"], [Store, "Find stock"], [Lightbulb, "Share ideas"]];
 /**
@@ -141,20 +139,6 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
-/** Rows on a white card: a name and a short line under it, each a link, a hairline between. */
-const Rows = ({ items, tone }: { items: { href: string; title: string; sub: string }[]; tone: string }) => (
-  <ul className="mx-auto flex w-full max-w-md flex-col divide-y divide-line text-left">
-    {items.map((r, n) => (
-      <li key={r.href} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
-        <Link href={r.href} className="group flex flex-col gap-0.5 py-2.5 text-heading hover:text-heading">
-          <span className={`line-clamp-1 font-display text-[15px] font-extrabold leading-snug ${tone}`}>{r.title}</span>
-          <span className="line-clamp-1 text-[13px] text-ink-muted">{r.sub}</span>
-        </Link>
-      </li>
-    ))}
-  </ul>
-);
-
 /** Plain rows of reading: a name, a line under it, a hairline between. No background of their own. */
 const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
   <ul className="mx-auto flex w-full max-w-xl flex-col divide-y divide-white/20 text-left">
@@ -171,12 +155,11 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics }, viewer] = await Promise.all([records(), getViewer()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
   // The moving row must be wider than its panel to loop without a gap, so a short list repeats.
-  const strip = suppliers.length ? Array.from({ length: Math.ceil(5 / suppliers.length) }, () => suppliers).flat() : [];
 
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
@@ -280,37 +263,29 @@ export async function HomeFeatures() {
 
           <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="bg-brand" words="text-white" onColour={S.suppliers.onColour}
             text="Checked suppliers in Uganda and abroad.">
-            {/* Runs to the panel's edges, where it fades into the blue (.marquee-soft in globals.css) */}
-            <div className="marquee marquee-soft -mx-5 h-full sm:-mx-7">
-              <div className="marquee-viewport h-full overflow-hidden">
-                <div className="marquee-track flex h-full w-max" style={{ "--marquee-duration": `${strip.length * 6}s` } as React.CSSProperties}>
-                  {[false, true].map((dup) => (
-                    <ul key={String(dup)} aria-hidden={dup || undefined} className={`flex h-full shrink-0 gap-2.5 pr-2.5 ${dup ? "marquee-dup" : ""}`}>
-                      {strip.map((x, n) => {
-                        const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
-                        const name = clean(x.title);
-                        const sells = x.supplier?.items.slice(0, 2).join(", ");
-                        return (
-                          <li key={n} className="w-[200px] shrink-0 sm:w-[220px]">
-                            <Link href={`/suppliers/${x.slug}`} tabIndex={dup ? -1 : undefined} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-heading hover:text-heading">
-                              <span className={`relative flex min-h-[150px] flex-1 items-center justify-center overflow-hidden ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
-                                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                                {picture ? <img src={picture} alt="" className="absolute inset-0 h-full w-full scale-[1.08] object-cover transition-transform duration-300 group-hover:scale-[1.14]" /> : <span aria-hidden className="font-display text-[44px] font-extrabold leading-none">{name.charAt(0)}</span>}
-                              </span>
-                              <span className="flex min-w-0 flex-col gap-0.5 p-3">
-                                <span className="line-clamp-1 font-display text-[14px] font-extrabold leading-tight group-hover:text-brand">{name}</span>
-                                {sells ? <span className="line-clamp-1 text-[12px] font-medium text-ink-soft">{sells}</span> : null}
-                                {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
-                              </span>
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {/* Six suppliers, still: two columns of white rows like the funding list beside it (four on phones) */}
+            <ul className="grid h-full grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
+              {suppliers.slice(0, 6).map((x, n) => {
+                const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
+                const name = clean(x.title);
+                const sells = x.supplier?.items.slice(0, 2).join(", ");
+                return (
+                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className={n >= 4 ? "hidden sm:block" : undefined}>
+                    <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white p-2.5 text-heading hover:text-heading">
+                      <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[22px] font-extrabold leading-none">{name.charAt(0)}</span>}
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate font-display text-[15px] font-bold group-hover:text-brand">{name}</span>
+                        {sells ? <span className="truncate text-[13px] text-ink-soft">{sells}</span> : null}
+                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[12px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </Panel>
         </ul>
       </div>
@@ -362,16 +337,12 @@ export async function HomeFeatures() {
 
       <Card href="/tips" art="/lottie/tips.json" title="Tips that save you money" action="Read the tips" colour={S.tips.solid}
         text="Short tips that work, with members' remarks.">
-        {tips.length
-          ? <Rows tone="group-hover:text-[#BE185D]" items={tips.map((x) => ({ href: `/tips/${x.slug}`, title: clean(x.title), sub: x.primaryCategory?.name ?? "Business tip" }))} />
-          : <Points points={TIP_POINTS} mark="text-white" tint={S.tips.solid} />}
+        <Points points={TIP_POINTS} mark="text-white" tint={S.tips.solid} />
       </Card>
 
       <Card href="/forum" art="/lottie/forum.json" title="Talk to other owners" action="Join the conversation" colour={S.forum.solid}
         text="Ask, answer and meet other owners.">
-        {topics.length
-          ? <Rows tone="group-hover:text-[#8A6A00]" items={topics.map((x) => ({ href: `/forum/${x.id}`, title: x.title, sub: `${x._count.posts} message${x._count.posts === 1 ? "" : "s"}` }))} />
-          : <Points points={FORUM_POINTS} mark="text-ink" tint={S.forum.solid} />}
+        <Points points={FORUM_POINTS} mark="text-ink" tint={S.forum.solid} />
       </Card>
         </ul>
       </div>

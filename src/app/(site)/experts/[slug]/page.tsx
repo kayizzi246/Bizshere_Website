@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, BriefcaseBusiness, Clock, FileDown, Globe, GraduationCap, Languages, Link2, LockKeyhole, MapPin, MonitorSmartphone, Star, type LucideIcon } from "lucide-react";
+import { ArrowLeft, BadgeCheck, BriefcaseBusiness, CalendarCheck, Clock, FileDown, Globe, GraduationCap, Languages, Link2, LockKeyhole, MapPin, MonitorSmartphone, Star, Wallet, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { cachedMemberPlan } from "@/lib/cached";
 import { popupPlan } from "@/lib/billing";
-import { date } from "@/lib/format";
+import { date, moneyRange } from "@/lib/format";
 import { ContactButtons } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
 import { MemberValue } from "@/components/MemberValue";
@@ -52,7 +52,8 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
   const name = (c.fullName || item.title).replace(/^Sample:\s*/i, "");
   const role = [c.professionalTitle ?? item.primaryCategory?.name, c.businessName].filter(Boolean).join(" · ");
   const rating = c.reviews.length ? c.reviews.reduce((n, r) => n + r.rating, 0) / c.reviews.length : null;
-  const about = item.overview ?? item.shortSummary;
+  // Both the brief and the description from the admin (once, when they are the same)
+  const about = [...new Set([item.shortSummary, item.overview].filter((x): x is string => Boolean(x?.trim())))].join("\n\n") || null;
   const place = [c.address, c.district, c.country].filter(Boolean).join(", ");
 
   // The proof, at a glance. Only what is really there.
@@ -62,7 +63,14 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
     ...(c.services.length ? [{ value: String(c.services.length), label: `Service${c.services.length === 1 ? "" : "s"} offered`, icon: BadgeCheck }] : []),
     ...(c.qualifications.length ? [{ value: String(c.qualifications.length), label: `Qualification${c.qualifications.length === 1 ? "" : "s"}`, icon: GraduationCap }] : []),
   ];
+  // Fees and the booking link are member detail (MEMBER_ONLY): visitors get the lock, never the value
+  const membersOnly = (key: string) => <Link key={key} href={path} data-onboard="" className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members only</Link>;
+  const hasFee = c.feeMin !== null || c.feeMax !== null;
+  const fee = [hasFee ? moneyRange(c.feeMin, c.feeMax, c.currency) : null, c.pricingBasis, c.quotationRequired ? "gives a quote first" : null].filter(Boolean).join(" · ");
   const details: [LucideIcon, string, React.ReactNode][] = [
+    ...(fee ? [[Wallet, "Fees", gated ? membersOnly("f") : fee] as [LucideIcon, string, React.ReactNode]] : []),
+    ...(c.consultationMins ? [[Clock, "Consultation", `${c.consultationMins} minutes`] as [LucideIcon, string, React.ReactNode]] : []),
+    ...(c.bookingUrl ? [[CalendarCheck, "Book", gated ? membersOnly("b") : <a key="b" href={c.bookingUrl} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">Book or ask a question</a>] as [LucideIcon, string, React.ReactNode]] : []),
     ...(c.responseTime ? [[Clock, "Replies", c.responseTime] as [LucideIcon, string, React.ReactNode]] : []),
     ...(c.availability ? [[Clock, "Available", c.availability] as [LucideIcon, string, React.ReactNode]] : []),
     ...(c.deliveryModes.length ? [[MonitorSmartphone, "Works", c.deliveryModes.join(", ")] as [LucideIcon, string, React.ReactNode]] : []),

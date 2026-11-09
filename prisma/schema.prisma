@@ -1015,6 +1015,9 @@ model FundingProvider {
   organizationId   String  @unique
   providerCategory String? // bank, government fund, NGO, investor...
   country          String  @default("Uganda")
+  // Funder contacts on the fund page (client's funding template, Nov 2026); website and logo are on the organization
+  phone            String?
+  email            String?
 
   organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   programmes   FundingProgramme[]
@@ -1063,6 +1066,10 @@ model FundingProgramme {
   ownershipTerms        String?
   governanceTerms       String?
   selectionCriteria     String?
+  // client's funding template (Nov 2026): rows 5, 6 and 8 of the fund details
+  targetGroup           String? // e.g. SMEs, women, youth
+  tenor                 String? // e.g. 4 months to 24 months
+  howToApply            String?
   // evidence
   officialTermsUrl      String?
   termsVersionDate      DateTime?

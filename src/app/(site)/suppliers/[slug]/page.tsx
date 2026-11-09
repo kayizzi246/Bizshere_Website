@@ -9,6 +9,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { moneyRange } from "@/lib/format";
 import { ContactButtons } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
+import { FieldSections, visibleGroups } from "@/components/FieldSections";
 import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RememberVisit } from "@/components/Recent";
@@ -54,7 +55,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   const catalogue = item.media[0];
   const catalogueLocked = catalogue ? catalogue.accessLevel !== "PUBLIC" && !viewer.isMember : false;
   const kind = s.supplierType ? s.supplierType.charAt(0) + s.supplierType.slice(1).toLowerCase().replace(/_/g, " ") : null;
-  const about = item.overview ?? item.shortSummary;
+  // Both the brief and the description from the admin (once, when they are the same)
+  const about = [...new Set([item.shortSummary, item.overview].filter((x): x is string => Boolean(x?.trim())))].join("\n\n") || null;
 
   // Prices stay on the server for visitors: `gated` cards show "See price" instead.
   const products = s.listings.map((l) => ({
@@ -111,6 +113,12 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                 <section className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
                   <h2 className="font-display text-lg font-extrabold text-heading">{name}</h2>
                   <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{about}</p>
+                </section>
+              ) : null}
+              {/* What else they offer (brands, wholesale or retail, installation, spare parts…), as filled in the admin */}
+              {visibleGroups("SUPPLIER", s as unknown as Record<string, unknown>).length ? (
+                <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+                  <FieldSections bare type="SUPPLIER" record={s as unknown as Record<string, unknown>} gated={gated} back={path} />
                 </section>
               ) : null}
               <div id="products" className="scroll-mt-28"><SupplierCatalog items={products} gated={gated} back={path} wide={false} /></div>

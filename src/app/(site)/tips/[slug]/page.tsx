@@ -28,7 +28,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
   const item = await prisma.contentItem.findFirst({
     where: { slug: params.slug, contentType: "BUSINESS_TIP", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
     select: {
-      id: true, slug: true, title: true, overview: true, accessLevel: true, publishedAt: true, updatedAt: true,
+      id: true, slug: true, title: true, shortSummary: true, overview: true, accessLevel: true, publishedAt: true, updatedAt: true,
       primaryCategory: { select: { name: true } },
       businessTip: { select: { id: true, remarks: { where: { hiddenAt: null }, orderBy: { createdAt: "asc" }, take: 200, select: { id: true, body: true, createdAt: true, author: { select: { name: true, role: true } } } } } },
     },
@@ -48,6 +48,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
       <article className="flex flex-col gap-4">
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#FCE7F1] px-3 py-1 text-[13px] font-bold text-[#BE185D]"><Sparkles aria-hidden className="h-4 w-4" />{item.primaryCategory?.name ?? "Business tip"}</span>
         <h1 className="text-page-title">{item.title}</h1>
+        {item.shortSummary ? <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
         <span className="text-sm text-ink-muted">Published {date(item.publishedAt ?? item.updatedAt)}</span>
         <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "Business tip", icon: "tip" }} />
         <div className="card relative overflow-hidden p-6 sm:p-7">

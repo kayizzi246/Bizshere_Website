@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { SITE_DATA } from "@/lib/cached";
@@ -62,7 +62,7 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
   const same = (a: unknown, b: unknown) => String(a ?? "") === String(b ?? "");
   let added = 0, changed = 0, removed = 0;
 
-  await prisma.$transaction(async (tx) => {
+  await transaction(async (tx) => {
     const gone = input.removed.filter((id) => current.has(id));
     if (gone.length) removed = (await tx.supplierProductListing.deleteMany({ where: { id: { in: gone }, supplierId: supplier.id } })).count;
     const fresh = data.filter((d) => !d.id || !current.has(d.id));

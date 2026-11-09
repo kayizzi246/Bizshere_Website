@@ -49,6 +49,8 @@ const cur = (group?: string): Field => ({ name: "currency", label: "Currency", k
 
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
 const SUPPLIER_MORE = "What else they offer";
+/** The funder's details on a funding source. */
+export const FUNDER = "Funder details";
 
 export const DIRECTORIES: Directory[] = [
   {
@@ -130,17 +132,31 @@ export const DIRECTORIES: Directory[] = [
     link: { field: "providerId", label: "Fund provider" },
     labels: { title: "Fund name", shortSummary: "Brief", overview: "Description (optional)", category: "Category" },
     fields: [
+      // In the order of the client's funding template (Nov 2026): the list's columns, then the fund details' rows
       { ...e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN), required: true },
-      t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
-      ta("eligibilityText", "Eligibility", MAIN),
+      t("purpose", "Purpose", MAIN, "e.g. Working capital, Education, Women empowerment"),
       d("amountMin", "Amount given, from", MAIN, MONEY_HELP), d("amountMax", "Amount given, up to", MAIN, "A ceiling, not a guarantee"), cur(MAIN),
-      l("eligibleBusinessTypes", "Eligible business types", MAIN), u("officialTermsUrl", "Source link", MAIN),
-      ta("purpose", "Purpose", "Programme"), b("requiresRegistration", "Registration required", "Eligibility"),
+      t("amountBasis", "Amount note", MAIN, "e.g. 10m to 20m for beginners, 200m for repeat customers"),
+      ta("eligibilityText", "Eligibility", MAIN, "One requirement per line"),
+      b("collateralRequired", "Collateral required", MAIN),
+      t("targetGroup", "Target group", MAIN, "e.g. SMEs, Women, Youth"),
+      t("tenor", "Tenor", MAIN, "e.g. 4 months to 24 months"),
+      l("eligibleBusinessTypes", "Eligible sectors", MAIN),
+      ta("howToApply", "How to apply", MAIN, "e.g. SMS MAALI to 8979, or fill in the form on their website"),
+      u("officialTermsUrl", "Apply link", MAIN),
+      t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
+      // The funder's own details, kept on the fund provider and shared by all its funds (saved in src/app/admin/content/actions.ts)
+      { ...t("funderPhone", "Phone", FUNDER, "e.g. 0772 547 273, 0701 547 273"), virtual: true },
+      { ...t("funderEmail", "Email", FUNDER), virtual: true },
+      { ...u("funderWebsite", "Website", FUNDER), virtual: true },
+      { ...t("funderCountry", "Country", FUNDER, "Uganda if left empty"), virtual: true },
+      { ...u("funderLogo", "Photo or logo", FUNDER), upload: "image", virtual: true },
+      b("requiresRegistration", "Registration required", "Eligibility"),
       i("minOperatingMonths", "Minimum months operating", "Eligibility"), d("minAnnualTurnover", "Minimum annual turnover", "Eligibility", MONEY_HELP), ta("applicantRequirements", "Applicant requirements", "Eligibility"),
-      t("amountBasis", "Amount basis", "Amount"), t("matchingContribution", "Matching contribution", "Amount"),
+      t("matchingContribution", "Matching contribution", "Amount"),
       d("interestRate", "Interest rate (%)", "Loan terms"), t("rateBasis", "Rate basis", "Loan terms", "e.g. per year, flat"), e("rateType", "Rate type", ["FIXED", "VARIABLE"], "Loan terms"),
       ta("fees", "Fees", "Loan terms"), i("repaymentMonths", "Repayment period (months)", "Loan terms"), t("repaymentFrequency", "Repayment frequency", "Loan terms"),
-      i("gracePeriodMonths", "Grace period (months)", "Loan terms"), b("collateralRequired", "Collateral required", "Loan terms"), b("guarantorRequired", "Guarantor required", "Loan terms"),
+      i("gracePeriodMonths", "Grace period (months)", "Loan terms"), b("guarantorRequired", "Guarantor required", "Loan terms"),
       ta("eligibleExpenses", "Eligible expenses", "Grant terms"), ta("milestones", "Milestones", "Grant terms"), ta("reportingRequirements", "Reporting", "Grant terms"), ta("restrictions", "Restrictions", "Grant terms"),
       t("investmentInstrument", "Investment instrument", "Equity terms"), ta("ownershipTerms", "Ownership terms", "Equity terms"), ta("governanceTerms", "Governance", "Equity terms"), ta("selectionCriteria", "Selection criteria", "Equity terms"),
       dt("termsVersionDate", "Terms version date", "Evidence"), dt("termsLastCheckedAt", "Terms last checked", "Evidence"),
@@ -276,7 +292,7 @@ export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
 export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
   MACHINE: { fields: ["priceMin", "priceMax", "sources"] },
   SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
-  FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
+  FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl", "tenor", "howToApply", "funderPhone", "funderEmail", "funderWebsite"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },
   CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl", "profileUrl"] },
   GUIDE: { fields: ["downloadUrl"] },

@@ -63,8 +63,9 @@ test('simultaneous correct OTP requests consume the code only once', async () =>
   let exists = true;
   const codes = load('src/lib/phone-codes.ts', {
     './prisma': { prisma: { phoneCode: {
-      findFirst: async () => ({ id: 'otp1', attempts: 0, codeHash: 'hash' }),
+      findMany: async () => [{ id: 'otp1', attempts: 0, codeHash: 'hash', createdAt: new Date() }],
       deleteMany: async ({ where }) => {
+        if (where.createdAt) return { count: 0 }; // clearing the older codes after a sign-in
         assert.equal(where.id, 'otp1');
         assert.equal(where.phone, undefined);
         assert.equal(where.attempts.lt, 5);
@@ -82,12 +83,37 @@ test('simultaneous correct OTP requests consume the code only once', async () =>
 test('incorrect OTP does not throw if another request already consumed it', async () => {
   const codes = load('src/lib/phone-codes.ts', {
     './prisma': { prisma: { phoneCode: {
-      findFirst: async () => ({ id: 'otp1', attempts: 0, codeHash: 'hash' }),
+      findMany: async () => [{ id: 'otp1', attempts: 0, codeHash: 'hash', createdAt: new Date() }],
       updateMany: async () => ({ count: 0 }),
     } } },
     bcryptjs: { compare: async () => false }, './phone': {}, './sms': {}, './rate-limit': {},
   });
   assert.equal(await codes.verifyCode('+256772123456', '000000'), false);
+});
+
+test('an earlier SMS still works after a new code was asked for on another device', async () => {
+  const older = { id: 'old', attempts: 0, codeHash: 'hash-111111', createdAt: new Date(Date.now() - 60_000) };
+  const newer = { id: 'new', attempts: 0, codeHash: 'hash-222222', createdAt: new Date() };
+  const deleted = [];
+  const codes = load('src/lib/phone-codes.ts', {
+    './prisma': { prisma: { phoneCode: {
+      findMany: async () => [newer, older],
+      deleteMany: async ({ where }) => { deleted.push(where); return { count: where.id ? 1 : 0 }; },
+    } } },
+    bcryptjs: { compare: async (code, hash) => hash === 'hash-' + code }, './phone': {}, './sms': {}, './rate-limit': {},
+  });
+  assert.equal(await codes.verifyCode('+256772123456', '111 111'), true);
+  assert.equal(deleted[0].id, 'old');
+});
+
+test('wrong tries count for the number across its codes', async () => {
+  const codes = load('src/lib/phone-codes.ts', {
+    './prisma': { prisma: { phoneCode: {
+      findMany: async () => [{ id: 'a', attempts: 3, codeHash: 'h', createdAt: new Date() }, { id: 'b', attempts: 2, codeHash: 'h', createdAt: new Date() }],
+    } } },
+    bcryptjs: { compare: async () => true }, './phone': {}, './sms': {}, './rate-limit': {},
+  });
+  assert.equal(await codes.verifyCode('+256772123456', '123456'), false);
 });
 
 function webhook(settlePayment) {
@@ -126,12 +152,13 @@ for (const [label, amount, currency, expected] of [
 ]) {
   test('settlement: ' + label, async () => {
     let applied = false;
+    const tx = { payment: { updateMany: async () => { applied = true; return { count: 1 }; } }, subscription: { update: async () => ({}) } };
     const membership = load('src/lib/membership.ts', {
       './memo': { forgetMemo: () => {} },
       './prisma': { prisma: {
         payment: { findFirst: async () => ({ id: 'p1', status: 'PENDING', providerRef: 'tracking1', amount: 1000, currency: 'UGX', period: 'MONTHLY', subscription: { id: 's1', userId: null, status: 'PAST_DUE' } }) },
-        $transaction: async fn => fn({ payment: { updateMany: async () => { applied = true; return { count: 1 }; } }, subscription: { update: async () => ({}) } }),
-      } },
+        $transaction: async fn => fn(tx),
+      }, transaction: async fn => fn(tx) },
       './payments': { orderStatus: async () => ({ status: 'SUCCEEDED', merchantReference: 'p1', amount, currency }) },
       './billing': { periodEnd: () => new Date() }, './audit': { audit: async () => {} },
       './sms': {}, './email': {}, '@/config/site': {}, './format': {},

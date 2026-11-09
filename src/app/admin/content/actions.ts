@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { SITE_DATA } from "@/lib/cached";
 import { redirect } from "next/navigation";
 import { Prisma, type AccessLevel, type BusinessStage, type ContentType, type PublicationStatus } from "@prisma/client";
-import { prisma, type Tx } from "@/lib/prisma";
+import { prisma, transaction, type Tx } from "@/lib/prisma";
 import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { categorySlug, DIRECTORY_KINDS, findOrAddCategory } from "@/lib/categories";
@@ -113,6 +113,12 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     if (f.required && (v === null || v === "")) errors[f.name] = "Required";
     specialised[f.name] = v;
   }
+  // A funding source's funder details (virtual fields, kept on the fund provider and its organization)
+  const funder: Record<string, string | null> = {};
+  if (type === "FUNDING_PROGRAMME") {
+    for (const f of dir.fields.filter((x) => x.virtual)) funder[f.name] = (parseField(f, str(form.get(`f_${f.name}`)), errors) as string | null) ?? null;
+    if (funder.funderEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(funder.funderEmail)) errors.funderEmail = "Not an email address";
+  }
   // An expert's name: typed once, as the page title, unless it is different
   if (type === "CONSULTANT" && !specialised.fullName && title) specialised.fullName = title;
   // Left empty, a new page gets its own organization or fund provider (made below, with the page);
@@ -174,7 +180,7 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     reviewedById: status === "PUBLISHED" ? editor.id : undefined,
   };
 
-  const itemId = await prisma.$transaction(async (tx) => {
+  const itemId = await transaction(async (tx) => {
     const before = id ? await tx.contentItem.findUnique({ where: { id }, select: { publishedAt: true } }) : null;
     const item = id
       ? await tx.contentItem.update({ where: { id }, data: { ...core, publishedAt: status === "PUBLISHED" ? before?.publishedAt ?? now : before?.publishedAt } })
@@ -204,34 +210,57 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
       else if (physicalAddress) await tx.organizationLocation.create({ data: { organizationId, physicalAddress, isPrimary: true } });
     }
 
+    // The funder's details: on a new fund, only what was typed (a funder chosen from the list keeps what it
+    // has); when editing, the form shows the current values, so an emptied box clears it.
+    if (type === "FUNDING_PROGRAMME") {
+      const providerId = (record as unknown as { providerId: string }).providerId;
+      const pick = (v: string | null) => (id ? v : v || undefined);
+      const provider = await tx.fundingProvider.update({
+        where: { id: providerId },
+        data: { phone: pick(funder.funderPhone), email: pick(funder.funderEmail), country: funder.funderCountry || (id ? "Uganda" : undefined) },
+        select: { organizationId: true },
+      });
+      await tx.organization.update({ where: { id: provider.organizationId }, data: { website: pick(funder.funderWebsite), logoUrl: pick(funder.funderLogo) } });
+    }
+
     for (const child of dir.children ?? []) {
       if (form.has(`c_${child.key}`)) await saveChildren(tx, child.key, record.id, str(form.get(`c_${child.key}`)), errors);
     }
     if (errors.recipeIngredients) throw new Error(errors.recipeIngredients);
 
-    // Linked classifications
-    await tx.contentAudience.deleteMany({ where: { contentItemId: item.id } });
-    await tx.contentAudience.createMany({ data: form.getAll("audiences").map((a) => ({ contentItemId: item.id, audienceId: String(a) })) });
-    await tx.contentLocation.deleteMany({ where: { contentItemId: item.id } });
-    await tx.contentLocation.createMany({ data: form.getAll("locations").map((l) => ({ contentItemId: item.id, locationId: String(l) })) });
-    await tx.contentCategory.deleteMany({ where: { contentItemId: item.id } });
-    await tx.contentCategory.createMany({ data: form.getAll("categories").map((c) => ({ contentItemId: item.id, categoryId: String(c) })) });
-    await tx.contentEntitlement.deleteMany({ where: { contentItemId: item.id } });
-    await tx.contentEntitlement.createMany({ data: str(form.get("entitlements")).split(",").map((x) => x.trim()).filter(Boolean).map((entitlement) => ({ contentItemId: item.id, entitlement })) });
-
+    // Linked classifications. Every query is a round trip to the live database, so a new page (which has
+    // nothing to clear) skips the deletes, and an empty list skips its insert.
+    const audiences = form.getAll("audiences").map((a) => ({ contentItemId: item.id, audienceId: String(a) }));
+    const locations = form.getAll("locations").map((l) => ({ contentItemId: item.id, locationId: String(l) }));
+    const categories = form.getAll("categories").map((c) => ({ contentItemId: item.id, categoryId: String(c) }));
+    const entitlements = str(form.get("entitlements")).split(",").map((x) => x.trim()).filter(Boolean).map((entitlement) => ({ contentItemId: item.id, entitlement }));
     // Outgoing related-content links (incoming ones are edited from the other page)
-    await tx.relatedContent.deleteMany({ where: { fromItemId: item.id } });
-    await tx.relatedContent.createMany({
-      data: relationRows.map(([relationshipType, s], n) => ({ fromItemId: item.id, toItemId: relTargets.find((t) => t.slug === s)!.id, relationshipType, displayOrder: n })).filter((r) => r.toItemId !== item.id),
-      skipDuplicates: true,
-    });
+    const related = relationRows.map(([relationshipType, s], n) => ({ fromItemId: item.id, toItemId: relTargets.find((t) => t.slug === s)!.id, relationshipType, displayOrder: n })).filter((r) => r.toItemId !== item.id);
+    if (id) {
+      await tx.contentAudience.deleteMany({ where: { contentItemId: item.id } });
+      await tx.contentLocation.deleteMany({ where: { contentItemId: item.id } });
+      await tx.contentCategory.deleteMany({ where: { contentItemId: item.id } });
+      await tx.contentEntitlement.deleteMany({ where: { contentItemId: item.id } });
+      await tx.relatedContent.deleteMany({ where: { fromItemId: item.id } });
+    }
+    if (audiences.length) await tx.contentAudience.createMany({ data: audiences });
+    if (locations.length) await tx.contentLocation.createMany({ data: locations });
+    if (categories.length) await tx.contentCategory.createMany({ data: categories });
+    if (entitlements.length) await tx.contentEntitlement.createMany({ data: entitlements });
+    if (related.length) await tx.relatedContent.createMany({ data: related, skipDuplicates: true });
 
     const snapshot = Object.fromEntries([...form.entries()].filter(([k]) => !k.startsWith("$")).map(([k, v]) => [k, String(v)]));
     await tx.contentRevision.create({ data: { contentItemId: item.id, editorId: editor.id, snapshot, note: str(form.get("revisionNote")) || null } });
     return item.id;
-  }).catch((e: Error) => {
+  }).catch((e: Error & { code?: string }) => {
     if (errors.recipeIngredients) return null;
-    throw e;
+    // Anything else (the database still unreachable after the retries in transaction()): say so on the
+    // form, which keeps everything typed, instead of replacing the page with an error screen.
+    console.error("saveContent failed", e);
+    errors.form = e.code === "P2002"
+      ? "Another page was saved with the same details at the same moment. Press Save again."
+      : "Couldn't save just now (the connection dropped). Nothing you typed is lost: press Save again.";
+    return null;
   });
   if (!itemId) return { errors };
 

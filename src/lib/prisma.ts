@@ -55,9 +55,18 @@ function refused(e: unknown) {
   return err.code === "P2037" || /too many (database )?connections/i.test(err.message ?? "");
 }
 
+/**
+ * Default limits for every transaction. Prisma's own (2 s to get a connection, 5 s for the whole
+ * transaction) are fine locally but too short live: each copy of the site has 2 connections (above),
+ * Neon may be waking, and a save is a dozen or more round trips. Past the limit Prisma drops the
+ * transaction and the editor saw "didn't load" (new funding source, 9 Nov 2026).
+ */
+const TX_LIMITS = { maxWait: 20000, timeout: 45000 };
+
 function createClient() {
   return new PrismaClient({
     datasourceUrl: databaseUrl(),
+    transactionOptions: TX_LIMITS,
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   }).$extends({
     query: {
@@ -85,3 +94,29 @@ globalForPrisma.prisma = prisma;
 
 /** The client handed to an interactive `prisma.$transaction(async (tx) => …)` callback. */
 export type Tx = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">;
+
+/** A transaction that failed this way was rolled back as a whole, so running it again is safe. */
+function transient(e: unknown) {
+  const code = (e as { code?: string }).code;
+  // P2028: the transaction couldn't start in time or expired midway; P2034: write conflict or deadlock;
+  // P2024: no free connection in this copy's pool (nothing has run yet).
+  return retryable(e) || code === "P2028" || code === "P2034" || code === "P2024" || /Transaction (already closed|not found)|expired transaction/i.test((e as Error).message ?? "");
+}
+
+/**
+ * Use this for every save that is one interactive transaction, instead of `prisma.$transaction(async …)`.
+ * A brief database hiccup (connection closed by Neon, database waking, pool busy, transaction ran out
+ * of time) is retried twice before the error reaches the person, who would otherwise see "didn't load"
+ * (adding a funding source, 9 Nov 2026). The callback must only write to the database through `tx`:
+ * no SMS, emails or uploads inside it, as it may run more than once.
+ */
+export async function transaction<T>(fn: (tx: Tx) => Promise<T>, options?: { maxWait?: number; timeout?: number }): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await prisma.$transaction((tx) => fn(tx as Tx), { ...TX_LIMITS, ...options });
+    } catch (e) {
+      if (attempt >= 3 || !transient(e)) throw e;
+      await new Promise((r) => setTimeout(r, 400 * attempt));
+    }
+  }
+}

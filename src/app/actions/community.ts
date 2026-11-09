@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { allow, LIMITS } from "@/lib/rate-limit";
@@ -41,7 +41,7 @@ export async function sendForumMessage(input: { topicId: string; body: string; r
   if (replyToId && !(await prisma.forumPost.findFirst({ where: { id: replyToId, topicId }, select: { id: true } }))) return { error: "That message is no longer here." };
   if (!(await allow(`forum:msg:${who.id}`, ...LIMITS.forumMessagePerUser))) return { error: "You are sending too fast. Wait a minute." };
 
-  const post = await prisma.$transaction(async (tx) => {
+  const post = await transaction(async (tx) => {
     const created = await tx.forumPost.create({ data: { topicId, authorId: who.id, body, replyToId: replyToId || null }, select: messageSelect });
     await tx.forumTopic.update({ where: { id: topicId }, data: { lastPostAt: created.createdAt } });
     return created;

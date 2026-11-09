@@ -11,7 +11,7 @@ import type { SearchParams } from "@/lib/directory-search";
  * (ListingBrowser): hero with the search box, category chips, sort and a paged grid. Searching and
  * filtering happen on the page itself, so visitors never leave it.
  */
-export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, apply, applyLocked = false, facts }: {
+export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, apply, applyLocked = false, facts, cells }: {
   /** This page's address; the address bar keeps the search here. */
   path: string;
   searchParams: SearchParams;
@@ -31,6 +31,8 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   /** Funding: where to apply, per item. Pass it for members only; `applyLocked` for everyone else, whose Apply now opens the join and payment pop-up. */
   apply?: (ids: string[]) => Promise<Record<string, string>>;
   applyLocked?: boolean;
+  /** Table columns of its own after the name, per item (funding). Member detail as `locked`, with no value. */
+  cells?: (ids: string[]) => Promise<Record<string, NonNullable<BrowseListing["cells"]>>>;
   /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and what they sell for the supplier cards. */
   facts?: (ids: string[]) => Promise<Record<string, { source?: string | null; price?: string | null; locked?: boolean; country?: string | null; sells?: string | null }>>;
 }) {
@@ -45,6 +47,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   const outside = links ? await links(rows.map((i) => i.id)) : {};
   const applyAt = apply ? await apply(rows.map((i) => i.id)) : {};
   const cardFacts = facts ? await facts(rows.map((i) => i.id)) : {};
+  const tableCells = cells ? await cells(rows.map((i) => i.id)) : {};
   const dir = DIRECTORIES.find((d) => d.type === types[0]);
   const icon = dir?.icon ?? (types[0] === "INVESTMENT_OPPORTUNITY" ? "funding" : "link");
   const items: BrowseListing[] = rows.map((i, order) => ({
@@ -56,12 +59,13 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
     apply: applyAt[i.id] ?? null,
     applyLocked,
     ...(cardFacts[i.id] ?? {}),
+    cells: tableCells[i.id],
     // Cards without a photo (tools) show the longer overview, cut to a few lines
     description: i.overview ? i.overview.slice(0, 400) : null,
     reviewed: date(i.lastReviewedAt),
     reviewedAt: i.lastReviewedAt?.getTime() ?? 0,
     order,
-    text: [i.title, i.shortSummary, i.primaryCategory?.name, extra[i.id]].filter(Boolean).join(" ").toLowerCase(),
+    text: [i.title, i.shortSummary, i.primaryCategory?.name, extra[i.id], ...(tableCells[i.id] ?? []).map((c) => c.value)].filter(Boolean).join(" ").toLowerCase(),
   }));
   const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 

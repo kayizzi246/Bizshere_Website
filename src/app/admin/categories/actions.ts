@@ -6,7 +6,7 @@ import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { SITE_DATA } from "@/lib/cached";
 import { categorySlug, findOrAddCategory, isCategoryKind } from "@/lib/categories";
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 
 const nameOf = (form: FormData) => String(form.get("name") ?? "").trim().replace(/\s+/g, " ");
 const validName = (name: string) => name.length >= 2 && name.length <= 80 && categorySlug(name) !== "";
@@ -55,7 +55,7 @@ export async function moveToCategory(form: FormData) {
   const target = await prisma.category.findUnique({ where: { id: targetId }, select: { name: true } });
   if (!target) return backTo(form, "error=target");
   if (!ids.length) return backTo(form, "error=none");
-  const moved = await prisma.$transaction(async (tx) => {
+  const moved = await transaction(async (tx) => {
     const primary = await tx.contentItem.updateMany({ where: { primaryCategoryId: { in: ids } }, data: { primaryCategoryId: targetId } });
     // Links are one row per page and category: a page already in the target simply keeps that link
     const links = await tx.contentCategory.findMany({ where: { categoryId: { in: ids } }, select: { contentItemId: true } });

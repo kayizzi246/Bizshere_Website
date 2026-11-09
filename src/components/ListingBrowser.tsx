@@ -24,6 +24,8 @@ export type BrowseListing = {
   text: string;
   /** An outside address (useful websites): the table row goes straight there. */
   external?: string | null;
+  /** Funding: the table's own columns after the name (provider, type, country…). `null` value with `locked`: member detail, never sent. */
+  cells?: { label: string; value: string | null; locked?: boolean }[];
   /** Funding: where to apply, on the provider's own website. Member detail: `null` with `applyLocked`. */
   apply?: string | null;
   /** This viewer isn't a member: Apply now opens the join and payment pop-up instead. */
@@ -151,7 +153,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 {shown.map((i) => <li key={i.id} id={i.slug}><SupplierCard i={i} /></li>)}
               </ul>
             ) : variant === "table" ? (
-              <ListingTable rows={shown} />
+              <ListingTable rows={shown} start={(current - 1) * PER_PAGE} />
             ) : variant === "documents" ? (
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
                 {shown.map((i) => <li key={i.id} id={i.slug} className="relative"><DocumentCard i={i} icon={icon} /><WishlistHeart id={i.id} className="absolute right-2 top-2" /></li>)}
@@ -303,17 +305,24 @@ function SupplierCard({ i }: { i: BrowseListing }) {
  * payment pop-up (data-pay, src/components/Onboarding.tsx), and the address is never sent.
  * Phones get the same rows stacked.
  */
-function ListingTable({ rows }: { rows: BrowseListing[] }) {
+function ListingTable({ rows, start }: { rows: BrowseListing[]; start: number }) {
   const applying = rows.some((r) => r.apply || r.applyLocked);
+  // Funding: numbered rows with its own columns (the client's funding template); useful websites: Details and Category
+  const columns = rows.find((r) => r.cells)?.cells?.map((c) => c.label);
   const applyButton = "inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[14px] font-bold";
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-white">
       <table className="w-full text-left text-[16px]">
         <thead className="hidden bg-brand-deep text-[14px] text-white md:table-header-group">
           <tr>
-            <th className="px-4 py-3 font-bold">Name</th>
-            <th className="px-4 py-3 font-bold">Details</th>
-            <th className="px-4 py-3 font-bold">Category</th>
+            {columns ? <th className="w-12 whitespace-nowrap px-4 py-3 font-bold">S/N</th> : null}
+            <th className="px-4 py-3 font-bold">{columns ? "Fund name" : "Name"}</th>
+            {columns ? columns.map((c) => <th key={c} className="whitespace-nowrap px-4 py-3 font-bold">{c}</th>) : (
+              <>
+                <th className="px-4 py-3 font-bold">Details</th>
+                <th className="px-4 py-3 font-bold">Category</th>
+              </>
+            )}
             {applying ? <th className="px-4 py-3 font-bold"><span className="sr-only">Apply</span></th> : null}
             <th className="w-12 px-2 py-3"><span className="sr-only">Wishlist</span></th>
           </tr>
@@ -324,20 +333,31 @@ function ListingTable({ rows }: { rows: BrowseListing[] }) {
             const link = r.external ? (
               <a href={r.external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-display text-[18px] font-bold leading-snug text-heading hover:text-brand">{label}<span aria-hidden className="text-brand">↗</span></a>
             ) : (
-              <Link href={r.href} className="font-display text-[18px] font-bold leading-snug text-heading hover:text-brand">{label}</Link>
+              <Link href={r.href} className={`${r.cells ? "text-hero text-[19px] leading-snug" : "font-display text-[18px] font-bold leading-snug"} text-heading hover:text-brand`}>{label}</Link>
             );
             return (
               <tr key={r.id} id={r.slug} className={`flex flex-col gap-0.5 border-b border-line px-4 py-3 last:border-0 md:table-row md:p-0 ${n % 2 ? "bg-white" : "bg-brand-tint/40"}`}>
+                {columns ? <td className="hidden text-[15px] font-semibold text-ink-muted md:table-cell md:px-4 md:py-3">{start + n + 1}</td> : null}
                 <td className="md:px-4 md:py-3">
                   {link}
                   {r.summary ? <span className="mt-0.5 block text-[14px] leading-snug text-ink-muted md:hidden">{r.summary}</span> : null}
                   {r.external ? <span className="block truncate text-[12px] text-ink-muted">{r.external.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span> : null}
                 </td>
-                <td className="text-[15px] text-ink-soft md:px-4 md:py-3">
-                  {r.extra ?? <span className="hidden md:inline">—</span>}
-                  {r.applyLocked ? <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-page px-2 py-0.5 align-middle text-[12px] font-semibold text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />More for members</span> : null}
-                </td>
-                <td className="text-[15px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
+                {r.cells ? r.cells.map((c) => (
+                  // Phones: one line per column, its name in front
+                  <td key={c.label} className={`text-[15px] text-ink-soft md:table-cell md:px-4 md:py-3 ${c.value || c.locked ? "" : "hidden"}`}>
+                    <span className="mr-1.5 text-ink-muted md:hidden">{c.label}:</span>
+                    {c.locked ? <span className="inline-flex items-center gap-1 rounded-full bg-page px-2 py-0.5 align-middle text-[12px] font-semibold text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : c.value ?? "—"}
+                  </td>
+                )) : (
+                  <>
+                    <td className="text-[15px] text-ink-soft md:px-4 md:py-3">
+                      {r.extra ?? <span className="hidden md:inline">—</span>}
+                      {r.applyLocked ? <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-page px-2 py-0.5 align-middle text-[12px] font-semibold text-ink-muted"><LockKeyhole aria-hidden className="h-3 w-3" />More for members</span> : null}
+                    </td>
+                    <td className="text-[15px] text-ink-muted md:px-4 md:py-3">{r.primaryCategory?.name ?? "General"}</td>
+                  </>
+                )}
                 {applying ? (
                   <td className="pt-1.5 md:px-4 md:py-3 md:text-right">
                     {r.apply ? (
