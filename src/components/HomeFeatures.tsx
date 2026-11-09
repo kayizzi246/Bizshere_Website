@@ -122,7 +122,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
     <li data-reveal="" className={`rise-soft flex flex-col gap-3 p-5 sm:p-6 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} pill={onColour} />
-        <h3 className="text-hero text-[27px] leading-[1.1] sm:text-[33px] md:text-[27px] lg:text-[33px] xl:text-[40px]">{title}</h3>
+        <h3 className="text-hero text-[24px] leading-[1.1] sm:text-[29px] md:text-[24px] lg:text-[29px] xl:text-[34px]">{title}</h3>
         <p className="max-w-lg text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
@@ -139,12 +139,12 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
-/** Plain rows of reading: a name, a line under it, a hairline between. No background of their own. */
+/** Plain rows of reading: a name, a line under it, a hairline between, centred under the card's title. No background of their own. */
 const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
-  <ul className="mx-auto flex w-full max-w-xl flex-col divide-y divide-white/20 text-left">
+  <ul className="mx-auto flex w-full max-w-xl flex-col divide-y divide-white/20 text-center">
     {items.map((r, n) => (
       <li key={r.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
-        <Link href={itemHref(r)} className="group flex flex-col gap-0.5 py-3 text-white hover:text-white">
+        <Link href={itemHref(r)} className="group flex flex-col items-center gap-0.5 py-3 text-white hover:text-white">
           {note && r.publishedAt ? <span className="text-[12px] font-semibold text-white/70">{date(r.publishedAt)}</span> : null}
           <span className="font-display text-[16px] font-extrabold leading-snug decoration-2 underline-offset-4 group-hover:underline">{clean(r.title)}</span>
           {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-white/85">{r.shortSummary}</span> : null}
@@ -164,7 +164,7 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="scroll-mt-24 overflow-x-clip bg-[#F3F8FC]">
       <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="text-hero text-[36px] leading-[1.05] text-black sm:text-[52px] lg:text-[68px]">Everything a business needs</h2>
+        <h2 className="text-hero text-[32px] leading-[1.05] text-black sm:text-[44px] lg:text-[56px]">Everything a business needs</h2>
       </div>
 
       {/* Business Ideas: a panel like the machines below it, in green, a colour no other panel uses */}
@@ -173,7 +173,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Business plans with the real costs</h3>
+          <h3 className="text-hero text-[26px] leading-[1.08] text-white sm:text-[33px] lg:text-[40px]">Business plans with the real costs</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -200,7 +200,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">The right machine for the job</h3>
+          <h3 className="text-hero text-[26px] leading-[1.08] text-white sm:text-[33px] lg:text-[40px]">The right machine for the job</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -296,7 +296,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="text-hero text-[30px] leading-[1.08] text-white sm:text-[38px] lg:text-[46px]">Advice from people who know</h3>
+          <h3 className="text-hero text-[26px] leading-[1.08] text-white sm:text-[33px] lg:text-[40px]">Advice from people who know</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>

@@ -32,15 +32,24 @@ export default async function HomePage() {
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
-      <section className="under-header relative isolate overflow-hidden hero-glow hero-still bg-navy text-white">
+      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with a blue spotlight over the headline */}
+      <section className="under-header-pad relative isolate overflow-hidden bg-navy text-white">
+        {/* The light (client's example, 9 Nov 2026): a blue spotlight shining down from the top edge onto the
+            headline, brightest just above it and fading into the navy. Decoration only, behind everything. */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]">
+          <div className="container-site relative h-full">
+            <span className="absolute left-1/2 top-[-188px] h-[620px] w-[560px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,120,235,0.55),rgba(21,100,205,0.22)_50%,rgba(7,26,51,0)_100%)] sm:left-[-180px] sm:top-[-166px] sm:h-[700px] sm:w-[1000px] sm:translate-x-0" />
+            <span className="absolute left-1/2 top-[-48px] h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(70,155,255,0.38),rgba(70,155,255,0)_100%)] sm:left-[110px] sm:top-[-26px] sm:h-[380px] sm:w-[440px] sm:translate-x-0" />
+          </div>
+        </div>
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
-            about 76px above and 100px below (brought down from 100/140, Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
+            about 72px above and 96px below (9 Nov 2026, with bigger directory tiles); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[100px] pt-2 sm:pt-[48px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
-          <div className="flex min-w-0 flex-col items-start">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[100px] pt-3 sm:pb-[96px] sm:pt-[44px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+          <div className="relative flex min-w-0 flex-col items-start">
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
@@ -50,7 +59,7 @@ export default async function HomePage() {
               <span className="text-accent">B2B</span> Information Portal
             </h1>
 
-            <p className="mb-4 max-w-2xl text-[14px] leading-[1.55] text-white/80 sm:text-[18px]">
+            <p className="mb-4 max-w-2xl text-[13px] leading-[1.55] text-white/80 sm:text-[16px]">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className="font-semibold text-white">Start exploring now.</span>
             </p>
@@ -59,18 +68,18 @@ export default async function HomePage() {
 
             {/* Every directory as a link tile: on phones bigger tiles with a dotted border, two to a row, from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
-            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
+            <ul aria-label="Directories" className="mt-5 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-lg border-2 border-dotted border-white/50 bg-white/[0.05] px-3 py-2.5 text-[15px] font-medium leading-tight text-white/90 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[38px] sm:border sm:border-solid sm:border-white/15 sm:px-2.5 sm:py-1.5 sm:text-[14px]">
-                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4" />
+                  <Link href={d.href} className="group flex h-full min-h-[54px] w-full items-center gap-2.5 rounded-xl border-2 border-dotted border-white/50 bg-white/[0.06] px-3 py-2.5 text-[15px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[46px] sm:border sm:border-solid sm:border-white/25 sm:px-3.5 sm:py-2.5 sm:text-[16px]">
+                    <Icon name={d.icon} className="h-5 w-5 shrink-0 text-accent" />
                     {d.title}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Link {...(viewer.userId && viewer.isMember ? { href: "/business-ideas" } : { href: "/membership?onboard=pay&next=%2Fbusiness-ideas", "data-pay": "", "data-next": "/business-ideas" })} className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">{viewer.isMember ? "Browse business ideas" : "Get full access"}<ChevronRight aria-hidden className="h-4 w-4" /></Link>
               <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
