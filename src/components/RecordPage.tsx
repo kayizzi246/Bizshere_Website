@@ -19,6 +19,7 @@ import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
 import { videoId } from "@/lib/youtube";
 import { WishlistButton } from "./Wishlist";
+import { ShareButton } from "./ShareButton";
 import { popupPlan } from "@/lib/billing";
 
 /**
@@ -182,7 +183,7 @@ export async function RecordPage({
                   ) : (
                     <a href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
                   )}
-                  <WishlistButton id={item.id} />
+                  <span className="grid grid-cols-2 gap-2"><WishlistButton id={item.id} /><ShareButton title={name} path={back} /></span>
                 </div>
 
                 {/* Contact and where to buy, right under the details */}
@@ -336,6 +337,7 @@ export async function RecordPage({
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Checked {date(item.lastReviewedAt)}</span>
+                <ShareButton compact title={title} path={back} />
                 {viewer.isMember ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 font-bold text-ink"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span>
                 ) : null}

@@ -1,10 +1,10 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { MACHINE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/suppliers").title };
+export const metadata = directoryMetadata("/suppliers");
 
 // Public fields only: email and phone are member detail.
 async function meta(ids: string[]) {

@@ -5,6 +5,9 @@ import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
+import { partnerPlan } from "@/lib/partners";
+import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD } from "@/lib/billing";
+import { money } from "@/lib/format";
 import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
@@ -155,8 +158,19 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
   </ul>
 );
 
+/** The lowest listing price the team has set ("from UGX 150,000 for 6 months"), or null while prices are empty. */
+async function listingFrom(kind: "supplier" | "expert") {
+  const plan = await partnerPlan(kind).catch(() => null);
+  if (!plan) return null;
+  for (const p of PARTNER_PERIODS) {
+    const v = plan[PRICE_FIELD[p]];
+    if (v !== null && Number(v) > 0) return `from ${money(v, plan.currency)} for ${PERIOD_INFO[p].length}`;
+  }
+  return null;
+}
+
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer, supplierFrom, expertFrom] = await Promise.all([records(), getViewer(), listingFrom("supplier"), listingFrom("expert")]);
   const sell = !viewer.isMember && !viewer.isStaff;
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
@@ -384,6 +398,41 @@ export async function HomeFeatures() {
           </Card>
         </ul>
       </div>
+
+      {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing;
+          this is the site's other income, so it gets a block of its own, not a footer link. ── */}
+      {!viewer.isStaff ? (
+        <div className="container-site pb-10 sm:pb-14">
+          <div data-reveal="" className="rise-soft relative overflow-hidden rounded-[28px] bg-navy p-5 text-white sm:p-8 lg:p-10">
+            <PanelParticles />
+            <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-center lg:gap-10">
+              <div className="flex flex-col items-start gap-3">
+                <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">For businesses</span>
+                <h3 className="text-hero text-[26px] leading-[1.1] text-white sm:text-[32px] lg:text-[36px]">Sell to the people who come here looking for you</h3>
+                <p className="max-w-md text-[16px] leading-relaxed text-white/85 sm:text-[17px]">Every day, business owners come here to find who sells what and who can help. Put your business in front of them: your own page, your products and prices, your phone number. Our team checks every listing.</p>
+                <ul className="flex flex-wrap gap-2 text-[13px] font-semibold text-white/85">
+                  {["Your own page and photo", "Products and prices", "Buyers call you directly", "Dashboard to update it yourself"].map((x) => <li key={x} className="rounded-full bg-white/10 px-3 py-1.5">{x}</li>)}
+                </ul>
+              </div>
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {([
+                  ["/suppliers/join", "supplier", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", supplierFrom, "bg-accent text-ink hover:bg-white hover:text-ink"],
+                  ["/experts/join", "expert", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", expertFrom, "bg-brand text-white hover:bg-white hover:text-brand-dark"],
+                ] as const).map(([href, icon, title, text, from, tone]) => (
+                  <li key={href} className="flex flex-col gap-3 rounded-2xl bg-white p-5 text-heading">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
+                    <span className="font-display text-[20px] font-extrabold leading-tight">{title}</span>
+                    <span className="text-[14px] leading-relaxed text-ink-soft">{text}</span>
+                    {from ? <span className="text-[13px] font-bold text-brand-dark">Listing {from}</span> : null}
+                    <Link href={href} className={`mt-auto inline-flex h-11 items-center justify-center gap-1.5 rounded-xl text-[15px] font-bold transition-colors ${tone}`}>{title}<ArrowRight aria-hidden className="h-4 w-4" /></Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="relative mt-5 text-[13px] text-white/65">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-bold text-white underline underline-offset-4 hover:text-accent">Leave your number</Link> and we call you back.</p>
+          </div>
+        </div>
+      ) : null}
 
     </section>
   );

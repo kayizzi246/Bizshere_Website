@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
@@ -69,3 +70,6 @@ export default async function NewsPage({ params }: { params: { slug: string } })
     </div>
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("NEWS", params.slug);

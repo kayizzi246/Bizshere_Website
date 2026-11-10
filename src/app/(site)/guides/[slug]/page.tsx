@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
@@ -53,3 +54,6 @@ export default async function GuidePage({ params }: { params: { slug: string } }
     />
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("GUIDE", params.slug);

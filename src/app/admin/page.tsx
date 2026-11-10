@@ -36,6 +36,8 @@ const HOW_TO: [string, string, string][] = [
   ["/admin/plans", "Change subscription prices", "plans"],
   ["/admin/categories", "Add or rename a category", "categories"],
   ["/admin/payments", "Check a payment", "payments"],
+  ["/admin/leads", "Call back someone who left their number", "leads"],
+  ["/admin/settings", "Set the WhatsApp number and contact details", "homepage"],
   ["/admin/users", "Find a user or business", "users"],
 ];
 
@@ -52,7 +54,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const threeDaysAgo = new Date(now.getTime() - 3 * 86_400_000);
 
-  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType, newPartners, waitingProducts] = await Promise.all([
+  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType, newPartners, waitingProducts, newLeads] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.submission.count({ where: { status: "PENDING", createdAt: { lt: threeDaysAgo } } }),
     prisma.contentItem.count({ where: { publicationStatus: "PUBLISHED", nextReviewDueAt: { lt: now } } }),
@@ -68,6 +70,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     prisma.contentItem.groupBy({ by: ["contentType", "publicationStatus"], _count: { _all: true } }),
     waitingPartners(),
     prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
+    prisma.lead.count({ where: { status: "NEW" } }).catch(() => 0),
   ]);
   const countOf = (type: string, status?: string) => byType.filter((r) => r.contentType === type && (!status || r.publicationStatus === status)).reduce((n, r) => n + r._count._all, 0);
   const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "opportunity" : "link");
@@ -75,6 +78,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const attention = ([
+    newLeads && can("leads") ? { href: "/admin/leads", text: `${newLeads} lead${newLeads === 1 ? "" : "s"} waiting for a call back`, tone: "warn" } : null,
     newPartners && can("suppliers") ? { href: "/admin/partners", text: `${newPartners} new supplier${newPartners === 1 ? "" : "s"} or expert${newPartners === 1 ? "" : "s"} paid and waiting for approval`, tone: "warn" } : null,
     waitingProducts && can("suppliers") ? { href: "/admin/seller-products", text: `${waitingProducts} supplier product${waitingProducts === 1 ? "" : "s"} waiting for approval`, tone: "info" } : null,
     pending && can("review") ? { href: "/admin/review", text: `${pending} item${pending === 1 ? "" : "s"} waiting for review${oldPending ? ` (${oldPending} older than 3 days)` : ""}`, tone: oldPending ? "warn" : "info" } : null,

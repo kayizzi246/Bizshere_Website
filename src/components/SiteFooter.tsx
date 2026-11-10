@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DIRECTORIES } from "@/config/directories";
 import { site } from "@/config/site";
+import { getContact, whatsappHref } from "@/lib/site-contact";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { Icon } from "./Icon";
@@ -22,8 +23,7 @@ const COLUMNS: { title: string; links: [string, string][] }[] = [
  * Become a Supplier or Expert, or for one who is signed in, their dashboard and Sign out.
  */
 export async function SiteFooter() {
-  const c = site.contact;
-  const viewer = await getViewer();
+  const [c, viewer] = await Promise.all([getContact(), getViewer()]);
   const me = viewer.userId ? await prisma.user.findUnique({
     where: { id: viewer.userId },
     select: { expertProfile: { select: { id: true } }, orgMemberships: { where: { organization: { supplier: { isNot: null } } }, select: { userId: true }, take: 1 } },
@@ -31,7 +31,8 @@ export async function SiteFooter() {
   const portal = me?.orgMemberships.length ? "/supplier" : me?.expertProfile ? "/expert" : null;
   const footerLink = "text-[14px] text-white/60 transition-colors hover:text-white";
   const contact = [
-    c.phone && { icon: "phone", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}` },
+    c.whatsapp && { icon: "phone", text: `WhatsApp ${c.whatsapp}`, href: whatsappHref(c.whatsapp, "Hello BizSphere-Ug, I'd like to know more.") },
+    c.phone && c.phone !== c.whatsapp && { icon: "phone", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}` },
     c.email && { icon: "mail", text: c.email, href: `mailto:${c.email}` },
     c.address && { icon: "pin", text: c.address },
   ].filter(Boolean) as { icon: string; text: string; href?: string }[];

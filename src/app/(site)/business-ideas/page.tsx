@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { IDEA_CARD_SELECT, requirementCount } from "@/components/IdeaParts";
 import { IdeaBrowser, type BrowseIdea } from "@/components/IdeaBrowser";
 import { Icon } from "@/components/Icon";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/business-ideas").title };
+export const metadata = directoryMetadata("/business-ideas");
 
 type Params = Partial<Record<"q" | "category" | "sort" | "page", string | string[]>>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";

@@ -1,11 +1,11 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { compactRange, FUNDING_TABS } from "@/lib/format";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/funding").title };
+export const metadata = directoryMetadata("/funding");
 
 const fundType = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 

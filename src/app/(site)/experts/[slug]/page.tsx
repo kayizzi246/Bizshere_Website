@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, BriefcaseBusiness, CalendarCheck, Clock, FileDown, Globe, GraduationCap, Languages, Link2, LockKeyhole, MapPin, MonitorSmartphone, Star, Wallet, type LucideIcon } from "lucide-react";
@@ -236,3 +237,6 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
     </OnboardingGate>
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("CONSULTANT", params.slug);

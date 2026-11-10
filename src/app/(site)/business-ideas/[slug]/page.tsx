@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, ClipboardList, ExternalLink, FileDown, FileText, Lightbulb, LockKeyhole, Rocket, Wallet } from "lucide-react";
@@ -380,3 +381,6 @@ function Stat({ label, value, accent = false }: { label: string; value: string; 
     </div>
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("BUSINESS_IDEA", params.slug);

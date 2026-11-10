@@ -2062,6 +2062,35 @@ model SiteSetting {
   @@map("site_settings")
 }
 
+/// Someone who asked to be contacted (the form on /contact, "Talk to us" links): a sales lead for the
+/// team to call back. Followed up in Admin > Leads.
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  /// What they want: membership, supplier_listing, expert_listing, question
+  interest  String
+  message   String?
+  /// The page they wrote from, e.g. /membership
+  page      String?
+  userId    String?
+  status    LeadStatus @default(NEW)
+  /// The team's own note (what was agreed on the call)
+  note      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status, createdAt])
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
 /// Request counters for rate limits (src/lib/rate-limit.ts): one row per key (e.g. "sms:ip:1.2.3.4") and time window.
 model RateLimit {
   key     String   @id

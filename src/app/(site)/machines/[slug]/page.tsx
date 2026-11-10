@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PROVIDER_FIELDS } from "@/lib/content-fields";
@@ -82,3 +83,6 @@ export default async function MachinePage({ params }: { params: { slug: string }
     />
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("MACHINE", params.slug);

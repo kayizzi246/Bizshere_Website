@@ -1,11 +1,11 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { GUIDE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/tips").title };
+export const metadata = directoryMetadata("/tips");
 
 /** How many members have remarked on each tip, under its card. */
 async function meta(ids: string[]) {

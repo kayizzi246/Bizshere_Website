@@ -5,6 +5,8 @@ import { getViewer } from "@/lib/access";
 import { PLAN_PERIODS, popupPlan, yearlySaving, type MemberPeriod } from "@/lib/billing";
 import { date, money } from "@/lib/format";
 import { pesapalSandbox } from "@/lib/payments";
+import { getContact, whatsappHref } from "@/lib/site-contact";
+import { LeadForm } from "@/components/LeadForm";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pricing", description: "One membership, four lengths. Members get full budgets, contacts, funding terms and downloads, by the day, week, month or year." };
@@ -43,8 +45,9 @@ const FAQ: [string, string][] = [
 
 export default async function MembershipPage() {
   const viewer = await getViewer();
-  const [memberPlan, sub] = await Promise.all([
+  const [memberPlan, contact, sub] = await Promise.all([
     prisma.membershipPlan.findUnique({ where: { code: "member" } }),
+    getContact(),
     viewer.userId && !viewer.isStaff
       ? prisma.subscription.findFirst({ where: { userId: viewer.userId, status: "ACTIVE", plan: { code: "member" } }, orderBy: { currentPeriodEnd: { sort: "desc", nulls: "first" } } })
       : null,
@@ -159,8 +162,19 @@ export default async function MembershipPage() {
               </details>
             ))}
           </div>
-          <p className="text-center text-[13px] text-ink-muted">Want your business listed? <Link href="/contact" className="font-bold">Contact our team</Link>.</p>
+          <p className="text-center text-[13px] text-ink-muted">Want your business listed? <Link href="/suppliers/join" className="font-bold">Become a supplier</Link> or <Link href="/experts/join" className="font-bold">an expert</Link>.</p>
         </section>
+
+        {/* Not ready to pay online? A person calls them back: the lead lands in Admin > Leads. */}
+        {!viewer.isMember ? (
+          <section className="mx-auto grid w-full max-w-5xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+            <div className="flex flex-col gap-3">
+              <h2 className="font-display text-[28px] font-extrabold tracking-[-0.03em] text-heading sm:text-[34px]">Rather talk to a person?</h2>
+              <p className="text-[15px] leading-relaxed text-ink-muted">Not sure which plan, or want help paying by mobile money? Leave your number and we call you back, usually within the hour during working hours.{contact.whatsapp ? " Or WhatsApp us now." : ""}</p>
+            </div>
+            <LeadForm compact interest="membership" whatsapp={contact.whatsapp ? whatsappHref(contact.whatsapp, "Hello BizSphere-Ug, I have a question about membership.") : null} />
+          </section>
+        ) : null}
       </div>
     </div>
   );

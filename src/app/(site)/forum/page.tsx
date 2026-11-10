@@ -3,12 +3,12 @@ import { MessagesSquare, Pin, Plus, Search } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { ago, shortName, TITLE_MAX, BODY_MAX } from "@/lib/forum";
 import { startForumTopic } from "@/app/actions/community";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/forum").title };
+export const metadata = directoryMetadata("/forum");
 
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => ((Array.isArray(v) ? v[0] : v) ?? "").trim();

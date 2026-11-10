@@ -4,12 +4,12 @@ import { BadgeCheck, MapPin, MonitorSmartphone, Search, Users } from "lucide-rea
 import type { Prisma } from "@prisma/client";
 import { WishlistHeart } from "@/components/Wishlist";
 import { prisma } from "@/lib/prisma";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { itemHref } from "@/lib/format";
 import { searchTerms } from "@/lib/search-terms";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/experts").title };
+export const metadata = directoryMetadata("/experts");
 
 type SP = Record<string, string | string[] | undefined>;
 type Expert = Prisma.ConsultantGetPayload<{ include: { contentItem: { select: { id: true; slug: true; title: true; contentType: true; shortSummary: true; primaryCategory: { select: { name: true } } } } } }>;

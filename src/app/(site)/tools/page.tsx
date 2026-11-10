@@ -1,10 +1,10 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { GUIDE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/tools").title };
+export const metadata = directoryMetadata("/tools");
 
 async function meta(ids: string[]) {
   const rows = await prisma.tool.findMany({ where: { contentItemId: { in: ids } } });

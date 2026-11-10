@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, ExternalLink, FileText, LockKeyhole } from "lucide-react";
@@ -211,3 +212,6 @@ export default async function FundingPage({ params }: { params: { slug: string }
     </OnboardingGate>
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("FUNDING_PROGRAMME", params.slug);

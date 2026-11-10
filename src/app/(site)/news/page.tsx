@@ -1,10 +1,10 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { GUIDE_TABS, date } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/news").title };
+export const metadata = directoryMetadata("/news");
 
 async function meta(ids: string[]) {
   const rows = await prisma.newsArticle.findMany({ where: { contentItemId: { in: ids } }, include: { contentItem: { select: { publishedAt: true } } } });

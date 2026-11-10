@@ -23,7 +23,7 @@ const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await staffAccess();
-  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews, expertWork, newPartners] = await Promise.all([
+  const [pending, corrections, pendingPayments, sellerProducts, pendingReviews, expertWork, newPartners, newLeads] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.correctionReport.count({ where: { status: "PENDING" } }),
     prisma.payment.count({ where: { status: "PENDING" } }),
@@ -31,6 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     prisma.consultantReview.count({ where: { moderation: "PENDING" } }),
     prisma.consultantProject.count({ where: { status: "IN_REVIEW" } }),
     waitingPartners(),
+    prisma.lead.count({ where: { status: "NEW" } }).catch(() => 0),
   ]);
   const theme = cookies().get("admin-theme")?.value === "dark" ? "dark" : "light";
   // Each link with the area it needs (src/lib/admin-areas.ts); a sub-admin sees only their areas.
@@ -38,6 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const all: Gated[] = [
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { section: "To check" },
+    { href: "/admin/leads", label: "Leads to call back", badge: newLeads, icon: "phone", area: "leads" },
     { href: "/admin/partners", label: "New suppliers and experts", badge: newPartners, icon: "supplier", area: "suppliers" },
     { href: "/admin/seller-products", label: "Supplier products", badge: sellerProducts, icon: "supplier", area: "suppliers" },
     { href: "/admin/review", label: "Review queue", badge: pending, icon: "inbox", area: "review" },
@@ -54,6 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/prices", label: "Market prices", icon: "prices", area: "prices" },
     { href: "/admin/updates", label: "Homepage updates", icon: "megaphone", area: "homepage" },
     { href: "/admin/video", label: "Homepage video", icon: "video", area: "homepage" },
+    { href: "/admin/settings", label: "Contact details and WhatsApp", icon: "phone", area: "homepage" },
     { href: "/admin/forum", label: "Forum and remarks", icon: "forum", area: "community" },
     { section: "People" },
     { href: "/admin/users", label: "Users and businesses", icon: "users", area: "users" },

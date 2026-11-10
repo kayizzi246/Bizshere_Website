@@ -7,7 +7,7 @@ import { accessState, cancelPayment, checkPayment, startMembership } from "@/app
 import { PhoneSignIn } from "./PhoneSignIn";
 import { Celebration } from "./Celebration";
 import { PLAN_PERIODS, yearlySaving } from "@/lib/billing";
-import { site } from "@/config/site";
+import { whatsappNumber } from "@/lib/site-contact";
 import { OPEN_PATHS } from "@/config/directories";
 
 /**
@@ -46,13 +46,17 @@ type Step = "account" | "pay";
 const PERIODS: readonly Period[] = PLAN_PERIODS;
 const asPeriod = (v: string | null | undefined): Period => (PERIODS.includes(v as Period) ? (v as Period) : "MONTHLY");
 
-export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan, paths }: {
+/** The site's WhatsApp and phone (Admin > Contact details), offered when a payment fails. */
+type Help = { whatsapp?: string | null; phone?: string | null };
+
+export function OnboardingGate({ children, signedIn, isMember, googleEnabled, plan, paths, help }: {
   children: React.ReactNode;
   signedIn: boolean;
   isMember: boolean;
   googleEnabled: boolean;
   plan: Plan;
   paths?: string[];
+  help?: Help;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -136,7 +140,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     <div onClickCapture={onClickCapture}>
       {children}
       {open ? (
-        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} googleEnabled={googleEnabled} plan={plan}
+        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} googleEnabled={googleEnabled} plan={plan} help={help}
           onPaid={paid} onClose={() => setOpen(false)} />
       ) : null}
       {celebrate ? (
@@ -149,7 +153,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
   );
 }
 
-function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnabled, plan, onPaid, onClose }: {
+function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnabled, plan, help, onPaid, onClose }: {
   step: Step;
   setStep: (s: Step) => void;
   next: string;
@@ -157,6 +161,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
   initialPeriod: Period;
   googleEnabled: boolean;
   plan: Plan;
+  help?: Help;
   onPaid: () => void;
   onClose: () => void;
 }) {
@@ -213,7 +218,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
               <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : (
-            <PayStep plan={plan} renew={renew} initialPeriod={initialPeriod} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
+            <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
           )}
         </div>
 
@@ -286,8 +291,9 @@ const OPTIONS: Record<Period, { title: string; per: string; note: string }> = {
  * open we check every few seconds whether the payment went through (Pesapal confirms it to the
  * server), and the return page inside the iframe tells us the moment it's done.
  */
-function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
+function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid }: {
   plan: Plan;
+  help?: Help;
   renew: boolean;
   initialPeriod: Period;
   pending: React.MutableRefObject<string | null>;
@@ -454,8 +460,8 @@ function PayStep({ plan, renew, initialPeriod, pending, onCheckout, onPaid }: {
           <p>{error}</p>
           {/* Never a dead end: a direct way to reach a person who can activate the membership */}
           <p className="flex flex-wrap gap-x-3 gap-y-1">
-            {site.contact.whatsapp ? <a href={`https://wa.me/${site.contact.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Hello, I want to pay for BizSphere-Ug membership.")}`} target="_blank" rel="noopener noreferrer" className="font-bold underline">WhatsApp us</a> : null}
-            {site.contact.phone ? <a href={`tel:${site.contact.phone.replace(/\s/g, "")}`} className="font-bold underline">Call {site.contact.phone}</a> : null}
+            {help?.whatsapp ? <a href={`https://wa.me/${whatsappNumber(help.whatsapp)}?text=${encodeURIComponent("Hello, I want to pay for BizSphere-Ug membership.")}`} target="_blank" rel="noopener noreferrer" className="font-bold underline">WhatsApp us</a> : null}
+            {help?.phone ? <a href={`tel:${help.phone.replace(/\s/g, "")}`} className="font-bold underline">Call {help.phone}</a> : null}
             <a href="/contact" className="font-bold underline">Send us a message</a>
           </p>
         </div>

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { DIRECTORIES } from "@/config/directories";
 import { homeVideo } from "@/lib/youtube";
-import { cachedSiteUpdates } from "@/lib/cached";
+import { cachedHomeStats, cachedMemberPlan, cachedSiteUpdates } from "@/lib/cached";
+import { popupPlan } from "@/lib/billing";
+import { BadgeCheck } from "lucide-react";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
@@ -22,7 +24,13 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const viewer = await getViewer();
-  const [updates, yt, prices] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember)]);
+  const [updates, yt, prices, stats, memberPlan] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), cachedHomeStats(), cachedMemberPlan()]);
+  const plan = popupPlan(memberPlan);
+  // Real numbers under the buttons: how much is here, and the lowest price in. No invented figures.
+  const proof = ([["SUPPLIER", "suppliers"], ["BUSINESS_IDEA", "business plans"], ["FUNDING_PROGRAMME", "funding sources"], ["MACHINE", "machines"], ["CONSULTANT", "experts"]] as const)
+    .map(([t, label]) => [stats.counts[t] ?? 0, label] as const).filter(([n]) => n >= 3).slice(0, 4);
+  const from = plan.daily ?? plan.weekly ?? plan.monthly;
+  const fromUnit = plan.daily ? "day" : plan.weekly ? "week" : "month";
 
   return (
     <>
@@ -79,6 +87,23 @@ export default async function HomePage() {
               <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
               <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
+
+            {/* Proof and price: what is here, checked by people, and the way in from the lowest price */}
+            {proof.length || (from && !viewer.isMember) ? (
+              <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] text-white/75 sm:text-[14px]">
+                {proof.length ? (
+                  <span className="inline-flex items-center gap-1.5"><BadgeCheck aria-hidden className="h-4 w-4 text-accent" />
+                    {proof.map(([n, label], i) => <span key={label}>{i ? <span className="text-white/40"> · </span> : null}<strong className="font-bold text-white">{n.toLocaleString("en-UG")}</strong> {label}</span>)}
+                    {stats.lastChecked ? <span className="text-white/55">, checked {date(stats.lastChecked)}</span> : null}
+                  </span>
+                ) : null}
+                {from && !viewer.isMember ? (
+                  <Link href={`/membership?onboard=pay&period=${plan.daily ? "DAILY" : plan.weekly ? "WEEKLY" : "MONTHLY"}&next=%2Fbusiness-ideas`} data-pay="" data-period={plan.daily ? "DAILY" : plan.weekly ? "WEEKLY" : "MONTHLY"} data-next="/business-ideas" className="inline-flex items-center gap-1 font-semibold text-accent underline-offset-4 hover:text-white hover:underline">
+                    Full access from {from} a {fromUnit}<ChevronRight aria-hidden className="h-4 w-4" />
+                  </Link>
+                ) : null}
+              </p>
+            ) : null}
           </div>
 
           {/* Right panel: the live stream while we're live on YouTube; otherwise today's market prices (with

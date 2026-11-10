@@ -1,3 +1,4 @@
+import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, MapPin, type LucideIcon } from "lucide-react";
@@ -151,3 +152,6 @@ export default async function SupplierPage({ params }: { params: { slug: string 
     </OnboardingGate>
   );
 }
+
+/** Browser title, description and share picture for this page (src/lib/seo.ts). */
+export const generateMetadata = ({ params }: { params: { slug: string } }) => itemMetadata("SUPPLIER", params.slug);

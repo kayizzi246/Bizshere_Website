@@ -93,6 +93,12 @@ export const PAID_PATHS = [...DIRECTORIES.filter((d) => !d.free).map((d) => d.hr
 /** Title and description for a directory's list page. */
 export const directory = (href: string) => DIRECTORIES.find((d) => d.href === href)!;
 
+/** The browser title and description of a directory's list page, in its own words, for search results and shares. */
+export const directoryMetadata = (href: string) => {
+  const d = directory(href);
+  return { title: d.title, description: `${d.title} in Uganda: ${d.text.charAt(0).toLowerCase()}${d.text.slice(1)}`, openGraph: { title: `${d.title} · BizSphere-Ug`, description: d.text } };
+};
+
 /** Pages under a paid path that are not directory items, so links to them never open the sign-up
  * pop-up. Files (…/pdf, …/file) are let through too: they check access themselves. */
 export const OPEN_PATHS = ["/suppliers/login", "/experts/login", "/suppliers/join", "/experts/join"];

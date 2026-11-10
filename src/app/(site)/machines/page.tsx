@@ -1,11 +1,11 @@
 import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
-import { directory } from "@/config/directories";
+import { directory, directoryMetadata } from "@/config/directories";
 import { MACHINE_TABS, moneyRange } from "@/lib/format";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
-export const metadata = { title: directory("/machines").title };
+export const metadata = directoryMetadata("/machines");
 
 // Public fields only: price and source are member detail (see facts).
 async function meta(ids: string[]) {
