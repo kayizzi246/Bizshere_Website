@@ -4,15 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
-import { FanTilt } from "./FanTilt";
 import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
-import { PanelParticles } from "./PanelParticles";
 
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
- * panel in green, words on the left and a fan of photos on the right; Business Machines in navy with the
+ * panel in green, words on top and the newest plans as photo cards under them; Business Machines in navy with the
  * words and photos swapped, so the page swings as it flows; then Funding and Suppliers as two
  * joined panels (Panel below) with real listings in them; then Experts as a plum panel with real experts; then Tools, Business Tips and the
  * Business Forum side by side on white (Card below); Guides and News on a navy band; Market Prices and Useful Websites on
@@ -22,7 +20,7 @@ import { PanelParticles } from "./PanelParticles";
  *
  * Every idea, programme and supplier shown is a real published record, and only names and places
  * are used, so nothing here is member-only. No invented customers or numbers, and no shadows. Only
- * each block rises gently into place once as it is reached (.rise-soft), the fan takes turns, and the
+ * each block rises gently into place once as it is reached (.rise-soft), and the
  * suppliers glide past in a row.
  */
 const clean = (title: string) => title.replace(/^Sample:\s*/i, "").replace(/^./, (c) => c.toUpperCase());
@@ -179,8 +177,6 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 export async function HomeFeatures() {
   const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
-  // The newest idea sits in the middle of the fan, on top
-  const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
   // Get started in the hero scrolls to #features. The smooth scroll already leaves 96px for the header
   // (SmoothScroll), which slides away going down: -72px lands the section near the top.
   return (
@@ -210,29 +206,35 @@ export async function HomeFeatures() {
         <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">Everything a business needs</h2>
       </div>
 
-      {/* Business Ideas: a panel like the machines below it, in green, a colour no other panel uses */}
+      {/* Business Ideas: a green panel. The words and the button across the top, then the newest plans as
+          straight photo cards, each one opening its plan. No particles, nothing tilted (client, 10 Nov 2026). */}
       <div className="container-site pb-4 pt-8 sm:pb-5 sm:pt-10">
-      <div data-ideas="" data-reveal="" data-reveal-late="" className={`relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-[#0F5B3E] p-5 sm:p-8 ${fan.length ? "lg:grid-cols-2 lg:gap-10" : ""}`}>
-        <PanelParticles />
-        <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
-          <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Ready plans with every cost, line by line.</p>
+      <div data-reveal="" className="rise-soft flex flex-col gap-6 bg-[#0F5B3E] p-5 sm:gap-8 sm:p-8">
+        <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+          <div className="flex flex-col items-start gap-3">
+            <Label href="/business-ideas" pill={S.ideas.onColour} />
+            <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
+            <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Ready plans with every cost, line by line.</p>
+          </div>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
-        {fan.length ? (
-          <FanTilt>
-            {fan.map((idea, i) => {
-              const n = fan.length === 1 ? 0 : i - (fan.length - 1) / 2;
-              return (
-                <div key={idea.slug} style={{ "--n": n, zIndex: n === 0 ? 2 : 1 } as React.CSSProperties}
-                  className="fan-card flex flex-col overflow-hidden rounded-3xl bg-white text-heading ring-1 ring-line">
-                  <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="aspect-[4/3]" />
-                  <span className="truncate px-4 py-3 font-display text-[14px] font-bold sm:text-[16px]">{clean(idea.title)}</span>
-                </div>
-              );
-            })}
-          </FanTilt>
+        {ideas.length ? (
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3 sm:gap-4">
+            {ideas.map((idea, n) => (
+              <li key={idea.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties}>
+                {/* Phones: a row, photo on the left. From sm: a card, photo on top. */}
+                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden bg-white p-2.5 text-ink hover:text-ink sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
+                  <span className="block w-24 shrink-0 overflow-hidden sm:w-full">
+                    <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="aspect-[4/3] transition-transform duration-300 group-hover:scale-[1.04]" />
+                  </span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-1 sm:p-4">
+                    <span className="font-display text-[16px] font-bold leading-snug text-heading sm:text-[18px]">{clean(idea.title)}</span>
+                    <span className={`inline-flex items-center gap-1 text-[14px] font-bold ${S.ideas.ink}`}>See the plan<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" /></span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         ) : null}
       </div>
       </div>
@@ -240,7 +242,6 @@ export async function HomeFeatures() {
       {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
       <div className="container-site">
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden bg-navy p-5 sm:p-8 ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
-        <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
           <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
@@ -336,7 +337,6 @@ export async function HomeFeatures() {
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
       <div className="container-site pt-4 sm:pt-5">
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden ${PLUM} p-5 sm:p-8 ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
-        <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
           <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
