@@ -387,35 +387,37 @@ export async function HomeFeatures() {
 
       {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing;
           this is the site's other income, so it gets a block of its own, not a footer link. ── */}
+      {/* In the page's own language: a centred black title like the sections above, then two flat,
+          square-cornered panels side by side in the Funding (orange) and Suppliers (blue) colours,
+          each with what you get and one button. No new colour, no rounded box, no dark band twice in a row. */}
       {!viewer.isStaff ? (
-        <div className="container-site pb-10 sm:pb-14">
-          <div data-reveal="" className="rise-soft relative overflow-hidden rounded-[28px] bg-navy p-5 text-white sm:p-8 lg:p-10">
-            <PanelParticles />
-            <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-center lg:gap-10">
-              <div className="flex flex-col items-start gap-3">
-                <span className="rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink">For businesses</span>
-                <h3 className="text-hero text-[26px] leading-[1.1] text-white sm:text-[32px] lg:text-[36px]">Sell to the people who come here looking for you</h3>
-                <p className="max-w-md text-[16px] leading-relaxed text-white/85 sm:text-[17px]">Every day, business owners come here to find who sells what and who can help. Put your business in front of them: your own page, your products and prices, your phone number. Our team checks every listing.</p>
-                <ul className="flex flex-wrap gap-2 text-[13px] font-semibold text-white/85">
-                  {["Your own page and photo", "Products and prices", "Buyers call you directly", "Dashboard to update it yourself"].map((x) => <li key={x} className="rounded-full bg-white/10 px-3 py-1.5">{x}</li>)}
-                </ul>
-              </div>
-              <ul className="grid gap-3 sm:grid-cols-2">
-                {([
-                  ["/suppliers/join", "supplier", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", "bg-accent text-ink hover:bg-white hover:text-ink"],
-                  ["/experts/join", "expert", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", "bg-brand text-white hover:bg-white hover:text-brand-dark"],
-                ] as const).map(([href, icon, title, text, tone]) => (
-                  <li key={href} className="flex flex-col gap-3 rounded-2xl bg-white p-5 text-heading">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
-                    <span className="font-display text-[20px] font-extrabold leading-tight">{title}</span>
-                    <span className="text-[14px] leading-relaxed text-ink-soft">{text}</span>
-                    <Link href={href} className={`mt-auto inline-flex h-11 items-center justify-center gap-1.5 rounded-xl text-[15px] font-bold transition-colors ${tone}`}>{title}<ArrowRight aria-hidden className="h-4 w-4" /></Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <p className="relative mt-5 text-[13px] text-white/65">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-bold text-white underline underline-offset-4 hover:text-accent">Leave your number</Link> and we call you back.</p>
+        <div className="container-site flex flex-col gap-6 pb-10 pt-2 sm:gap-8 sm:pb-14">
+          <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
+            <span className="rounded-full bg-page px-3 py-1 text-[13px] font-bold text-ink-soft">For businesses</span>
+            <h2 className={heading}>Get your business in front of buyers</h2>
+            <p className={body}>Business owners come here every day to find who sells what and who can help. Be the one they find.</p>
           </div>
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
+            {([
+              ["/suppliers/join", "supplier", "Trusted Suppliers", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", ["Your own page with your photo and products", "Buyers call you directly", "A dashboard to update it yourself"], "bg-accent text-ink", S.funding.onColour, "bg-white/40"],
+              ["/experts/join", "expert", "Business Experts", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", ["Your own profile with your services", "The jobs you have done, shown with photos", "Clients call or WhatsApp you directly"], "bg-brand text-white", S.suppliers.onColour, "bg-white/15"],
+            ] as const).map(([href, icon, kind, title, text, gets, tint, onColour, check], n) => (
+              <li key={href} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className={`rise-soft flex flex-col gap-4 p-5 sm:p-6 lg:p-8 ${tint}`}>
+                <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${onColour}`}><Icon name={icon} className="h-4 w-4" />{kind}</span>
+                <h3 className="text-hero text-[24px] leading-[1.1] sm:text-[28px] lg:text-[32px]">{title}</h3>
+                <p className="max-w-md text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
+                <ul className="flex flex-1 flex-col gap-2">
+                  {gets.map((g) => (
+                    <li key={g} className="flex items-center gap-2.5 text-[14px] font-semibold sm:text-[15px]">
+                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${check}`}><Icon name="check" className="h-3.5 w-3.5" /></span>{g}
+                    </li>
+                  ))}
+                </ul>
+                <span><Go href={href} tone={onColour}>{title}</Go></span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-center text-[14px] text-ink-soft">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-bold">Leave your number</Link> and we call you back.</p>
         </div>
       ) : null}
 
