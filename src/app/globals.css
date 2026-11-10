@@ -11,7 +11,7 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --surface: 255 255 255; --page: 244 247 250; --heading: 17 17 17;
-  --ink: 10 10 10; --ink-soft: 43 43 43; --ink-muted: 107 107 107;
+  --ink: 10 10 10; --ink-soft: 43 43 43; --ink-muted: 85 85 85;
   --line: 233 231 228; --line-strong: 214 211 207;
   --brand-dark: 14 94 148; --brand-tint: 231 242 250;
   --accent-dark: 179 95 12; --accent-tint: 254 241 228;
@@ -44,24 +44,22 @@
 }
 
 @layer base {
-  /* Site-wide text spacing (client, 9 Nov 2026): letter spacing 0.2–0.5px, word spacing 2–4px, line height
-     1.5–1.6, reading text 16–18px. Headings keep their own tight spacing (big bold titles look broken spaced
-     out), and buttons, menus and tabs keep normal word spacing so they still fit their boxes. */
+  /* Site-wide text spacing (client, 10 Nov 2026: "standard spacing"): the fonts' own letter and word spacing,
+     line height 1.6, reading text 16–18px. Headings are only slightly tightened, with room between their lines. */
   body {
     @apply bg-white text-ink antialiased font-sans;
     font-size: 16px;
     line-height: 1.6;
-    letter-spacing: 0.3px;
+    letter-spacing: normal;
+    word-spacing: normal;
     font-feature-settings: "cv11", "ss01"; /* Inter: single-storey a, open digits */
   }
-  :where(p, li, dd, td, blockquote, label) { word-spacing: 2px; }
-  :where(h1, h2, h3, h4, h5, h6) { letter-spacing: -0.01em; word-spacing: normal; }
 
   /* Manrope for headings and titles; Inter (the body font) everywhere else. */
   h1, h2, h3, h4, h5, h6 {
     @apply font-display font-extrabold; /* 800 for every heading */
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
   a {
@@ -98,10 +96,10 @@
   /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
      section title 24→32 / 700 · card title 20→24 / 600 */
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
-  .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 0.98; }
-  .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[36px] lg:text-[44px]; }
-  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
-  .text-block-title { @apply font-display text-[20px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[24px]; }
+  .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.01em; line-height: 1.15; }
+  .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[44px]; }
+  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[32px]; }
+  .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }

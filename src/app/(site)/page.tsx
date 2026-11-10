@@ -55,19 +55,19 @@ export default async function HomePage() {
               <span className="text-accent">B2B</span> Information Portal
             </h1>
 
-            <p className="mb-4 max-w-2xl text-[13px] leading-[1.55] text-white/80 sm:text-[16px]">
+            <p className="mb-4 max-w-2xl text-[16px] leading-[1.6] text-white/90">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className="font-semibold text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />
 
-            {/* Every directory as a link tile: on phones bigger tiles with a dotted border, two to a row, from sm a quiet hairline tile,
+            {/* Every directory as a link tile: on phones bigger tiles, two to a row (solid hairline: no dotted borders, client 10 Nov 2026), from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
             <ul aria-label="Directories" className="mt-5 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border-2 border-dotted border-white/50 bg-white/[0.06] px-3 py-2.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:border sm:border-solid sm:border-white/25 sm:px-3 sm:py-2 sm:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:px-3 sm:py-2 sm:text-[15px]">
                     <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent" />
                     {d.title}
                   </Link>

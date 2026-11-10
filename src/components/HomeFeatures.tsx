@@ -81,6 +81,27 @@ const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark"
 // A supplier with no photo yet gets a bold initial, in shades of the Suppliers blue.
 const MONOGRAM = ["bg-brand-dark text-white", "bg-brand-tint text-brand-dark", "bg-navy text-white", "bg-[#D6E9F7] text-brand-dark"];
 
+/**
+ * "What do you need today?": the visitor's own problem in their own words, each one straight to the part of
+ * the site that solves it. [what they say, where it goes, that service's colour]
+ */
+const NEEDS: [string, string, string][] = [
+  ["I want to start a business", "/business-ideas", S.ideas.solid],
+  ["I need money for my business", "/funding", S.funding.solid],
+  ["I am looking for a supplier", "/suppliers", S.suppliers.solid],
+  ["I need a machine", "/machines", S.machines.solid],
+  ["I need advice from an expert", "/experts", S.experts.solid],
+  ["I want today's market prices", "/prices", S.prices.solid],
+];
+
+/** Good morning / afternoon / evening by the clock in Uganda, where the visitors are. */
+function greeting(name: string | null) {
+  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Africa/Kampala" }).format(new Date()));
+  const part = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const first = name?.trim().split(/s+/)[0];
+  return first ? `${part}, ${first}` : part;
+}
+
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
@@ -123,7 +144,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
     <li data-reveal="" className={`rise-soft flex flex-col gap-3 p-5 sm:p-6 ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} pill={onColour} />
-        <h3 className="text-hero text-[24px] leading-[1.1] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
+        <h3 className="text-hero text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
         <p data-size="" className="max-w-lg text-[14px] font-medium leading-relaxed sm:text-[15px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
@@ -164,8 +185,29 @@ export async function HomeFeatures() {
   // (SmoothScroll), which slides away going down: -72px lands the section near the top.
   return (
     <section id="features" className="-scroll-mt-[72px] overflow-x-clip bg-white">
-      <div className="container-site flex flex-col items-center gap-3 pt-10 text-center sm:pt-14">
-        <h2 className="text-hero text-[28px] leading-[1.1] text-black sm:text-[36px] lg:text-[40px]">Everything a business needs</h2>
+      {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
+      <div className="container-site flex flex-col items-center gap-6 pt-10 sm:gap-8 sm:pt-14">
+        <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
+          <span className="rounded-full bg-page px-3 py-1 text-[14px] font-bold text-ink-soft">{greeting(viewer.name)}</span>
+          <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">What do you need today?</h2>
+          <p className={body}>Choose one and we take you straight there.</p>
+        </div>
+        <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {NEEDS.map(([say, href, colour]) => (
+            <li key={href}>
+              <Link href={href} className="group flex min-h-[68px] items-center gap-3 bg-page p-3 pr-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink">
+                <span className={`flex h-11 w-11 shrink-0 items-center justify-center ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
+                <span className="flex-1 font-display text-[16px] font-bold leading-snug">{say}</span>
+                <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="text-center text-[15px] text-ink-soft">Not sure where to start? <Link href="/contact" className="font-bold">Tell us what you need</Link> and a person will help you.</p>
+      </div>
+
+      <div className="container-site flex flex-col items-center gap-3 pt-12 text-center sm:pt-16">
+        <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">Everything a business needs</h2>
       </div>
 
       {/* Business Ideas: a panel like the machines below it, in green, a colour no other panel uses */}
@@ -174,7 +216,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="text-hero text-[24px] leading-[1.1] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
+          <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -201,7 +243,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="text-hero text-[24px] leading-[1.1] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
+          <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -297,7 +339,7 @@ export async function HomeFeatures() {
         <PanelParticles />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="text-hero text-[24px] leading-[1.1] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
+          <h3 className="text-hero text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
           <p className="max-w-md text-[16px] leading-relaxed text-white sm:text-[17px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
@@ -404,7 +446,7 @@ export async function HomeFeatures() {
             ] as const).map(([href, icon, kind, title, text, gets, tint, onColour, check], n) => (
               <li key={href} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className={`rise-soft flex flex-col gap-4 p-5 sm:p-6 lg:p-8 ${tint}`}>
                 <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-bold ${onColour}`}><Icon name={icon} className="h-4 w-4" />{kind}</span>
-                <h3 className="text-hero text-[24px] leading-[1.1] sm:text-[28px] lg:text-[32px]">{title}</h3>
+                <h3 className="text-hero text-[24px] leading-[1.2] sm:text-[28px] lg:text-[32px]">{title}</h3>
                 <p className="max-w-md text-[15px] font-medium leading-relaxed sm:text-[16px]">{text}</p>
                 <ul className="flex flex-1 flex-col gap-2">
                   {gets.map((g) => (
