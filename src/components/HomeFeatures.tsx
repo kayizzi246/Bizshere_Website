@@ -5,6 +5,7 @@ import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { LottieArt } from "./LottieArt";
+import { CardCarousel } from "./CardCarousel";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
 
@@ -30,7 +31,7 @@ async function records() {
   const live = { publicationStatus: "PUBLISHED" } as const;
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
   const [ideas, funding, suppliers, machines, guides, news, websites, products, experts] = await Promise.all([
-    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 6 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 6 }),
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
@@ -206,8 +207,8 @@ export async function HomeFeatures() {
         <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">Everything a business needs</h2>
       </div>
 
-      {/* Business Ideas: a green panel. The words and the button across the top, then the newest plans as
-          straight photo cards, each one opening its plan. No particles, nothing tilted (client, 10 Nov 2026). */}
+      {/* Business Ideas: a green panel. The words and the button across the top, then the newest plans in a
+          carousel (CardCarousel): swipe or use the arrows, each card opens its plan. No particles, nothing tilted (client, 10 Nov 2026). */}
       <div className="container-site pb-4 pt-8 sm:pb-5 sm:pt-10">
       <div data-reveal="" className="rise-soft flex flex-col gap-6 bg-[#0F5B3E] p-5 sm:gap-8 sm:p-8">
         <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
@@ -219,22 +220,22 @@ export async function HomeFeatures() {
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
-          <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3 sm:gap-4">
+          <CardCarousel label="Newest business plans">
             {ideas.map((idea, n) => (
-              <li key={idea.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties}>
-                {/* Phones: a row, photo on the left. From sm: a card, photo on top. */}
-                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden bg-white p-2.5 text-ink hover:text-ink sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
-                  <span className="block w-24 shrink-0 overflow-hidden sm:w-full">
-                    <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="aspect-[4/3] transition-transform duration-300 group-hover:scale-[1.04]" />
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-1 sm:p-4">
-                    <span className="font-display text-[16px] font-bold leading-snug text-heading sm:text-[18px]">{clean(idea.title)}</span>
-                    <span className={`inline-flex items-center gap-1 text-[14px] font-bold ${S.ideas.ink}`}>See the plan<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" /></span>
+              <li key={idea.slug}>
+                {/* The photo fills the card; its number, name and "See the plan" sit on it over a dark fade */}
+                <Link href={`/business-ideas/${idea.slug}`} className="group relative block overflow-hidden rounded-2xl bg-[#0A3F2B] text-white hover:text-white">
+                  <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="aspect-[4/5] transition-transform duration-500 group-hover:scale-[1.05] sm:aspect-[4/3]" />
+                  <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                  <span className="absolute left-3 top-3 rounded-full bg-white px-2.5 py-0.5 font-display text-[13px] font-extrabold text-[#0F5B3E]">{String(n + 1).padStart(2, "0")}</span>
+                  <span className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-2 p-4 sm:p-5">
+                    <span className="font-display text-[20px] font-extrabold leading-tight sm:text-[22px]">{clean(idea.title)}</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-[14px] font-bold text-ink">See the plan<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" /></span>
                   </span>
                 </Link>
               </li>
             ))}
-          </ul>
+          </CardCarousel>
         ) : null}
       </div>
       </div>
