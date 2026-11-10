@@ -32,7 +32,7 @@ export async function SiteHeader() {
   return (
     // One floating bar over the page: the navy heroes run up behind it to the top of the screen (.under-header).
     <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 sm:px-5 lg:pt-3">
-      <div className="relative mx-auto flex h-16 max-w-[1312px] items-center gap-2 rounded-full border border-line/70 bg-white pl-3 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.10)] lg:h-[72px] lg:gap-3 lg:pl-5">
+      <div className="relative mx-auto flex h-[52px] max-w-[1312px] items-center gap-2 rounded-full border border-line/70 bg-white pl-3 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.10)] lg:h-[60px] lg:gap-3 lg:pl-5">
         <Logo full />
 
         {/* The main links, centred. Hover (or keyboard focus) on one shows a small card with what it is. */}

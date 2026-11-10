@@ -189,7 +189,7 @@ export async function HomeFeatures() {
   // Get started in the hero scrolls to #features. The smooth scroll already leaves 96px for the header
   // (SmoothScroll), which slides away going down: -72px lands the section near the top.
   return (
-    <section id="features" className="-scroll-mt-[72px] overflow-x-clip bg-white">
+    <section id="features" className="-scroll-mt-[60px] overflow-x-clip bg-white">
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
       <div className="container-site flex flex-col items-center gap-6 pt-10 sm:gap-8 sm:pt-14">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
