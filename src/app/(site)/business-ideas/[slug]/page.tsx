@@ -1,7 +1,7 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, ClipboardList, ExternalLink, FileDown, FileText, Lightbulb, LockKeyhole, Rocket, Wallet } from "lucide-react";
+import { ArrowDown, ArrowLeft, BadgeCheck, Check, ClipboardList, Clock, ExternalLink, FileDown, LockKeyhole, Ruler, TrendingUp, Wallet } from "lucide-react";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
@@ -39,6 +39,10 @@ export const dynamic = "force-dynamic";
 // Kept simple and in the document's order: photo gallery, name, starting capital and actions at the
 // top; then the template table (S/N, Name, Details, Notes, all 14 rows), the Start-up Budget
 // sub-table, the business plan PDF, and more ideas. The steps and the full detail are in the PDF.
+//
+// Laid out as steps to follow (client, 10 Nov 2026): the top shows what the plan holds, a navy strip lists the
+// steps, and each section is a numbered step on a line down the page: know the business, count the cost, get
+// what you need, take the plan. The first two are open on arrival, so the page shows its worth at once.
 //
 // Gating happens here on the server: visitors receive only the first budget lines, and no totals. Every "Unlock" opens the onboarding pop-up.
 export default async function IdeaPage({ params, searchParams }: { params: { slug: string }; searchParams: { scenario?: string } }) {
@@ -138,8 +142,37 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
     .map((s) => (s.table.key === "media" ? { ...s, rows: s.rows.filter((r) => r.mediaType !== "image" && r.mediaType !== "video") } : s))
     .filter((s) => s.rows.length);
 
+  // The steps down the page, in order. "Get what you need" only when the idea is linked to something.
+  const steps = [
+    { id: "template", title: "Know the business", was: "Business idea" },
+    { id: "budget", title: "Count the cost", was: "Start-up Budget" },
+    ...(next.length ? [{ id: "start", title: "Get what you need", was: "Machines, money, people" }] : []),
+    { id: "plan-pdf", title: "Take your plan", was: "Business plan (PDF)" },
+  ];
+  const head = (id: string, sub: string) => {
+    const n = steps.findIndex((x) => x.id === id);
+    return <StepHead no={n + 1} of={steps.length} kicker={steps[n].was} title={steps[n].title} sub={sub} />;
+  };
+  /** The way on, at the foot of a step. */
+  const onward = (id: string) => {
+    const n = steps.findIndex((x) => x.id === id);
+    const to = steps[n + 1];
+    return to ? <a href={`#${to.id}`} className="inline-flex w-fit items-center gap-1.5 rounded-full bg-page px-4 py-2 text-[14px] font-bold text-heading hover:bg-brand-tint hover:text-brand-dark">Next: step {n + 2}, {to.title.toLowerCase()}<ArrowDown aria-hidden className="h-4 w-4" /></a> : null;
+  };
+
+  // The figures a visitor weighs first, beside the starting capital. Only the ones filled in.
+  const facts = ([[TrendingUp, "Profit potential", profit], [Clock, "Time to set up", idea.setupTime], [Ruler, "Business size", size]] as const).filter(([, , v]) => v);
+  // What this plan holds, in real counts (counts are public; the values stay with members).
+  const itemCount = scenario?.lines.length ?? 0;
+  const inside = [
+    itemCount ? `${itemCount} start-up items, priced one by one` : null,
+    scenarios.length > 1 ? `${scenarios.length} budget sizes: ${scenarios.map((x) => PLAN_LABEL[x.level].toLowerCase()).join(", ")}` : null,
+    next.length ? `${next.length} checked ${next.length === 1 ? "link" : "links"} to machines, funding and experts` : null,
+    "A business plan to download and print",
+  ].filter((x): x is string => Boolean(x));
+
   const dropHead = "flex cursor-pointer list-none items-center justify-between gap-3";
-  const card = "flex scroll-mt-36 flex-col gap-5 rounded-3xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(7,26,51,0.04)] sm:p-7";
+  const card = "relative flex scroll-mt-36 flex-col gap-5 rounded-3xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(7,26,51,0.04)] sm:p-7";
   const h2 = "font-display text-lg font-extrabold text-heading";
 
   return (
@@ -165,8 +198,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                       <Icon name="idea" className="h-3.5 w-3.5" />{item.primaryCategory.name}
                     </Link>
                   ) : null}
-                  <h1 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[34px]">{name} business</h1>
-                  {item.shortSummary ? <p className="text-[15px] leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
+                  <h1 className="text-hero text-[30px] text-heading sm:text-[38px] lg:text-[42px]">{name} business</h1>
+                  {item.shortSummary ? <p className="text-[16px] leading-relaxed text-ink-soft sm:text-[17px]">{item.shortSummary}</p> : null}
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <RememberVisit item={{ href: path, title: name, kind: "Business idea", icon: "idea", picture: idea.pictureUrl }} />
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
@@ -184,6 +217,20 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   </span>
                 </div>
 
+                {facts.length ? (
+                  <dl className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-3">
+                    {facts.map(([Glyph, label, value]) => (
+                      <div key={label} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3">
+                        <Glyph aria-hidden className="h-5 w-5 shrink-0 text-brand" />
+                        <span className="flex min-w-0 flex-col">
+                          <dt className="text-[12px] font-semibold text-ink-muted">{label}</dt>
+                          <dd className="font-display text-[15px] font-extrabold leading-snug text-heading">{value}</dd>
+                        </span>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+
                 <div className="grid gap-2 sm:grid-cols-2">
                   {/* No costed budget yet: say so instead of opening an empty page */}
                   {scenarios.some((sc) => sc.lines.length) ? (
@@ -194,19 +241,48 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   <WishlistButton id={item.id} />
                 </div>
                 <a href={pdfDownload} className="-mt-1 inline-flex h-11 w-fit items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Download business plan (PDF)</a>
-                {gated ? (
-                  <p className="-mt-1 text-[13px] text-ink-muted">Members see the full budget with totals and every step. {unlock("Unlock", "text-[13px]")}</p>
-                ) : null}
+                <div className="flex flex-col gap-2.5 rounded-2xl bg-navy p-4 text-white sm:p-5">
+                  <h2 className="font-display text-[16px] font-extrabold">In this plan</h2>
+                  <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-5 gap-y-1.5 lg:grid-cols-2">
+                    {inside.map((t) => <li key={t} className="flex items-start gap-2 text-[15px] leading-snug"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent" strokeWidth={3} />{t}</li>)}
+                  </ul>
+                  {gated ? (
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-white/15 pt-3 text-[14px] text-white/85">
+                      You are seeing the free preview.
+                      <Link href={path} data-onboard="" className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-accent px-4 text-[14px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock the full plan</Link>
+                    </p>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
+        {/* ── The steps, as one strip: each jumps to its part of the page ── */}
+        <nav aria-label="Steps to start this business" className="bg-navy text-white">
+          <div className="container-site flex flex-col gap-3 py-5 lg:flex-row lg:items-center lg:gap-8">
+            <p className="text-hero shrink-0 text-[18px] sm:text-[20px]">Follow the {steps.length} steps</p>
+            <ol className={`grid flex-1 grid-cols-2 gap-2 ${steps.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+              {steps.map((x, n) => (
+                <li key={x.id}>
+                  <a href={`#${x.id}`} className="group flex h-full items-center gap-2.5 rounded-xl bg-white/[0.08] p-2.5 text-white hover:bg-white hover:text-navy">
+                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent font-display text-[15px] font-extrabold text-ink">{n + 1}</span>
+                    <span className="font-display text-[14px] font-bold leading-tight sm:text-[15px]">{x.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </nav>
+
         <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
+          {/* The steps sit on a line down the left from md; each step's number is a circle on it (StepHead) */}
+          <div className="relative flex flex-col gap-4 md:pl-[4.5rem]">
+          <span aria-hidden className="absolute bottom-8 left-[23px] top-8 hidden w-0.5 bg-line-strong md:block" />
           {/* ── 1. The template, as in the client's document: S/N, Name, Details, Notes ── */}
           <section id="template" className={card} data-reveal="">
-            <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
-              <summary className={dropHead}><SectionTitle n="01" kicker="The idea" title="Business idea" sub="Everything about this business, as one simple table." icon={Lightbulb} /><DropHint /></summary>
+            <details open className="group/drop [&>summary::-webkit-details-marker]:hidden">
+              <summary className={dropHead}>{head("template", "Everything about this business, as one simple table.")}<DropHint /></summary>
             <div className="mt-5 overflow-x-auto rounded-xl border border-line">
               <table className="w-full min-w-[640px] text-left text-[15px] sm:text-[16px]">
                 <thead className="bg-brand-deep text-[14px] text-white">
@@ -224,6 +300,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </tbody>
               </table>
             </div>
+            <div className="mt-5">{onward("template")}</div>
             </details>
           </section>
 
@@ -239,8 +316,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
           {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
           <section id="budget" className={card} data-reveal="">
-            <details open={Boolean(wanted)} className="group/drop [&>summary::-webkit-details-marker]:hidden">
-              <summary className={dropHead}><SectionTitle n="02" kicker="What it costs" title="Start-up Budget" sub="What to buy and pay to open, item by item." icon={Wallet} /><DropHint /></summary>
+            <details open className="group/drop [&>summary::-webkit-details-marker]:hidden">
+              <summary className={dropHead}>{head("budget", "What to buy and pay to open, item by item.")}<DropHint /></summary>
             <div className="mt-5 flex flex-col gap-5">
               {scenarios.length > 1 ? (
                 <nav aria-label="Business size" className="inline-flex w-fit gap-1 rounded-full border border-line bg-page p-1">
@@ -282,10 +359,22 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                         <td className="px-3 py-2.5 text-ink-muted">{[l.unitCost === null ? (l.unknownReason ?? "Price to be confirmed") : null, l.isOptional ? "Optional" : null, l.details].filter(Boolean).join(" · ") || null}</td>
                       </tr>
                     ))}
+                    {/* The rest, for a visitor: grey bars where the rows are (no real figures are sent), then the way in */}
                     {hiddenLines > 0 ? (
-                      <tr className="border-t border-line"><td colSpan={6} className="bg-page px-3 py-2.5">
-                        <span className="flex flex-wrap items-center justify-between gap-3"><span className="text-sm text-ink-muted">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total</span>{unlock("Unlock the full budget", "text-sm")}</span>
-                      </td></tr>
+                      <>
+                        {Array.from({ length: Math.min(hiddenLines, 3) }, (_, n) => (
+                          <tr key={n} aria-hidden className="border-t border-line bg-white">
+                            <td className="px-3 py-3 text-ink-muted">{lines.length + n + 1}</td>
+                            {[["w-40", ""], ["w-8", "ml-auto"], ["w-20", "ml-auto"], ["w-24", "ml-auto"], ["w-28", ""]].map(([w, side], c) => <td key={c} className="px-3 py-3"><span className={`block h-3 rounded-full bg-line-strong/70 blur-[2px] ${w} ${side}`} /></td>)}
+                          </tr>
+                        ))}
+                        <tr className="border-t border-line"><td colSpan={6} className="bg-navy px-4 py-4 text-white">
+                          <span className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="flex flex-col"><span className="font-display text-[16px] font-extrabold">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total are for members</span><span className="text-[14px] text-white/80">Every item priced, so you know what to raise before you spend.</span></span>
+                            <Link href={path} data-onboard="" className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-accent px-5 text-[15px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock the full budget</Link>
+                          </span>
+                        </td></tr>
+                      </>
                     ) : null}
                   </tbody>
                   {!gated ? (
@@ -300,14 +389,15 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 </table>
               </div>
             ) : <p className="text-sm text-ink-muted">Being prepared.</p>}
+            {onward("budget")}
             </div>
             </details>
           </section>
 
           {/* ── What it takes: the machines, funding, experts and tools linked to this idea ── */}
           {next.length ? (
-            <section className={card} data-reveal="">
-              <SectionTitle n="+" kicker="Keep going" title="What you need to start" sub="Machines, money and people for this business, checked by our team." icon={Rocket} />
+            <section id="start" className={card} data-reveal="">
+              {head("start", "Machines, money and people for this business, checked by our team.")}
               <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {next.map(({ toItem: t }) => (
                   <li key={t.id}>
@@ -322,13 +412,14 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   </li>
                 ))}
               </ul>
+              {onward("start")}
             </section>
           ) : null}
 
           {/* ── 3. The business plan as a designed PDF (src/lib/idea-pdf.tsx), viewed right here ── */}
           <section id="plan-pdf" className={card} data-reveal="">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <SectionTitle n="03" kicker="Your plan" title="Business plan (PDF)" sub="The whole plan, with the steps to start, to keep or print." icon={FileText} />
+              {head("plan-pdf", "The whole plan, with the steps to start, to keep or print.")}
               <span className="flex gap-2">
                 <a href={pdfPath} target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><ExternalLink aria-hidden className="h-3.5 w-3.5" />Open</a>
                 <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
@@ -339,6 +430,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <p className="text-[13px] text-ink-muted sm:hidden">Tap Open to read the plan, or Download to keep it.</p>
             {gated ? <p className="text-[12px] text-ink-muted">This is the free preview. Members get the full plan with every budget size and step.</p> : null}
           </section>
+          </div>
 
           <ChildSections compact sections={otherMedia} gated={gated} back={path} />
 
@@ -371,6 +463,23 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   );
 }
 
+
+/**
+ * The heading of a step: its number in a navy circle, "Step 1 of 4" with the section's own name, and what to do.
+ * From md the circle moves out onto the line down the left of the steps (the section is the positioned parent).
+ */
+function StepHead({ no, of, kicker, title, sub }: { no: number; of: number; kicker: string; title: string; sub: string }) {
+  return (
+    <div className="flex items-start gap-3.5">
+      <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy font-display text-[20px] font-extrabold text-white md:absolute md:-left-[4.5rem] md:top-5 md:ring-8 md:ring-page">{no}</span>
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-accent-dark">Step {no} of {of} · {kicker}</span>
+        <h2 className="text-hero text-[22px] text-heading sm:text-[26px]">{title}</h2>
+        <p className="text-[15px] text-ink-soft">{sub}</p>
+      </span>
+    </div>
+  );
+}
 
 /** A number in the budget summary. */
 function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
