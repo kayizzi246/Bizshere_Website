@@ -4,17 +4,21 @@ import { DIRECTORY_KINDS } from "@/lib/categories";
 import { directoryFor, type Field } from "@/lib/content-fields";
 
 export type Option = { value: string; label: string };
-export type FormOptions = { categories: Option[]; primaryCategories: Option[]; audiences: Option[]; locations: Option[]; link: Option[] };
+export type FormOptions = { categories: Option[]; primaryCategories: Option[]; audiences: Option[]; locations: Option[]; link: Option[]; suppliers: Option[] };
 
 /** Choices for the entry form's select boxes. The main category offers this directory's own kinds, plus the one already chosen. */
 export async function loadOptions(type: ContentType, currentCategoryId?: string | null): Promise<FormOptions> {
   const dir = directoryFor(type);
-  const [categories, audiences, locations, orgs, providers] = await Promise.all([
+  const [categories, audiences, locations, orgs, providers, suppliers] = await Promise.all([
     prisma.category.findMany({ orderBy: [{ kind: "asc" }, { name: "asc" }] }),
     prisma.audience.findMany({ orderBy: { name: "asc" } }),
     prisma.location.findMany({ where: { type: { in: ["COUNTRY", "REGION", "DISTRICT"] } }, orderBy: [{ type: "asc" }, { name: "asc" }] }),
     dir?.link?.field === "organizationId" ? prisma.organization.findMany({ orderBy: { legalName: "asc" }, select: { id: true, legalName: true, tradingName: true } }) : [],
     dir?.link?.field === "providerId" ? prisma.fundingProvider.findMany({ include: { organization: { select: { legalName: true } } } }) : [],
+    // Suppliers on the site, for a field that links one (a machine's provider)
+    dir?.fields.some((f) => f.ref === "supplier")
+      ? prisma.supplier.findMany({ select: { id: true, country: true, contentItem: { select: { title: true, publicationStatus: true } } }, orderBy: { contentItem: { title: "asc" } } })
+      : [],
   ]);
   return {
     categories: categories.map((c) => ({ value: c.id, label: `${c.name} (${c.kind.toLowerCase().replace(/_/g, " ")})` })),
@@ -25,6 +29,10 @@ export async function loadOptions(type: ContentType, currentCategoryId?: string 
       ...orgs.map((o) => ({ value: o.id, label: o.tradingName ? `${o.tradingName} (${o.legalName})` : o.legalName })),
       ...providers.map((p) => ({ value: p.id, label: p.organization.legalName })),
     ],
+    suppliers: suppliers.map((s) => ({
+      value: s.id,
+      label: `${s.contentItem.title.replace(/^Sample:\s*/i, "")}${s.country && s.country !== "Uganda" ? ` (${s.country})` : ""}${s.contentItem.publicationStatus === "PUBLISHED" ? "" : " · not live yet"}`,
+    })),
   };
 }
 

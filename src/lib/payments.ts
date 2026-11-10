@@ -46,6 +46,8 @@ export type OrderStatus = {
   confirmationCode: string | null;
   merchantReference: string | null;
   paidAt: Date | null;
+  /** Pesapal's own words for the outcome, e.g. "Insufficient funds" or "Request timed out". */
+  reason: string | null;
 };
 
 // Tokens last 5 minutes; reuse one until shortly before it runs out.
@@ -150,6 +152,7 @@ export async function orderStatus(trackingId: string): Promise<OrderStatus> {
   const r = await call<{
     status_code?: number; amount?: number; currency?: string; payment_method?: string;
     confirmation_code?: string; merchant_reference?: string; created_date?: string;
+    description?: string | null; payment_status_description?: string | null; error?: { message?: string | null } | null;
   }>(`/api/Transactions/GetTransactionStatus?orderTrackingId=${encodeURIComponent(trackingId)}`, { method: "GET", lenient: true });
   const status = r.status_code === 1 ? "SUCCEEDED" : r.status_code === 2 ? "FAILED" : r.status_code === 3 ? "REFUNDED" : "PENDING";
   return {
@@ -160,6 +163,7 @@ export async function orderStatus(trackingId: string): Promise<OrderStatus> {
     confirmationCode: r.confirmation_code || null,
     merchantReference: r.merchant_reference || null,
     paidAt: status === "SUCCEEDED" && r.created_date ? new Date(r.created_date) : null,
+    reason: [r.description, r.error?.message, r.payment_status_description].map((x) => (x ?? "").trim()).find(Boolean)?.slice(0, 300) ?? null,
   };
 }
 

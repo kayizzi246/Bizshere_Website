@@ -16,6 +16,8 @@ export type Field = {
   initial?: string;
   /** Not a column of the directory's own table: saved by hand in src/app/admin/content/actions.ts. */
   virtual?: boolean;
+  /** A choice of an existing record (the id is stored), listed in src/app/admin/content/load.ts. */
+  ref?: "supplier";
 };
 
 /** Child rows edited as one line each in a textarea. */
@@ -51,6 +53,10 @@ const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is ze
 const SUPPLIER_MORE = "What else they offer";
 /** The funder's details on a funding source. */
 export const FUNDER = "Funder details";
+/** Who sells a machine: a supplier on the site, or a name and contacts typed in. Always open in the form. */
+export const PROVIDER = "Provider (where to buy)";
+/** The provider fields, shown in "Where to buy" on the machine page rather than in the specifications. */
+export const PROVIDER_FIELDS = ["supplierId", "providerName", "providerPhone", "providerEmail", "providerWebsite"];
 
 export const DIRECTORIES: Directory[] = [
   {
@@ -95,6 +101,10 @@ export const DIRECTORIES: Directory[] = [
       ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), { ...u("pictureUrl", "Picture", MAIN), upload: "image" },
       t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
+      { name: "supplierId", label: "Supplier already on the site", kind: "text", group: PROVIDER, ref: "supplier", help: "Choose one to link their page and use their contacts. Leave on \"None\" to type the provider below." },
+      t("providerName", "Provider name", PROVIDER, "Not needed when you chose a supplier above"),
+      t("providerPhone", "Provider phone", PROVIDER, "e.g. 0772 123 456"), t("providerEmail", "Provider email", PROVIDER),
+      { ...u("providerWebsite", "Provider website", PROVIDER), help: "e.g. www.example.com" },
       t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"),
       t("materialsProcessed", "Materials processed", "Applications"), t("productsProduced", "Products produced", "Applications"),
       d("capacityMin", "Capacity min", "Performance"), d("capacityMax", "Capacity max", "Performance"), t("capacityUnit", "Capacity unit", "Performance", "Use a unit code, e.g. kg_per_hour"),
@@ -204,6 +214,7 @@ export const DIRECTORIES: Directory[] = [
       t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant"), t("businessName", "Business or firm", MAIN),
       t("phone", "Phone number", MAIN, "e.g. 0772 123 456"), t("email", "Email address", MAIN),
       { ...u("photoUrl", "Photo", MAIN), upload: "image" },
+      t("address", "Physical address", MAIN, "Street, building or area, e.g. Plot 12, Kampala Road, 2nd floor"),
       t("district", "District", MAIN, "e.g. Kampala"), { ...t("country", "Country", MAIN), initial: "Uganda" },
       { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },
       l("languages", "Languages", "Experience and languages"), { ...l("deliveryModes", "How they work", "Experience and languages"), help: "Separate with commas, e.g. in person, online" }, ta("experience", "Experience", "Experience and languages"),
@@ -212,7 +223,6 @@ export const DIRECTORIES: Directory[] = [
       i("consultationMins", "Consultation length (minutes)", "Fees"), b("quotationRequired", "Gives a quote first", "Fees"),
       t("availability", "When they are available", "Availability"), t("responseTime", "How fast they reply", "Availability"), u("bookingUrl", "Booking or enquiry link", "Availability"),
       { name: "fullName", label: "Name on the page, if different", kind: "text", group: "Other details", help: "Leave empty: the name above is used" },
-      t("address", "Address", "Other details", "Street, building or area"),
     ],
   },
   {
@@ -290,7 +300,7 @@ export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
  * checks this on the server and never sends these values to a visitor.
  */
 export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
-  MACHINE: { fields: ["priceMin", "priceMax", "sources"] },
+  MACHINE: { fields: ["priceMin", "priceMax", "sources", "providerName", "providerPhone", "providerEmail", "providerWebsite"] },
   SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
   FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl", "tenor", "howToApply", "funderPhone", "funderEmail", "funderWebsite"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },

@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, FUNDER, isMemberOnly, MAIN, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
+import { directoryFor, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import type { FormOptions } from "./load";
@@ -23,12 +23,14 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const lb = dir.labels ?? {};
   // What people need comes first, one screen of plain questions. Optional extras and the technical
   // settings fold away, and open by themselves when something inside needs fixing.
-  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER);
+  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER && g !== PROVIDER);
   // A funding source's funder details sit with the fund provider choice, always open
   const funderFields = dir.fields.filter((f) => f.group === FUNDER);
   const mainFields = dir.fields.filter((f) => f.group === MAIN);
+  // A machine's provider: its own section, always open, right after the main details
+  const providerFields = dir.fields.filter((f) => f.group === PROVIDER);
   const slug = (g: string) => "s-" + g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  const field = (f: Field) => <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} />;
+  const field = (f: Field) => <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} options={f.ref === "supplier" ? options.suppliers : undefined} />;
   const mainTitle = lb.main ?? MAIN;
   const linkAdvanced = dir.link?.advanced;
   const advancedOpen = Boolean(err("slug") || err("relations") || (linkAdvanced && err(dir.link!.field)));
@@ -37,6 +39,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
     ["s-name", "Basics"],
     ...(dir.link && !linkAdvanced ? [["s-link", dir.link.label] as [string, string]] : []),
     ...(mainFields.length ? [[slug(MAIN), mainTitle] as [string, string]] : []),
+    ...(providerFields.length ? [[slug(PROVIDER), "Provider"] as [string, string]] : []),
     ...(dir.children ?? []).map((c) => [slug(c.label), c.label] as [string, string]),
     ...extraGroups.map((g) => [slug(g), g] as [string, string]),
     ["s-publish", "Who can see it"],
@@ -83,6 +86,12 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
       {mainFields.length ? (
         <Section id={slug(MAIN)} title={mainTitle} note={lb.mainNote ?? "Key facts at the top of the public page."}>
           <div className="flex flex-wrap gap-3.5">{mainFields.map(field)}</div>
+        </Section>
+      ) : null}
+
+      {providerFields.length ? (
+        <Section id={slug(PROVIDER)} title={PROVIDER} note="Shown to members under Where to buy. Link a supplier who is already on the site, or type the provider's details. Anything typed here is shown instead of the supplier's own.">
+          <div className="flex flex-wrap gap-3.5">{providerFields.map(field)}</div>
         </Section>
       ) : null}
 
@@ -148,10 +157,19 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   );
 }
 
-function FieldInput({ f: raw, value, error, member }: { f: Field; value: string; error?: string; member?: boolean }) {
+function FieldInput({ f: raw, value, error, member, options }: { f: Field; value: string; error?: string; member?: boolean; options?: { value: string; label: string }[] }) {
   // A * on every field that must be filled in, so nothing stops a save without saying why
   const f = { ...raw, label: `${raw.label}${raw.required ? " *" : ""}${member ? " (members only)" : ""}` };
   const name = `f_${f.name}`;
+  // A link to an existing record (e.g. a supplier): choose it from the list
+  if (f.ref) {
+    return (
+      <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-1">
+        <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: options?.length ? "None" : "None (no suppliers on the site yet)" }, ...(options ?? [])]} />
+        {f.help ? <span className="text-xs text-ink-muted">{f.help}</span> : null}
+      </div>
+    );
+  }
   if (f.kind === "textarea" || f.kind === "json") return <div className="flex-[1_1_100%]"><TextArea name={name} label={f.label} defaultValue={value} help={f.help} error={error} rows={f.kind === "json" ? 3 : 3} mono={f.kind === "json"} /></div>;
   if (f.kind === "bool") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[{ value: "", label: "Unknown" }, { value: "true", label: "Yes" }, { value: "false", label: "No" }]} />;
   if (f.kind === "enum") return <Select name={name} label={f.label} defaultValue={value} error={error} options={[...(f.required ? [] : [{ value: "", label: "Choose…" }]), ...(f.options ?? []).map((o) => ({ value: o, label: titleWord(o) }))]} />;

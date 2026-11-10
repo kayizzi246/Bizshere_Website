@@ -884,10 +884,19 @@ model Machine {
   safetyInstructions       String?
   /// Category-specific attributes (a grain mill and a sewing machine differ).
   specifications           Json?
+  /// The machine's provider (where to buy it): a supplier already on the site, and/or the
+  /// provider's own name and contacts. Typed contacts win over the linked supplier's. Members only.
+  supplierId               String?
+  providerName             String?
+  providerPhone            String?
+  providerEmail            String?
+  providerWebsite          String?
 
   contentItem ContentItem     @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  supplier    Supplier?       @relation("MachineProvider", fields: [supplierId], references: [id], onDelete: SetNull)
   offers      SupplierOffer[]
 
+  @@index([supplierId])
   @@map("machines")
 }
 
@@ -926,6 +935,8 @@ model Supplier {
   offers       SupplierOffer[]
   listings     SupplierProductListing[]
   priceProducts Product[]
+  /// Machines that name this supplier as their provider (Admin > Machines > Provider).
+  providedMachines Machine[] @relation("MachineProvider")
 
   @@map("suppliers")
 }
@@ -1750,6 +1761,8 @@ model Payment {
   /// Pesapal: the order_tracking_id, needed to check or cancel the order
   providerRef    String?
   status         PaymentStatus @default(PENDING)
+  /// Pesapal's reason for a failed attempt (e.g. "Insufficient funds"), shown in Admin > Payments
+  failureReason  String?
   paidAt         DateTime?
   createdAt      DateTime      @default(now())
 

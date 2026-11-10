@@ -129,7 +129,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
             <div className="sm:col-span-2"><UploadButton target="photoUrl" kind="image" /></div>
             <label className={label}>Business name<input name="businessName" defaultValue={expert.businessName ?? ""} className={input} /></label>
             <label className={label}>Your title<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
-            <label className={`${label} sm:col-span-2`}>Address<input name="address" defaultValue={expert.address ?? ""} className={input} /></label>
+            <label className={`${label} sm:col-span-2`}>Physical address<input name="address" defaultValue={expert.address ?? ""} placeholder="e.g. Plot 12, Kampala Road, 2nd floor" className={input} /></label>
             <label className={label}>Phone (members only)<input name="phone" type="tel" defaultValue={expert.phone ?? ""} className={input} /></label>
             <label className={label}>Email (members only)<input name="email" type="email" defaultValue={expert.email ?? ""} className={input} /></label>
             <label className={label}>Country<input name="country" defaultValue={expert.country ?? ""} className={input} /></label>

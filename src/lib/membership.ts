@@ -54,9 +54,11 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
   const s = await orderStatus(payment.providerRef);
   if (s.status === "PENDING") return "PENDING";
   if (s.status !== "SUCCEEDED") {
-    if (payment.status !== s.status) {
-      await prisma.payment.updateMany({ where: { id: payment.id, status: { in: RETRYABLE } }, data: { status: s.status } });
-      await audit(payment.subscription.userId, `payment.${s.status.toLowerCase()}`, "payment", payment.id, { method: s.method });
+    // Keep Pesapal's reason (it changes when a retry on the same order fails differently)
+    if (payment.status !== s.status || (s.reason && payment.failureReason !== s.reason)) {
+      await prisma.payment.updateMany({ where: { id: payment.id, status: { in: RETRYABLE } }, data: { status: s.status, failureReason: s.reason } });
+      if (payment.status !== s.status) await audit(payment.subscription.userId, `payment.${s.status.toLowerCase()}`, "payment", payment.id, { method: s.method, reason: s.reason });
+      console.warn(`payment ${payment.id} ${s.status.toLowerCase()} (${s.method ?? "unknown method"}): ${s.reason ?? "no reason given"}`);
     }
     return s.status;
   }

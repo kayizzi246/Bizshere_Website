@@ -101,7 +101,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
                         <td><span className="flex flex-col"><span>{p.subscription.plan.name}</span><span className="text-xs text-ink-muted">{PERIOD_INFO[p.period ?? p.subscription.period].label}</span></span></td>
                         <td className="whitespace-nowrap">{METHOD_LABEL[p.method]}</td>
                         <td className="whitespace-nowrap text-right font-semibold text-ink">{money(p.amount, p.currency)}</td>
-                        <td><span className={`badge ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span></td>
+                        <td><span className="flex flex-col items-start gap-1"><span className={`badge ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span>{p.status === "FAILED" && p.failureReason ? <span className="max-w-[220px] text-xs text-ink-muted">{p.failureReason}</span> : null}</span></td>
                         <td className="max-w-[160px] truncate font-mono text-xs text-ink-muted">{p.providerRef ?? "—"}</td>
                       </tr>
                     );
@@ -123,6 +123,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
                       <span className={`badge ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span>
                       <span>{METHOD_LABEL[p.method]}</span><span>·</span><span>{p.subscription.plan.name}</span><span>·</span><span>{date(p.paidAt ?? p.createdAt)}</span>
                     </div>
+                    {p.status === "FAILED" && p.failureReason ? <p className="text-xs text-ink-muted">Why it failed: {p.failureReason}</p> : null}
                   </li>
                 );
               })}

@@ -119,6 +119,11 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     for (const f of dir.fields.filter((x) => x.virtual)) funder[f.name] = (parseField(f, str(form.get(`f_${f.name}`)), errors) as string | null) ?? null;
     if (funder.funderEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(funder.funderEmail)) errors.funderEmail = "Not an email address";
   }
+  // A machine's provider: the linked supplier must exist; a typed email must look like one
+  if (type === "MACHINE") {
+    if (specialised.supplierId && !(await prisma.supplier.findUnique({ where: { id: String(specialised.supplierId) }, select: { id: true } }))) errors.supplierId = "That supplier is no longer on the site. Choose another.";
+    if (typeof specialised.providerEmail === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(specialised.providerEmail)) errors.providerEmail = "Not an email address";
+  }
   // An expert's name: typed once, as the page title, unless it is different
   if (type === "CONSULTANT" && !specialised.fullName && title) specialised.fullName = title;
   // Left empty, a new page gets its own organization or fund provider (made below, with the page);
