@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Plus, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
@@ -120,13 +120,13 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 );
 
 /**
- * One everyday service as a white card on the light band: a strip of its colour along the top, its name, a
+ * One everyday service as a white card with a hairline edge (the band is white too): a strip of its colour along the top, its name, a
  * heading that says what the visitor gets, one sentence, what is inside, and one button at the bottom so cards
  * side by side line up. Everything reads from the left, the way a list is scanned.
  */
 function Tile({ href, title, text, action, colour, art, children }: { href: string; title: string; text: string; action: string; colour: string; art?: string; children: React.ReactNode }) {
   return (
-    <li data-reveal="" className="rise-soft flex flex-col bg-white">
+    <li data-reveal="" className="rise-soft flex flex-col border border-line bg-white">
       <span aria-hidden className={`h-1.5 w-full ${colour}`} />
       <div className="flex flex-1 flex-col items-start gap-3 p-5 sm:p-6">
         <div className="flex w-full items-center justify-between gap-3">
@@ -165,23 +165,43 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
-/** Rows of reading inside a Tile: a name, a line under it and an arrow, a hairline between. Each row opens its page. */
+/** Pages to read, as cards side by side inside an open row (More): date, name, two lines and "Read". Each opens its page. */
 const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
-  <ul className="flex w-full flex-col divide-y divide-line border-y border-line">
+  <ul className="grid w-full grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-3">
     {items.map((r) => (
       <li key={r.slug}>
-        <Link href={itemHref(r)} className="group flex items-center gap-3 py-3 text-ink hover:text-ink">
-          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            {note && r.publishedAt ? <span className="text-[13px] font-semibold text-ink-muted">{date(r.publishedAt)}</span> : null}
-            <span className="font-display text-[16px] font-bold leading-snug decoration-2 underline-offset-4 group-hover:underline">{clean(r.title)}</span>
-            {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-ink-soft">{r.shortSummary}</span> : null}
-          </span>
-          <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
+        <Link href={itemHref(r)} className="group flex h-full flex-col gap-1.5 rounded-lg bg-page p-4 text-ink hover:bg-brand-tint hover:text-ink sm:p-5">
+          {note && r.publishedAt ? <span className="text-[13px] font-semibold text-ink-muted">{date(r.publishedAt)}</span> : null}
+          <span className="font-display text-[16px] font-bold leading-snug text-black">{clean(r.title)}</span>
+          {r.shortSummary ? <span className="line-clamp-2 text-[14px] leading-snug text-ink-soft">{r.shortSummary}</span> : null}
+          <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[14px] font-bold text-brand-dark">Read<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" /></span>
         </Link>
       </li>
     ))}
   </ul>
 );
+
+/**
+ * One service as a row that folds open (client, 10 Nov 2026, after a list he liked): its icon in its colour, one
+ * sentence, and a plus that turns to a cross. Open, it shows what is inside and one button. The rows share a
+ * name, so opening one closes the others where the browser supports it; it works without JavaScript.
+ */
+function More({ href, line, action, colour, ink, open, children }: { href: string; line: string; action: string; colour: string; ink: string; open?: boolean; children: React.ReactNode }) {
+  const d = directory(href);
+  return (
+    <details name="home-more" open={open} className="group/more border-t border-line first:border-t-0 [&>summary::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 hover:bg-page sm:gap-4 sm:px-6 group-open/more:hover:bg-white">
+        <span aria-hidden className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${colour}`}><Icon name={d.icon} className="h-[18px] w-[18px]" /></span>
+        <h3 className="min-w-0 flex-1 font-display text-[16px] font-bold leading-snug text-black sm:text-[18px]"><span className={ink}>{d.title}.</span> {line}</h3>
+        <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-tint text-brand-dark"><Plus className="h-4 w-4 transition-transform duration-200 group-open/more:rotate-45 motion-reduce:transition-none" strokeWidth={2.5} /></span>
+      </summary>
+      <div className="flex flex-col items-start gap-4 px-4 pb-6 pt-1 sm:px-6">
+        {children}
+        <Go href={href} tone={colour}>{action}</Go>
+      </div>
+    </details>
+  );
+}
 
 export async function HomeFeatures() {
   const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
@@ -379,10 +399,10 @@ export async function HomeFeatures() {
       </div>
       </div>
 
-      {/* The everyday services, one light band of white cards (client, 10 Nov 2026): three to use (Tools, Tips,
-          Forum), two to read (Guides, News, with real pages to open) and two to look things up (Prices, Websites).
-          Every card: what you get, what is inside, one button. */}
-      <div data-everyday="" className="bg-page">
+      {/* The everyday services, on white like the rest of the page (client, 10 Nov 2026): three cards to use
+          (Tools, Tips, Forum), then Guides, News, Prices and Websites as one list of rows that fold open, the
+          first one open: what is inside and one button. */}
+      <div data-everyday="" className="bg-white">
       <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <h2 className={heading}>Help for every working day</h2>
@@ -401,25 +421,29 @@ export async function HomeFeatures() {
           </Tile>
         </ul>
 
-        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
-          <Tile href="/guides" title="Step-by-step help" action="See all guides" colour={S.guides.solid} text="Registration, licences, EFRIS and tax.">
-            <Reading items={guides} />
-          </Tile>
-          <Tile href="/news" title="Know what is changing" action="Read the news" colour={S.news.solid} text="What is new for business in Uganda.">
-            <Reading items={news} note />
-          </Tile>
-        </ul>
+        <div data-reveal="" className="rise-soft flex flex-col gap-5 pt-4 sm:pt-6">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-10">
+            <h2 className="text-hero max-w-md text-[22px] leading-[1.2] text-black sm:text-[26px]">Know more before you decide</h2>
+            <p className="max-w-md text-[16px] leading-relaxed text-ink-soft">Guides, news, today&apos;s market prices and the websites every business needs, kept up to date by our team.</p>
+          </div>
 
-        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
-          <Tile href="/prices" title="What things cost today" action="Check market prices" colour={S.prices.solid} text="Today's prices, market by market. Tap a product to see it.">
-            <ul className="flex flex-wrap gap-2">
+          <div className="border border-line bg-white">
+            <More open href="/guides" line="Step-by-step help with registration, licences, EFRIS and tax." action="See all guides" colour={S.guides.solid} ink={S.guides.ink}>
+              <Reading items={guides} />
+            </More>
+            <More href="/news" line="What is new for business in Uganda." action="Read the news" colour={S.news.solid} ink={S.news.ink}>
+              <Reading items={news} note />
+            </More>
+            <More href="/prices" line="What things cost today, market by market." action="Check market prices" colour={S.prices.solid} ink={S.prices.ink}>
+              <p className="text-[15px] text-ink-soft">Tap a product to see it.</p>
+              <ul className="flex flex-wrap gap-2">
               {products.map((x) => <li key={x.name}><Link href={`/prices?q=${encodeURIComponent(x.name)}`} className="inline-flex rounded-full bg-[#FDE8EB] px-3 py-1.5 text-[14px] font-semibold text-[#C8102E] hover:bg-[#C8102E] hover:text-white">{x.name}</Link></li>)}
             </ul>
-          </Tile>
-          <Tile href="/websites" title="The websites you will need" action="See useful websites" colour={S.websites.solid} text="Government and business sites in one list.">
-            {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join
-                pop-up; the other names are never sent. */}
-            <ul className="flex flex-wrap gap-2">
+            </More>
+            <More href="/websites" line="Government and business sites in one list." action="See useful websites" colour={S.websites.solid} ink={S.websites.ink}>
+              {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join
+                  pop-up; the other names are never sent. */}
+              <ul className="flex flex-wrap gap-2">
               {(sell ? websites.slice(0, FREE_WEBSITES) : websites).map((w) => (
                 <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-page px-3 py-1.5 text-[14px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
               ))}
@@ -427,8 +451,9 @@ export async function HomeFeatures() {
                 <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-[#475467] px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
               ) : null}
             </ul>
-          </Tile>
-        </ul>
+            </More>
+          </div>
+        </div>
       </div>
       </div>
 
