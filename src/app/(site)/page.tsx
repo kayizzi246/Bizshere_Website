@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { DIRECTORIES } from "@/config/directories";
 import { homeVideo } from "@/lib/youtube";
-import { cachedHomeStats, cachedSiteUpdates } from "@/lib/cached";
-import { BadgeCheck } from "lucide-react";
+import { cachedSiteUpdates } from "@/lib/cached";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
 import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
@@ -23,11 +22,8 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const viewer = await getViewer();
-  const [updates, yt, prices, stats] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), cachedHomeStats().catch(() => ({ counts: {}, total: 0, lastChecked: null }))]);
-  // Real numbers under the buttons: how much is here and when it was last checked. No invented figures,
-  // and no prices or payment talk on the homepage (client, 10 Nov 2026).
-  const proof = ([["SUPPLIER", "suppliers"], ["BUSINESS_IDEA", "business plans"], ["FUNDING_PROGRAMME", "funding sources"], ["MACHINE", "machines"], ["CONSULTANT", "experts"]] as const)
-    .map(([t, label]) => [(stats.counts as Partial<Record<string, number>>)[t] ?? 0, label] as const).filter(([n]) => n >= 3).slice(0, 4);
+  // Nothing under the hero buttons: no counts, prices or payment talk on the homepage (client, 10 Nov 2026).
+  const [updates, yt, prices] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember)]);
 
   return (
     <>
@@ -84,15 +80,6 @@ export default async function HomePage() {
               <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
               <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
-
-            {/* Proof: what is here, checked by people */}
-            {proof.length ? (
-              <p className="mt-4 inline-flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-white/75 sm:text-[14px]">
-                <BadgeCheck aria-hidden className="h-4 w-4 text-accent" />
-                {proof.map(([n, label], i) => <span key={label}>{i ? <span className="text-white/40"> · </span> : null}<strong className="font-bold text-white">{n.toLocaleString("en-UG")}</strong> {label}</span>)}
-                {stats.lastChecked ? <span className="text-white/55">, checked {date(stats.lastChecked)}</span> : null}
-              </p>
-            ) : null}
           </div>
 
           {/* Right panel: the live stream while we're live on YouTube; otherwise today's market prices (with
