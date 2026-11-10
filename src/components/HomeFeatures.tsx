@@ -237,7 +237,7 @@ export async function HomeFeatures() {
 
       {/* Business Ideas: a green panel. The words and the button across the top, then the newest plans in a
           carousel (CardCarousel): swipe or use the arrows, each card opens its plan. No particles, nothing tilted (client, 10 Nov 2026). */}
-      <div className="container-site pb-4 pt-8 sm:pb-5 sm:pt-10">
+      <div className="container-site pb-2 pt-8 sm:pt-10">
       <div data-reveal="" className="rise-soft flex flex-col gap-6 bg-[#0F5B3E] p-5 sm:gap-8 sm:p-8">
         <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="flex flex-col items-start gap-3">
@@ -311,7 +311,7 @@ export async function HomeFeatures() {
           </div>
         ) : null}
       </div>
-        <ul data-panels="" className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 sm:mt-5 sm:gap-5 md:grid-cols-2">
+        <ul data-panels="" className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-2 md:grid-cols-2">
           <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="bg-accent" words="text-ink" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
             <ul className="flex h-full flex-col gap-2">
@@ -364,7 +364,7 @@ export async function HomeFeatures() {
       </div>
 
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
-      <div className="container-site pt-4 sm:pt-5">
+      <div className="container-site pt-2">
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden ${PLUM} p-5 sm:p-8 ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
