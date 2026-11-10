@@ -7,8 +7,8 @@ import { getContact, whatsappHref } from "@/lib/site-contact";
  * on laptops (All services has the left). Opens a chat with a first message already written.
  */
 export async function WhatsAppButton() {
-  const c = await getContact();
-  if (!c.whatsapp) return null;
+  const c = await getContact().catch(() => null);
+  if (!c?.whatsapp) return null;
   return (
     <a href={whatsappHref(c.whatsapp, "Hello BizSphere-Ug, I'd like to know more.")} target="_blank" rel="noopener noreferrer" data-chrome=""
       aria-label="Chat with us on WhatsApp"

@@ -23,11 +23,12 @@ const COLUMNS: { title: string; links: [string, string][] }[] = [
  * Become a Supplier or Expert, or for one who is signed in, their dashboard and Sign out.
  */
 export async function SiteFooter() {
-  const [c, viewer] = await Promise.all([getContact(), getViewer()]);
+  // The footer is on every page: a database hiccup here must not take the page down with it
+  const [c, viewer] = await Promise.all([getContact().catch(() => site.contact), getViewer()]);
   const me = viewer.userId ? await prisma.user.findUnique({
     where: { id: viewer.userId },
     select: { expertProfile: { select: { id: true } }, orgMemberships: { where: { organization: { supplier: { isNot: null } } }, select: { userId: true }, take: 1 } },
-  }) : null;
+  }).catch(() => null) : null;
   const portal = me?.orgMemberships.length ? "/supplier" : me?.expertProfile ? "/expert" : null;
   const footerLink = "text-[14px] text-white/60 transition-colors hover:text-white";
   const contact = [

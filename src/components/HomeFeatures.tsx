@@ -5,9 +5,6 @@ import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { FanTilt } from "./FanTilt";
-import { partnerPlan } from "@/lib/partners";
-import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD } from "@/lib/billing";
-import { money } from "@/lib/format";
 import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
@@ -158,19 +155,8 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
   </ul>
 );
 
-/** The lowest listing price the team has set ("from UGX 150,000 for 6 months"), or null while prices are empty. */
-async function listingFrom(kind: "supplier" | "expert") {
-  const plan = await partnerPlan(kind).catch(() => null);
-  if (!plan) return null;
-  for (const p of PARTNER_PERIODS) {
-    const v = plan[PRICE_FIELD[p]];
-    if (v !== null && Number(v) > 0) return `from ${money(v, plan.currency)} for ${PERIOD_INFO[p].length}`;
-  }
-  return null;
-}
-
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer, supplierFrom, expertFrom] = await Promise.all([records(), getViewer(), listingFrom("supplier"), listingFrom("expert")]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
   // The newest idea sits in the middle of the fan, on top
   const fan = ideas.length === 3 ? [ideas[1], ideas[0], ideas[2]] : ideas;
@@ -416,14 +402,13 @@ export async function HomeFeatures() {
               </div>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {([
-                  ["/suppliers/join", "supplier", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", supplierFrom, "bg-accent text-ink hover:bg-white hover:text-ink"],
-                  ["/experts/join", "expert", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", expertFrom, "bg-brand text-white hover:bg-white hover:text-brand-dark"],
-                ] as const).map(([href, icon, title, text, from, tone]) => (
+                  ["/suppliers/join", "supplier", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", "bg-accent text-ink hover:bg-white hover:text-ink"],
+                  ["/experts/join", "expert", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", "bg-brand text-white hover:bg-white hover:text-brand-dark"],
+                ] as const).map(([href, icon, title, text, tone]) => (
                   <li key={href} className="flex flex-col gap-3 rounded-2xl bg-white p-5 text-heading">
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={icon} className="h-5 w-5" /></span>
                     <span className="font-display text-[20px] font-extrabold leading-tight">{title}</span>
                     <span className="text-[14px] leading-relaxed text-ink-soft">{text}</span>
-                    {from ? <span className="text-[13px] font-bold text-brand-dark">Listing {from}</span> : null}
                     <Link href={href} className={`mt-auto inline-flex h-11 items-center justify-center gap-1.5 rounded-xl text-[15px] font-bold transition-colors ${tone}`}>{title}<ArrowRight aria-hidden className="h-4 w-4" /></Link>
                   </li>
                 ))}

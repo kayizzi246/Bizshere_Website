@@ -35,11 +35,6 @@ export async function saveContact(values: Partial<SiteContact>) {
   }
 }
 
-/** A phone number as WhatsApp wants it: digits with the country code. Local numbers are Ugandan. */
-export const whatsappNumber = (phone: string) => {
-  const digits = phone.replace(/\D/g, "").replace(/^00/, "");
-  return digits.startsWith("0") ? `256${digits.slice(1)}` : digits;
-};
-
-/** A wa.me link that opens a chat with the number, with the first message written in. */
-export const whatsappHref = (phone: string, text: string) => `https://wa.me/${whatsappNumber(phone)}?text=${encodeURIComponent(text)}`;
+// Server-only file (it reads the database). The link helpers live in src/lib/whatsapp.ts so browser
+// components can use them without pulling Prisma into the browser bundle (that crashed the site, 10 Nov 2026).
+export { whatsappHref, whatsappNumber } from "./whatsapp";

@@ -32,7 +32,10 @@ export const getViewer = cache(async function getViewer(): Promise<Viewer> {
   const isStaff = role === "EDITOR" || role === "ADMIN";
   if (isStaff) return { userId: id, name: name ?? null, role, isMember: true, isStaff };
 
-  // Shared for a few seconds between requests that arrive together (prefetches): src/lib/memo.ts
+  // Shared for a few seconds between requests that arrive together (prefetches): src/lib/memo.ts.
+  // The header, footer and layout all depend on this answer, so a database hiccup here must not take
+  // the whole site down ("BizSphere-Ug didn't load", 10 Nov 2026): the person is treated as signed in
+  // without membership for this one request, and the page's own queries say whether the database is back.
   const isMember = await shortMemo(`member:${id}`, 5000, async () => {
     const now = new Date();
     const subs = await prisma.subscription.findMany({
@@ -44,7 +47,7 @@ export const getViewer = cache(async function getViewer(): Promise<Viewer> {
       select: { plan: { select: { entitlements: true } } },
     });
     return subs.some((s) => (s.plan.entitlements as Entitlements)?.fullDetail === true);
-  });
+  }).catch((e: Error) => { console.error(`getViewer: membership lookup failed for ${id}: ${e.message}`); return false; });
   return { userId: id, name: name ?? null, role, isMember, isStaff };
 });
 

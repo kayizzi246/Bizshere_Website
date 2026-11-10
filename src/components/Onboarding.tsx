@@ -7,7 +7,7 @@ import { accessState, cancelPayment, checkPayment, startMembership } from "@/app
 import { PhoneSignIn } from "./PhoneSignIn";
 import { Celebration } from "./Celebration";
 import { PLAN_PERIODS, yearlySaving } from "@/lib/billing";
-import { whatsappNumber } from "@/lib/site-contact";
+import { whatsappNumber } from "@/lib/whatsapp";
 import { OPEN_PATHS } from "@/config/directories";
 
 /**
