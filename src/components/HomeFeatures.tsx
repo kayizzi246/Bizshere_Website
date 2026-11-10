@@ -149,7 +149,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} pill={onColour} />
         <h3 className="text-hero text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
-        <p data-size="" className="max-w-lg text-[14px] font-medium leading-relaxed sm:text-[15px]">{text}</p>
+        <p data-size="" className="max-w-lg text-[13px] font-medium leading-relaxed sm:text-[14px]">{text}</p>
       </div>
       <div className="flex-1">{children}</div>
       <span><Go href={href} tone={onColour}>{action}</Go></span>
@@ -325,14 +325,14 @@ export async function HomeFeatures() {
                 return (
                   <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className={n >= 4 ? "hidden sm:block" : undefined}>
                     <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white p-2.5 text-heading hover:text-heading">
-                      <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                      <span className={`relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[22px] font-extrabold leading-none">{name.charAt(0)}</span>}
+                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[18px] font-extrabold leading-none">{name.charAt(0)}</span>}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[14px] font-bold group-hover:text-brand">{name}</span>
-                        {sells ? <span className="truncate text-[12px] text-ink-soft">{sells}</span> : null}
-                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[11px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
+                        <span className="truncate font-display text-[13px] leading-snug font-bold group-hover:text-brand">{name}</span>
+                        {sells ? <span className="truncate text-[11px] text-ink-soft">{sells}</span> : null}
+                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[10px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
                       </span>
                     </Link>
                   </li>
