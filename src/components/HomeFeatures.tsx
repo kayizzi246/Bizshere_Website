@@ -14,7 +14,7 @@ import { IdeaPhoto } from "./IdeaParts";
  * panel in green, words on top and the newest plans as photo cards under them; Business Machines in navy with the
  * words and photos swapped, so the page swings as it flows; then Funding and Suppliers as two
  * joined panels (Panel below) with real listings in them; then Experts as a plum panel with real experts; then Tools, Business Tips and the
- * Business Forum side by side on white (Card below); Guides and News on a navy band; Market Prices and Useful Websites on
+ * Business Forum, Guides, News, Market Prices and Useful Websites as white cards on one light band (Tile below); then on
  * white; then the offer: what members get and the prices. The price is also under the
  * title, and join buttons open the sign-up and payment pop-up right here. Members see no selling. Every heading is black, in the heaviest weight, and the words
  * are centred on every screen size.
@@ -120,18 +120,23 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 );
 
 /**
- * One part: name, heading, sentence, what it holds and a button at the bottom, so two side by side line up.
+ * One everyday service as a white card on the light band: a strip of its colour along the top, its name, a
+ * heading that says what the visitor gets, one sentence, what is inside, and one button at the bottom so cards
+ * side by side line up. Everything reads from the left, the way a list is scanned.
  */
-function Card({ href, title, text, action, colour, dark = false, art, children }: { href: string; title: string; text: string; action: string; colour: string; dark?: boolean; art?: string; children: React.ReactNode }) {
+function Tile({ href, title, text, action, colour, art, children }: { href: string; title: string; text: string; action: string; colour: string; art?: string; children: React.ReactNode }) {
   return (
-    <li data-reveal="" className="rise-soft">
-      <div className="flex h-full flex-col items-center gap-3 text-center">
-        {art ? <LottieArt src={art} className="h-24 w-24" /> : null}
-        <Label href={href} pill={colour} />
-        <h3 className={dark ? "text-hero text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]" : cardHeading}>{title}</h3>
-        <p className={`mx-auto max-w-lg text-[15px] leading-relaxed sm:text-[16px] ${dark ? "text-white" : "text-ink-soft"}`}>{text}</p>
+    <li data-reveal="" className="rise-soft flex flex-col bg-white">
+      <span aria-hidden className={`h-1.5 w-full ${colour}`} />
+      <div className="flex flex-1 flex-col items-start gap-3 p-5 sm:p-6">
+        <div className="flex w-full items-center justify-between gap-3">
+          <Label href={href} pill={colour} />
+          {art ? <LottieArt src={art} className="-my-2 h-14 w-14 shrink-0" /> : null}
+        </div>
+        <h3 className={cardHeading}>{title}</h3>
+        <p className="text-[16px] leading-relaxed text-ink-soft">{text}</p>
         <div className="w-full flex-1">{children}</div>
-        <span className="mt-auto pt-1"><Go href={href} tone={colour}>{action}</Go></span>
+        <Go href={href} tone={colour}>{action}</Go>
       </div>
     </li>
   );
@@ -160,15 +165,18 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
-/** Plain rows of reading: a name, a line under it, a hairline between, centred under the card's title. No background of their own. */
+/** Rows of reading inside a Tile: a name, a line under it and an arrow, a hairline between. Each row opens its page. */
 const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
-  <ul className="mx-auto flex w-full max-w-xl flex-col divide-y divide-white/20 text-center">
-    {items.map((r, n) => (
-      <li key={r.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
-        <Link href={itemHref(r)} className="group flex flex-col items-center gap-0.5 py-3 text-white hover:text-white">
-          {note && r.publishedAt ? <span className="text-[12px] font-semibold text-white/70">{date(r.publishedAt)}</span> : null}
-          <span className="font-display text-[16px] font-extrabold leading-snug decoration-2 underline-offset-4 group-hover:underline">{clean(r.title)}</span>
-          {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-white/85">{r.shortSummary}</span> : null}
+  <ul className="flex w-full flex-col divide-y divide-line border-y border-line">
+    {items.map((r) => (
+      <li key={r.slug}>
+        <Link href={itemHref(r)} className="group flex items-center gap-3 py-3 text-ink hover:text-ink">
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            {note && r.publishedAt ? <span className="text-[13px] font-semibold text-ink-muted">{date(r.publishedAt)}</span> : null}
+            <span className="font-display text-[16px] font-bold leading-snug decoration-2 underline-offset-4 group-hover:underline">{clean(r.title)}</span>
+            {r.shortSummary ? <span className="line-clamp-1 text-[14px] text-ink-soft">{r.shortSummary}</span> : null}
+          </span>
+          <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
         </Link>
       </li>
     ))}
@@ -371,61 +379,57 @@ export async function HomeFeatures() {
       </div>
       </div>
 
-      {/* Tools, and the two newest services: Business Tips and the Business Forum */}
-      <div className="container-site py-8 sm:py-12">
-        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-10">
-      <Card href="/tools" art="/lottie/tools.json" title="Your numbers, done in minutes" action="Open the tools" colour={S.tools.solid}
-        text="Ready calculators and templates.">
-        <Points points={TOOL_POINTS} mark="text-white" tint={S.tools.solid} />
-      </Card>
+      {/* The everyday services, one light band of white cards (client, 10 Nov 2026): three to use (Tools, Tips,
+          Forum), two to read (Guides, News, with real pages to open) and two to look things up (Prices, Websites).
+          Every card: what you get, what is inside, one button. */}
+      <div data-everyday="" className="bg-page">
+      <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14">
+        <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
+          <h2 className={heading}>Help for every working day</h2>
+          <p className={body}>Work out your numbers, learn from other owners and keep up with what is changing.</p>
+        </div>
 
-      <Card href="/tips" art="/lottie/tips.json" title="Tips that save you money" action="Read the tips" colour={S.tips.solid}
-        text="Short tips that work, with members' remarks.">
-        <Points points={TIP_POINTS} mark="text-white" tint={S.tips.solid} />
-      </Card>
-
-      <Card href="/forum" art="/lottie/forum.json" title="Talk to other owners" action="Join the conversation" colour={S.forum.solid}
-        text="Ask, answer and meet other owners.">
-        <Points points={FORUM_POINTS} mark="text-ink" tint={S.forum.solid} />
-      </Card>
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-3">
+          <Tile href="/tools" art="/lottie/tools.json" title="Your numbers, done in minutes" action="Open the tools" colour={S.tools.solid} text="Ready calculators and templates.">
+            <Points start points={TOOL_POINTS} mark={S.tools.ink} tint="bg-page text-ink" />
+          </Tile>
+          <Tile href="/tips" art="/lottie/tips.json" title="Tips that save you money" action="Read the tips" colour={S.tips.solid} text="Short tips that work, with members' remarks.">
+            <Points start points={TIP_POINTS} mark={S.tips.ink} tint="bg-page text-ink" />
+          </Tile>
+          <Tile href="/forum" art="/lottie/forum.json" title="Talk to other owners" action="Join the conversation" colour={S.forum.solid} text="Ask, answer and meet other owners.">
+            <Points start points={FORUM_POINTS} mark={S.forum.ink} tint="bg-page text-ink" />
+          </Tile>
         </ul>
-      </div>
 
-      {/* Learn and keep up: on navy */}
-      <div data-reading="" className="bg-navy">
-      <div className="container-site py-8 sm:py-12">
-        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
-          <Card dark href="/guides" title="Step-by-step help" action="See all guides" colour={S.guides.solid} text="Registration, licences, EFRIS and tax.">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
+          <Tile href="/guides" title="Step-by-step help" action="See all guides" colour={S.guides.solid} text="Registration, licences, EFRIS and tax.">
             <Reading items={guides} />
-          </Card>
-          <Card dark href="/news" title="Know what is changing" action="Read the news" colour={S.news.solid} text="What is new for business in Uganda.">
+          </Tile>
+          <Tile href="/news" title="Know what is changing" action="Read the news" colour={S.news.solid} text="What is new for business in Uganda.">
             <Reading items={news} note />
-          </Card>
+          </Tile>
         </ul>
-      </div>
-      </div>
 
-      <div className="container-site py-8 sm:py-12">
-        <ul className="grid gap-10 md:grid-cols-2 md:gap-8 lg:gap-12">
-          <Card href="/prices" title="What things cost today" action="Check market prices" colour={S.prices.solid} text="Today's prices, market by market.">
-            <ul className="flex flex-wrap justify-center gap-2">
-              {products.map((x) => <li key={x.name} className="rounded-full bg-[#FDE8EB] px-3 py-1.5 text-[13px] font-semibold text-[#C8102E]">{x.name}</li>)}
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
+          <Tile href="/prices" title="What things cost today" action="Check market prices" colour={S.prices.solid} text="Today's prices, market by market. Tap a product to see it.">
+            <ul className="flex flex-wrap gap-2">
+              {products.map((x) => <li key={x.name}><Link href={`/prices?q=${encodeURIComponent(x.name)}`} className="inline-flex rounded-full bg-[#FDE8EB] px-3 py-1.5 text-[14px] font-semibold text-[#C8102E] hover:bg-[#C8102E] hover:text-white">{x.name}</Link></li>)}
             </ul>
-          </Card>
-          <Card href="/websites" title="The websites you will need" action="See useful websites" colour={S.websites.solid} text="Government and business sites in one list.">
-            {/* Pills, the same as the market prices card above (client, 9 Nov 2026). A visitor who hasn't paid
-                sees the first two and one pill for the rest, which opens the join and payment pop-up; the
-                other names are never sent. */}
-            <ul className="flex flex-wrap justify-center gap-2">
+          </Tile>
+          <Tile href="/websites" title="The websites you will need" action="See useful websites" colour={S.websites.solid} text="Government and business sites in one list.">
+            {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join
+                pop-up; the other names are never sent. */}
+            <ul className="flex flex-wrap gap-2">
               {(sell ? websites.slice(0, FREE_WEBSITES) : websites).map((w) => (
-                <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-[#EEF0F3] px-3 py-1.5 text-[13px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
+                <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-page px-3 py-1.5 text-[14px] font-semibold text-[#475467] hover:bg-[#475467] hover:text-white">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
               ))}
               {sell && websites.length > FREE_WEBSITES ? (
-                <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-[#475467] px-3 py-1.5 text-[13px] font-semibold text-white hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
+                <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-[#475467] px-3 py-1.5 text-[14px] font-semibold text-white hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
               ) : null}
             </ul>
-          </Card>
+          </Tile>
         </ul>
+      </div>
       </div>
 
       {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing;
