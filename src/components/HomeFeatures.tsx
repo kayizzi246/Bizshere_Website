@@ -381,16 +381,16 @@ export async function HomeFeatures() {
               const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
               return (
                 <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-2xl ${PLUM} p-2.5 text-white transition-colors hover:bg-black hover:text-white sm:gap-4`}>
-                  <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[24px] font-extrabold text-[#4A1D6B] sm:h-20 sm:w-20">
+                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[18px] font-extrabold text-[#4A1D6B] sm:h-14 sm:w-14">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-1">
-                    <span className="font-display text-[16px] font-extrabold leading-tight sm:text-[19px]">{name}</span>
-                    {role ? <span className="line-clamp-1 text-[13px] text-white/85 sm:text-[14px]">{role}</span> : null}
-                    {c?.district ? <span className="flex items-center gap-1 text-[12px] text-white/70"><MapPin aria-hidden className="h-3.5 w-3.5" />{c.district}</span> : null}
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="font-display text-[13px] font-extrabold leading-snug sm:text-[15px]">{name}</span>
+                    {role ? <span className="line-clamp-1 text-[11px] text-white/85 sm:text-[12px]">{role}</span> : null}
+                    {c?.district ? <span className="flex items-center gap-1 text-[10px] text-white/70 sm:text-[11px]"><MapPin aria-hidden className="h-3 w-3" />{c.district}</span> : null}
                   </span>
-                  <ArrowRight aria-hidden className="mr-1 h-5 w-5 shrink-0 text-white transition-transform duration-150 group-hover:translate-x-0.5" />
+                  <ArrowRight aria-hidden className="mr-1 h-4 w-4 shrink-0 text-white transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>
               );
             })}
