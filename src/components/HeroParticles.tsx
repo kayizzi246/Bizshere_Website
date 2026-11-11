@@ -34,7 +34,7 @@ export function HeroParticles() {
     const draw = (now: number) => {
       ctx.clearRect(0, 0, width, height);
       // Lines first, so the lights sit on top of them
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.6;
       for (let i = 0; i < dots.length; i++) {
         const a = dots[i];
         for (let j = i + 1; j < dots.length; j++) {
@@ -62,12 +62,12 @@ export function HeroParticles() {
         // Each light breathes a little, at its own pace
         const shine = 0.55 + 0.45 * Math.sin(now * 0.0012 + d.phase);
         if (d.glow) {
-          const halo = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r * 6);
+          const halo = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r * 4);
           halo.addColorStop(0, `rgba(${d.color},${0.35 * shine})`);
           halo.addColorStop(1, `rgba(${d.color},0)`);
           ctx.fillStyle = halo;
           ctx.beginPath();
-          ctx.arc(d.x, d.y, d.r * 6, 0, Math.PI * 2);
+          ctx.arc(d.x, d.y, d.r * 4, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.fillStyle = `rgba(${d.color},${0.45 + 0.5 * shine})`;
@@ -87,12 +87,13 @@ export function HeroParticles() {
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       // Fewer on a phone: less to draw, and the text needs the room
       const count = Math.min(width < 640 ? 34 : 95, Math.round((width * height) / 11000));
+      // The lights are very small (client, 11 Nov 2026): about one pixel, the gold ones a little more
       dots = Array.from({ length: count }, (_, i) => {
         const angle = Math.random() * Math.PI * 2, speed = 0.12 + Math.random() * 0.22;
         const glow = i % 7 === 0;
         return {
           x: Math.random() * width, y: Math.random() * height, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-          r: glow ? 1.1 + Math.random() * 0.6 : 0.5 + Math.random() * 0.6, color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
+          r: glow ? 0.7 + Math.random() * 0.3 : 0.35 + Math.random() * 0.3, color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
         };
       });
       draw(performance.now());

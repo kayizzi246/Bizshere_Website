@@ -74,10 +74,11 @@ const S = {
 } as const;
 const PLUM = "bg-[#4A1D6B]";
 /**
- * The homepage has no plain white page behind it (client, 11 Nov 2026): each section sits on its own soft,
- * light colour, edge to edge, so the sections read as separate rooms. Cards on them stay white.
+ * Each homepage section sits on its own band, edge to edge, so the sections read as separate rooms (client,
+ * 11 Nov 2026). The lower three are calm neutrals, light grey, white, light grey (the mint, lavender and sand
+ * were hard on the eyes, client, same day); cards have a hairline edge so they still stand out on white.
  */
-const BAND = { need: "bg-[#EAF4FB]", all: "bg-[#F1F4F8]", everyday: "bg-[#EAF6F0]", know: "bg-[#F3EFFA]", join: "bg-[#FCF3E6]" } as const;
+const BAND = { need: "bg-[#EAF4FB]", all: "bg-[#F1F4F8]", everyday: "bg-[#F7F8FA]", know: "bg-white", join: "bg-[#F7F8FA]" } as const;
 /** Every colour box on the homepage is this tall on a computer (client, 11 Nov 2026); phones stack and take the room they need. */
 const PANEL_H = "lg:h-[445px] xl:h-[410px]"; // small laptops need the extra room: the panel titles wrap there
 
@@ -135,7 +136,7 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 function Tile({ href, title, text, action, soft, softBtn, ink, art, children }: { href: string; title: string; text: string; action: string; soft: string; softBtn: string; ink: string; art?: string; children: React.ReactNode }) {
   const d = directory(href);
   return (
-    <li data-reveal="" className="rise-soft flex flex-col items-start gap-3 rounded-3xl border border-white bg-white p-5 transition-transform duration-200 motion-safe:hover:-translate-y-1 sm:p-6">
+    <li data-reveal="" className="rise-soft flex flex-col items-start gap-3 rounded-3xl border border-line bg-white p-5 transition-transform duration-200 motion-safe:hover:-translate-y-1 sm:p-6">
       <div className="flex w-full items-center justify-between gap-3">
         <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${soft}`}><Icon name={d.icon} className="h-6 w-6" strokeWidth={1.75} /></span>
         {art ? <LottieArt src={art} className="-my-2 h-14 w-14 shrink-0" /> : null}
@@ -179,7 +180,7 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
   <ul className="grid w-full grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-3">
     {items.map((r) => (
       <li key={r.slug}>
-        <Link href={itemHref(r)} className="group flex h-full flex-col gap-1.5 rounded-2xl bg-[#F7F5FC] p-4 text-ink transition-colors hover:bg-[#ECEBFB] hover:text-ink sm:p-5">
+        <Link href={itemHref(r)} className="group flex h-full flex-col gap-1.5 rounded-2xl bg-page p-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink sm:p-5">
           {note && r.publishedAt ? <span className="text-[13px] text-ink-muted">{date(r.publishedAt)}</span> : null}
           <span className="font-display text-[14px] leading-snug text-black">{clean(r.title)}</span>
           {r.shortSummary ? <span className="line-clamp-2 text-[13px] leading-snug text-ink-soft">{r.shortSummary}</span> : null}
@@ -200,8 +201,8 @@ const Reading = ({ items, note }: { items: { slug: string; title: string; conten
 function More({ href, line, action, soft, softBtn, open, children }: { href: string; line: string; action: string; soft: string; softBtn: string; open?: boolean; children: React.ReactNode }) {
   const d = directory(href);
   return (
-    <details name="home-more" open={open} className="group/more border-t border-[#ECE7F5] first:border-t-0 [&>summary::-webkit-details-marker]:hidden">
-      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 transition-colors hover:bg-[#FAF8FD] sm:gap-4 sm:px-6 sm:py-5 group-open/more:hover:bg-white">
+    <details name="home-more" open={open} className="group/more border-t border-line first:border-t-0 [&>summary::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 transition-colors hover:bg-page sm:gap-4 sm:px-6 sm:py-5 group-open/more:hover:bg-white">
         <span aria-hidden className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${soft}`}><Icon name={d.icon} className="h-5 w-5" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
           <h3 className={`text-hero shrink-0 bg-transparent text-[16px] leading-snug sm:text-[18px] ${soft.split(" ")[1]}`}>{d.title}</h3>
@@ -458,7 +459,7 @@ export async function HomeFeatures() {
             <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft">Guides, news, today&apos;s market prices and the websites every business needs, kept up to date by our team.</p>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-white bg-white">
+          <div className="overflow-hidden rounded-3xl border border-line bg-white">
             <More open href="/guides" line="Step-by-step help with registration, licences, EFRIS and tax." action="See all guides" soft={S.guides.soft} softBtn={S.guides.softBtn}>
               <Reading items={guides} />
             </More>
