@@ -278,10 +278,13 @@ export const DIRECTORIES: Directory[] = [
     ],
   },
   {
-    // Title, category and details are all in Basics; members' remarks are added on the tip's page.
+    // Title, category and details are in Basics; an optional video and photo under Main details. Members' remarks are added on the tip's page.
     type: "BUSINESS_TIP", label: "Business tip", model: "businessTip",
-    labels: { title: "Title", overview: "Details *", category: "Category" },
-    fields: [],
+    labels: { title: "Title", overview: "Details *", category: "Category", main: "Video and photo (optional)", mainNote: "A video plays at the top of the tip. A photo shows on its card when there is no video." },
+    fields: [
+      { ...u("videoUrl", "Video link", MAIN), help: "Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…" },
+      { ...u("pictureUrl", "Photo", MAIN), upload: "image" },
+    ],
   },
 ];
 

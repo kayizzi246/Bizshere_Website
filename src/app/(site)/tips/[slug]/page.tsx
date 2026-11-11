@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Clock, LockKeyhole, MessageCircle, Sparkles } from "lucide-react";
-import { tipCover, readMinutes } from "@/lib/tips";
+import { ArrowLeft, Clock, LockKeyhole, MessageCircle } from "lucide-react";
+import { readMinutes, tipPicture, tipVideo } from "@/lib/tips";
+import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { ShareButton } from "@/components/ShareButton";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
@@ -21,9 +22,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 /**
- * Laid out as a blog post (client, 11 Nov 2026): a coloured cover with the topic, title, date and reading
- * time; the text in a narrow, easy-to-read column, paragraph by paragraph; then more tips to read next, and
- * the members' remarks as the comments.
+ * Laid out as a post (client, 11 Nov 2026): the site's dark header with the topic, title, date and reading
+ * time; the tip's video (or photo) at the top of the article; the text in a narrow, easy-to-read column,
+ * paragraph by paragraph; then more tips to read next, and the members' remarks as the comments.
  *
  * One business tip: title, category, the details, then members' remarks. Free to read unless the team
  * made it members-only (Who sees the full details?): then visitors see the start of it. Only members
@@ -36,7 +37,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
     select: {
       id: true, slug: true, title: true, shortSummary: true, overview: true, accessLevel: true, publishedAt: true, updatedAt: true,
       primaryCategory: { select: { name: true } },
-      businessTip: { select: { id: true, remarks: { where: { hiddenAt: null }, orderBy: { createdAt: "asc" }, take: 200, select: { id: true, body: true, createdAt: true, author: { select: { name: true, role: true } } } } } },
+      businessTip: { select: { id: true, videoUrl: true, pictureUrl: true, remarks: { where: { hiddenAt: null }, orderBy: { createdAt: "asc" }, take: 200, select: { id: true, body: true, createdAt: true, author: { select: { name: true, role: true } } } } } },
     },
   });
   if (!item?.businessTip) notFound();
@@ -51,20 +52,22 @@ export default async function TipPage({ params, searchParams }: { params: { slug
   // What to read next: the same topic first, then the newest
   const others = await prisma.contentItem.findMany({
     where: { contentType: "BUSINESS_TIP", publicationStatus: "PUBLISHED", id: { not: item.id } },
-    select: { slug: true, title: true, overview: true, publishedAt: true, updatedAt: true, primaryCategory: { select: { name: true } } },
+    select: { slug: true, title: true, overview: true, publishedAt: true, updatedAt: true, primaryCategory: { select: { name: true } }, businessTip: { select: { videoUrl: true, pictureUrl: true } } },
     orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }], take: 30,
   });
   const next = [...others.filter((o) => o.primaryCategory?.name === item.primaryCategory?.name), ...others.filter((o) => o.primaryCategory?.name !== item.primaryCategory?.name)].slice(0, 3);
   const note = searchParams.remark;
+  // The video plays on the page when it is a YouTube link; any other link is offered as a button
+  const video = tipVideo(item.businessTip.videoUrl);
+  const otherVideo = !video && item.businessTip.videoUrl ? item.businessTip.videoUrl : null;
 
   return (
     <div className="bg-[#F1F4F8]">
-      {/* The cover: topic, title, date and reading time */}
-      <header className={`under-header relative overflow-hidden text-white ${tipCover(item.primaryCategory?.name)}`}>
-        <Sparkles aria-hidden className="pointer-events-none absolute -bottom-10 -right-8 h-64 w-64 text-white/10" strokeWidth={1} />
-        <div className="container-site relative flex max-w-3xl flex-col gap-4 pb-10 pt-6 sm:pb-14 sm:pt-8">
-          <Link href="/tips" className="inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-white/85 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All business tips</Link>
-          <span className="w-fit rounded-full bg-white px-3 py-1 text-[12px] font-bold text-heading">{item.primaryCategory?.name ?? "Business tip"}</span>
+      {/* Topic, title, date and reading time, on the site's own dark header */}
+      <header className="under-header hero-glow text-white">
+        <div className="container-site flex max-w-3xl flex-col gap-4 pb-10 pt-6 sm:pb-12 sm:pt-8">
+          <Link href="/tips" className="inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-white/80 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All business tips</Link>
+          <span className="text-[13px] font-semibold uppercase tracking-[0.1em] text-accent">{item.primaryCategory?.name ?? "Business tip"}</span>
           <h1 className="text-hero text-[30px] leading-[1.15] text-white sm:text-[42px]">{item.title}</h1>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[14px] text-white/85">
             <span>{date(item.publishedAt ?? item.updatedAt)}</span>
@@ -77,6 +80,13 @@ export default async function TipPage({ params, searchParams }: { params: { slug
       <div className="container-site flex max-w-3xl flex-col gap-8 py-6 sm:py-10">
       <article className="flex flex-col gap-5 rounded-3xl bg-white p-6 sm:p-10">
         <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "Business tip", icon: "tip" }} />
+        {video ? (
+          <div className="relative aspect-video overflow-hidden rounded-2xl bg-black"><YouTubePlayer id={video} title={item.title} live={false} /></div>
+        ) : item.businessTip.pictureUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- uploaded photo
+          <img src={item.businessTip.pictureUrl} alt="" className="w-full rounded-2xl bg-page object-cover" />
+        ) : null}
+        {otherVideo ? <a href={otherVideo} target="_blank" rel="noopener noreferrer" className="btn-outline w-fit">Watch the video ↗</a> : null}
         {item.shortSummary ? <p className="border-l-4 border-accent pl-4 text-[18px] font-medium leading-relaxed text-heading sm:text-[20px]">{item.shortSummary}</p> : null}
         <div className="flex flex-col gap-5 text-[17px] leading-[1.75] text-ink sm:text-[18px]">
           {paragraphs.map((p, n) => {
@@ -104,18 +114,21 @@ export default async function TipPage({ params, searchParams }: { params: { slug
         <section className="flex flex-col gap-4">
           <h2 className="font-display text-[20px] font-extrabold text-heading">Read next</h2>
           <ul className="grid gap-3 sm:grid-cols-3">
-            {next.map((o) => (
-              <li key={o.slug}>
-                <Link href={`/tips/${o.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-ink hover:text-ink">
-                  <span className={`h-2 w-full ${tipCover(o.primaryCategory?.name)}`} />
-                  <span className="flex flex-1 flex-col gap-2 p-4">
-                    <span className="text-[12px] text-ink-muted">{o.primaryCategory?.name ?? "Business tip"} · {readMinutes(o.overview)} min read</span>
-                    <span className="font-display text-[15px] font-bold leading-snug text-heading group-hover:text-brand">{o.title}</span>
-                    <span className="mt-auto inline-flex items-center gap-1 pt-1 text-[13px] font-semibold text-brand">Read<ArrowRight aria-hidden className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {next.map((o) => {
+              const pic = tipPicture(o.businessTip);
+              return (
+                <li key={o.slug}>
+                  <Link href={`/tips/${o.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white text-ink hover:text-ink">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded photo or the YouTube thumbnail */}
+                    {pic ? <img src={pic} alt="" loading="lazy" className="aspect-[16/9] w-full object-cover" /> : null}
+                    <span className="flex flex-1 flex-col gap-1.5 p-4">
+                      <span className="text-[12px] text-ink-muted">{o.primaryCategory?.name ?? "Business tip"} · {readMinutes(o.overview)} min read</span>
+                      <span className="font-display text-[15px] font-bold leading-snug text-heading group-hover:underline group-hover:underline-offset-4">{o.title}</span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null}

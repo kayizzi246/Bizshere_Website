@@ -1,22 +1,19 @@
-/**
- * Small helpers for Business Tips shown as blog posts (src/app/(site)/tips). Tips have no picture, so each
- * gets a coloured cover picked from its topic's name: the same topic always has the same colour.
- */
-const COVERS = [
-  "bg-gradient-to-br from-[#BE185D] to-[#7C1241]",
-  "bg-gradient-to-br from-[#157EC2] to-[#0E5E94]",
-  "bg-gradient-to-br from-[#0F766E] to-[#0A4F4A]",
-  "bg-gradient-to-br from-[#4338CA] to-[#2B2590]",
-  "bg-gradient-to-br from-[#C2410C] to-[#8A2C06]",
-  "bg-gradient-to-br from-[#0F5B3E] to-[#0A3F2B]",
-];
+import { videoId } from "./youtube";
 
-export function tipCover(topic?: string | null) {
-  const name = topic ?? "";
-  let n = 0;
-  for (let i = 0; i < name.length; i++) n = (n * 31 + name.charCodeAt(i)) >>> 0;
-  return COVERS[n % COVERS.length];
-}
+/**
+ * Helpers for Business Tips shown as posts (src/app/(site)/tips). Server only (videoId lives with the
+ * YouTube code, which reads the database).
+ */
 
 /** Minutes to read, at about 200 words a minute; never less than one. */
 export const readMinutes = (text?: string | null) => Math.max(1, Math.round((text ?? "").trim().split(/\s+/).filter(Boolean).length / 200));
+
+/** The YouTube id of a tip's video link, when it is one. */
+export const tipVideo = (url?: string | null) => (url ? videoId(url) : null);
+
+/** The picture for a tip's card: its photo, else its YouTube video's thumbnail, else none. */
+export function tipPicture(tip?: { pictureUrl: string | null; videoUrl: string | null } | null) {
+  if (tip?.pictureUrl) return tip.pictureUrl;
+  const id = tipVideo(tip?.videoUrl);
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null;
+}

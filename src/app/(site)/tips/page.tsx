@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { ArrowRight, Clock, MessageCircle, Search, Sparkles } from "lucide-react";
+import { MessageCircle, Play, Search } from "lucide-react";
 import { ListingHeader } from "@/components/DirectoryList";
 import { directory, directoryMetadata } from "@/config/directories";
 import { date, GUIDE_TABS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
-import { tipCover, readMinutes } from "@/lib/tips";
+import { readMinutes, tipPicture } from "@/lib/tips";
 
 export const dynamic = "force-dynamic";
 export const metadata = directoryMetadata("/tips");
 
-const PER_PAGE = 13; // the newest one large, then twelve cards
+const PER_PAGE = 12;
 
 /**
- * Business Tips, laid out as a blog (client, 11 Nov 2026): the newest tip large at the top, then the
- * others as post cards, each with its topic, date, reading time, the opening lines and "Read the tip".
- * Topics are chips along the top; the search box looks in titles and text. Everything is in the address
- * (?topic=…&q=…&page=…), so a list can be shared.
+ * Business Tips as posts in an even grid (client, 11 Nov 2026: in a grid, and not looking machine-made).
+ * Each card is plain: the tip's own photo or its video's picture (a grey panel with the topic otherwise), then the topic, title,
+ * the opening lines and the date. No decorative colours or shapes. Topics are tabs along the top and
+ * the search box looks in titles and text; everything is in the address (?topic=…&q=…&page=…).
  */
 export default async function TipsPage({ searchParams }: { searchParams: { q?: string | string[]; topic?: string | string[]; category?: string | string[]; page?: string | string[] } }) {
   const one = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -27,9 +27,9 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
   const all = await prisma.contentItem.findMany({
     where: { contentType: "BUSINESS_TIP", publicationStatus: "PUBLISHED" },
     select: {
-      id: true, slug: true, title: true, shortSummary: true, overview: true, accessLevel: true, publishedAt: true, updatedAt: true,
+      id: true, slug: true, title: true, shortSummary: true, overview: true, publishedAt: true, updatedAt: true,
       primaryCategory: { select: { id: true, name: true } },
-      businessTip: { select: { _count: { select: { remarks: { where: { hiddenAt: null } } } } } },
+      businessTip: { select: { videoUrl: true, pictureUrl: true, _count: { select: { remarks: { where: { hiddenAt: null } } } } } },
     },
     orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }],
     take: 500,
@@ -40,9 +40,6 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
   const pages = Math.max(1, Math.ceil(found.length / PER_PAGE));
   const current = Math.min(page, pages);
   const shown = found.slice((current - 1) * PER_PAGE, current * PER_PAGE);
-  // The newest tip leads the first page, unless the visitor is searching
-  const lead = current === 1 && !q ? shown[0] : undefined;
-  const rest = lead ? shown.slice(1) : shown;
   const link = (o: { topic?: string; page?: number }) => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
@@ -52,98 +49,81 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
     const s = p.toString();
     return s ? `/tips?${s}` : "/tips";
   };
-  const excerpt = (t: (typeof all)[number], max: number) => {
-    const text = (t.shortSummary || t.overview || "").replace(/\s+/g, " ").trim();
-    return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
-  };
-  const Meta = ({ t, light = false }: { t: (typeof all)[number]; light?: boolean }) => (
-    <span className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] ${light ? "text-white/80" : "text-ink-muted"}`}>
-      <span>{date(t.publishedAt ?? t.updatedAt)}</span>
-      <span className="inline-flex items-center gap-1"><Clock aria-hidden className="h-3.5 w-3.5" />{readMinutes(t.overview)} min read</span>
-      {t.businessTip?._count.remarks ? <span className="inline-flex items-center gap-1"><MessageCircle aria-hidden className="h-3.5 w-3.5" />{t.businessTip._count.remarks}</span> : null}
-    </span>
-  );
-  const chip = "whitespace-nowrap rounded-full border px-4 py-2 text-[14px] font-semibold transition-colors";
+  const excerpt = (t: (typeof all)[number]) => (t.shortSummary || t.overview || "").replace(/\s+/g, " ").trim();
+  const tab = "whitespace-nowrap border-b-2 px-1 pb-2.5 text-[14px] font-semibold transition-colors";
 
   return (
     <>
       <ListingHeader title={d.title} intro={d.text} tabs={GUIDE_TABS} active="/tips" />
-      <div className="bg-[#F1F4F8]">
+      <div className="bg-white">
         <div className="container-site flex flex-col gap-6 py-6 sm:gap-8 sm:py-8">
-          {/* Search, and the topics as chips */}
-          <div className="flex flex-col gap-3">
-            <form action="/tips" role="search" className="flex w-full max-w-xl items-center gap-2 rounded-2xl border border-line bg-white p-1.5">
-              {topic ? <input type="hidden" name="topic" value={topic} /> : null}
-              <Search aria-hidden className="ml-3 h-5 w-5 shrink-0 text-ink-muted" />
-              <input name="q" type="search" defaultValue={q} placeholder="Search the tips, e.g. customers, stock, saving" aria-label="Search business tips" className="h-11 w-full min-w-0 bg-transparent text-[15px] text-ink outline-none" />
-              <button className="btn-primary min-h-[44px] shrink-0 rounded-xl px-5 text-[14px]">Search</button>
-            </form>
+          {/* Topics as plain tabs, and the search box beside them */}
+          <div className="flex flex-col gap-4 border-b border-line lg:flex-row lg:items-end lg:justify-between">
             {topics.length ? (
-              <nav aria-label="Topics" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
-                <ul className="flex gap-2 sm:flex-wrap">
-                  <li><Link href={link({ topic: "" })} aria-current={topic ? undefined : "page"} className={`${chip} inline-flex ${topic ? "border-line bg-white text-ink hover:border-brand hover:text-brand" : "border-brand bg-brand text-white hover:text-white"}`}>All tips</Link></li>
+              <nav aria-label="Topics" className="-mx-4 order-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:order-1">
+                <ul className="flex gap-6">
+                  <li><Link href={link({ topic: "" })} aria-current={topic ? undefined : "page"} className={`${tab} inline-block ${topic ? "border-transparent text-ink-soft hover:text-heading" : "border-heading text-heading"}`}>All tips</Link></li>
                   {topics.map(([id, name]) => (
-                    <li key={id}><Link href={link({ topic: id })} aria-current={topic === id ? "page" : undefined} className={`${chip} inline-flex ${topic === id ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink hover:border-brand hover:text-brand"}`}>{name}</Link></li>
+                    <li key={id}><Link href={link({ topic: id })} aria-current={topic === id ? "page" : undefined} className={`${tab} inline-block ${topic === id ? "border-heading text-heading" : "border-transparent text-ink-soft hover:text-heading"}`}>{name}</Link></li>
                   ))}
                 </ul>
               </nav>
-            ) : null}
-            {q || topic ? <p className="text-[14px] text-ink-soft" aria-live="polite"><strong className="font-semibold text-ink">{found.length} tip{found.length === 1 ? "" : "s"}</strong>{q ? <> for “{q}”</> : null}. <Link href="/tips" className="font-semibold">Show all tips</Link></p> : null}
+            ) : <span className="order-2 lg:order-1" />}
+            <form action="/tips" role="search" className="order-1 mb-0 flex w-full items-center gap-2 rounded-xl border border-line bg-page px-3 lg:order-2 lg:mb-3 lg:max-w-xs">
+              {topic ? <input type="hidden" name="topic" value={topic} /> : null}
+              <Search aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />
+              <input name="q" type="search" defaultValue={q} placeholder="Search the tips" aria-label="Search business tips" className="h-11 w-full min-w-0 bg-transparent text-[14px] text-ink outline-none" />
+            </form>
           </div>
+          {q ? <p className="-mt-2 text-[14px] text-ink-soft" aria-live="polite"><strong className="font-semibold text-ink">{found.length} tip{found.length === 1 ? "" : "s"}</strong> for “{q}”. <Link href={link({})} className="font-semibold">Clear the search</Link></p> : null}
 
           {found.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-3xl bg-white px-6 py-14 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-line px-6 py-14 text-center">
               <p className="text-[15px] font-semibold text-heading">{all.length ? "No tips match that. Try other words or another topic." : "The first tips are being written. Come back soon."}</p>
-              {all.length ? <Link href="/tips" className="btn-primary min-h-[44px] px-5 text-sm">Show all tips</Link> : null}
+              {all.length ? <Link href="/tips" className="btn-outline min-h-[44px] px-5 text-sm">Show all tips</Link> : null}
             </div>
-          ) : null}
-
-          {/* The newest tip, large */}
-          {lead ? (
-            <Link href={`/tips/${lead.slug}`} className="group grid overflow-hidden rounded-3xl bg-white text-ink hover:text-ink md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-              <span className={`relative flex min-h-[180px] flex-col justify-between gap-6 p-6 text-white sm:p-8 ${tipCover(lead.primaryCategory?.name)}`}>
-                <Sparkles aria-hidden className="pointer-events-none absolute -bottom-8 -right-6 h-44 w-44 text-white/15" strokeWidth={1} />
-                <span className="relative w-fit rounded-full bg-white px-3 py-1 text-[12px] font-bold text-heading">Newest tip</span>
-                <span className="relative flex flex-col gap-2">
-                  <span className="text-[13px] font-semibold uppercase tracking-[0.1em] text-white/85">{lead.primaryCategory?.name ?? "Business tip"}</span>
-                  <Meta t={lead} light />
-                </span>
-              </span>
-              <span className="flex flex-col items-start justify-center gap-3 p-6 sm:p-8">
-                <h2 className="text-hero text-[24px] leading-[1.2] text-black group-hover:text-brand sm:text-[30px]">{lead.title}</h2>
-                <p className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">{excerpt(lead, 260)}</p>
-                <span className="mt-1 inline-flex h-11 items-center gap-1.5 rounded-full bg-brand px-5 text-[14px] font-semibold text-white">Read the tip<ArrowRight aria-hidden className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
-              </span>
-            </Link>
-          ) : null}
-
-          {/* The other posts */}
-          {rest.length ? (
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-              {rest.map((t) => (
-                <li key={t.id}>
-                  <Link href={`/tips/${t.slug}`} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white text-ink transition-transform duration-200 hover:text-ink motion-safe:hover:-translate-y-1">
-                    <span className={`relative flex h-24 items-end overflow-hidden p-4 ${tipCover(t.primaryCategory?.name)}`}>
-                      <Sparkles aria-hidden className="pointer-events-none absolute -right-4 -top-4 h-24 w-24 text-white/20" strokeWidth={1} />
-                      <span className="relative rounded-full bg-white px-3 py-1 text-[12px] font-bold text-heading">{t.primaryCategory?.name ?? "Business tip"}</span>
-                    </span>
-                    <span className="flex flex-1 flex-col gap-2.5 p-5">
-                      <Meta t={t} />
-                      <h2 className="font-display text-[18px] font-extrabold leading-snug text-heading group-hover:text-brand">{t.title}</h2>
-                      <p className="line-clamp-3 text-[14px] leading-relaxed text-ink-soft">{excerpt(t, 200)}</p>
-                      <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[14px] font-semibold text-brand">Read the tip<ArrowRight aria-hidden className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
+          ) : (
+            <ul className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              {shown.map((t) => {
+                const picture = tipPicture(t.businessTip);
+                const video = Boolean(t.businessTip?.videoUrl);
+                const remarks = t.businessTip?._count.remarks ?? 0;
+                return (
+                  <li key={t.id}>
+                    <Link href={`/tips/${t.slug}`} className="group flex h-full flex-col gap-3 text-ink hover:text-ink">
+                      {picture ? (
+                        <span className="relative block aspect-[16/9] overflow-hidden rounded-xl bg-page">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded photo or the YouTube thumbnail */}
+                          <img src={picture} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                          {video ? <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-2.5 py-1 text-[12px] font-semibold text-white"><Play aria-hidden className="h-3 w-3 fill-current" />Video</span> : null}
+                        </span>
+                      ) : (
+                        // No photo or video: a plain panel of the same size, so the grid lines up
+                        <span className="flex aspect-[16/9] items-end rounded-xl border border-line bg-page p-4">
+                          <span className="font-display text-[15px] font-bold leading-snug text-ink-soft">{t.primaryCategory?.name ?? "Business tip"}</span>
+                        </span>
+                      )}
+                      <span className="flex flex-1 flex-col gap-2">
+                        <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-dark">{t.primaryCategory?.name ?? "Business tip"}</span>
+                        <h2 className="font-display text-[19px] font-bold leading-snug text-heading group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">{t.title}</h2>
+                        <p className="line-clamp-2 text-[14px] leading-relaxed text-ink-soft">{excerpt(t)}</p>
+                        <span className="mt-auto flex flex-wrap items-center gap-x-2 pt-1 text-[12px] text-ink-muted">
+                          <span>{date(t.publishedAt ?? t.updatedAt)}</span><span aria-hidden>·</span><span>{readMinutes(t.overview)} min read</span>
+                          {remarks ? <><span aria-hidden>·</span><span className="inline-flex items-center gap-1"><MessageCircle aria-hidden className="h-3.5 w-3.5" />{remarks}</span></> : null}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
-          ) : null}
+          )}
 
           {pages > 1 ? (
-            <nav aria-label="Pages" className="flex items-center justify-center gap-3">
-              {current > 1 ? <Link href={link({ page: current - 1 })} className="btn-outline min-h-[44px] bg-white px-5 text-sm">← Newer tips</Link> : null}
+            <nav aria-label="Pages" className="flex items-center justify-center gap-3 border-t border-line pt-6">
+              {current > 1 ? <Link href={link({ page: current - 1 })} className="btn-outline min-h-[44px] px-5 text-sm">← Newer tips</Link> : null}
               <span className="text-[14px] text-ink-muted">Page {current} of {pages}</span>
-              {current < pages ? <Link href={link({ page: current + 1 })} className="btn-outline min-h-[44px] bg-white px-5 text-sm">Older tips →</Link> : null}
+              {current < pages ? <Link href={link({ page: current + 1 })} className="btn-outline min-h-[44px] px-5 text-sm">Older tips →</Link> : null}
             </nav>
           ) : null}
         </div>

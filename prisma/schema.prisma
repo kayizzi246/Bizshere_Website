@@ -2111,6 +2111,10 @@ model RateLimit {
 model BusinessTip {
   id            String @id @default(cuid())
   contentItemId String @unique
+  /// A YouTube link: played on the tip page, its thumbnail is the card picture (client, Nov 2026)
+  videoUrl      String?
+  /// A photo for the card and the top of the tip, when there is no video
+  pictureUrl    String?
 
   contentItem ContentItem         @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
   remarks     BusinessTipRemark[]
