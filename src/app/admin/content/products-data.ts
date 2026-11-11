@@ -10,6 +10,6 @@ export async function loadProducts(supplierId: string): Promise<ProductDraft[]> 
     productName: r.productName,
     priceMin: text(r.priceMin), priceMax: text(r.priceMax), currency: r.currency,
     unit: text(r.unit), minimumOrderQuantity: text(r.minimumOrderQuantity), availability: text(r.availability),
-    specifications: text(r.specifications), imageUrl: text(r.imageUrl), status: r.status as ProductStatus,
+    specifications: text(r.specifications), imageUrl: text(r.imageUrl), moreImages: r.moreImages ?? [], status: r.status as ProductStatus,
   }));
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductPhotos } from "@/components/ProductPhotos";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Download, FileSpreadsheet, ImagePlus, Loader2, Package, Plus, Search, Trash2, Undo2, X } from "lucide-react";
@@ -261,6 +262,9 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
                                 <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">Currency<input value={r.currency} maxLength={3} onChange={(e) => set(r.key, { currency: e.target.value.toUpperCase() })} className={box} /></label>
                                 <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">Minimum order<input value={r.minimumOrderQuantity} inputMode="decimal" onChange={(e) => set(r.key, { minimumOrderQuantity: e.target.value })} placeholder="e.g. 10" className={box} /></label>
                                 <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft">Photo link<input value={r.imageUrl} onChange={(e) => set(r.key, { imageUrl: e.target.value })} placeholder="Use the photo box, or paste a link" className={box} /></label>
+                                <div className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft sm:col-span-3">More photos of this product
+                                  <ProductPhotos initial={r.moreImages} onChange={(moreImages) => set(r.key, { moreImages })} />
+                                </div>
                                 <label className="flex flex-col gap-1 text-[12px] font-semibold text-ink-soft sm:col-span-3">Description<textarea value={r.specifications} rows={2} onChange={(e) => set(r.key, { specifications: e.target.value })} className={`${box} py-2`} /></label>
                               </div>
                             </td>

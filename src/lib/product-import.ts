@@ -23,6 +23,8 @@ export type ProductDraft = {
   availability: string;
   specifications: string;
   imageUrl: string;
+  /** More photos after the main one. */
+  moreImages: string[];
   status: ProductStatus;
 };
 
@@ -33,10 +35,10 @@ export const newKey = () => `new-${Date.now().toString(36)}-${(counter++).toStri
 
 export const emptyProduct = (): ProductDraft => ({
   key: newKey(), productName: "", priceMin: "", priceMax: "", currency: "UGX", unit: "", minimumOrderQuantity: "",
-  availability: "", specifications: "", imageUrl: "", status: "PUBLISHED",
+  availability: "", specifications: "", imageUrl: "", moreImages: [], status: "PUBLISHED",
 });
 
-type Field = Exclude<keyof ProductDraft, "key" | "id">;
+type Field = Exclude<keyof ProductDraft, "key" | "id" | "moreImages">;
 
 // Column names people use, reduced to letters only ("Price (UGX)" → "priceugx")
 const COLUMNS: [Field, string[]][] = [

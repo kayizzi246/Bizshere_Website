@@ -1013,6 +1013,8 @@ model SupplierProductListing {
   validUntil           DateTime?
   /// Product catalog (supplier page grid): photo, and whether it shows on the site. Suppliers add these in /supplier.
   imageUrl             String?
+  /// More photos of the product, in order, after the main one (imageUrl). Shown in the product page's gallery.
+  moreImages           String[]          @default([])
   status               PublicationStatus @default(PUBLISHED)
   createdAt            DateTime          @default(now())
 

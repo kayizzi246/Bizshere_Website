@@ -41,6 +41,8 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
     const minimumOrderQuantity = num("minimumOrderQuantity", d.minimumOrderQuantity);
     const imageRaw = String(d.imageUrl ?? "").trim();
     const imageUrl = imageRaw ? (parseField({ name: "imageUrl", kind: "url" }, imageRaw, problems) as string) : null;
+    // The other photos: uploaded files or https links, at most 7, none twice
+    const moreImages = [...new Set((Array.isArray(d.moreImages) ? d.moreImages : []).map((p) => String(p).trim()))].filter((p) => p !== imageUrl && /^(https:\/\/|\/uploads\/)/.test(p)).slice(0, 7);
     const status = PRODUCT_STATUSES.includes(d.status) ? d.status : "PUBLISHED";
     const labels: Record<string, string> = { priceMin: "price from: numbers only", priceMax: "price to: numbers only", minimumOrderQuantity: "minimum order: numbers only", imageUrl: "photo: use Upload, or a link starting with https://" };
     const msg = Object.entries(problems).map(([k, v]) => (k === "productName" || k === "currency" ? v : labels[k] ?? `${k}: ${v}`));
@@ -49,7 +51,7 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
     return {
       key: d.key, id: d.id,
       row: {
-        productName: name.slice(0, 200), priceMin, priceMax, currency, minimumOrderQuantity, imageUrl, status,
+        productName: name.slice(0, 200), priceMin, priceMax, currency, minimumOrderQuantity, imageUrl, moreImages, status,
         unit: text(d.unit, 100), availability: text(d.availability, 200), specifications: text(d.specifications),
       },
     };
@@ -75,7 +77,7 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
       const was = d.id ? current.get(d.id) : undefined;
       if (!was) continue;
       const keys = Object.keys(d.row) as (keyof typeof d.row)[];
-      if (keys.every((k) => same(d.row[k], was[k]))) continue; // unchanged: no write
+      if (keys.every((k) => same(d.row[k], was[k]))) continue; // unchanged: no write (a list compares as its text)
       const priceChanged = !same(d.row.priceMin, was.priceMin) || !same(d.row.priceMax, was.priceMax);
       await tx.supplierProductListing.updateMany({
         where: { id: was.id, supplierId: supplier.id },

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ProductTable } from "@/components/ProductTable";
 import { UploadButton } from "@/components/UploadButton";
+import { ProductPhotos } from "@/components/ProductPhotos";
 import { SignOutButton } from "@/components/SignOutButton";
 import { deleteProduct, saveProduct, saveSupplierDetails, saveSupplierPhoto } from "@/app/actions/supplier";
 import { changeMyPin } from "@/app/actions/pin";
@@ -208,7 +209,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
 
 function ProductForm({ supplierId, product, input, label }: {
   supplierId: string;
-  product?: { id: string; productName: string; specifications: string | null; unit: string | null; minimumOrderQuantity: unknown; availability: string | null; priceMin: unknown; priceMax: unknown; imageUrl: string | null };
+  product?: { id: string; productName: string; specifications: string | null; unit: string | null; minimumOrderQuantity: unknown; availability: string | null; priceMin: unknown; priceMax: unknown; imageUrl: string | null; moreImages: string[] };
   input: string;
   label: string;
 }) {
@@ -230,9 +231,8 @@ function ProductForm({ supplierId, product, input, label }: {
       </label>
 
       <div className="flex flex-col gap-2">
-        <span className={question}><span className={step}>2</span>Add a photo <span className="font-sans text-[13px] font-normal text-ink-muted">(buyers look at photos first)</span></span>
-        <UploadButton target="imageUrl" kind="image" />
-        <input name="imageUrl" defaultValue={product?.imageUrl ?? ""} placeholder="The photo's address is filled in here after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
+        <span className={question}><span className={step}>2</span>Add photos <span className="font-sans text-[13px] font-normal text-ink-muted">(buyers look at photos first)</span></span>
+        <ProductPhotos initial={[product?.imageUrl, ...(product?.moreImages ?? [])].filter((p): p is string => Boolean(p))} />
       </div>
 
       <label className="flex flex-col gap-2">

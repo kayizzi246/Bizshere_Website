@@ -57,7 +57,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
           </Link>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
             <div className="mx-auto w-full max-w-[520px] md:max-w-none">
-              <ProductGallery images={product.imageUrl ? [{ src: product.imageUrl, alt: name }] : []} icon="supplier" />
+              <ProductGallery images={[product.imageUrl, ...product.moreImages].filter((p): p is string => Boolean(p)).map((src, n) => ({ src, alt: n ? `${name}, photo ${n + 1}` : name }))} icon="supplier" />
             </div>
 
             <div className="flex min-w-0 flex-col gap-4">

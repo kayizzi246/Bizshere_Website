@@ -93,7 +93,11 @@ export async function saveProduct(form: FormData) {
   const parsed = productSchema.safeParse(Object.fromEntries(["productName", "specifications", "unit", "minimumOrderQuantity", "availability", "priceMin", "priceMax", "imageUrl"].map((k) => [k, String(form.get(k) ?? "")])));
   if (!parsed.success) redirect(`/supplier?error=product`);
   const { imageUrl, ...rest } = parsed.data;
-  const data = { ...rest, imageUrl: imageUrl || null, quotedAt: rest.priceMin !== null || rest.priceMax !== null ? new Date() : null };
+  // The other photos (ProductPhotos): the same rule as the main one, at most 7 more, none twice
+  const extra = [...new Set(form.getAll("moreImages").map(String))].filter((p) => p && p !== imageUrl && photo.safeParse(p).success).slice(0, 7);
+  // With no main photo the first of the others takes its place
+  const main = imageUrl || extra.shift() || null;
+  const data = { ...rest, imageUrl: main, moreImages: extra, quotedAt: rest.priceMin !== null || rest.priceMax !== null ? new Date() : null };
   const id = String(form.get("id") ?? "");
   if (id) {
     // Only a product of this supplier.
