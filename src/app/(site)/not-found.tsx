@@ -9,7 +9,8 @@ import { Icon } from "@/components/Icon";
  */
 export default function NotFound() {
   return (
-    <div className="bg-[#F1F4F8]">
+    // under-header-pad: the grey runs up behind the floating menu bar, so the page is one colour to the top
+    <div className="under-header-pad bg-[#F1F4F8]">
       <div className="container-site flex flex-col items-center gap-8 py-12 sm:py-16">
         <div className="flex max-w-xl flex-col items-center gap-3 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">Page not found</span>

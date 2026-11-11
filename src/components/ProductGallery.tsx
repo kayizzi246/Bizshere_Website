@@ -106,15 +106,15 @@ export function ProductGallery({ images, videos = [], icon, shop = false }: { im
 
           {shown?.kind === "image" ? (
             <>
-              {shop ? null : <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />}
+              {/* No dark fade over the photo (client, 11 Nov 2026): the label and buttons are on white pills */}
               {shown.label ? (
                 shown.href ? (
                   <Link href={shown.href} className="absolute bottom-3 left-3 z-10 inline-flex max-w-[70%] items-center gap-1 truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading hover:text-brand">{shown.label} <span aria-hidden>→</span></Link>
                 ) : <span className="absolute bottom-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading">{shown.label}</span>
               ) : null}
               <span className="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-1.5">
-                {many ? <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${shop ? "bg-white text-heading shadow-sm ring-1 ring-black/5" : "bg-black/60 text-white"}`}>{current + 1} / {slides.length}</span> : null}
-                <span className={`flex h-7 w-7 items-center justify-center rounded-full ${shop ? "bg-white text-heading shadow-sm ring-1 ring-black/5" : "bg-black/60 text-white"}`}><Expand aria-hidden className="h-3.5 w-3.5" /></span>
+                {many ? <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold bg-white text-heading shadow-sm ring-1 ring-black/5`}>{current + 1} / {slides.length}</span> : null}
+                <span className={`flex h-7 w-7 items-center justify-center rounded-full bg-white text-heading shadow-sm ring-1 ring-black/5`}><Expand aria-hidden className="h-3.5 w-3.5" /></span>
               </span>
             </>
           ) : null}

@@ -88,7 +88,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
             <div className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-28">
               <div className="flex flex-col gap-2">
                 <Link href={back} className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-brand-dark hover:text-brand"><Store aria-hidden className="h-4 w-4" />{supplierName}</Link>
-                <h1 className="font-display text-[26px] font-extrabold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[32px]">{name}</h1>
+                <h1 className="text-hero text-[26px] leading-[1.15] tracking-[-0.02em] text-heading sm:text-[32px]">{name}</h1>
                 {product.availability ? (
                   <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold ${inStock ? "bg-[#E6F4EC] text-[#1F7A4D]" : "bg-page text-ink-soft"}`}>
                     {inStock ? <CheckCircle2 aria-hidden className="h-4 w-4" /> : null}{product.availability}
@@ -104,7 +104,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
                     <Link href={path} data-onboard="" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />See the price</Link>
                   </span>
                 ) : (
-                  <span className="font-display text-[30px] font-extrabold leading-tight tracking-[-0.02em] text-heading sm:text-[36px]">{price ?? <span className="text-[18px] font-semibold text-ink-soft">Ask the seller for the price</span>}</span>
+                  <span className="text-hero text-[30px] leading-tight tracking-[-0.02em] text-heading sm:text-[36px]">{price ?? <span className="text-[18px] font-semibold text-ink-soft">Ask the seller for the price</span>}</span>
                 )}
                 {product.quotedAt ? <span className="text-[12px] text-ink-muted">Price checked {date(product.quotedAt)}</span> : null}
               </div>
