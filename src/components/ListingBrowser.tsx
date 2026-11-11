@@ -212,9 +212,9 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
         <Link href={i.href} tabIndex={-1} aria-hidden className="relative block overflow-hidden bg-page">
           {i.picture ? (
             // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
-            <img src={i.picture} alt="" loading="lazy" className="block aspect-[4/3] w-full bg-page object-contain transition duration-300 group-hover:scale-[1.04]" />
+            <img src={i.picture} alt="" loading="lazy" className="block aspect-[4/3] w-full bg-white object-contain transition duration-300 group-hover:scale-[1.04]" />
           ) : (
-            <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
+            <span className="flex aspect-[4/3] w-full items-center justify-center bg-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
           <SeenBadge href={i.href} className="absolute bottom-2 right-2" />
         </Link>
@@ -268,12 +268,12 @@ function SupplierCard({ i }: { i: BrowseListing }) {
         <WishlistHeart id={i.id} className="absolute right-2 top-2 z-10" />
         {/* The same size on every card. Product photos often come with white edges, so the picture is
             zoomed in a little to fill the box (and a little more on hover). */}
-        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[5/4] overflow-hidden rounded-[14px] bg-brand-tint">
+        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[5/4] overflow-hidden rounded-[14px] border border-line bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
           {i.picture ? <img src={i.picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain transition duration-300 group-hover:scale-[1.04]" /> : (
             <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name="supplier" className="h-9 w-9" /></span>
           )}
-          {i.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{i.primaryCategory.name}</span> : null}
+          {i.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{i.primaryCategory.name}</span> : null}
         </Link>
       </div>
       <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">

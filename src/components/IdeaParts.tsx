@@ -36,10 +36,10 @@ export function IdeaPhoto({ src, alt, className = "", contain = false }: { src?:
   if (src) {
     // Editors enter the address (or a /ideas/… path); no Next image domain list to maintain.
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={alt} loading="lazy" className={`block w-full bg-page ${contain ? "object-contain" : "object-cover"} ${className}`} />;
+    return <img src={src} alt={alt} loading="lazy" className={`block w-full ${contain ? "bg-white object-contain" : "bg-page object-cover"} ${className}`} />;
   }
   return (
-    <div className={`flex w-full items-center justify-center bg-brand-tint text-brand ${className}`}>
+    <div className={`flex w-full items-center justify-center text-brand ${contain ? "bg-white" : "bg-brand-tint"} ${className}`}>
       <Icon name="idea" className="h-10 w-10" strokeWidth={1.5} />
     </div>
   );
@@ -70,11 +70,10 @@ export function IdeaCard({ idea }: { idea: CardIdea }) {
     <div className="group relative flex h-full flex-col rounded-[20px] border border-line bg-white p-1.5 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-[0_10px_28px_rgba(21,126,194,0.12)] sm:p-2">
       <div className="relative">
         <WishlistHeart id={idea.id} className="absolute right-2 top-2" />
-        <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden rounded-[14px]">
+        <Link href={`/business-ideas/${idea.slug}`} tabIndex={-1} aria-hidden className="relative block overflow-hidden rounded-[14px] border border-line bg-white">
           <IdeaPhoto contain src={bi?.pictureUrl} alt="" className="aspect-[4/3] transition duration-300 group-hover:scale-[1.04] sm:aspect-[5/4]" />
-          <span aria-hidden className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" />
           <SeenBadge href={`/business-ideas/${idea.slug}`} className="absolute left-2 top-2" />
-          {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{idea.primaryCategory.name}</span> : null}
+          {idea.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{idea.primaryCategory.name}</span> : null}
         </Link>
       </div>
       {/* Name, a brief description, the starting capital, two buttons. Phones show two cards a row, so

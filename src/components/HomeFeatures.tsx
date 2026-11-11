@@ -159,8 +159,9 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
         <h3 className="text-hero text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
         <p data-size="" className="max-w-lg text-[13px] leading-relaxed sm:text-[13px]">{text}</p>
       </div>
-      <div className="flex-1">{children}</div>
-      <span><Go href={href} tone={onColour}>{action}</Go></span>
+      {/* min-h-0: the list gives way before the button does, so the button is never pushed out of the panel */}
+      <div className="min-h-0 flex-1">{children}</div>
+      <span className="shrink-0"><Go href={href} tone={onColour}>{action}</Go></span>
     </li>
   );
 }
@@ -358,14 +359,15 @@ export async function HomeFeatures() {
 
           <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="skin-suppliers" words="text-white" onColour={S.suppliers.onColour}
             text="Checked suppliers in Uganda and abroad.">
-            {/* Six suppliers, still: two columns of white rows like the funding list beside it (four on phones) */}
+            {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
+                fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
             <ul className="grid h-full grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
-              {suppliers.slice(0, 6).map((x, n) => {
+              {suppliers.slice(0, 4).map((x, n) => {
                 const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
                 const name = clean(x.title);
                 const sells = x.supplier?.items.slice(0, 2).join(", ");
                 return (
-                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className={n >= 4 ? "hidden sm:block" : undefined}>
+                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className="min-h-0">
                     <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 rounded-2xl bg-white p-2.5 text-heading hover:text-heading">
                       <span className={`relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
