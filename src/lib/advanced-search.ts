@@ -101,9 +101,12 @@ const onlyFor = (types: ContentType[], where: Prisma.ContentItemWhereInput): Pri
  * `newSince` (saved-search alerts, src/lib/jobs.ts): only pages published after that moment, and no
  * "close matches" when nothing matches every word, so an alert only fires on real results.
  */
-export async function advancedSearch(p: Parsed, opts: { member: boolean; newSince?: Date }) {
+/**
+ * `countsOnly`: only how many results each section has (the section tabs on /search), no rows loaded.
+ */
+export async function advancedSearch(p: Parsed, opts: { member: boolean; newSince?: Date; countsOnly?: boolean }) {
   const types = GROUPS.filter((g) => p.show.includes(g.id)).flatMap((g) => g.types);
-  if (!types.length) return { total: 0, rows: [] as Awaited<ReturnType<typeof loadRows>>, loose: false };
+  if (!types.length) return { total: 0, rows: [] as Awaited<ReturnType<typeof loadRows>>, loose: false, counts: {} as Record<string, number> };
   const since = p.updated ? new Date(Date.now() - Number(p.updated) * 86_400_000) : null;
   const districtName = p.district ? (await prisma.location.findUnique({ where: { id: p.district }, select: { name: true } }))?.name : null;
   const budget = opts.member && (p.budgetMin !== null || p.budgetMax !== null);
@@ -138,7 +141,7 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean; newSinc
     })] : []),
   ];
   const base: Prisma.ContentItemWhereInput = { publicationStatus: "PUBLISHED", contentType: { in: types }, AND: and };
-  const select = { id: true, title: true, shortSummary: true, publishedAt: true, lastReviewedAt: true } as const;
+  const select = { id: true, contentType: true, title: true, shortSummary: true, publishedAt: true, lastReviewedAt: true } as const;
   const orderBy: Prisma.ContentItemOrderByWithRelationInput = p.sort === "az" ? { title: "asc" } : p.sort === "newest" ? { publishedAt: { sort: "desc", nulls: "last" } } : { lastReviewedAt: { sort: "desc", nulls: "last" } };
 
   // Every word must match (each through any of its variants).
@@ -154,6 +157,11 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean; newSinc
     candidates = [...byId.values()];
   }
 
+  // How many in each section (GROUPS id → count), for the tabs
+  const counts: Record<string, number> = {};
+  for (const c of candidates) { const g = GROUPS.find((x) => x.types.includes(c.contentType)); if (g) counts[g.id] = (counts[g.id] ?? 0) + 1; }
+  if (opts.countsOnly) return { total: candidates.length, rows: [] as Awaited<ReturnType<typeof loadRows>>, loose, counts };
+
   // Relevance: words matched first (loose results), then title hits, then summary hits.
   let ordered = candidates;
   if (p.sort === "relevance" || loose) {
@@ -163,7 +171,7 @@ export async function advancedSearch(p: Parsed, opts: { member: boolean; newSinc
   }
   const pageIds = ordered.slice((p.page - 1) * PAGE_SIZE, p.page * PAGE_SIZE).map((c) => c.id);
   const rows = await loadRows(pageIds, opts.member);
-  return { total: candidates.length, rows: pageIds.map((id) => rows.find((r) => r.id === id)!).filter(Boolean), loose };
+  return { total: candidates.length, rows: pageIds.map((id) => rows.find((r) => r.id === id)!).filter(Boolean), loose, counts };
 }
 
 /** The fields a result card shows. Contacts are loaded for members only. */

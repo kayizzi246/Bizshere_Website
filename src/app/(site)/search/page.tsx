@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GlassSelect } from "@/components/GlassSelect";
 import { LockKeyhole, SlidersHorizontal } from "lucide-react";
+import { DIRECTORIES } from "@/config/directories";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { cachedMemberPlan } from "@/lib/cached";
@@ -27,8 +28,10 @@ const cap = (s?: string | null) => (s ? s.charAt(0) + s.slice(1).toLowerCase().r
 
 /**
  * Search everything: a search bar with an advanced panel (words, phrase, directory, industry,
- * district, stage, budget, freshness), a filter column (directories, machine condition, funding
- * type) and results drawn per directory. Contacts, prices and amounts stay member-only.
+ * district, stage, budget, freshness), then the results with a tab per section and how many each has
+ * (client, 11 Nov 2026: a visitor must find what they came for). Machine condition and funding type show
+ * as chips when that section is chosen. With nothing typed yet, every section is offered as a tile.
+ * Contacts, prices and amounts stay member-only.
  */
 // Links here don't prefetch: a page of results, topics and filters prefetched dozens of pages at once and
 // ran the database out of connections (live logs, 7 Nov 2026). They open as soon as they are clicked.
@@ -38,13 +41,20 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const pricesOnly = p.show.length === 1 && p.show[0] === PRICES_GROUP.id;
   const withPrices = p.show.includes(PRICES_GROUP.id) && (pricesOnly || p.q);
 
-  const [{ total, rows, loose }, prices, choices, memberPlan, savedIds] = await Promise.all([
-    pricesOnly ? Promise.resolve({ total: 0, rows: [] as ResultRow[], loose: false }) : advancedSearch(p, { member: viewer.isMember }),
+  // Searching in one section: the other tabs still need their counts, from the same search across every section
+  const narrowed = p.show.length < GROUPS.length;
+  const [{ total, rows, loose, counts: ownCounts }, prices, choices, memberPlan, savedIds, everywhere] = await Promise.all([
+    pricesOnly ? Promise.resolve({ total: 0, rows: [] as ResultRow[], loose: false, counts: {} as Record<string, number> }) : advancedSearch(p, { member: viewer.isMember }),
     withPrices ? searchPrices(p.q, {}) : Promise.resolve([]),
     searchChoices(),
     cachedMemberPlan(),
     viewer.userId ? prisma.savedItem.findMany({ where: { userId: viewer.userId }, select: { contentItemId: true } }).then((r) => new Set(r.map((s) => s.contentItemId))) : Promise.resolve(new Set<string>()),
+    narrowed ? advancedSearch({ ...p, show: GROUPS.map((g) => g.id), cond: [], ftype: [], page: 1 }, { member: viewer.isMember, countsOnly: true }) : null,
   ]);
+  const counts = everywhere?.counts ?? ownCounts;
+  const everyTotal = everywhere?.total ?? total;
+  // Nothing asked yet: offer every section instead of a long list of everything
+  const starting = !p.q && !p.topic && !hasAdvanced(p) && !narrowed;
   const count = pricesOnly ? prices.length : total;
   if (p.page === 1) await prisma.searchEvent.create({ data: { userId: viewer.userId, query: p.q, filters: searchParams as object, resultsCount: count } }).catch(() => undefined);
 
@@ -96,7 +106,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       {/* ── Search bar and advanced panel ── */}
       <section className="under-header hero-glow hero-still bg-navy">
         <div className="container-site flex flex-col gap-4 py-6 lg:py-8">
-          <h1 className="text-page-title text-white">Search BizSphere-Ug</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-page-title text-white">What are you looking for?</h1>
+            <p className="text-[15px] text-white/75">Type a word, like <em>flour</em>, <em>loan</em> or <em>bakery</em>. We look in every part of the website at once.</p>
+          </div>
           {/* A plain checkbox (no name, so it isn't sent) opens and closes the panel without JavaScript */}
           <div className="group/adv flex flex-col">
             <input id="adv-toggle" type="checkbox" defaultChecked={advancedOpen} className="peer sr-only" />
@@ -187,38 +200,29 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       </section>
 
       <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      <div className="container-site grid items-start gap-6 py-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:py-8">
-        {/* ── Filter column (collapsed behind a button on phones) ── */}
-        <div>
-          <input id="filters-toggle" type="checkbox" className="peer sr-only" />
-          <label htmlFor="filters-toggle" className="btn-outline w-full cursor-pointer lg:hidden"><SlidersHorizontal aria-hidden className="h-4 w-4" />Filters</label>
-          <aside className="card mt-3 hidden flex-col p-5 peer-checked:flex lg:sticky lg:top-32 lg:mt-0 lg:flex">
-            <Group title="Show results from">
-              {dir ? (
-                <p className="text-[13px] text-ink-muted">Limited to <strong className="text-ink-soft">{[...GROUPS, PRICES_GROUP].find((g) => g.id === dir)?.label}</strong>. <Link prefetch={false} href={url([["dir"], ["show"]])} className="font-semibold">Show all</Link></p>
-              ) : (
-                <>
-                  {GROUPS.map((g) => <Check key={g.id} name="show" value={g.id} checked={p.show.includes(g.id)} auto>{g.label}</Check>)}
-                  <Check name="show" value={PRICES_GROUP.id} checked={p.show.includes(PRICES_GROUP.id)} auto>{PRICES_GROUP.label}</Check>
-                </>
-              )}
-            </Group>
-            <Group title="Machine condition">
-              {CONDITIONS.map(([k, l]) => <Check key={k} name="cond" value={k} checked={p.cond.includes(k)} auto>{l}</Check>)}
-            </Group>
-            <Group title="Funding type" last>
-              {FUNDING_TYPES.filter(([k]) => k !== "OTHER").map(([k, l]) => <Check key={k} name="ftype" value={k} checked={p.ftype.includes(k)} auto>{l}</Check>)}
-            </Group>
-            {/* Without JavaScript the boxes don't submit by themselves */}
-            <noscript><button className="btn-primary mt-4 w-full">Update results</button></noscript>
-          </aside>
-        </div>
+      <div className="container-site flex flex-col gap-5 py-6 lg:py-8">
+        {/* ── Nothing typed yet: every section as a tile ── */}
+        {starting ? (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-xl font-extrabold text-heading">Or pick a section</h2>
+            <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+              {DIRECTORIES.map((d) => (
+                <li key={d.href}>
+                  <Link prefetch={false} href={d.href} className="group flex h-full items-start gap-3 rounded-2xl border border-line bg-white p-3.5 text-ink transition-colors hover:border-brand hover:text-ink">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand group-hover:bg-brand group-hover:text-white"><Icon name={d.icon} className="h-5 w-5" /></span>
+                    <span className="flex min-w-0 flex-col gap-0.5"><span className="font-display text-[14px] font-bold leading-tight text-heading">{d.title}</span><span className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{d.text}</span></span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {/* ── Results ── */}
         <section className="flex min-w-0 flex-col gap-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-extrabold text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : "All results"}</h2>
+              <h2 className="text-xl font-extrabold text-heading">{p.q ? <>Results for “{p.q}”</> : p.topic ? TOPICS.find((t) => t.id === p.topic)!.label : starting ? "Recently checked by our team" : "All results"}</h2>
               <p className="mt-0.5 text-sm text-ink-muted">{count.toLocaleString()} {count === 1 ? "result" : "results"}{pages > 1 ? ` · page ${p.page} of ${pages}` : ""}</p>
             </div>
             {!pricesOnly ? (
@@ -228,6 +232,23 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
               </div>
             ) : null}
           </div>
+
+          {/* A tab per section, with how many results each has: one tap narrows the results */}
+          {!starting && everyTotal > 0 ? (
+            <nav aria-label="Sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+              <ul className="flex gap-2 sm:flex-wrap">
+                <li><Tab href={url([["dir"], ["show"], ["cond"], ["ftype"]])} on={!narrowed} label="Everything" n={everyTotal} /></li>
+                {GROUPS.filter((g) => counts[g.id] || p.show.length === 1 && p.show[0] === g.id).map((g) => (
+                  <li key={g.id}><Tab href={url([["dir"], ["show"], ["cond"], ["ftype"]], { dir: g.id })} on={p.show.length === 1 && p.show[0] === g.id} label={g.label} n={counts[g.id] ?? 0} /></li>
+                ))}
+                {p.q ? <li><Tab href={url([["dir"], ["show"], ["cond"], ["ftype"]], { dir: PRICES_GROUP.id })} on={pricesOnly} label={PRICES_GROUP.label} /></li> : null}
+              </ul>
+            </nav>
+          ) : null}
+
+          {/* The filters of one section, only when that section is chosen */}
+          {p.show.length === 1 && p.show[0] === "machines" ? <Chips label="Condition" name="cond" list={CONDITIONS} on={p.cond} url={url} /> : null}
+          {p.show.length === 1 && p.show[0] === "funding" ? <Chips label="Type of money" name="ftype" list={FUNDING_TYPES.filter(([k]) => k !== "OTHER")} on={p.ftype} url={url} /> : null}
 
           {chips.length ? (
             <ul className="flex flex-wrap gap-2">
@@ -313,16 +334,37 @@ function Check({ name, value = "1", checked, auto, children }: { name: string; v
   );
 }
 
-function Group({ title, last, children }: { title: string; last?: boolean; children: React.ReactNode }) {
+const Lock = () => <LockKeyhole aria-label="Members only" className="h-3.5 w-3.5 text-accent-dark" />;
+
+/** One section tab: its name and how many results it has. */
+function Tab({ href, on, label, n }: { href: string; on: boolean; label: string; n?: number }) {
   return (
-    <fieldset className={`flex flex-col gap-1.5 ${last ? "" : "mb-4 border-b border-line pb-4"}`}>
-      <legend className="mb-2 font-display text-[13px] font-bold text-heading">{title}</legend>
-      {children}
-    </fieldset>
+    <Link prefetch={false} href={href} aria-current={on ? "page" : undefined}
+      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-[14px] font-semibold transition-colors ${on ? "border-brand bg-brand text-white hover:text-white" : "border-line bg-white text-ink hover:border-brand hover:text-brand"}`}>
+      {label}{n !== undefined ? <span className={`rounded-full px-2 py-px text-[12px] font-bold ${on ? "bg-white/25 text-white" : "bg-page text-ink-soft"}`}>{n}</span> : null}
+    </Link>
   );
 }
 
-const Lock = () => <LockKeyhole aria-label="Members only" className="h-3.5 w-3.5 text-accent-dark" />;
+/** A section's own filter as chips (machine condition, type of money): tap to add or remove. */
+function Chips({ label, name, list, on, url }: { label: string; name: string; list: [string, string][]; on: string[]; url: (drop: [string, string?][], set?: Record<string, string>) => string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-[13px] font-semibold text-ink-soft">{label}:</span>
+      {list.map(([k, l]) => {
+        const active = on.includes(k);
+        // Adding keeps the others: the link carries every chosen value plus this one
+        const add = (() => { const u = new URL(url([]), "http://x"); u.searchParams.append(name, k); u.searchParams.delete("page"); return u.pathname + u.search; })();
+        return (
+          <Link key={k} prefetch={false} href={active ? url([[name, k]]) : add} aria-pressed={active}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold ${active ? "border-brand bg-brand-tint text-brand-dark" : "border-line bg-white text-ink hover:border-brand hover:text-brand"}`}>
+            {active ? "✓ " : ""}{l}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 const LABEL_TONE: Record<string, string> = { FUNDING_PROGRAMME: "text-accent-dark", INVESTMENT_OPPORTUNITY: "text-accent-dark", CONSULTANT: "text-accent-dark" };
 const ICON: Record<string, string> = { BUSINESS_IDEA: "idea", MACHINE: "machine", SUPPLIER: "supplier", FUNDING_PROGRAMME: "funding", GUIDE: "guide", CONSULTANT: "expert", TOOL: "tool", WEBSITE: "link", NEWS: "news", BUSINESS_TIP: "tip", INVESTMENT_OPPORTUNITY: "funding" };
