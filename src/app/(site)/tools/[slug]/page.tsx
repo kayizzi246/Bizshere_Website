@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { trackView } from "@/components/DetailParts";
 import { RecordPage, titleCase } from "@/components/RecordPage";
+import { isPdf } from "@/lib/pdf-file";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,7 @@ export default async function ToolPage({ params }: { params: { slug: string } })
         kind: titleCase(t.toolType) ?? "Tool",
         title: item.title,
         href: gated ? null : t.downloadUrl,
+        preview: !gated && isPdf(t.downloadUrl) ? `${path}/file` : null,
         locked: gated && Boolean(t.downloadUrl),
         format: t.fileFormat,
         facts: [["Format", t.fileFormat], ["Works with", t.supportedSoftware], ["Editable", t.editable === null ? null : t.editable ? "Yes" : "No"], ["Contains macros", t.hasMacros === null ? null : t.hasMacros ? "Yes" : "No"], ["Licence", t.licence]],

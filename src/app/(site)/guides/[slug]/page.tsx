@@ -5,6 +5,7 @@ import { getViewer } from "@/lib/access";
 import { trackView } from "@/components/DetailParts";
 import { RecordPage } from "@/components/RecordPage";
 import { GuideViewer } from "@/components/GuideViewer";
+import { isPdf } from "@/lib/pdf-file";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +40,14 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         kind: g.resourceType ?? "Document",
         title: item.title,
         href: gated ? null : g.downloadUrl,
+        preview: !gated && isPdf(g.downloadUrl) ? `${path}/file` : null,
         // File type from the address, worked out here so visitors see it without the address itself.
         format: g.downloadUrl.match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i)?.[1] ?? null,
         locked: gated,
         facts: [["Type", g.resourceType], ["Language", g.language], ["Version", g.version], ["Issued by", g.issuingBody ?? g.responsibleAuthority]],
       } : undefined}
       catalogLabel="Read the guide"
-      catalog={g.downloadUrl && /\.pdf($|[?#])/i.test(g.downloadUrl) ? <GuideViewer file={`${path}/file`} title={item.title} locked={gated} back={path} /> : undefined}
+      catalog={isPdf(g.downloadUrl) ?<GuideViewer file={`${path}/file`} title={item.title} locked={gated} back={path} /> : undefined}
       details={{ type: "GUIDE", record: g as unknown as Record<string, unknown>, gated: gated }}
       viewer={viewer}
       item={item}

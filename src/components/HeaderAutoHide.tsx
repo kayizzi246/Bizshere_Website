@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 /**
  * The site header (SiteHeader, [data-site-header]) slides away while the visitor scrolls down and comes
- * back as soon as they scroll up, so the page gets the whole screen. It always shows near the top of the
+ * back as soon as they scroll up, so the page gets the whole screen. Not on the homepage: there it stays. It always shows near the top of the
  * page, while the phone menu is open, and while anything in the header has keyboard focus. The motion
  * itself is in globals.css ([data-site-header][data-hidden]); with less motion it simply appears.
  */
@@ -21,6 +21,8 @@ export function HeaderAutoHide() {
     let last = window.scrollY;
     let frame = 0;
     const show = () => header.removeAttribute("data-hidden");
+    // The homepage keeps its header in view all the way down (client, 11 Nov 2026)
+    if (path === "/") return show();
     const update = () => {
       frame = 0;
       const y = window.scrollY;

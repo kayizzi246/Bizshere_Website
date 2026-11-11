@@ -15,7 +15,7 @@ const WIDE_ONLY = "/experts";
 const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "bg-accent text-[#071A33] hover:text-[#071A33]"], ["/experts/join", "Become an Expert", "expert", "bg-brand text-white hover:bg-brand-dark hover:text-white"]];
 
 // Navigation links in Manrope (style guide); buttons (Log in, Get started) in Inter.
-const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
+const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[13px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /**
@@ -55,7 +55,7 @@ export async function SiteHeader() {
 
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <WishlistLink className="rounded-full" />
-          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[14px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
+          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
           {/* The one call to action; on phones and tablets it is in the menu */}
           <span className="hidden lg:contents"><AccessButton viewer={viewer} /></span>
 
@@ -90,7 +90,7 @@ export async function SiteHeader() {
         {/* Wide screens: a tab growing out of the bar, under the buttons. Phones and tablets have these in the menu. */}
         <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-10 items-center gap-2 rounded-b-2xl bg-white px-3 lg:flex">
           {JOIN.map(([href, label, icon, tone]) => (
-            <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[12px] font-bold shadow-sm transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
+            <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[11px] font-bold shadow-sm transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
               <Icon name={icon} className="h-3.5 w-3.5" />{label}
             </Link>
           ))}
@@ -102,7 +102,7 @@ export async function SiteHeader() {
 
 /** The one call to action: start free or finish subscribing. */
 function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
-  const size = mobile ? "h-11 justify-center text-[15px]" : "h-10 text-[14px]";
+  const size = mobile ? "h-11 justify-center text-[15px]" : "h-10 text-[13px]";
   if (viewer.isMember) return null; // members have nothing to sign up for: their badge is in the footer
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (

@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUp } from "lucide-react";
+import { scrollToTop } from "./SmoothScroll";
 import { usePathname } from "next/navigation";
 
 /**
@@ -12,7 +14,8 @@ import { usePathname } from "next/navigation";
  *                            has scrolled and it is well in view; anything data-reveal inside it waits too.
  *   data-count="42"          counts up from 0 to 42 when it comes into view.
  *
- * Plus a thin reading-progress bar under the header.
+ * Plus a thin reading-progress bar under the header, and a Back to top button once the visitor is well
+ * down a long page (bottom-left on phones, above the chat button on computers: [data-top-btn] in globals.css).
  *
  * Content below the fold is only hidden once this component has mounted (the
  * `reveal-ready` class on <html>), and nothing moves for visitors who ask for
@@ -21,6 +24,7 @@ import { usePathname } from "next/navigation";
 export function ScrollEffects() {
   const path = usePathname();
   const bar = useRef<HTMLDivElement>(null);
+  const [far, setFar] = useState(false);
 
   // Reveal and count-up. A page's content can arrive after the address changes (it streams in behind
   // the loading screen), so new elements are watched for rather than looked for once: an element
@@ -85,6 +89,8 @@ export function ScrollEffects() {
       frame = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       if (bar.current) bar.current.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+      // Back to top: only on a long page, once well down it
+      setFar(window.scrollY > window.innerHeight * 1.5);
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
@@ -93,7 +99,15 @@ export function ScrollEffects() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(frame); };
   }, [path]);
 
-  return <div ref={bar} aria-hidden className="scroll-progress" />;
+  return (
+    <>
+      <div ref={bar} aria-hidden className="scroll-progress" />
+      <button type="button" data-chrome="" data-top-btn="" onClick={scrollToTop} aria-label="Back to top" tabIndex={far ? 0 : -1}
+        className={`fixed left-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-heading shadow-[0_4px_14px_rgba(7,26,51,0.18)] transition-[opacity,transform] duration-300 hover:border-brand hover:text-brand lg:left-auto lg:right-5 ${far ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"}`}>
+        <ArrowUp aria-hidden className="h-5 w-5" />
+      </button>
+    </>
+  );
 }
 
 function countUp(el: HTMLElement, reduce: boolean) {

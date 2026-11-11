@@ -38,8 +38,9 @@ export async function SiteFooter() {
     c.address && { icon: "pin", text: c.address },
   ].filter(Boolean) as { icon: string; text: string; href?: string }[];
 
+  // The same background as the homepage hero (.hero-premium in globals.css; client, 11 Nov 2026)
   return (
-    <footer className="mt-auto overflow-hidden bg-navy text-white">
+    <footer className="hero-premium mt-auto overflow-hidden text-white">
       <div className="container-site">
         <div className="grid grid-cols-2 gap-x-6 gap-y-9 py-12 sm:py-16 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-8">

@@ -15,6 +15,12 @@ let lenis: Lenis | null = null;
  * (menus, pop-ups, tables) keep their own scrolling, and the page pauses while
  * one has locked it. Add `data-lenis-prevent` to anything else that should opt out.
  */
+/** Glides back to the top of the page (the Back to top button in ScrollEffects). */
+export function scrollToTop() {
+  if (lenis) lenis.scrollTo(0, { duration: 0.9 });
+  else window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
 export function SmoothScroll() {
   const path = usePathname();
 
@@ -22,7 +28,9 @@ export function SmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.1,
+      // 0.1 felt slow to settle after the wheel stopped; this follows the hand more closely and still glides
+      // (client, 11 Nov 2026: better scrolling for a site people open every day)
+      lerp: 0.14,
       allowNestedScroll: true,
       // In-page links (#directories, #cookies) glide too, clearing the fixed header.
       anchors: { offset: -96 },

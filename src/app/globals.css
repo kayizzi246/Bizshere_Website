@@ -255,18 +255,27 @@ select {
 }
 
 /* Homepage hero: blue gradient mesh (src/components/ui/gradient-mesh.tsx). Soft blobs drift slowly. */
-/* Navy heroes with glowing light (.hero-glow): soft blue glows and a hint of warm orange, drifting slowly.
-   All of it is the section's own background, laid out from its outer edge (background-origin: border-box),
-   so it runs through the strip behind the floating header (.under-header) in one piece: no seam. */
-.hero-glow { background-color: #071A33; background-repeat: no-repeat; background-origin: border-box;
-  background-image: radial-gradient(closest-side, rgba(56, 160, 230, 0.40), rgba(21, 126, 194, 0)),
-    radial-gradient(closest-side, rgba(242, 140, 40, 0.13), rgba(242, 140, 40, 0)),
-    radial-gradient(closest-side, rgba(21, 126, 194, 0.26), rgba(21, 126, 194, 0));
-  background-size: 56rem 56rem, 44rem 44rem, 60rem 46rem;
-  background-position: 108% -18rem, 16% 135%, -14rem 120%;
-  animation: hero-glow 16s ease-in-out infinite; }
-@keyframes hero-glow { 50% { background-position: 96% -10rem, 30% 118%, -6rem 105%; } }
-/* The homepage hero keeps the light but holds it still: calmer for a page people open every day. */
+/* The dark hero background, the same on every page that has one (client, 11 Nov 2026: the homepage hero colour
+   everywhere): midnight navy running into deep royal blue, lit by a soft blue glow from the top right, a faint gold
+   one from the bottom left and a touch of violet below. .hero-premium is the homepage hero and the footer;
+   .hero-glow is every other dark hero (directory lists, item pages, search, forum, sign-in panels). It is the
+   section own background, laid out from its outer edge (background-origin: border-box), so it runs through
+   the strip behind the floating header (.under-header) in one piece: no seam. The moving lights on the homepage
+   are src/components/HeroParticles.tsx. */
+.hero-premium, .hero-glow { background-color: #061230; background-repeat: no-repeat; background-origin: border-box;
+  background-image: radial-gradient(60rem 34rem at 88% -8%, rgba(46, 150, 235, 0.38), transparent 62%),
+    radial-gradient(46rem 30rem at -6% 108%, rgba(242, 160, 60, 0.16), transparent 60%),
+    radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.22), transparent 65%),
+    linear-gradient(135deg, #040B1F 0%, #08193F 48%, #0B2466 100%); }
+/* The homepage service panels (HomeFeatures): each service colour as a gentle gradient with a soft light from
+   the top right, so a panel has depth without a shadow. */
+.skin-ideas { background: radial-gradient(38rem 22rem at 100% 0%, rgba(120, 220, 170, 0.24), transparent 60%), linear-gradient(135deg, #12684A 0%, #0A4631 100%); }
+.skin-machines { background: radial-gradient(38rem 22rem at 100% 0%, rgba(60, 140, 255, 0.30), transparent 60%), linear-gradient(135deg, #071A33 0%, #0B2A5C 100%); }
+.skin-funding { background: radial-gradient(30rem 18rem at 100% 0%, rgba(255, 255, 255, 0.30), transparent 60%), linear-gradient(135deg, #F7A040 0%, #EE7F1B 100%); }
+.skin-suppliers { background: radial-gradient(30rem 18rem at 100% 0%, rgba(255, 255, 255, 0.24), transparent 60%), linear-gradient(135deg, #1B8FD8 0%, #0E5E94 100%); }
+.skin-experts { background: radial-gradient(38rem 22rem at 100% 0%, rgba(200, 130, 255, 0.28), transparent 60%), linear-gradient(135deg, #53217A 0%, #34104F 100%); }
+
+/* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */
 .hero-still { animation: none; }
 
 @keyframes mesh-drift-1 {
@@ -288,7 +297,7 @@ select {
 .mesh-float { animation: mesh-float 7s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mesh-blob, .mesh-float, .hero-glow { animation: none; }
+  .mesh-blob, .mesh-float { animation: none; }
   .marquee-track { animation: none; }
   .marquee-viewport { overflow-x: auto; scrollbar-width: none; }
   .marquee-dup { display: none; }
@@ -355,6 +364,25 @@ body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: 
 /* Business idea requirements: the "my list" bar along the bottom on phones (BudgetCalculator) lifts the
    floating Services button above it. */
 body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
+
+/* The WhatsApp button (WhatsAppButton) has the bottom-right corner on every screen. On phones the
+   All services button is there too, so WhatsApp sits above it, and above a bar along the bottom. */
+[data-whatsapp] { bottom: 1.25rem; }
+/* Back to top (ScrollEffects): bottom-left on phones, above a bar along the bottom; above the chat button on computers. */
+[data-top-btn] { bottom: 1.25rem; }
+@media (max-width: 1023px) { body:has(:is([data-sticky-bar], [data-list-bar])) [data-top-btn] { bottom: 92px; } }
+@media (min-width: 1024px) { [data-top-btn] { bottom: 4.5rem; } }
+/* Its animation: a ring spreading out and fading, and the mark shaking briefly every few seconds. */
+.wa-ring { animation: wa-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite; }
+.wa-mark { animation: wa-shake 4.8s ease-in-out infinite; }
+@keyframes wa-ring { from { transform: scale(1); opacity: 0.55; } 70%, to { transform: scale(1.3, 1.75); opacity: 0; } }
+@keyframes wa-shake { 0%, 82%, 100% { transform: rotate(0); } 86% { transform: rotate(-14deg); } 90% { transform: rotate(12deg); } 94% { transform: rotate(-8deg); } 98% { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .wa-ring, .wa-mark { animation: none; } .wa-ring { display: none; } }
+@media (max-width: 1023px) {
+  body:has(:is([data-sticky-bar], [data-list-bar])) [data-whatsapp] { bottom: 92px; }
+  body:has([data-quick-services]) [data-whatsapp] { bottom: 86px; }
+  body:has([data-quick-services]):has(:is([data-sticky-bar], [data-list-bar])) [data-whatsapp] { bottom: 158px; }
+}
 
 /* The header (SiteHeader) is one floating rounded bar. --hh is its full height, gap included:
    8px + 52px bar on phones, 12px + 60px from laptop width. A dark hero marked .under-header runs up

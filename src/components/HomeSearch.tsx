@@ -17,7 +17,7 @@ export function HomeSearch() {
         <label className="sr-only" htmlFor="hero-q">Search all directories</label>
         <input id="hero-q" name="q" type="search" enterKeyHint="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={hint}
           className="min-h-[44px] w-full min-w-0 bg-transparent text-[16px] text-ink outline-none placeholder:text-ink-muted sm:min-h-[48px] sm:text-[17px]" />
-        <button className="btn-primary min-h-[44px] shrink-0 rounded-xl px-5 text-[15px] font-semibold sm:min-h-[48px] sm:px-6">Search</button>
+        <button className="btn-primary min-h-[44px] shrink-0 rounded-xl px-5 text-[15px] font-normal sm:min-h-[48px] sm:px-6">Search</button>
       </div>
     </form>
   );

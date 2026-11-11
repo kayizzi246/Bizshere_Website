@@ -14,6 +14,8 @@ import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RememberVisit } from "@/components/Recent";
 import { WishlistButton } from "@/components/Wishlist";
+import { PdfOpenButton } from "@/components/PdfViewer";
+import { isPdf } from "@/lib/pdf-file";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +82,10 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
     ...(c.website ? [[Link2, "Website", <a key="w" href={c.website} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{c.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a>] as [LucideIcon, string, React.ReactNode]] : []),
     ...(c.profileUrl ? [[FileDown, "Full profile", gated
       ? <Link key="p" href={path} data-onboard="" className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members only</Link>
-      : <a key="p" href={c.profileUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
+      // A PDF profile is read on the site first (/experts/[slug]/file); other files are downloaded
+      : isPdf(c.profileUrl)
+        ? <span key="p" className="inline-flex flex-wrap items-center gap-x-3 gap-y-1"><PdfOpenButton file={`${path}/file`} download={`${path}/file?download=1`} title={`${name}: profile`} className="font-semibold text-brand hover:text-brand-dark">Read here</PdfOpenButton><a href={`${path}/file?download=1`} className="text-brand hover:text-brand-dark">Download</a></span>
+        : <a key="p" href={c.profileUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
   ];
   const card = "flex flex-col gap-3 rounded-3xl border border-line bg-white p-5 sm:p-6";
   const h2 = "font-display text-[20px] font-extrabold leading-tight text-heading sm:text-[22px]";

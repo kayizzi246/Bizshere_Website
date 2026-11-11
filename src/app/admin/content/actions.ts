@@ -9,7 +9,7 @@ import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { categorySlug, DIRECTORY_KINDS, findOrAddCategory } from "@/lib/categories";
 import { directoryFor, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
-import { parseField } from "@/lib/field-parse";
+import { currencyCode, looseNumber, parseField } from "@/lib/field-parse";
 
 export type ContentFormState = { errors?: Record<string, string> };
 
@@ -109,7 +109,15 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   const specialised: Record<string, unknown> = {};
   for (const f of dir.fields) {
     if (f.virtual) continue;
-    const v = parseField(f, str(form.get(`f_${f.name}`)), errors);
+    const raw = str(form.get(`f_${f.name}`));
+    // Currency: "ugx", "Shs" or "$" is read as its code; left empty, the default (UGX) applies below
+    if (f.name === "currency" && raw) {
+      specialised.currency = currencyCode(raw);
+      if (!specialised.currency) errors.currency = "Use the three-letter code, e.g. UGX or USD";
+      continue;
+    }
+    // Amounts as people type them: "UGX 10,000,000", "18%"
+    const v = parseField(f, f.kind === "decimal" ? looseNumber(raw) : raw, errors);
     if (f.required && (v === null || v === "")) errors[f.name] = "Required";
     specialised[f.name] = v;
   }
@@ -259,12 +267,18 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     return item.id;
   }).catch((e: Error & { code?: string }) => {
     if (errors.recipeIngredients) return null;
-    // Anything else (the database still unreachable after the retries in transaction()): say so on the
-    // form, which keeps everything typed, instead of replacing the page with an error screen.
+    // Anything else: say so on the form, which keeps everything typed, instead of replacing the page
+    // with an error screen. A value the database refuses is named as that: "press Save again" would
+    // never work for it (a currency typed as "Shs" was reported as a dropped connection, 11 Nov 2026).
     console.error("saveContent failed", e);
-    errors.form = e.code === "P2002"
-      ? "Another page was saved with the same details at the same moment. Press Save again."
-      : "Couldn't save just now (the connection dropped). Nothing you typed is lost: press Save again.";
+    const text = e.message ?? "";
+    const rule = text.match(/check constraint \\?"(\w+)/)?.[1] ?? "";
+    if (e.code === "P2002") errors.form = "Another page was saved with the same details at the same moment. Press Save again.";
+    else if (/currency/.test(rule)) { errors.currency = "Use the three-letter code, e.g. UGX or USD"; errors.form = "Couldn't save: the currency must be a three-letter code, e.g. UGX or USD."; }
+    else if (/range/.test(rule)) errors.form = "Couldn't save: a \"from\" number is higher than its \"to\" number. Check the amounts.";
+    else if (/positive/.test(rule)) errors.form = "Couldn't save: an amount or rate is below zero. Check the numbers.";
+    else if (rule || /numeric field overflow|out of range|value too long/i.test(text)) errors.form = "Couldn't save: one of the numbers is too large or not allowed. Check the amounts and rates, then press Save.";
+    else errors.form = "Couldn't save just now (the connection dropped). Nothing you typed is lost: press Save again.";
     return null;
   });
   if (!itemId) return { errors };

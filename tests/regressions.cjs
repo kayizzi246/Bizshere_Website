@@ -43,6 +43,13 @@ test('a number is read from what people naturally type, and unclear ones are ref
   for (const unclear of ['5-10', '5k', '2 x 50', 'ask us', '-3']) assert.equal(read(unclear), 'refused', unclear);
 });
 
+test('a currency is read as its three-letter code, and unclear ones are refused', () => {
+  // The funding form refused to save when the currency was typed as "Shs" or "ugx" (11 Nov 2026).
+  const { currencyCode } = load('src/lib/field-parse.ts', { '@prisma/client': { Prisma: { Decimal: String, DbNull: null } } });
+  for (const [typed, code] of [['UGX', 'UGX'], ['ugx', 'UGX'], ['Shs', 'UGX'], ['Shs.', 'UGX'], ['Uganda shillings', 'UGX'], ['$', 'USD'], ['usd', 'USD'], ['Ksh', 'KES'], ['zar', 'ZAR']]) assert.equal(currencyCode(typed), code, typed);
+  for (const unclear of ['money', 'UG', '1000', 'UGX and USD']) assert.equal(currencyCode(unclear), null, unclear);
+});
+
 test('failed provider cancellation keeps payment eligible for settlement', async () => {
   const { actions, updates } = onboarding(false, ['PENDING', 'PENDING']);
   assert.equal(await actions.cancelPayment('p1'), 'PENDING');

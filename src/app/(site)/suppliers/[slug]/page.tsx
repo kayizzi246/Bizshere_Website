@@ -16,6 +16,7 @@ import { OnboardingGate } from "@/components/Onboarding";
 import { RememberVisit } from "@/components/Recent";
 import { SupplierCatalog } from "@/components/SupplierCatalog";
 import { WishlistButton } from "@/components/Wishlist";
+import { PdfOpenButton } from "@/components/PdfViewer";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
     where: { slug: params.slug, contentType: "SUPPLIER", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
     include: {
       primaryCategory: true,
-      media: { where: { mediaType: "document" }, orderBy: { displayOrder: "asc" }, take: 1 },
+      media: { where: { mediaType: "document" }, orderBy: { displayOrder: "asc" }, take: 1, include: { versions: { where: { isCurrent: true }, take: 1 } } },
       supplier: {
         include: {
           organization: { select: { logoUrl: true, locations: { orderBy: { isPrimary: "desc" }, take: 1 } } },
@@ -54,6 +55,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   const place = s.organization.locations[0];
   const address = [place?.physicalAddress, place?.town].filter(Boolean).join(", ");
   const catalogue = item.media[0];
+  // A PDF catalogue can be read on the site before downloading
+  const cataloguePdf = catalogue ? catalogue.versions[0]?.mimeType === "application/pdf" || /\.pdf$/i.test(catalogue.versions[0]?.fileLocation ?? catalogue.fileLocation) : false;
   const catalogueLocked = catalogue ? catalogue.accessLevel !== "PUBLIC" && !viewer.isMember : false;
   const kind = s.supplierType ? s.supplierType.charAt(0) + s.supplierType.slice(1).toLowerCase().replace(/_/g, " ") : null;
   // Both the brief and the description from the admin (once, when they are the same)
@@ -72,14 +75,16 @@ export default async function SupplierPage({ params }: { params: { slug: string 
     ...(s.website ? [[Link2, "Website", <a key="w" href={s.website} target="_blank" rel="noopener noreferrer" className="break-all font-semibold text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a>] as [LucideIcon, string, React.ReactNode]] : []),
     ...(catalogue ? [[FileDown, "Catalogue", catalogueLocked
       ? <Link key="c" href={path} data-onboard="" className="inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members only</Link>
-      : <a key="c" href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
+      : cataloguePdf
+        ? <span key="c" className="inline-flex flex-wrap items-center gap-x-3 gap-y-1"><PdfOpenButton file={`/api/files/${catalogue.id}?inline=1`} download={`/api/files/${catalogue.id}`} title={`${item.title}: catalogue`} className="font-semibold text-brand hover:text-brand-dark">Read here</PdfOpenButton><a href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a></span>
+        : <a key="c" href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
   ];
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article>
         {/* ── Shop banner ── */}
-        <header className="under-header bg-navy text-white">
+        <header className="under-header hero-glow bg-navy text-white">
           <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
             <Link href="/suppliers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white/75 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All suppliers</Link>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">

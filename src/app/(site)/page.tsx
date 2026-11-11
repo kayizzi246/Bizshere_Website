@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
+import { HeroParticles } from "@/components/HeroParticles";
 import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -27,14 +28,17 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero: deep navy (bg-navy) with the same light as every other hero, held still here (hero-still)
-          and with no entrance animations: a calm, working front page. Left:
+      {/* ── Hero: midnight navy into royal blue (.hero-premium) with a moving network of lights (HeroParticles)
+          and no entrance animations. Left:
           "B2B Information Portal", one sentence of what is here, search, every directory as a quiet link
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
-      {/* Flat navy (#071A33, the client's colour, 9 Nov 2026) with the soft light over the headline */}
-      <section className="under-header-pad relative isolate overflow-hidden bg-navy text-white">
+      {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue
+          with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
+      {/* Big screens (1536px and wider): the hero is a little taller (up to 840px), with its content in the middle. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white 2xl:flex 2xl:min-h-[min(90vh,840px)] 2xl:flex-col 2xl:justify-center">
+        <HeroParticles />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
@@ -55,9 +59,9 @@ export default async function HomePage() {
               <span className="text-accent">B2B</span> Information Portal
             </h1>
 
-            <p className="mb-4 max-w-2xl text-[16px] leading-[1.6] text-white/90">
+            <p data-size="" className="mb-4 max-w-2xl text-[14px] leading-[1.6] text-white/90">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
-              <span className="font-semibold text-white">Start exploring now.</span>
+              <span className=" text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />
@@ -67,7 +71,7 @@ export default async function HomePage() {
             <ul aria-label="Directories" className="mt-5 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[14px] font-semibold leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:px-3 sm:py-2 sm:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:px-3 sm:py-2 sm:text-[14px]">
                     <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent" />
                     {d.title}
                   </Link>
@@ -77,8 +81,8 @@ export default async function HomePage() {
 
             <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
-              <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
-              <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
+              <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[14px] text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
+              <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[14px] text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
           </div>
 
@@ -93,16 +97,16 @@ export default async function HomePage() {
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center gap-2 font-display text-[16px] font-extrabold leading-tight tracking-[-0.01em] text-white">
+                  <span className="flex items-center gap-2 font-display text-[14px] leading-tight tracking-[-0.01em] text-white">
                     {yt.video?.live ? (
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] font-bold tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
                     ) : null}
                     <span className="truncate">{yt.video?.live ? (yt.video.title ?? "We're live on YouTube") : (yt.video?.title ?? "How Bizsphere-Ug works")}</span>
                   </span>
                   <span className="text-[12px] text-white/60">From idea to action in four steps.</span>
                 </span>
                 {yt.channelId ? (
-                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 text-[13px] font-semibold text-white hover:border-accent hover:bg-accent hover:text-ink">
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 text-[13px] text-white hover:border-accent hover:bg-accent hover:text-ink">
                     <Icon name="video" className="h-4 w-4" />{yt.video ? "Subscribe" : "Watch on YouTube"}
                   </a>
                 ) : null}
@@ -143,7 +147,7 @@ function Showcase() {
   ];
   return (
     <div className="flex flex-col gap-3">
-      <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[12px] font-semibold text-white/80">Example: starting a bakery</span>
+      <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[12px] text-white/80">Example: starting a bakery</span>
       <ol className="relative flex flex-col gap-2">
         {/* The line joining the steps, behind the icon tiles */}
         <span aria-hidden className="absolute bottom-7 left-[30px] top-7 w-px bg-gradient-to-b from-white/30 via-white/15 to-white/30" />
@@ -152,10 +156,10 @@ function Showcase() {
             <Link href={href} className="group relative flex items-center gap-3 rounded-2xl border border-white/10 bg-navy/60 px-3 py-2.5 text-white transition-colors hover:border-accent/60 hover:bg-navy/80 hover:text-white">
               <span className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tone}`}><Icon name={icon} className="h-4 w-4" /></span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">{n + 1}. {step}</span>
-                <span className="truncate font-display text-[15px] font-bold leading-tight text-white">{example}</span>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-white/50">{n + 1}. {step}</span>
+                <span className="truncate font-display text-[14px] leading-tight text-white">{example}</span>
               </span>
-              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/75">{badge}</span>
+              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/75">{badge}</span>
               <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-accent" />
             </Link>
           </li>
@@ -219,24 +223,24 @@ async function marketSnapshot(isMember: boolean): Promise<Snapshot> {
 /** The hero's price panel: a plain table of today's prices, a link to the full board, and the latest video as a link. */
 function PricePanel({ rows, updated, video }: Snapshot & { video: { id: string; title: string | null } | null }) {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-white/15 bg-[#0B2240]">
+    <div className="w-full overflow-hidden rounded-2xl border border-white/15 bg-[#081A3C]/75 backdrop-blur-md">
       <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
         <span className="flex flex-col gap-0.5">
-          <span className="font-display text-[16px] font-bold text-white">Market prices</span>
+          <span className="font-display text-[14px] text-white">Market prices</span>
           <span className="text-[12px] text-white/55">Wholesale · Uganda{updated ? ` · updated ${updated}` : ""}</span>
         </span>
-        <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/70">Latest</span>
+        <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] uppercase tracking-wide text-white/70">Latest</span>
       </div>
       <ul className="divide-y divide-white/10">
         {rows.map((r) => (
           <li key={r.id}>
             <Link href={`/prices?q=${encodeURIComponent(r.name.split(",")[0])}`} className="flex items-center gap-3 px-5 py-3 text-white hover:bg-white/[0.04] hover:text-white">
               <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-[14px] font-semibold">{r.name}</span>
+                <span className="truncate text-[13px]">{r.name}</span>
                 {r.unit ? <span className="text-[12px] text-white/50">per {r.unit}</span> : null}
               </span>
-              <span className="shrink-0 text-right text-[14px] font-semibold tabular-nums">{r.price}</span>
-              <span className={`inline-flex w-[68px] shrink-0 items-center justify-end gap-1 text-[12px] font-semibold tabular-nums ${r.change === null || Math.abs(r.change) < 0.05 ? "text-white/45" : r.change > 0 ? "text-[#3DD68C]" : "text-[#FF6B6B]"}`}>
+              <span className="shrink-0 text-right text-[13px] tabular-nums">{r.price}</span>
+              <span className={`inline-flex w-[68px] shrink-0 items-center justify-end gap-1 text-[12px] tabular-nums ${r.change === null || Math.abs(r.change) < 0.05 ? "text-white/45" : r.change > 0 ? "text-[#3DD68C]" : "text-[#FF6B6B]"}`}>
                 {r.change !== null && r.change >= 0.05 ? <TrendingUp aria-hidden className="h-3.5 w-3.5" /> : r.change !== null && r.change <= -0.05 ? <TrendingDown aria-hidden className="h-3.5 w-3.5" /> : null}
                 {r.change === null ? "–" : `${r.change > 0 ? "+" : ""}${r.change.toFixed(1)}%`}
               </span>
@@ -245,7 +249,7 @@ function PricePanel({ rows, updated, video }: Snapshot & { video: { id: string; 
         ))}
       </ul>
       <div className="flex items-center justify-between gap-3 border-t border-white/10 px-5 py-3.5">
-        <Link href="/prices" className="inline-flex items-center gap-1 text-[14px] font-semibold text-accent hover:text-white">See all prices<ChevronRight aria-hidden className="h-4 w-4" /></Link>
+        <Link href="/prices" className="inline-flex items-center gap-1 text-[13px] text-accent hover:text-white">See all prices<ChevronRight aria-hidden className="h-4 w-4" /></Link>
         {video ? (
           <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-white/60 hover:text-white">
             <Icon name="video" className="h-4 w-4 shrink-0" /><span className="truncate">How Bizsphere-Ug works</span>

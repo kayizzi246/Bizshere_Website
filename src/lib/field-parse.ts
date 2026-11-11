@@ -16,6 +16,27 @@ export function looseNumber(raw: string) {
   return found[0];
 }
 
+/**
+ * The three-letter currency code in what someone types: "ugx", "Shs", "Uganda shillings", "$".
+ * The database only takes a code (UGX, USD…), and anything else stopped the whole page from saving
+ * (funding form, 11 Nov 2026). Null when it isn't clear which currency is meant.
+ */
+const CURRENCY_WORDS: [RegExp, string][] = [
+  [/^(ugx|ugsh|ush|shs?|sh|uganda(n)? shillings?|shillings?|\/=)$/, "UGX"],
+  [/^(usd|us ?\$|\$|us dollars?|dollars?)$/, "USD"],
+  [/^(kes|ksh|kshs|kenya(n)? shillings?)$/, "KES"],
+  [/^(tzs|tsh|tshs|tanzania(n)? shillings?)$/, "TZS"],
+  [/^(rwf|frw|rwanda(n)? francs?)$/, "RWF"],
+  [/^(eur|€|euros?)$/, "EUR"],
+  [/^(gbp|£|pounds?|pounds? sterling)$/, "GBP"],
+];
+export function currencyCode(raw: string): string | null {
+  const typed = raw.trim().toLowerCase().replace(/\./g, "").replace(/\s+/g, " ");
+  const known = CURRENCY_WORDS.find(([words]) => words.test(typed));
+  if (known) return known[1];
+  return /^[a-z]{3}$/.test(typed) ? typed.toUpperCase() : null;
+}
+
 export function parseField(f: Pick<Field, "name" | "kind" | "options">, raw: string, errors: Record<string, string>): unknown {
   if (f.kind === "list") return raw ? raw.split(",").map((x) => x.trim()).filter(Boolean) : [];
   if (raw === "") return f.kind === "json" ? Prisma.DbNull : null;

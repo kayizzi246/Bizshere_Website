@@ -28,7 +28,7 @@
     "pesapal:ipn": "tsx --env-file=.env scripts/pesapal-ipn.ts",
     "admin:create": "tsx --env-file=.env scripts/create-admin.ts",
     "docs:db": "tsx scripts/data-dictionary.ts",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node scripts/copy-pdfjs.mjs",
     "theme:prime": "node scripts/prime-theme.mjs",
     "test": "node --test tests/regressions.cjs",
     "test:e2e": "node --env-file=.env tests/e2e.cjs"

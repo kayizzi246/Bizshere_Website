@@ -64,14 +64,16 @@ const nextConfig = {
       })),
       // The business plan PDF and guide PDFs are shown inside their pages, so only these paths may be
       // framed, and only by the site itself. Listed last: these values replace the ones above.
-      {
-        source: "/guides/:slug/file",
+      // The same for a tool's file, an expert's profile and a stored file (a supplier's catalogue),
+      // which can be read on the site before downloading (src/components/PdfViewer.tsx).
+      ...["/guides/:slug/file", "/tools/:slug/file", "/experts/:slug/file", "/api/files/:id"].map((source) => ({
+        source,
         headers: [
           { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'self'" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Cache-Control", value: "private, no-store" },
         ],
-      },
+      })),
       // Pesapal loads this inside the pop-up's iframe after payment (src/app/payments/return).
       {
         source: "/payments/return",

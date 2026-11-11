@@ -24,7 +24,7 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
 
   // Dark: plain text with an orange dot before each item (no chips). Light: chips.
   const chip = dark
-    ? "inline-flex shrink-0 items-center gap-2.5 px-3 py-1 text-[13px] font-medium text-white/80"
+    ? "inline-flex shrink-0 items-center gap-2.5 px-3 py-1 text-[13px] text-white/80"
     : "inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-page/70 px-3 py-1 text-[13px] text-ink-soft";
   const hover = dark ? "hover:text-white" : "hover:border-brand/40 hover:bg-white hover:text-ink";
   const items = (dup: boolean) =>
@@ -32,13 +32,13 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
       const body = (
         <>
           {u.live ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#FF0033] px-1.5 py-px text-[10px] font-bold tracking-wide text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#FF0033] px-1.5 py-px text-[10px] tracking-wide text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
           ) : dark ? (
             <span aria-hidden className="h-1 w-1 rotate-45 bg-accent" />
           ) : (
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
           )}
-          <span className={`${dark ? "decoration-white/40 underline-offset-4 group-hover:underline" : ""} ${u.live ? `font-semibold ${dark ? "text-white" : "text-ink"}` : ""}`}>{u.message}</span>
+          <span className={`${dark ? "decoration-white/40 underline-offset-4 group-hover:underline" : ""} ${u.live ? ` ${dark ? "text-white" : "text-ink"}` : ""}`}>{u.message}</span>
           {u.href ? <span aria-hidden className={`transition group-hover:translate-x-0.5 ${dark ? "text-white/50 group-hover:text-accent" : "text-ink-muted group-hover:text-brand"}`}>→</span> : null}
         </>
       );

@@ -1,7 +1,8 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowDown, ArrowLeft, BadgeCheck, Check, ClipboardList, Clock, ExternalLink, FileDown, LockKeyhole, Ruler, TrendingUp, Wallet } from "lucide-react";
+import { ArrowDown, ArrowLeft, BadgeCheck, Check, BookOpen, ClipboardList, Clock, FileDown, LockKeyhole, Ruler, TrendingUp, Wallet } from "lucide-react";
+import { PdfOpenButton, PdfReader } from "@/components/PdfViewer";
 import type { ScenarioLevel } from "@prisma/client";
 import { cachedMemberPlan } from "@/lib/cached";
 import { getIdea, moreIdeas, plansOf, requirementsPath } from "@/lib/ideas";
@@ -421,13 +422,12 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <div className="flex flex-wrap items-center justify-between gap-3">
               {head("plan-pdf", "The whole plan, with the steps to start, to keep or print.")}
               <span className="flex gap-2">
-                <a href={pdfPath} target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><ExternalLink aria-hidden className="h-3.5 w-3.5" />Open</a>
+                <PdfOpenButton file={pdfPath} download={pdfDownload} title={`${name} business plan`} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
                 <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
               </span>
             </div>
-            {/* Phones often can't show a PDF inside a page: they get the buttons above */}
-            <iframe src={`${pdfPath}#view=FitH`} title={`${name} business plan (PDF)`} loading="lazy" className="hidden h-[760px] w-full rounded-xl border border-line bg-page sm:block" />
-            <p className="text-[13px] text-ink-muted sm:hidden">Tap Open to read the plan, or Download to keep it.</p>
+            {/* Read on the page on a computer; phones open it in the full-screen reader (PdfViewer.tsx) */}
+            <PdfReader file={pdfPath} download={pdfDownload} title={`${name} business plan`} what="plan" />
             {gated ? <p className="text-[12px] text-ink-muted">This is the free preview. Members get the full plan with every budget size and step.</p> : null}
           </section>
           </div>

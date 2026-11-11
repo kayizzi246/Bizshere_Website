@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Check, Download, FileText, LockKeyhole } from "lucide-react";
+import { BookOpen, Check, Download, FileText, LockKeyhole } from "lucide-react";
+import { PdfOpenButton } from "./PdfViewer";
 
 /**
  * A downloadable guide, book, template or tool shown as a digital product: file type,
@@ -11,6 +12,8 @@ export type Product = {
   kind: string;
   title: string;
   href?: string | null;
+  /** A PDF's address on this site (…/file), for reading it here before downloading. Never set on a gated page. */
+  preview?: string | null;
   locked: boolean;
   /** File type badge; worked out from the link when not given. */
   format?: string | null;
@@ -34,10 +37,20 @@ export function ProductAction({ product, back, className = "" }: { product: Prod
     );
   }
   if (!product.href) return <p className="rounded-xl bg-page p-3 text-center text-xs text-ink-muted">The file is being prepared.</p>;
-  return (
-    <a href={product.href} target="_blank" rel="noopener noreferrer" download className={`${base} bg-accent text-ink hover:bg-brand-deep hover:text-white`}>
+  const download = (
+    <a href={product.preview ? `${product.preview}?download=1` : product.href} target="_blank" rel="noopener noreferrer" download className={`${base} bg-accent text-ink hover:bg-brand-deep hover:text-white`}>
       <Download aria-hidden className="h-4 w-4" />Download {productFormat(product)}
     </a>
+  );
+  if (!product.preview) return download;
+  // A PDF: read it on the site first, then download
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <PdfOpenButton file={product.preview} download={`${product.preview}?download=1`} title={product.title} className={`${base} border border-brand-deep bg-white text-brand-deep hover:bg-brand-deep hover:text-white`}>
+        <BookOpen aria-hidden className="h-4 w-4" />Read it here first
+      </PdfOpenButton>
+      {download}
+    </div>
   );
 }
 
