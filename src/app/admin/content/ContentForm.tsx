@@ -6,6 +6,7 @@ import { directoryFor, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES,
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import type { FormOptions } from "./load";
+import { NewSupplierProducts } from "./NewSupplierProducts";
 
 type Props = {
   type: ContentType;
@@ -33,6 +34,8 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const field = (f: Field) => <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} options={f.ref === "supplier" ? options.suppliers : undefined} />;
   const mainTitle = lb.main ?? MAIN;
   const linkAdvanced = dir.link?.advanced;
+  // A new supplier: their first products are typed right here and saved with the page
+  const newSupplier = type === "SUPPLIER" && !values.id;
   const advancedOpen = Boolean(err("slug") || err("relations") || (linkAdvanced && err(dir.link!.field)));
   // Section menu, in form order.
   const nav: [string, string][] = [
@@ -40,6 +43,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
     ...(dir.link && !linkAdvanced ? [["s-link", dir.link.label] as [string, string]] : []),
     ...(mainFields.length ? [[slug(MAIN), mainTitle] as [string, string]] : []),
     ...(providerFields.length ? [[slug(PROVIDER), "Provider"] as [string, string]] : []),
+    ...(newSupplier ? [["s-products", "Products"] as [string, string]] : []),
     ...(dir.children ?? []).map((c) => [slug(c.label), c.label] as [string, string]),
     ...extraGroups.map((g) => [slug(g), g] as [string, string]),
     ["s-publish", "Who can see it"],
@@ -92,6 +96,13 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
       {providerFields.length ? (
         <Section id={slug(PROVIDER)} title={PROVIDER} note="Shown to members under Where to buy. Link a supplier who is already on the site, or type the provider's details. Anything typed here is shown instead of the supplier's own.">
           <div className="flex flex-wrap gap-3.5">{providerFields.map(field)}</div>
+        </Section>
+      ) : null}
+
+      {newSupplier ? (
+        <Section id="s-products" title="Products they sell" note="Optional. Add their products now: a name is enough, the price, pack and photo can come later.">
+          {err("products") ? <p role="alert" className="text-sm font-semibold text-bad-fg">{err("products")}</p> : null}
+          <NewSupplierProducts />
         </Section>
       ) : null}
 

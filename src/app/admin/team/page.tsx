@@ -4,14 +4,15 @@ import { requireAdmin } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { date } from "@/lib/format";
 import { site } from "@/config/site";
-import { AREA_GROUPS, AREAS, areaLabel } from "@/lib/admin-areas";
+import { areaLabel } from "@/lib/admin-areas";
+import { AreaPicker } from "./AreaPicker";
 import { addSubAdmin, removeStaff, saveAreas, sendTestSms, setStaffPassword, setStaffSuspended, setStaffPhone, setSuperAdmin, signOutAllDevices } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin team" };
 
 const SAVED: Record<string, string> = {
-  added: "Added. We texted them an invitation. They log in with their number, get a code by SMS and choose their password.",
+  added: "Added. We texted them an invitation. They log in with their number, get a code by SMS and choose their password. Their card is open below.",
   "added-no-sms": "Added, but the invitation SMS could not be sent. Check SMS below, then tell them to log in with their number.",
   "added-password": "Added. Give them the sign-in address, their email or phone, and the password you set.",
   "sms-ok": "EgoSMS accepted the test SMS. If it doesn't arrive in a minute or two, the delay is on the EgoSMS or phone network side.",
@@ -34,7 +35,7 @@ const ERROR: Record<string, string> = {
   phone: "Enter a valid phone number, e.g. 0772 123 456.",
   contact: "Give an email or a phone number to sign in with.",
   exists: "That email and that phone belong to two different accounts. Use one of them.",
-  areas: "Tick at least one area.",
+  areas: "Choose what they may do: tap a quick choice, tick at least one area, or choose Everything.",
   self: "You can't change your own account here.",
   super: "Super admins open every area. Make them a sub-admin first to choose areas.",
   missing: "That account isn't on the team any more.",
@@ -55,54 +56,41 @@ export default async function TeamPage({ searchParams }: { searchParams: { why?:
   });
   const signIn = `${site.url.replace(/\/$/, "")}/admin`;
 
-  const Areas = ({ chosen }: { chosen: string[] }) => (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {AREA_GROUPS.map((g) => (
-        <fieldset key={g} className="flex flex-col gap-1.5 rounded-xl border border-line p-3">
-          <legend className="px-1 text-xs font-bold uppercase tracking-wide text-ink-muted">{g}</legend>
-          {AREAS.filter((a) => a.group === g).map((a) => (
-            <label key={a.key} className="flex items-start gap-2 text-[13px]">
-              <input type="checkbox" name="areas" value={a.key} defaultChecked={chosen.includes(a.key)} className="mt-0.5 h-4 w-4 shrink-0 accent-brand" />
-              <span className="flex flex-col"><span className="font-semibold text-ink">{a.label}</span>{a.help ? <span className="text-[12px] text-ink-muted">{a.help}</span> : null}</span>
-            </label>
-          ))}
-        </fieldset>
-      ))}
-    </div>
-  );
-
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-extrabold text-heading">Admin team</h1>
-          <p className="max-w-3xl text-sm text-ink-muted">Add sub-admins to manage parts of the site, for example only Business Ideas, or only Payments. They see and change only the areas you tick. They sign in at <strong>{signIn.replace(/^https?:\/\//, "")}</strong> with their email (or phone) and the password you set.</p>
+          <p className="max-w-3xl text-sm text-ink-muted">Add people to help run the site. Type their name and phone number, choose what they may do, and they get a text to sign in at <strong>{signIn.replace(/^https?:\/\//, "")}</strong>.</p>
         </div>
-        <Link href="/admin/team?add=1" className="btn-primary">+ Add a sub-admin</Link>
       </div>
       {searchParams.saved ? <p role="status" className="rounded-lg bg-brand-tint px-4 py-2.5 text-sm font-semibold text-brand-dark">{SAVED[searchParams.saved] ?? "Saved."}</p> : null}
       {searchParams.error && !searchParams.add ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.invalid}</p> : null}
 
-      {searchParams.add ? (
-        <form action={addSubAdmin} className="flex flex-col gap-4 rounded-2xl border-2 border-brand bg-surface p-5">
-          <div className="flex items-center justify-between gap-3">
-            <span className="flex flex-col gap-0.5"><h2 className="text-lg font-extrabold text-heading">Add a team member</h2><span className="text-sm text-ink-muted">Someone new, or a person who already has an account: enter their number and they become an admin. They set their own password by SMS.</span></span>
-            <Link href="/admin/team" aria-label="Close" className="text-xl text-ink">×</Link>
+      {/* Always on the page (client, 11 Nov 2026: adding an admin as easy as possible): who, then what they may do */}
+      <form action={addSubAdmin} className="flex flex-col gap-5 rounded-2xl border-2 border-brand/40 bg-surface p-5">
+        <h2 className="text-lg font-extrabold text-heading">Add a team member</h2>
+        {searchParams.error && searchParams.add ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.invalid}</p> : null}
+        <div className="flex flex-col gap-2">
+          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[13px] text-white">1</span>Who is it?</span>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="label">Their name<input name="name" autoComplete="off" placeholder="e.g. Sarah Namuli" className="input min-h-[48px]" /></label>
+            <label className="label">Their phone number<input name="phone" type="tel" autoComplete="off" placeholder="0772 123 456" className="input min-h-[48px]" /><span className="text-xs font-normal text-ink-muted">We text them an invitation. They choose their own password.</span></label>
           </div>
-          {searchParams.error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.invalid}</p> : null}
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <label className="label">Phone<input name="phone" type="tel" placeholder="0772 123 456" className="input" /></label>
-            <label className="label">Name (for someone new)<input name="name" className="input" /></label>
-            <label className="label">Email (optional)<input name="email" type="email" className="input" /></label>
-            <label className="label">Password (optional)<input name="password" type="text" autoComplete="off" placeholder="They choose their own" className="input" /></label>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-heading">What they may manage</span>
-            <Areas chosen={[]} />
-          </div>
-          <div className="flex justify-end gap-2"><Link href="/admin/team" className="btn-outline">Cancel</Link><button className="btn-primary">Add team member</button></div>
-        </form>
-      ) : null}
+          <details className="text-sm [&>summary::-webkit-details-marker]:hidden">
+            <summary className="cursor-pointer list-none font-semibold text-brand">+ No phone? Use an email and set a password instead</summary>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              <label className="label">Email<input name="email" type="email" autoComplete="off" className="input" /></label>
+              <label className="label">Password you set for them<input name="password" type="text" autoComplete="off" placeholder="Leave empty: they choose their own by SMS" className="input" /></label>
+            </div>
+          </details>
+        </div>
+        <div className="flex flex-col gap-2">
+          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[13px] text-white">2</span>What may they do?</span>
+          <AreaPicker chosen={[]} withSuper />
+        </div>
+        <button className="btn-primary min-h-[50px] w-full px-7 text-[15px] sm:w-fit">Add to the team</button>
+      </form>
 
       {searchParams.why ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{searchParams.why.slice(0, 200)}</p> : null}
       <form action={sendTestSms} className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-line bg-surface p-4">
@@ -111,6 +99,10 @@ export default async function TeamPage({ searchParams }: { searchParams: { why?:
         <button className="btn-outline min-h-[42px] px-4 text-sm">Send test SMS</button>
       </form>
 
+      <div className="flex flex-col gap-0.5">
+        <h2 className="text-lg font-extrabold text-heading">The team ({staff.length})</h2>
+        <p className="text-sm text-ink-muted">Tap a person to change what they may do, their phone or password, or to remove them.</p>
+      </div>
       <ul className="flex flex-col gap-3">
         {staff.map((u) => {
           const isMe = u.id === me.id;
@@ -153,8 +145,8 @@ export default async function TeamPage({ searchParams }: { searchParams: { why?:
                       {!isSuper ? (
                         <form action={saveAreas} className="flex flex-col gap-3">
                           <input type="hidden" name="id" value={u.id} />
-                          <Areas chosen={u.adminAreas} />
-                          <button className="btn-primary w-fit">Save areas</button>
+                          <AreaPicker chosen={u.adminAreas} />
+                          <button className="btn-primary w-fit">Save what they may do</button>
                         </form>
                       ) : null}
                       <div className="flex flex-wrap items-end gap-3 border-t border-line pt-4">

@@ -43,8 +43,11 @@ export async function addSubAdmin(form: FormData) {
   if (!email && !phone) back("add=1&error=contact");
   // Without a password they set their own by SMS, which needs a phone
   if (!phone && !d.password) back("add=1&error=needs-phone");
-  const areas = areasOf(form);
-  if (!areas.length) back("add=1&error=areas");
+  // "Everything" on the form: a super admin, who needs no areas
+  const superAdmin = form.get("access") === "super";
+  const role = superAdmin ? ("ADMIN" as const) : ("EDITOR" as const);
+  const areas = superAdmin ? [] : areasOf(form);
+  if (!superAdmin && !areas.length) back("add=1&error=areas");
 
   const [byPhone, byEmail] = await Promise.all([
     phone ? prisma.user.findUnique({ where: { phone } }) : null,
@@ -58,9 +61,9 @@ export async function addSubAdmin(form: FormData) {
   // Someone with an account keeps it. Their old password or seller PIN is cleared: an admin chooses a new one.
   const passwordHash = d.password ? await bcrypt.hash(d.password, 10) : null;
   const user = existing
-    ? await prisma.user.update({ where: { id: existing.id }, data: { role: "EDITOR", adminAreas: areas, passwordHash, pinMustChange: false, phone: existing.phone ?? phone, email: existing.email ?? email } })
-    : await prisma.user.create({ data: { name: d.name, email, phone, role: "EDITOR", adminAreas: areas, passwordHash } });
-  await audit(admin.id, existing ? "staff.promoted" : "staff.added", "user", user.id, { areas });
+    ? await prisma.user.update({ where: { id: existing.id }, data: { role, adminAreas: areas, passwordHash, pinMustChange: false, phone: existing.phone ?? phone, email: existing.email ?? email } })
+    : await prisma.user.create({ data: { name: d.name, email, phone, role, adminAreas: areas, passwordHash } });
+  await audit(admin.id, existing ? "staff.promoted" : "staff.added", "user", user.id, { areas, role });
 
   revalidatePath("/admin/team");
   if (d.password) back(`saved=added-password&user=${user.id}`);

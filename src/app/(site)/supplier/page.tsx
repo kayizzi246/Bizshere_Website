@@ -21,7 +21,7 @@ const NOTICE: Record<string, string> = {
   password: "Your PIN is changed.",
   photo: "Your photo is saved.",
   details: "Your details are saved and show on your page.",
-  added: "Product sent. It will show on your page once our team approves it.",
+  added: "Product added. It will show on your page once our team approves it. You can add another one below.",
   updated: "Changes sent. The product shows again once our team approves them.",
   deleted: "Product removed.",
 };
@@ -30,7 +30,7 @@ const ERROR: Record<string, string> = {
   access: "You can only change your own listing.",
   photo: "Use the Upload button, or an address starting with https://.",
   details: "Check your details: the email must be valid, and the website must start with https://.",
-  product: "Check the product: it needs a name, and prices must be numbers.",
+  product: "Not saved. The product needs a name, and the price must be a number, e.g. 150,000.",
 };
 
 // What each product status means to a seller, in plain words.
@@ -126,12 +126,16 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
               <p className="-mt-2 text-[13px] text-ink-muted">How it works: add a product → our team checks it → it shows on your page. Changing a product sends it for checking again.</p>
 
               {/* ── Add a product ── */}
-              <details className="group rounded-2xl border border-line bg-white p-4" open={s.listings.length === 0}>
-                <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-brand [&::-webkit-details-marker]:hidden">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-4 w-4" /></span>Add a product
-                </summary>
-                <ProductForm supplierId={s.id} input={input} label={label} />
-              </details>
+              {/* Always open (not while another product is being edited): it is the main thing a seller does here */}
+              {editing ? null : (
+                <section id="add-product" className="scroll-mt-24 rounded-2xl border-2 border-brand/30 bg-white p-4 sm:p-6">
+                  <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-heading">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-5 w-5" /></span>Add a product
+                  </h2>
+                  <p className="mt-1 text-[13px] text-ink-muted">Three quick questions. Only the name is needed.</p>
+                  <ProductForm supplierId={s.id} input={input} label={label} />
+                </section>
+              )}
 
               {/* ── My products ── */}
               <div className="flex flex-col gap-2">
@@ -208,24 +212,49 @@ function ProductForm({ supplierId, product, input, label }: {
   input: string;
   label: string;
 }) {
-  const num = (v: unknown) => (v === null || v === undefined ? "" : String(v));
+  const num = (v: unknown) => (v === null || v === undefined ? "" : String(Number(v)));
+  // Three plain questions, numbered, with big boxes; everything else folds away under "More details".
+  // Only the name is needed (client, 11 Nov 2026: as easy as possible for the supplier).
+  const step = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[13px] font-bold text-white";
+  const question = "flex items-center gap-2 font-display text-[15px] font-bold text-heading";
+  const big = `${input} min-h-[52px] text-[16px]`;
+  const more = Boolean(product && (product.priceMax !== null || product.unit || product.minimumOrderQuantity !== null || product.availability || product.specifications));
   return (
-    <form action={saveProduct} className="mt-3 grid gap-3 sm:grid-cols-2">
+    <form action={saveProduct} className="mt-4 flex flex-col gap-5">
       <input type="hidden" name="supplierId" value={supplierId} />
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
-      <label className={`${label} sm:col-span-2`}>Product name<input name="productName" required defaultValue={product?.productName} className={input} /></label>
-      <label className={`${label} sm:col-span-2`}>Photo
-        <input name="imageUrl" defaultValue={product?.imageUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
+
+      <label className="flex flex-col gap-2">
+        <span className={question}><span className={step}>1</span>What is the product called?</span>
+        <input name="productName" required minLength={2} maxLength={120} defaultValue={product?.productName} placeholder="e.g. Wheat flour 50 kg" className={big} />
       </label>
-      <div className="sm:col-span-2"><UploadButton target="imageUrl" kind="image" /></div>
-      <label className={label}>Price from (UGX)<input name="priceMin" inputMode="numeric" defaultValue={num(product?.priceMin)} className={input} /></label>
-      <label className={label}>Price to (UGX, optional)<input name="priceMax" inputMode="numeric" defaultValue={num(product?.priceMax)} className={input} /></label>
-      <label className={label}>Package unit<input name="unit" placeholder="e.g. piece, 50 kg bag" defaultValue={product?.unit ?? ""} className={input} /></label>
-      <label className={label}>Min order<input name="minimumOrderQuantity" inputMode="numeric" defaultValue={num(product?.minimumOrderQuantity)} className={input} /></label>
-      <label className={label}>Availability<input name="availability" placeholder="e.g. In stock, 2 weeks" defaultValue={product?.availability ?? ""} className={input} /></label>
-      <label className={`${label} sm:col-span-2`}>Description<textarea name="specifications" rows={3} defaultValue={product?.specifications ?? ""} className="input w-full py-2 text-[14px]" /></label>
-      <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">{product ? "Save and send for approval" : "Send for approval"}</button>
+
+      <div className="flex flex-col gap-2">
+        <span className={question}><span className={step}>2</span>Add a photo <span className="font-sans text-[13px] font-normal text-ink-muted">(buyers look at photos first)</span></span>
+        <UploadButton target="imageUrl" kind="image" />
+        <input name="imageUrl" defaultValue={product?.imageUrl ?? ""} placeholder="The photo's address is filled in here after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
+      </div>
+
+      <label className="flex flex-col gap-2">
+        <span className={question}><span className={step}>3</span>What is the price? <span className="font-sans text-[13px] font-normal text-ink-muted">(in UGX; leave empty if it changes)</span></span>
+        <input name="priceMin" inputMode="numeric" defaultValue={num(product?.priceMin)} placeholder="e.g. 150,000" className={big} />
+      </label>
+
+      <details open={more} className="rounded-xl bg-page p-3 [&>summary::-webkit-details-marker]:hidden">
+        <summary className="cursor-pointer list-none text-[14px] font-semibold text-brand">+ More details (optional): pack size, minimum order, description</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label className={label}>Pack or unit<input name="unit" placeholder="e.g. piece, 50 kg bag" defaultValue={product?.unit ?? ""} className={input} /></label>
+          <label className={label}>Smallest order<input name="minimumOrderQuantity" inputMode="numeric" placeholder="e.g. 10" defaultValue={num(product?.minimumOrderQuantity)} className={input} /></label>
+          <label className={label}>Highest price, if the price is a range (UGX)<input name="priceMax" inputMode="numeric" defaultValue={num(product?.priceMax)} className={input} /></label>
+          <label className={label}>Is it in stock?<input name="availability" placeholder="e.g. In stock, 2 weeks" defaultValue={product?.availability ?? ""} className={input} /></label>
+          <label className={`${label} sm:col-span-2`}>Description<textarea name="specifications" rows={3} placeholder="Size, colour, brand, anything a buyer should know" defaultValue={product?.specifications ?? ""} className="input w-full py-2 text-[14px]" /></label>
+        </div>
+      </details>
+
+      <div className="flex flex-col gap-1.5">
+        <button className="btn-primary min-h-[52px] w-full px-6 text-[16px] sm:w-fit">{product ? "Save changes" : "Add this product"}</button>
+        <span className="text-[12px] text-ink-muted">Our team checks it, then it shows on your page.</span>
+      </div>
     </form>
   );
 }
-

@@ -40,7 +40,8 @@ const refresh = (slug: string) => { revalidatePath("/supplier"); revalidatePath(
 
 // Photos: an uploaded file (/uploads/…) or an https address. Nothing else.
 const photo = z.string().trim().max(1000).refine((v) => v === "" || v.startsWith("/uploads/") || /^https:\/\//.test(v), "Use the Upload button or an https address.");
-const money = z.string().trim().max(20).transform((v) => (v === "" ? null : Number(v.replace(/[,\s]/g, "")))).refine((v) => v === null || (Number.isFinite(v) && v >= 0), "Enter a number");
+// A price as people type it: "5000", "5,000", "UGX 5,000", "5000/=". Empty means not given.
+const money = z.string().trim().max(30).transform((v) => { if (v === "") return null; const n = v.match(/\d[\d,]*(?:\.\d+)?/g); return n?.length === 1 ? Number(n[0].replace(/,/g, "")) : NaN; }).refine((v) => v === null || (Number.isFinite(v) && v >= 0), "Enter a number");
 const text = (max: number) => z.string().trim().max(max).transform((v) => v || null);
 
 export async function saveSupplierPhoto(form: FormData) {

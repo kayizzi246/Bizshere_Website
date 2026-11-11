@@ -161,6 +161,21 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     else errors[c.name] = "Required";
   }
 
+  // A new supplier's first products, typed on the same form (NewSupplierProducts.tsx): rows with no name are skipped
+  const firstProducts: { productName: string; priceMin: Prisma.Decimal | null; unit: string | null; imageUrl: string | null }[] = [];
+  if (type === "SUPPLIER" && !id) {
+    const col = (k: string) => form.getAll(k).map((v) => String(v).trim());
+    const [names, prices, units, images] = [col("np_name"), col("np_price"), col("np_unit"), col("np_image")];
+    names.slice(0, 100).forEach((productName, n) => {
+      if (!productName) return;
+      const problems: Record<string, string> = {};
+      const priceMin = prices[n] ? (parseField({ name: "price", kind: "decimal" }, looseNumber(prices[n]), problems) as Prisma.Decimal | null) : null;
+      if (problems.price) errors.products = `"${productName}": the price must be a number, e.g. 5000. Leave it empty if you don't know it.`;
+      const image = images[n] && /^(https:\/\/|\/uploads\/)/.test(images[n]) ? images[n] : null;
+      firstProducts.push({ productName: productName.slice(0, 200), priceMin, unit: units[n]?.slice(0, 100) || null, imageUrl: image });
+    });
+  }
+
   const relationRows = lines(str(form.get("relations"))).map((r) => r.split(/\s+/));
   for (const [rel] of relationRows) if (!(RELATIONSHIP_TYPES as readonly string[]).includes(rel)) errors.relations = `Unknown relationship "${rel}"`;
   const relSlugs = relationRows.map(([, s]) => s).filter(Boolean);
@@ -221,6 +236,10 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
       const place = await tx.organizationLocation.findFirst({ where: { organizationId }, orderBy: { isPrimary: "desc" } });
       if (place) await tx.organizationLocation.update({ where: { id: place.id }, data: { physicalAddress } });
       else if (physicalAddress) await tx.organizationLocation.create({ data: { organizationId, physicalAddress, isPrimary: true } });
+    }
+
+    if (firstProducts.length) {
+      await tx.supplierProductListing.createMany({ data: firstProducts.map((p) => ({ ...p, supplierId: record.id, status: "PUBLISHED" as const, quotedAt: p.priceMin ? now : null })) });
     }
 
     // The funder's details: on a new fund, only what was typed (a funder chosen from the list keeps what it
@@ -286,5 +305,5 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   await audit(editor.id, id ? "content.updated" : "content.created", "content_item", itemId, { type, status });
   revalidatePath("/admin/content");
   revalidateTag(SITE_DATA);
-  redirect(`/admin/content/${itemId}?saved=1`);
+  redirect(`/admin/content/${itemId}?saved=1${type === "SUPPLIER" && !id ? "#products" : ""}`);
 }
