@@ -86,6 +86,8 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
       return;
     }
     if (isMember) return;
+    // data-open: a link that must simply open, e.g. "See my page" on a seller or expert dashboard (their own page)
+    if (a.hasAttribute("data-open")) return;
     if (paths && a.hasAttribute("data-pay")) {
       e.preventDefault();
       openAt(target ?? "/business-ideas", asPeriod(a.dataset.period), false);

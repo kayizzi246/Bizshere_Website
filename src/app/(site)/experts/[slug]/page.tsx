@@ -32,7 +32,8 @@ export const dynamic = "force-dynamic";
 export default async function ExpertPage({ params }: { params: { slug: string } }) {
   const viewer = await getViewer();
   const item = await prisma.contentItem.findFirst({
-    where: { slug: params.slug, contentType: "CONSULTANT", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
+    // Published pages for everyone; staff see drafts; an expert also sees their own page before it is approved
+    where: { slug: params.slug, contentType: "CONSULTANT", ...(viewer.isStaff ? {} : viewer.userId ? { OR: [{ publicationStatus: "PUBLISHED" as const }, { consultant: { ownerId: viewer.userId } }] } : { publicationStatus: "PUBLISHED" as const }) },
     include: {
       primaryCategory: true,
       consultant: {
@@ -93,6 +94,9 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article>
+        {item.publicationStatus !== "PUBLISHED" ? (
+          <p role="status" className="bg-accent px-4 py-3 text-center text-[14px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/expert" className="underline">Back to my dashboard</Link></p>
+        ) : null}
         {/* ── Who they are, and what they do ── */}
         <header className="under-header hero-glow hero-still bg-navy text-white">
           <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">

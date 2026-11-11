@@ -31,7 +31,9 @@ export const dynamic = "force-dynamic";
 export default async function SupplierPage({ params }: { params: { slug: string } }) {
   const viewer = await getViewer();
   const item = await prisma.contentItem.findFirst({
-    where: { slug: params.slug, contentType: "SUPPLIER", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
+    // Published pages for everyone; staff see drafts; a seller also sees their own page before it is approved
+    // ("See my page" on their dashboard gave a 404 for a seller who had just joined, 11 Nov 2026).
+    where: { slug: params.slug, contentType: "SUPPLIER", ...(viewer.isStaff ? {} : viewer.userId ? { OR: [{ publicationStatus: "PUBLISHED" as const }, { supplier: { organization: { members: { some: { userId: viewer.userId } } } } }] } : { publicationStatus: "PUBLISHED" as const }) },
     include: {
       primaryCategory: true,
       media: { where: { mediaType: "document" }, orderBy: { displayOrder: "asc" }, take: 1, include: { versions: { where: { isCurrent: true }, take: 1 } } },
@@ -83,6 +85,9 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article>
+        {item.publicationStatus !== "PUBLISHED" ? (
+          <p role="status" className="bg-accent px-4 py-3 text-center text-[14px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/supplier" className="underline">Back to my dashboard</Link></p>
+        ) : null}
         {/* ── Shop banner ── */}
         <header className="under-header hero-glow bg-navy text-white">
           <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">

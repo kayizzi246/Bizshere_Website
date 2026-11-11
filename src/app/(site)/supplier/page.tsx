@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CheckCircle2, Clock, ExternalLink, Package, Plus, Settings, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, ImageIcon, KeyRound, Package, Pencil, Plus, Store, XCircle } from "lucide-react";
+import { DashCard, DashHero, DashNotice, DashSteps } from "@/components/PartnerDash";
+import { moneyRange } from "@/lib/format";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ConfirmButton } from "@/components/ConfirmButton";
-import { ProductTable } from "@/components/ProductTable";
 import { UploadButton } from "@/components/UploadButton";
 import { ProductPhotos } from "@/components/ProductPhotos";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -40,9 +41,12 @@ const STATUS = {
   IN_REVIEW: { label: "Waiting for approval", cls: "bg-accent-tint text-accent-dark", Icon: Clock },
   ARCHIVED: { label: "Not approved", cls: "bg-bad-bg text-bad-fg", Icon: XCircle },
 } as const;
-const STATUS_LABELS = { PUBLISHED: STATUS.PUBLISHED.label, IN_REVIEW: STATUS.IN_REVIEW.label, DRAFT: "Draft", ARCHIVED: STATUS.ARCHIVED.label };
 
 /**
+ * Redesigned on 11 Nov 2026 (client: premium and very easy): a dark header with the seller's numbers
+ * (PartnerDash), how it works in three steps, then two columns: products on the left (add one, see and
+ * change them), the business details, main photo and PIN on the right.
+ *
  * Seller dashboard (/supplier): a seller signs in at /suppliers/login with their phone and PIN.
  * They add products (shown once the team approves them at /admin/seller-products), see each
  * product's status, and change their photo and PIN. Access comes from the admin linking their
@@ -59,7 +63,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
   if ((await partnerAccess(session.user.id, "supplier")).mustPay) redirect("/suppliers/join");
   const suppliers = await prisma.supplier.findMany({
     where: { organization: { members: { some: { userId: session.user.id } } } },
-    include: { contentItem: { select: { title: true, slug: true } }, listings: { orderBy: { createdAt: "desc" } }, organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } },
+    include: { contentItem: { select: { title: true, slug: true, publicationStatus: true } }, listings: { orderBy: { createdAt: "desc" } }, organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } },
   });
 
   const input = "input min-h-[44px] w-full text-[14px]";
@@ -83,126 +87,113 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
   }
 
   return (
-    <div className="bg-page">
-      <div className="container-site flex flex-col gap-5 py-5 sm:py-7">
-        {searchParams.saved && NOTICE[searchParams.saved] ? <p role="status" className="rounded-xl bg-brand-tint px-4 py-3 text-sm font-semibold text-brand-dark">{NOTICE[searchParams.saved]}</p> : null}
-        {searchParams.error && ERROR[searchParams.error] ? <p role="alert" className="rounded-xl bg-bad-bg px-4 py-3 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error]}</p> : null}
+    <div className="bg-[#F1F4F8]">
+      {suppliers.map((s) => {
+        const name = s.contentItem.title.replace(/^Sample:\s*/i, "");
+        const count = (st: string) => s.listings.filter((l) => l.status === st).length;
+        const editing = s.listings.find((l) => l.id === searchParams.edit);
+        return (
+          <div key={s.id}>
+            <DashHero kind="Supplier dashboard" name={name} sub={s.country} photo={s.pictureUrl} Fallback={Package} viewHref={`/suppliers/${s.contentItem.slug}`}
+              signOut={<span className="w-32"><SignOutButton to="/supplier" className="border border-white/25 bg-white/10 text-white hover:bg-white/20" /></span>}
+              stats={[
+                { label: "Products on your page", value: count("PUBLISHED"), Icon: CheckCircle2, tone: "bg-[#1F7A4D] text-white" },
+                { label: "Waiting for our check", value: count("IN_REVIEW"), Icon: Clock, tone: "bg-accent text-ink" },
+                { label: "Not approved", value: count("ARCHIVED"), Icon: XCircle, tone: "bg-white/15 text-white" },
+              ]} />
 
-        {suppliers.map((s) => {
-          const name = s.contentItem.title.replace(/^Sample:\s*/i, "");
-          const count = (st: string) => s.listings.filter((l) => l.status === st).length;
-          const editing = s.listings.find((l) => l.id === searchParams.edit);
-          return (
-            <section key={s.id} className="flex flex-col gap-5">
-              {/* ── Who and where ── */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-                    {s.pictureUrl ? <img src={s.pictureUrl} alt="" className="h-full w-full object-cover" /> : <Package aria-hidden className="h-6 w-6 text-brand/40" />}
-                  </span>
-                  <span className="flex flex-col">
-                    <span className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">Supplier dashboard</span>
-                    <h1 className="font-display text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-heading sm:text-[28px]">{name}</h1>
-                  </span>
+            <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-8">
+              <DashNotice ok={searchParams.saved ? NOTICE[searchParams.saved] : undefined} bad={searchParams.error ? ERROR[searchParams.error] : undefined} />
+              {s.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[15px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your products now, and use &quot;See my page&quot; to see how it will look.</p> : null}
+              <DashSteps steps={[["Add a product", "Its name, a few photos and the price."], ["We check it", "Our team looks at it, usually the same day."], ["Buyers see it", "It shows on your page and they call you."]]} />
+
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
+                {/* ── The main job: products ── */}
+                <div className="flex min-w-0 flex-col gap-5 lg:gap-6">
+                  {editing ? (
+                    <DashCard id="edit-product" Icon={Pencil} strong title={`Change ${editing.productName}`} note="Save it and our team checks it again.">
+                      <Link href="/supplier" className="-mt-2 w-fit text-[14px] font-semibold">← Cancel, go back</Link>
+                      <ProductForm supplierId={s.id} product={editing} input={input} label={label} />
+                    </DashCard>
+                  ) : (
+                    <DashCard id="add-product" Icon={Plus} strong title="Add a product" note="Three quick questions. Only the name is needed.">
+                      <ProductForm supplierId={s.id} input={input} label={label} />
+                    </DashCard>
+                  )}
+
+                  <DashCard Icon={Package} title={`My products (${s.listings.length})`} note={s.listings.length ? "Tap Change to edit one, or Remove to take it off your page." : undefined}>
+                    {s.listings.length === 0 ? (
+                      <p className="rounded-2xl bg-page p-6 text-center text-[14px] text-ink-muted">You have no products yet. Add your first one above: it takes a minute.</p>
+                    ) : (
+                      <ul className="flex flex-col gap-2.5">
+                        {s.listings.map((p) => {
+                          const st = STATUS[(p.status in STATUS ? p.status : "IN_REVIEW") as keyof typeof STATUS];
+                          const hasPrice = p.priceMin !== null || p.priceMax !== null;
+                          return (
+                            <li key={p.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-line p-3">
+                              <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white">
+                                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
+                                {p.imageUrl ? <img src={p.imageUrl} alt="" loading="lazy" className="h-full w-full object-contain" /> : <Package aria-hidden className="h-6 w-6 text-brand/40" />}
+                                {p.moreImages.length ? <span className="absolute bottom-0.5 right-0.5 rounded-full bg-black/70 px-1.5 text-[10px] font-bold text-white">+{p.moreImages.length}</span> : null}
+                              </span>
+                              <span className="flex min-w-0 flex-1 flex-col gap-1">
+                                <span className="truncate font-display text-[15px] font-bold text-heading">{p.productName}</span>
+                                <span className="text-[13px] text-ink-soft">{hasPrice ? moneyRange(p.priceMin, p.priceMax, p.currency) : "No price"}{p.unit ? ` · ${p.unit}` : ""}</span>
+                                <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${st.cls}`}><st.Icon aria-hidden className="h-3 w-3" />{st.label}</span>
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <Link href={`/supplier?edit=${p.id}#edit-product`} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><Pencil aria-hidden className="h-3.5 w-3.5" />Change</Link>
+                                <form>
+                                  <input type="hidden" name="supplierId" value={s.id} /><input type="hidden" name="id" value={p.id} />
+                                  <ConfirmButton action={deleteProduct} title={`Remove ${p.productName}?`} message="It comes off your page and from this list. This cannot be undone." plain className="h-10">Remove</ConfirmButton>
+                                </form>
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </DashCard>
                 </div>
-                <span className="flex items-center gap-2">
-                  <Link href={`/suppliers/${s.contentItem.slug}`} className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-heading hover:border-brand hover:text-brand"><ExternalLink aria-hidden className="h-4 w-4" />View my page</Link>
-                  {signOut}
-                </span>
-              </div>
 
-              {/* ── At a glance ── */}
-              <ul className="grid grid-cols-3 gap-2 sm:gap-3">
-                {(["PUBLISHED", "IN_REVIEW", "ARCHIVED"] as const).map((st) => {
-                  const { label: l, cls, Icon } = STATUS[st];
-                  return (
-                    <li key={st} className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-3 sm:p-4">
-                      <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold sm:text-[12px] ${cls}`}><Icon aria-hidden className="h-3.5 w-3.5" />{l}</span>
-                      <span className="font-display text-[26px] font-extrabold text-heading">{count(st)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className="-mt-2 text-[13px] text-ink-muted">How it works: add a product → our team checks it → it shows on your page. Changing a product sends it for checking again.</p>
+                {/* ── About the business: rarely changed, so it sits to the side ── */}
+                <div className="flex min-w-0 flex-col gap-5 lg:gap-6">
+                  <DashCard Icon={Store} title="My business details" note="Shown at the top of your page. Phone and email are for members only.">
+                    <form action={saveSupplierDetails} className="grid gap-3">
+                      <input type="hidden" name="supplierId" value={s.id} />
+                      <label className={label}>Where are you? (address)<input name="address" defaultValue={s.organization.locations[0]?.physicalAddress ?? ""} placeholder="e.g. Shop 12, Kikuubo Lane, Kampala" className={input} /></label>
+                      <label className={label}>Phone buyers call<input name="phone" type="tel" defaultValue={s.phone ?? ""} placeholder="0772 123 456" className={input} /></label>
+                      <label className={label}>Email (if you have one)<input name="email" type="email" defaultValue={s.email ?? ""} className={input} /></label>
+                      <label className={label}>Country<input name="country" defaultValue={s.country ?? ""} className={input} /></label>
+                      <label className={label}>Website (if you have one)<input name="website" type="url" defaultValue={s.website ?? ""} placeholder="https://" className={input} /></label>
+                      <button className="btn-primary min-h-[48px] w-full px-5 text-[15px]">Save my details</button>
+                    </form>
+                  </DashCard>
 
-              {/* ── Add a product ── */}
-              {/* Always open (not while another product is being edited): it is the main thing a seller does here */}
-              {editing ? null : (
-                <section id="add-product" className="scroll-mt-24 rounded-2xl border-2 border-brand/30 bg-white p-4 sm:p-6">
-                  <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-heading">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"><Plus aria-hidden className="h-5 w-5" /></span>Add a product
-                  </h2>
-                  <p className="mt-1 text-[13px] text-ink-muted">Three quick questions. Only the name is needed.</p>
-                  <ProductForm supplierId={s.id} input={input} label={label} />
-                </section>
-              )}
+                  <DashCard Icon={ImageIcon} title="My main photo" note="Your shop front, your products or your logo.">
+                    <form action={saveSupplierPhoto} className="flex flex-col gap-3">
+                      <input type="hidden" name="supplierId" value={s.id} />
+                      <UploadButton target="pictureUrl" kind="image" />
+                      <input name="pictureUrl" defaultValue={s.pictureUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
+                      <button className="btn-primary min-h-[48px] w-full px-5 text-[15px]">Save photo</button>
+                    </form>
+                  </DashCard>
 
-              {/* ── My products ── */}
-              <div className="flex flex-col gap-2">
-                <h2 className="font-display text-lg font-extrabold text-heading">My products ({s.listings.length})</h2>
-                {s.listings.length === 0 ? <p className="text-sm text-ink-muted">No products yet. Add your first one above.</p> : (
-                  <ProductTable rows={s.listings} statusLabels={STATUS_LABELS} actions={(p) => (
-                    <>
-                      <Link href={`/supplier?edit=${p.id}#edit-product`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand">Edit</Link>
-                      <form>
-                        <input type="hidden" name="supplierId" value={s.id} /><input type="hidden" name="id" value={p.id} />
-                        <ConfirmButton action={deleteProduct} title={`Remove ${p.productName}?`} message="It comes off your page and from this list. This cannot be undone." plain className="h-9">Remove</ConfirmButton>
-                      </form>
-                    </>
-                  )} />
-                )}
-                <p className="text-[12px] text-ink-muted sm:hidden">Swipe the table sideways to see everything.</p>
-              </div>
-
-              {editing ? (
-                <section id="edit-product" className="scroll-mt-24 rounded-2xl border border-brand/40 bg-white p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-display text-base font-extrabold text-heading">Edit {editing.productName}</h2>
-                    <Link href="/supplier" className="text-sm font-semibold">Cancel</Link>
-                  </div>
-                  <ProductForm supplierId={s.id} product={editing} input={input} label={label} />
-                </section>
-              ) : null}
-
-              {/* ── My details: the top of my page ── */}
-              <details className="rounded-2xl border border-line bg-white p-4" open={!s.email && !s.website}>
-                <summary className="flex cursor-pointer list-none items-center gap-2 font-display text-base font-extrabold text-heading [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4 text-brand" />My details</summary>
-                <form action={saveSupplierDetails} className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <input type="hidden" name="supplierId" value={s.id} />
-                  <label className={`${label} sm:col-span-2`}>Address<input name="address" defaultValue={s.organization.locations[0]?.physicalAddress ?? ""} className={input} /></label>
-                  <label className={label}>Phone (members only)<input name="phone" type="tel" defaultValue={s.phone ?? ""} className={input} /></label>
-                  <label className={label}>Email (members only)<input name="email" type="email" defaultValue={s.email ?? ""} className={input} /></label>
-                  <label className={label}>Country<input name="country" defaultValue={s.country ?? ""} className={input} /></label>
-                  <label className={label}>Website<input name="website" type="url" defaultValue={s.website ?? ""} placeholder="https://" className={input} /></label>
-                  <button className="btn-primary min-h-[44px] px-5 text-sm sm:col-span-2 sm:w-fit">Save my details</button>
-                </form>
-              </details>
-
-              {/* ── Settings: photo and PIN, out of the way ── */}
-              <details className="rounded-2xl border border-line bg-white p-4">
-                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-ink-soft [&::-webkit-details-marker]:hidden"><Settings aria-hidden className="h-4 w-4" />Settings: my photo and PIN</summary>
-                <div className="mt-4 grid gap-6 md:grid-cols-2">
-                  <form action={saveSupplierPhoto} className="flex flex-col gap-2">
-                    <input type="hidden" name="supplierId" value={s.id} />
-                    <label className={label}>Main photo (shop front, products or logo)
-                      <input name="pictureUrl" defaultValue={s.pictureUrl ?? ""} placeholder="Upload, or paste an https:// address" className={input} />
-                    </label>
-                    <UploadButton target="pictureUrl" kind="image" />
-                    <button className="btn-primary min-h-[40px] w-fit px-4 text-sm">Save photo</button>
-                  </form>
-                  <form action={changeMyPin} className="flex flex-col gap-2">
-                    <input type="hidden" name="back" value="/supplier" />
-                    <label className={label}>New 4-digit PIN<input name="password" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
-                    <label className={label}>Repeat it<input name="confirm" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
-                    <button className="btn-primary min-h-[40px] w-fit px-4 text-sm">Change PIN</button>
-                  </form>
+                  <details className="rounded-3xl border border-line bg-white p-5 [&>summary::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer list-none items-center gap-3 font-display text-[16px] font-bold text-heading"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-page text-ink-soft"><KeyRound aria-hidden className="h-5 w-5" /></span>Change my PIN</summary>
+                    <form action={changeMyPin} className="mt-4 flex flex-col gap-3">
+                      <input type="hidden" name="back" value="/supplier" />
+                      <label className={label}>New 4-digit PIN<input name="password" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
+                      <label className={label}>Type it again<input name="confirm" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
+                      <button className="btn-outline min-h-[46px] w-full px-4 text-sm">Change PIN</button>
+                    </form>
+                  </details>
                 </div>
-              </details>
-            </section>
-          );
-        })}
-      </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
