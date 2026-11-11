@@ -24,13 +24,24 @@ const isFile = (href: string) => /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(href);
  * view on tap. Photos and videos share the slot: a video plays right there (YouTube in its player,
  * video files with the browser's controls), never on another page. Without any photo it shows a
  * plain panel with the directory icon.
+ *
+ * `shop` (supplier products; client, 11 Nov 2026: "show images well, like an e-commerce site"): a square
+ * white slot where the whole photo shows (nothing cropped), thumbnails in a column beside it on wide
+ * screens, and a close-up that follows the mouse when pointing at the photo.
  */
-export function ProductGallery({ images, videos = [], icon }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string }) {
+export function ProductGallery({ images, videos = [], icon, shop = false }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string; shop?: boolean }) {
   const slides: Slide[] = [...images.map((i) => ({ kind: "image" as const, ...i })), ...videos.map((v) => ({ kind: "video" as const, ...v }))];
   const [current, setCurrent] = useState(0);
   const [full, setFull] = useState(false);
   const shown = slides[current];
   const many = slides.length > 1;
+  // Shop close-up: where the mouse is on the photo, as a percentage (null when not pointing at it)
+  const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (!shop || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
+  };
   const go = useCallback((step: number) => setCurrent((c) => (c + step + slides.length) % slides.length), [slides.length]);
 
   // Swipe left or right on the main photo (phones)
@@ -65,17 +76,20 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      <figure className="flex flex-col gap-1.5">
+    <div className={shop ? "flex flex-col gap-3 md:flex-row-reverse md:items-start" : "flex flex-col gap-3"}>
+      <figure className={`flex flex-col gap-1.5 ${shop ? "min-w-0 md:flex-1" : ""}`}>
         <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-          className="group relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-line bg-page">
+          className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border border-line ${shop ? "aspect-square bg-white" : "aspect-[4/3] bg-page"}`}>
           {!shown ? (
             <Icon name={icon} className="h-16 w-16 text-brand/40" strokeWidth={1.25} />
           ) : shown.kind === "image" ? (
-            <button type="button" onClick={() => setFull(true)} aria-label="View photo full screen" className="absolute inset-0 cursor-zoom-in">
+            <button type="button" onClick={() => setFull(true)} aria-label="View photo full screen" className="absolute inset-0 cursor-zoom-in"
+              onMouseMove={onMove} onMouseLeave={() => setZoom(null)}>
               {/* Editor-entered addresses; no Next image domain list to maintain. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img key={shown.src} src={shown.src} alt={shown.alt} className="gallery-fade h-full w-full object-cover" />
+              <img key={shown.src} src={shown.src} alt={shown.alt}
+                style={zoom ? { transform: "scale(2)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
+                className={`gallery-fade h-full w-full ${shop ? "object-contain p-3 transition-transform duration-150 sm:p-5" : "object-cover"}`} />
             </button>
           ) : shown.youtubeId ? (
             <div key={shown.href} className="absolute inset-0 bg-black"><YouTubePlayer id={shown.youtubeId} title={shown.label} live={false} /></div>
@@ -92,15 +106,15 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
 
           {shown?.kind === "image" ? (
             <>
-              <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+              {shop ? null : <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />}
               {shown.label ? (
                 shown.href ? (
                   <Link href={shown.href} className="absolute bottom-3 left-3 z-10 inline-flex max-w-[70%] items-center gap-1 truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading hover:text-brand">{shown.label} <span aria-hidden>→</span></Link>
                 ) : <span className="absolute bottom-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-white/95 px-3 py-1.5 text-[12px] font-bold text-heading">{shown.label}</span>
               ) : null}
               <span className="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-1.5">
-                {many ? <span className="rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">{current + 1} / {slides.length}</span> : null}
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white"><Expand aria-hidden className="h-3.5 w-3.5" /></span>
+                {many ? <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${shop ? "bg-white text-heading shadow-sm ring-1 ring-black/5" : "bg-black/60 text-white"}`}>{current + 1} / {slides.length}</span> : null}
+                <span className={`flex h-7 w-7 items-center justify-center rounded-full ${shop ? "bg-white text-heading shadow-sm ring-1 ring-black/5" : "bg-black/60 text-white"}`}><Expand aria-hidden className="h-3.5 w-3.5" /></span>
               </span>
             </>
           ) : null}
@@ -110,15 +124,16 @@ export function ProductGallery({ images, videos = [], icon }: { images: GalleryI
       </figure>
 
       {many ? (
-        <ul ref={thumbs} className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul ref={thumbs} className={`-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${shop ? "md:mx-0 md:max-h-[560px] md:w-[84px] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-visible md:px-0 md:pb-0 md:pt-0.5" : ""}`}>
           {slides.map((s, n) => (
             <li key={s.kind === "image" ? s.src : s.href} className="snap-start">
               <button type="button" onClick={() => setCurrent(n)} aria-pressed={n === current}
                 aria-label={s.kind === "image" ? `Show photo ${n + 1}${s.label ? `: ${s.label}` : ""}` : `Play ${s.label.toLowerCase()}`}
-                className={`relative flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition sm:h-[72px] sm:w-24 ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}>
+                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition ${shop ? "h-[72px] w-[72px] md:h-20 md:w-20" : "h-16 w-20 sm:h-[72px] sm:w-24"} ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}
+                  onMouseEnter={shop ? () => setCurrent(n) : undefined}>
                 {s.kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={s.src} alt="" loading="lazy" className={`h-full w-full ${shop ? "object-contain p-1" : "object-cover"}`} />
                 ) : (
                   <>
                     {s.youtubeId ? (
