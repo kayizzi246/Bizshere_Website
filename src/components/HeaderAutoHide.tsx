@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 /**
  * The site header (SiteHeader, [data-site-header]) slides away while the visitor scrolls down and comes
- * back as soon as they scroll up, so the page gets the whole screen. Not on the homepage: there it stays. It always shows near the top of the
+ * back as soon as they scroll up, so the page gets the whole screen. Not on the homepage on a computer: there it stays. It always shows near the top of the
  * page, while the phone menu is open, and while anything in the header has keyboard focus. The motion
  * itself is in globals.css ([data-site-header][data-hidden]); with less motion it simply appears.
  */
@@ -21,15 +21,16 @@ export function HeaderAutoHide() {
     let last = window.scrollY;
     let frame = 0;
     const show = () => header.removeAttribute("data-hidden");
-    // The homepage keeps its header in view all the way down (client, 11 Nov 2026)
-    if (path === "/") return show();
+    // On a computer the homepage keeps its header in view all the way down; on phones and tablets it hides
+    // on the way down like everywhere else, as the screen is small (client, 11 Nov 2026)
+    const wide = window.matchMedia("(min-width: 1024px)");
     const update = () => {
       frame = 0;
       const y = window.scrollY;
       // The phone menu is open, or a keyboard user is moving through the header (a clicked link keeps
       // focus too, but only keyboard focus shows a ring, so only that keeps the header in place)
       const busy = Boolean(header.querySelector("details[open]") || header.querySelector(":focus-visible"));
-      if (y < TOP || busy) { show(); last = y; return; }
+      if (y < TOP || busy || (path === "/" && wide.matches)) { show(); last = y; return; }
       if (y > last + NUDGE) header.setAttribute("data-hidden", "");
       else if (y < last - NUDGE) show();
       else return;

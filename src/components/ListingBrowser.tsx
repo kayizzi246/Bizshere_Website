@@ -149,17 +149,17 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
                 {all.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
               </div>
             ) : variant === "suppliers" ? (
-              <ul className="-mx-3 grid grid-cols-2 gap-2 sm:mx-0 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5">
+              <ul className="-mx-3 grid grid-cols-2 gap-1.5 sm:mx-0 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5">
                 {shown.map((i) => <li key={i.id} id={i.slug}><SupplierCard i={i} /></li>)}
               </ul>
             ) : variant === "table" ? (
               <ListingTable rows={shown} start={(current - 1) * PER_PAGE} />
             ) : variant === "documents" ? (
-              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5">
                 {shown.map((i) => <li key={i.id} id={i.slug} className="relative"><DocumentCard i={i} icon={icon} /><WishlistHeart id={i.id} className="absolute right-2 top-2" /></li>)}
               </ul>
             ) : (
-              <ul className={`grid sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-5 ${photos ? "grid-cols-2 gap-2.5" : "gap-3"}`}>
+              <ul className={`grid sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5 ${photos ? "grid-cols-2 gap-1.5" : "gap-2"}`}>
                 {shown.map((i) => <li key={i.id} id={i.slug} className="flex"><ListingCard i={i} icon={icon} photos={photos} /></li>)}
               </ul>
             )}
@@ -212,9 +212,9 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
         <Link href={i.href} tabIndex={-1} aria-hidden className="relative block overflow-hidden bg-page">
           {i.picture ? (
             // eslint-disable-next-line @next/next/no-img-element -- editor-entered address or /machines/… path
-            <img src={i.picture} alt="" loading="lazy" className="block aspect-[3/2] w-full object-cover transition duration-300 group-hover:scale-[1.04]" />
+            <img src={i.picture} alt="" loading="lazy" className="block aspect-[4/3] w-full bg-page object-contain transition duration-300 group-hover:scale-[1.04]" />
           ) : (
-            <span className="flex aspect-[3/2] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
+            <span className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-tint to-white text-brand"><Icon name={icon} className="h-10 w-10" strokeWidth={1.5} /></span>
           )}
           <SeenBadge href={i.href} className="absolute bottom-2 right-2" />
         </Link>
@@ -234,10 +234,10 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
         </div>
         {!photos ? <span className="text-xs font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span> : null}
 
-        <Link href={i.href} className={`font-display font-bold leading-tight tracking-tight text-heading hover:text-brand ${compact(photos, "line-clamp-2 text-[15px] sm:text-[16px]", "text-[17px]")}`}>{i.title}</Link>
+        <Link href={i.href} className={`font-display font-bold leading-tight tracking-tight text-heading hover:text-brand ${compact(photos, "line-clamp-2 text-[14px] sm:text-[14px]", "text-[15px]")}`}>{i.title}</Link>
         {photos
-          ? (i.summary ? <p className="hidden text-[13px] leading-snug text-ink-muted sm:line-clamp-2">{i.summary}</p> : null)
-          : (i.description || i.summary ? <p className="line-clamp-4 text-[13px] leading-relaxed text-ink-muted">{i.description || i.summary}</p> : null)}
+          ? (i.summary ? <p className="hidden text-[12px] leading-snug text-ink-muted sm:line-clamp-2">{i.summary}</p> : null)
+          : (i.description || i.summary ? <p className="line-clamp-4 text-[12px] leading-relaxed text-ink-muted">{i.description || i.summary}</p> : null)}
 
         {hasFacts ? (
           <dl className="flex flex-col gap-1 rounded-xl bg-page px-3 py-2 text-[12px]">
@@ -252,7 +252,7 @@ function ListingCard({ i, icon, photos }: { i: BrowseListing; icon: string; phot
           </dl>
         ) : null}
 
-        <Link href={i.href} className="mt-auto inline-flex h-10 w-full items-center justify-center gap-1 rounded-full bg-brand px-3.5 text-[13px] font-bold text-white transition hover:bg-brand-dark hover:text-white">
+        <Link href={i.href} className="mt-auto inline-flex h-10 w-full items-center justify-center gap-1 rounded-full bg-brand px-3.5 text-[12px] font-bold text-white transition hover:bg-brand-dark hover:text-white">
           View details<span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
         </Link>
       </div>
@@ -268,9 +268,9 @@ function SupplierCard({ i }: { i: BrowseListing }) {
         <WishlistHeart id={i.id} className="absolute right-2 top-2 z-10" />
         {/* The same size on every card. Product photos often come with white edges, so the picture is
             zoomed in a little to fill the box (and a little more on hover). */}
-        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden rounded-[14px] bg-brand-tint">
+        <Link href={i.href} tabIndex={-1} aria-hidden className="relative block aspect-[5/4] overflow-hidden rounded-[14px] bg-brand-tint">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-          {i.picture ? <img src={i.picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full scale-[1.12] object-cover transition duration-300 group-hover:scale-[1.18]" /> : (
+          {i.picture ? <img src={i.picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain transition duration-300 group-hover:scale-[1.04]" /> : (
             <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name="supplier" className="h-9 w-9" /></span>
           )}
           {i.primaryCategory ? <span className="absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-dark sm:text-xs">{i.primaryCategory.name}</span> : null}
@@ -278,20 +278,20 @@ function SupplierCard({ i }: { i: BrowseListing }) {
       </div>
       <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1.5 pt-3 sm:gap-2.5 sm:px-2 sm:pb-2">
         {/* Two lines kept for the name and for the summary on every card, so the cards line up */}
-        <Link href={i.href} className="line-clamp-2 min-h-[2.5em] font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[16px]">{name(i.title)}</Link>
-        <p className="line-clamp-2 min-h-[2.75em] text-[12px] leading-snug text-ink-muted sm:text-[13px]">{i.summary ?? ""}</p>
-        {i.country ? <p className="flex items-center gap-1 text-[12px] text-ink-soft sm:text-[13px]"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /><span className="truncate">{i.country}</span></p> : null}
+        <Link href={i.href} className="line-clamp-2 min-h-[2.5em] font-display text-[14px] font-extrabold leading-tight tracking-[-0.01em] text-heading hover:text-brand sm:text-[14px]">{name(i.title)}</Link>
+        <p className="line-clamp-2 min-h-[2.75em] text-[12px] leading-snug text-ink-muted sm:text-[12px]">{i.summary ?? ""}</p>
+        {i.country ? <p className="flex items-center gap-1 text-[12px] text-ink-soft sm:text-[12px]"><MapPin aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /><span className="truncate">{i.country}</span></p> : null}
         {i.sells ? (
           <p className="flex items-center gap-2 rounded-xl bg-page px-2.5 py-2">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Package aria-hidden className="h-3.5 w-3.5" /></span>
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-ink-muted">What they sell</span>
-              <strong className="line-clamp-2 text-[13px] font-bold text-heading">{i.sells}</strong>
+              <strong className="line-clamp-2 text-[12px] font-bold text-heading">{i.sells}</strong>
             </span>
           </p>
         ) : null}
         <div className="mt-auto pt-1">
-          <Link href={i.href} className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-full bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9">View products</Link>
+          <Link href={i.href} className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-full bg-brand px-3 text-[12px] font-bold text-white hover:bg-brand-dark hover:text-white sm:h-9">View products</Link>
         </div>
       </div>
     </div>
