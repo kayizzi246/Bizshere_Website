@@ -93,7 +93,7 @@ const S = {
  * 2026: gentle colours, not the mint, lavender and sand that were hard on the eyes; no fade into the footer). Cards have a hairline edge so they still stand out on white.
  */
 // "What do you need today?" has the same faint specks as the sections lower down (client, 12 Nov 2026)
-const BAND = { need: "speckle speckle-blue", all: "bg-[#F5F7FB]" } as const;
+const BAND = { need: "speckle speckle-blue", all: "speckle" } as const; // "Everything a business needs": warm off-white with specks (client, 12 Nov 2026)
 /** Every colour box on the homepage is this tall on a computer (client, 11 Nov 2026); phones stack and take the room they need. */
 
 /**
