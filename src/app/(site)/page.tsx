@@ -8,7 +8,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
-import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { date, money } from "@/lib/format";
@@ -38,8 +38,6 @@ export default async function HomePage() {
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
       {/* Laptops and up (1280px+): the hero fills the screen, up to 780px, with its content in the middle, like the client's example (12 Nov 2026). */}
       <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,760px)] xl:flex-col xl:justify-center">
-        {/* Faint flecks over the navy, like the lower sections (.speckle-dark in globals.css; client, 12 Nov 2026) */}
-        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10" />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
@@ -82,8 +80,9 @@ export default async function HomePage() {
 
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
-              <a href="#features" className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[14px] text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
-              <Link href="/prices" className="inline-flex h-11 items-center justify-center rounded-lg border border-white/25 px-6 text-[14px] text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
+              {/* Solid and outlined, bold, small corners (client, 12 Nov 2026, after an example they sent) */}
+              <a href="#features" className="inline-flex h-14 items-center justify-center rounded-md bg-accent px-8 font-display text-[16px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">Get started</a>
+              <Link href="/prices" className="inline-flex h-14 items-center justify-center rounded-md border-2 border-accent px-8 font-display text-[16px] font-extrabold text-accent transition-colors hover:bg-accent hover:text-ink">Check today&apos;s prices</Link>
             </div>
           </div>
 

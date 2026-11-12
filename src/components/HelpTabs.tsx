@@ -83,7 +83,8 @@ export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
         <div className="flex flex-col gap-4 p-6 sm:p-9">
           <h3 className="font-display text-[22px] font-extrabold leading-tight text-[#0B1F33] sm:text-[26px]">{t.title}</h3>
           <p className="text-[15px] leading-relaxed text-ink-soft">{t.text}</p>
-          <Link href={t.href} className="inline-flex h-11 w-fit items-center gap-2 rounded-md bg-[#0B1F33] px-5 text-[14px] font-bold text-white hover:bg-brand hover:text-white">{t.action}<ArrowRight aria-hidden className="h-4 w-4" /></Link>
+          {/* Like the hero buttons: solid, bold, small corners (client, 12 Nov 2026) */}
+          <Link href={t.href} className="inline-flex h-14 w-fit items-center justify-center rounded-md bg-accent px-8 font-display text-[16px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">{t.action}</Link>
           <span aria-hidden className="my-2 h-px w-full bg-[#CFCCC2]" />
           {t.stat ? <p className="font-display text-[15px] font-bold text-[#0B1F33]">{t.stat.value} {t.stat.label.toLowerCase()} on BizSphere-Ug</p> : null}
           <ul className="flex flex-col gap-2">

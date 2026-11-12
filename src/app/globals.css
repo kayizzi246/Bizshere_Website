@@ -478,7 +478,8 @@ main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" 
    navigation, hero text and UI titles; Inter (Regular, Medium, Semibold) for body text, forms, tables, buttons, labels
    and details. Inter has no Bold in the guide (and none is loaded), so Inter text asked to be bold or heavier is shown
    in Semibold instead of a faked bold. Headings, Manrope text and hero text keep their weights. */
-:is(.font-bold, .font-extrabold, .font-black):not(.font-display, .font-hero, .text-hero, .text-page-title, .text-section-title, h1, h2, h3, h4, h5, h6, h1 *, h2 *, h3 *, h4 *, h5 *, h6 *, .font-display *) { font-weight: 600; }
+/* Written as [class~=...]: Tailwind rewrites .font-display inside :not() into other class names, which let it through */
+:is(.font-bold, .font-extrabold, .font-black):not([class~="font-display"], [class~="font-hero"], .text-hero, .text-page-title, .text-section-title, h1, h2, h3, h4, h5, h6, h1 *, h2 *, h3 *, h4 *, h5 *, h6 *, [class~="font-display"] *) { font-weight: 600; }
 
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */
