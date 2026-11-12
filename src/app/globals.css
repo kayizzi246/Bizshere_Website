@@ -96,7 +96,10 @@
   /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
      section title 24→32 / 700 · card title 20→24 / 600 */
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
-  .text-hero { font-family: var(--font-hero), var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.01em; line-height: 1.15; }
+  /* Big headings: Manrope, the brand heading font. Its heaviest weight is ExtraBold (800); the client wants
+     900 (12 Nov 2026), so a hairline outline in the text's own colour thickens every letter by about that much. */
+  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15;
+    -webkit-text-stroke: 0.03em currentColor; paint-order: stroke fill; }
   .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[44px]; }
   .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[32px]; }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
@@ -371,12 +374,14 @@ body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: 
 .liquid-glass::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
   background: radial-gradient(120% 160% at 12% -60%, rgb(255 255 255 / 0.8), transparent 48%),
     radial-gradient(70% 140% at 100% 160%, rgb(255 255 255 / 0.4), transparent 55%); }
-/* The tab under the bar (Become a Supplier | Expert): the same glass, joined to the bar */
-.join-tab { margin-top: -1px;
-  background: rgb(255 255 255 / 0.6);
+/* The tab under the bar (Become a Supplier | Expert): the same glass, carrying on from the bar's lower edge
+   (its shading continues downwards), and laid 1px over the bar's border so no line shows where they meet */
+.join-tab { margin-top: -1px; z-index: 1;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.56) 0%, rgb(255 255 255 / 0.5) 100%);
   -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
   backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
-  border: 1px solid rgb(255 255 255 / 0.7); border-top: 0; }
+  border: 1px solid rgb(255 255 255 / 0.7); border-top: 0;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.35); }
 /* Without backdrop-filter (very old browsers) the glass is simply near-white, so the text stays readable */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .liquid-glass, .join-tab { background: rgb(255 255 255 / 0.96); }

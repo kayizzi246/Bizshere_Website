@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Manrope, Outfit } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
 import "./globals.css";
@@ -13,10 +13,8 @@ import { site } from "@/config/site";
 // Inter, font-black on Manrope) is drawn with the heaviest weight the guide allows (Inter Semibold,
 // Manrope ExtraBold). Self-hosted by next/font: no request to Google, no layout shift on load.
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter", display: "swap" });
-// The big headings (.text-hero in globals.css): Outfit Black (900), a heavy, tight geometric face, picked on
-// 12 Nov 2026 as the closest free match to the sample the client sent (it looks like Gilroy Heavy, which is
-// paid). Was Inter Black. Loaded as its own family, at this one weight, so body "bold" never turns Black.
-const heroFont = Outfit({ subsets: ["latin"], weight: "900", variable: "--font-hero", display: "swap" });
+// The big headings (.text-hero in globals.css) use Manrope ExtraBold, as the brand guide says (client,
+// 12 Nov 2026: "use those fonts on the whole site"). Outfit and Inter Black, tried before, are no longer loaded.
 const manrope = Manrope({ subsets: ["latin"], weight: ["500", "600", "700", "800"], variable: "--font-manrope", display: "swap" });
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
@@ -38,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${manrope.variable} ${heroFont.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>
