@@ -541,7 +541,7 @@ export async function HomeFeatures() {
                 ] as const).map(([href, icon, title, who, gets, btn]) => (
                   <li key={href} className="flex flex-col gap-4 rounded-lg bg-white/[0.07] p-5 sm:p-6">
                     <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-accent"><Icon name={icon} className="h-5 w-5" /></span>
-                    <span className="flex flex-col gap-1"><span className="font-display text-[20px] font-extrabold leading-tight text-white">{title}</span><span className="text-[13px] leading-snug text-white/70">{who}</span></span>
+                    <span className="flex flex-col gap-1"><span className="font-display text-[20px] font-bold leading-tight text-white">{title}</span><span className="text-[13px] leading-snug text-white/70">{who}</span></span>
                     <ul className="flex flex-1 flex-col gap-2">
                       {gets.map((g) => <li key={g} className="flex items-start gap-2 text-[13px] text-white/85"><Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />{g}</li>)}
                     </ul>
