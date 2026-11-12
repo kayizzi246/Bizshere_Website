@@ -36,8 +36,8 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Big screens (1536px and wider): the hero is a little taller (up to 840px), with its content in the middle. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white 2xl:flex 2xl:min-h-[min(90vh,840px)] 2xl:flex-col 2xl:justify-center">
+      {/* Big screens (1536px and wider): the hero is a little taller (up to 760px), with its content in the middle. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white 2xl:flex 2xl:min-h-[min(84vh,760px)] 2xl:flex-col 2xl:justify-center">
         <HeroParticles />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
@@ -45,7 +45,7 @@ export default async function HomePage() {
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-[72px] pt-3 sm:pb-[72px] sm:pt-[36px] xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}

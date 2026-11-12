@@ -132,7 +132,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
     <li data-reveal="" className={`rise-soft relative isolate flex flex-col gap-3 overflow-hidden rounded-2xl p-5 sm:p-6 xl:py-5 ${PANEL_H} ${tint}`}>
       <div className={`flex flex-col items-start gap-2 ${words}`}>
         <Label href={href} pill={onColour} />
-        <h3 className="font-display font-bold tracking-[-0.015em] text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
+        <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
         <p data-size="" className="max-w-lg text-[13px] leading-relaxed sm:text-[13px]">{text}</p>
       </div>
       {/* min-h-0: the list gives way before the button does, so the button is never pushed out of the panel */}
@@ -235,7 +235,7 @@ export async function HomeFeatures() {
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="font-display font-bold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -264,7 +264,7 @@ export async function HomeFeatures() {
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="font-display font-bold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -360,7 +360,7 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="font-display font-bold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
