@@ -213,13 +213,13 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-accent-dark shadow-sm"><Wallet aria-hidden className="h-6 w-6" /></span>
                   <span className="flex min-w-0 flex-col gap-0.5">
                     <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">Starting capital</span>
-                    <span className="font-display text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-brand-dark sm:text-[30px]">{capitalFull ?? <span className="text-lg font-semibold text-ink-soft">Being priced</span>}</span>
+                    <span className="font-display text-[22px] font-extrabold leading-tight tracking-[-0.02em] text-brand-dark [overflow-wrap:anywhere] sm:text-[24px] xl:text-[30px]">{capitalFull ?? <span className="text-lg font-semibold text-ink-soft">Being priced</span>}</span>
                     <span className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}{idea.capitalNotes ? ` · ${idea.capitalNotes}` : ""}</span>
                   </span>
                 </div>
 
                 {facts.length ? (
-                  <dl className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-3">
+                  <dl className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
                     {facts.map(([Glyph, label, value]) => (
                       <div key={label} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3">
                         <Glyph aria-hidden className="h-5 w-5 shrink-0 text-brand" />
@@ -399,7 +399,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           {next.length ? (
             <section id="start" className={card} data-reveal="">
               {head("start", "Machines, money and people for this business, checked by our team.")}
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {next.map(({ toItem: t }) => (
                   <li key={t.id}>
                     <Link href={itemHref(t)} className="group flex h-full items-center gap-3 rounded-2xl border border-line bg-page/50 p-3.5 text-ink transition hover:-translate-y-0.5 hover:border-brand hover:bg-white hover:text-ink">

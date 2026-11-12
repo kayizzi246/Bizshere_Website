@@ -6,6 +6,7 @@ import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
+import { HelpTabs, type HelpTab } from "./HelpTabs";
 
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
@@ -28,7 +29,7 @@ async function records() {
   const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
   const live = { publicationStatus: "PUBLISHED" } as const;
   const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
-  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics] = await Promise.all([
+  const [ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics, byType, tracked, topicCount] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 6 }),
@@ -42,14 +43,19 @@ async function records() {
     // The newest tips and the busiest forum topics: titles only, for the previews in "Help for every working day"
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_TIP", ...live }, select: { slug: true, title: true, primaryCategory: { select: { name: true } } }, orderBy: [...newest], take: 3 }),
     prisma.forumTopic.findMany({ where: { status: { not: "HIDDEN" } }, select: { id: true, title: true, _count: { select: { posts: { where: { hiddenAt: null } } } } }, orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }], take: 3 }).catch(() => []),
+    // Real figures for "Help for every working day": how many of each are published
+    prisma.contentItem.groupBy({ by: ["contentType"], where: live, _count: { _all: true } }),
+    prisma.product.count({ where: { observations: { some: { status: "PUBLISHED" } } } }),
+    prisma.forumTopic.count({ where: { status: { not: "HIDDEN" } } }).catch(() => 0),
   ]);
-  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics };
+  const counts = Object.fromEntries(byType.map((r) => [r.contentType, r._count._all])) as Record<string, number>;
+  return { ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics, counts, tracked, topicCount };
 }
 
 /** Websites a visitor who hasn't paid sees in full on the homepage card; the rest are locked. */
 const FREE_WEBSITES = 2;
 const EXPERT_POINTS: [LucideIcon, string][] = [[Calculator, "Tax"], [BookOpen, "Accounting"], [Ship, "Import and export"], [Sprout, "Farming"]];
-const PANEL_H = "lg:h-[445px] xl:h-[410px]"; // small laptops need the extra room: the panel titles wrap there
+const PANEL_H = "lg:h-[400px] xl:h-[372px]"; // small laptops need the extra room: the panel titles wrap there
 
 // The tag on each funding row: what kind of money it is, at a glance.
 const FUND_TAG: Record<string, string> = { LOAN: "bg-brand-tint text-brand-dark", GRANT: "bg-[#E6F4EC] text-[#1F7A4D]", EQUITY: "bg-accent-tint text-accent-dark" };
@@ -86,7 +92,8 @@ const S = {
  * 11 Nov 2026). Lower down: a soft blue-grey, then white, then a light blue for "For businesses" (client, 12 Nov
  * 2026: gentle colours, not the mint, lavender and sand that were hard on the eyes; no fade into the footer). Cards have a hairline edge so they still stand out on white.
  */
-const BAND = { need: "bg-[#EAF4FB]", all: "bg-[#F5F7FB]" } as const;
+// "What do you need today?" has the same faint specks as the sections lower down (client, 12 Nov 2026)
+const BAND = { need: "speckle speckle-blue", all: "bg-[#F5F7FB]" } as const;
 /** Every colour box on the homepage is this tall on a computer (client, 11 Nov 2026); phones stack and take the room they need. */
 
 /**
@@ -121,61 +128,36 @@ const Label = ({ href, pill }: { href: string; pill: string }) => {
 };
 
 const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-white", children }: { href: string; tone?: string; children: React.ReactNode }) => (
-  <Link href={href} className={`go-btn group mt-1 inline-flex h-12 items-center gap-1.5 rounded-full px-6 text-[14px] ${tone}`}>
+  <Link href={href} className={`go-btn group mt-1 inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[14px] font-semibold ${tone}`}>
     {children}<ArrowRight aria-hidden className="go-arrow h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" />
   </Link>
 );
 
-/** A panel in a full brand colour, joined to the one beside it: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
+/**
+ * A panel in a full brand colour (Funding, Suppliers), redesigned 12 Nov 2026 (client): the words on the left and
+ * the button beside them, so the button never crowds the list; the newest entries in one white card with thin
+ * lines between them; the hero's specks across the colour. On phones the button sits under the list.
+ */
 function Panel({ href, title, text, action, tint, words, onColour, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; onColour: string; children: React.ReactNode }) {
   return (
-    <li data-reveal="" className={`rise-soft relative isolate flex flex-col gap-3 overflow-hidden rounded-2xl p-5 sm:p-6 xl:py-5 ${PANEL_H} ${tint}`}>
-      <div className={`flex flex-col items-start gap-2 ${words}`}>
-        <Label href={href} pill={onColour} />
-        <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] sm:text-[28px] md:text-[24px] lg:text-[28px] xl:text-[32px]">{title}</h3>
-        <p data-size="" className="max-w-lg text-[13px] leading-relaxed sm:text-[13px]">{text}</p>
+    <li data-reveal="" className={`rise-soft relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 sm:p-6 ${PANEL_H} ${tint}`}>
+      <span aria-hidden className="specks-on-colour pointer-events-none absolute inset-0 -z-10" />
+      <div className={`flex items-start justify-between gap-4 ${words}`}>
+        <div className="flex min-w-0 flex-col items-start gap-2">
+          <Label href={href} pill={onColour} />
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] sm:text-[22px] lg:text-[24px]">{title}</h3>
+          <p data-size="" className="max-w-lg text-[13px] leading-relaxed opacity-90">{text}</p>
+        </div>
+        <Link href={href} className={`group hidden h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold sm:inline-flex ${onColour}`}>
+          {action}<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" />
+        </Link>
       </div>
-      {/* min-h-0: the list gives way before the button does, so the button is never pushed out of the panel */}
-      <div className="min-h-0 flex-1">{children}</div>
-      <span className="shrink-0"><Go href={href} tone={onColour}>{action}</Go></span>
+      {/* min-h-0: the card gives way inside the panel's fixed height rather than spilling out of it */}
+      <div className="min-h-0 flex-1 overflow-hidden rounded-lg bg-white">{children}</div>
+      <span className="shrink-0 sm:hidden"><Go href={href} tone={onColour}>{action}</Go></span>
     </li>
   );
 }
-
-/**
- * One feature of the "Help for every working day" section, in the way SaaS sites show their product: a card in
- * a lighter navy with its accent-coloured name, a title and one line, then a small preview window of that part
- * of the product (a dark panel with three window dots and its name), and one link. Small corners, no borders.
- */
-function Feature({ href, accent, title, line, action, window: label, wide = false, className = "", children }: { href: string; accent: string; title: string; line: string; action: string; window: string; wide?: boolean; className?: string; children: React.ReactNode }) {
-  const d = directory(href);
-  return (
-    <li className={`flex ${className}`}>
-      <div className={`grid w-full grid-cols-[minmax(0,1fr)] gap-5 rounded-lg bg-[#0E2547] p-5 sm:p-6 ${wide ? "lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:items-center lg:gap-8 lg:p-8" : "grid-rows-[auto_1fr_auto]"}`}>
-        <div className={`flex flex-col gap-2 ${wide ? "lg:row-span-2" : ""}`}>
-          <span className={`inline-flex items-center gap-2 text-[13px] font-semibold ${accent}`}><Icon name={d.icon} className="h-4 w-4" />{d.title}</span>
-          <h3 className="font-display text-[20px] font-extrabold leading-tight text-white sm:text-[22px]">{title}</h3>
-          <p data-size="" className="text-[14px] leading-relaxed text-white/65">{line}</p>
-        </div>
-        {/* The preview window */}
-        <div className="flex flex-1 flex-col overflow-hidden rounded-md bg-[#081733]">
-          <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-3 py-2">
-            <span aria-hidden className="h-2 w-2 rounded-full bg-white/20" /><span aria-hidden className="h-2 w-2 rounded-full bg-white/20" /><span aria-hidden className="h-2 w-2 rounded-full bg-white/20" />
-            <span className="ml-2 text-[11px] text-white/45">{label}</span>
-          </div>
-          <div className="flex-1 p-3 sm:p-4">{children}</div>
-        </div>
-        <Link href={href} className={`group/go inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold hover:text-white ${accent}`}>{action}<ArrowRight aria-hidden className="h-4 w-4 transition-transform group-hover/go:translate-x-1" /></Link>
-      </div>
-    </li>
-  );
-}
-
-/** One accent per feature, bright enough to read on navy */
-const ACCENT = {
-  guides: "text-[#A5B4FC]", tools: "text-[#5EEAD4]", tips: "text-[#F9A8D4]", news: "text-[#FCD34D]",
-  prices: "text-[#FCA5A5]", forum: "text-[#FDE68A]", websites: "text-[#CBD5E1]",
-} as const;
 
 const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, string][]; mark: string; tint: string; start?: boolean }) => (
   <ul className={`flex flex-wrap gap-2 ${start ? "justify-start" : "justify-center"}`}>
@@ -186,8 +168,35 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
 );
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics }, viewer] = await Promise.all([records(), getViewer()]);
+  const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts, tips, topics, counts, tracked, topicCount }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
+  const stat = (n: number | undefined, label: string) => (n ? { value: n.toLocaleString("en-GB"), label } : null);
+  const helpTabs: HelpTab[] = [
+    { id: "guides", label: "Guides", icon: "guide", title: "Step-by-step guides", text: "Registration, licences, EFRIS and tax, explained in plain words, with the documents you need.", action: "See all guides", href: "/guides", window: "Business guides",
+      stat: stat(counts.GUIDE, "Guides"), kind: "steps", rows: guides.map((g) => ({ title: clean(g.title), sub: g.shortSummary, href: itemHref(g) })),
+      points: ["Each step in order, with what to bring", "Official sources, checked by our team", "Read on the site, or download the PDF"] },
+    { id: "tools", label: "Tools", icon: "tool", title: "Your numbers in minutes", text: "Calculators and templates for VAT, PAYE, business plans and cash flow, ready to use.", action: "Open the tools", href: "/tools", window: "VAT calculator",
+      stat: stat(counts.TOOL, "Tools"), kind: "vat", rows: [],
+      points: ["VAT and PAYE worked out for you", "Templates you can fill in and print", "Uganda's current rates"] },
+    { id: "prices", label: "Prices", icon: "prices", title: "Today's market prices", text: "What things cost, market by market across Uganda, so you buy and sell at the right price.", action: "Check prices", href: "/prices", window: "Markets and prices",
+      stat: stat(tracked, "Products tracked"), kind: "list", rows: products.slice(0, 5).map((x) => ({ title: x.name, side: "See price", href: `/prices?q=${encodeURIComponent(x.name)}` })),
+      points: ["Prices from markets around the country", "See how each price is moving", "Compare markets before you travel"] },
+    { id: "news", label: "News", icon: "news", title: "Business news that matters", text: "What is changing for business in Uganda: new rules, funding rounds and opportunities.", action: "Read the news", href: "/news", window: "Latest news",
+      stat: stat(counts.NEWS, "News stories"), kind: "list", rows: news.map((n) => ({ title: clean(n.title), sub: n.publishedAt ? date(n.publishedAt) : null, href: itemHref(n) })),
+      points: ["Short and to the point", "What it means for your business", "New funding rounds as they open"] },
+    { id: "tips", label: "Tips", icon: "tip", title: "Tips that save you money", text: "Short tips that work, from running a shop to keeping records, with remarks from members.", action: "Read the tips", href: "/tips", window: "Business tips",
+      stat: stat(counts.BUSINESS_TIP, "Tips"), kind: "list", rows: tips.map((t) => ({ title: clean(t.title), sub: t.primaryCategory?.name ?? null, href: `/tips/${t.slug}` })),
+      points: ["A few minutes to read", "Remarks from other owners", "Share any tip in one tap"] },
+    { id: "forum", label: "Forum", icon: "forum", title: "Talk to other owners", text: "Ask a question, answer one, find stock and meet other business owners.", action: "Join the conversation", href: "/forum", window: "Business forum",
+      stat: stat(topicCount, "Conversations"), kind: "topics", rows: topics.map((t) => ({ title: t.title, side: `${t._count.posts} ${t._count.posts === 1 ? "reply" : "replies"}`, href: `/forum/${t.id}` })),
+      points: ["Ask anything about running a business", "Answers from people who have done it", "Free to read for everyone"] },
+    { id: "websites", label: "Websites", icon: "link", title: "Useful websites", text: "Government and business sites in one list: registration, tax, export and finance.", action: "See all websites", href: "/websites", window: "Useful websites",
+      stat: stat(counts.WEBSITE, "Websites"), kind: "chips",
+      // A visitor who has not paid sees the first two and one pill for the rest, which opens the join pop-up; the other names are never sent.
+      rows: (sell ? websites.slice(0, FREE_WEBSITES) : websites.slice(0, 6)).map((w) => ({ title: websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType }), href: itemHref(w) })),
+      more: sell && websites.length > FREE_WEBSITES ? { label: `${websites.length - FREE_WEBSITES} more for members`, href: "/membership?onboard=pay&next=%2Fwebsites" } : null,
+      points: ["The right official site, first time", "What each site is for", "Checked links, kept up to date"] },
+  ];
   // Get started in the hero scrolls to #features; the smooth scroll leaves 96px for the header, which stays
   // in view on the homepage (SmoothScroll, HeaderAutoHide).
   // Weights (client, 11 Nov 2026): headings (h1 to h3, .text-hero) are 900; nothing else on the homepage is bold.
@@ -195,10 +204,10 @@ export async function HomeFeatures() {
     <section id="features" className="overflow-x-clip">
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
       <div className={BAND.need}>
-      <div className="container-site flex flex-col items-center gap-6 py-8 sm:gap-8 sm:py-10">
+      <div className="container-site flex flex-col items-center gap-5 py-6 sm:gap-6 sm:py-8">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
-          <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">What do you need today?</h2>
+          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-black">What do you need today?</h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
         <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -221,21 +230,22 @@ export async function HomeFeatures() {
           its icon large and faint behind the words; the lists sit in glass trays. Same content, same height.
           Polished on 12 Nov 2026 (client: keep these designs, make them better): an eyebrow and left-aligned
           heading like the other sections, smaller corners, no faint icons behind the words, bolder names. */}
-      <div className={`${BAND.all} pb-6 sm:pb-8`}>
-      <div className="container-site flex flex-col gap-3 pt-10 sm:pt-12">
+      <div className={`${BAND.all} pb-4 sm:pb-5`}>
+      <div className="container-site flex flex-col gap-2 pt-7 sm:pt-8">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
-        <h2 className="text-hero text-[30px] leading-[1.1] text-black sm:text-[40px] lg:text-[46px]">Everything a business needs</h2>
+        <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-black">Everything a business needs</h2>
         <p data-size="" className="max-w-2xl text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
 
       {/* Business Ideas: a green panel built like Machines and Experts below it, and the same height: the words
           and the button on the left, the three newest plans as white photo cards on the right (rows on phones).
           Client, 11 Nov 2026: every colour box on the homepage has the same height (PANEL_H). */}
-      <div className="container-site pb-3 pt-6 sm:pt-8">
-      <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+      <div className="container-site pb-3 pt-5 sm:pt-6">
+      <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
                 <div className="flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Business plans with the real costs</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Business plans with the real costs</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -261,10 +271,11 @@ export async function HomeFeatures() {
 
       {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
       <div className="container-site">
-      <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+      <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">The right machine for the job</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">The right machine for the job</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -305,19 +316,20 @@ export async function HomeFeatures() {
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
           <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="skin-funding" words="text-ink" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
-            <ul className="flex h-full flex-col gap-2">
+            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] gap-px bg-line">
               {funding.map((f, n) => {
                 const org = f.fundingProgramme?.provider.organization;
                 const type = f.fundingProgramme?.fundingType;
                 return (
-                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className="flex-1">
-                    <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 rounded-lg bg-white px-3 py-2 text-heading hover:text-heading">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
+                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className="bg-white">
+                    <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#FFF6EC] hover:text-heading">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[13px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
+                        <span className="truncate font-display text-[14px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
                         {org ? <span className="truncate text-[12px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
                       </span>
-                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
+                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
+                      <ArrowRight aria-hidden className="hidden h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent-dark sm:block" />
                     </Link>
                   </li>
                 );
@@ -329,20 +341,20 @@ export async function HomeFeatures() {
             text="Checked suppliers in Uganda and abroad.">
             {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
                 fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
-            <ul className="grid h-full grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
+            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] gap-px bg-line sm:grid-cols-2">
               {suppliers.slice(0, 4).map((x, n) => {
                 const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
                 const name = clean(x.title);
                 const sells = x.supplier?.items.slice(0, 2).join(", ");
                 return (
-                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className="min-h-0">
-                    <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 rounded-lg bg-white p-2.5 text-heading hover:text-heading">
-                      <span className={`relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
+                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className="min-h-0 bg-white">
+                    <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#EEF6FC] hover:text-heading">
+                      <span className={`relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[16px] leading-none">{name.charAt(0)}</span>}
+                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[14px] font-extrabold leading-none">{name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase()}</span>}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[13px] font-bold leading-snug group-hover:text-brand">{name}</span>
+                        <span className="truncate font-display text-[14px] font-bold leading-snug group-hover:text-brand">{name}</span>
                         {sells ? <span className="truncate text-[11px] text-ink-soft">{sells}</span> : null}
                         {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[10px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
                       </span>
@@ -357,10 +369,11 @@ export async function HomeFeatures() {
 
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
       <div className="container-site pt-3">
-      <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+      <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[24px] leading-[1.2] text-white sm:text-[28px] lg:text-[32px]">Advice from people who know</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Advice from people who know</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
@@ -393,136 +406,22 @@ export async function HomeFeatures() {
 
       </div>
 
-      {/* 3. Help for every working day, as a SaaS feature section (client, 12 Nov 2026: "this is a SaaS company"):
-          a light band, and each feature as a deep navy card with a small preview window of that part of the product,
-          filled with real content (guides, news, tips, forum topics, tracked products; the VAT figures are a
-          worked example at Uganda's 18%). Small corners, no borders, no shadows, one accent colour per feature. */}
-      <div data-everyday="" className="bg-[#F5F7FB]">
-      <div className="container-site flex flex-col gap-6 pb-8 pt-6 sm:gap-8 sm:pb-10 sm:pt-8">
-        <div data-reveal="" className="rise-soft flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex max-w-2xl flex-col gap-3">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">Every working day</span>
-            <h2 className="text-hero text-[30px] leading-[1.1] text-black sm:text-[40px] lg:text-[46px]">Help for every working day</h2>
-            <p data-size="" className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Guides, tools, tips, news and today&apos;s prices in one place, checked and kept up to date by our team.</p>
-          </div>
-          <Link href="/search" className="inline-flex w-fit items-center gap-2 rounded-full bg-[#0E2547] px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-brand hover:text-white"><Icon name="search" className="h-4 w-4" />Search everything</Link>
+      {/* 3. Help for every working day, as a tabbed showcase (client, 12 Nov 2026, after a SaaS site they liked): a
+          warm off-white band with a faint speckle (.speckle in globals.css), a centred heading, pill tabs and one
+          panel per part of the product (HelpTabs). Real content and real counts only. */}
+      <div data-everyday="" className="speckle">
+      <div className="container-site flex flex-col items-center gap-5 pb-6 pt-7 sm:gap-6 sm:pb-8 sm:pt-8">
+        <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
+          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-[#0B1F33]">Help for every working day</h2>
+          <p data-size="" className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
         </div>
-
-        <ul data-reveal="" className="rise-soft grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-          {/* Guides: the steps, numbered */}
-          <Feature href="/guides" accent={ACCENT.guides} className="md:col-span-2" title="Step-by-step guides" line="Registration, licences, EFRIS and tax, in plain words." action="See all guides" window="Business guides">
-            <ol className="flex flex-col gap-1">
-              {guides.map((g, n) => (
-                <li key={g.slug}>
-                  <Link href={itemHref(g)} className="group/row flex items-center gap-3 rounded-md px-2 py-2.5 text-white hover:bg-white/[0.06] hover:text-white">
-                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/10 text-[13px] font-bold ${ACCENT.guides}`}>{n + 1}</span>
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[14px] font-semibold text-white">{clean(g.title)}</span>
-                      {g.shortSummary ? <span className="truncate text-[12px] text-white/55">{g.shortSummary}</span> : null}
-                    </span>
-                    <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-white/40 transition-transform group-hover/row:translate-x-1 group-hover/row:text-white" />
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </Feature>
-
-          {/* Tools: a worked example of the VAT calculator */}
-          <Feature href="/tools" accent={ACCENT.tools} title="Your numbers in minutes" line="Calculators and templates for VAT, PAYE, plans and cash flow." action="Open the tools" window="VAT calculator">
-            <dl className="flex flex-col gap-2.5 text-[13px]">
-              <div className="flex justify-between gap-3"><dt className="text-white/60">Price</dt><dd className="font-semibold tabular-nums text-white">UGX 1,000,000</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-white/60">VAT (18%)</dt><dd className="font-semibold tabular-nums text-white">UGX 180,000</dd></div>
-              <div className="flex justify-between gap-3 border-t border-white/10 pt-2.5"><dt className="font-semibold text-white">Total</dt><dd className={`font-display text-[16px] font-extrabold tabular-nums ${ACCENT.tools}`}>UGX 1,180,000</dd></div>
-            </dl>
-            <span className="mt-3 block text-[11px] text-white/40">Worked example</span>
-          </Feature>
-
-          {/* Prices: what is tracked */}
-          <Feature href="/prices" accent={ACCENT.prices} title="Today's prices" line="What things cost, market by market across Uganda." action="Check prices" window="Markets and prices">
-            <ul className="flex flex-col">
-              {products.slice(0, 4).map((x) => (
-                <li key={x.name} className="border-t border-white/[0.07] first:border-t-0">
-                  <Link href={`/prices?q=${encodeURIComponent(x.name)}`} className="group/row flex items-center justify-between gap-3 py-2 text-[13px] text-white hover:text-white">
-                    <span>{x.name}</span><span className={`inline-flex items-center gap-1 text-[12px] font-semibold ${ACCENT.prices}`}>See price<ArrowRight aria-hidden className="h-3.5 w-3.5 transition-transform group-hover/row:translate-x-0.5" /></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Feature>
-
-          {/* News: the latest headlines */}
-          <Feature href="/news" accent={ACCENT.news} title="Business news" line="What is changing for business in Uganda." action="Read the news" window="Latest news">
-            <ul className="flex flex-col gap-3">
-              {news.slice(0, 3).map((n) => (
-                <li key={n.slug}>
-                  <Link href={itemHref(n)} className="group/row flex gap-3 text-white hover:text-white">
-                    <span aria-hidden className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current ${ACCENT.news}`} />
-                    <span className="flex min-w-0 flex-col">
-                      <span className="line-clamp-2 text-[13px] font-semibold leading-snug group-hover/row:underline group-hover/row:underline-offset-4">{clean(n.title)}</span>
-                      {n.publishedAt ? <span className="text-[11px] text-white/45">{date(n.publishedAt)}</span> : null}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Feature>
-
-          {/* Tips: the newest ones */}
-          <Feature href="/tips" accent={ACCENT.tips} title="Tips that save money" line="Short tips that work, with remarks from members." action="Read the tips" window="Business tips">
-            {tips.length ? (
-              <ul className="flex flex-col gap-2">
-                {tips.map((t) => (
-                  <li key={t.slug}>
-                    <Link href={`/tips/${t.slug}`} className="group/row flex flex-col rounded-md bg-white/[0.05] px-3 py-2 text-white hover:bg-white/[0.09] hover:text-white">
-                      <span className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${ACCENT.tips}`}>{t.primaryCategory?.name ?? "Tip"}</span>
-                      <span className="line-clamp-1 text-[13px] font-semibold">{clean(t.title)}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : <Points start points={TIP_POINTS} mark={ACCENT.tips} tint="bg-white/[0.08] text-white" />}
-          </Feature>
-
-          {/* Forum: the busiest topics, or the way to start one */}
-          <Feature href="/forum" accent={ACCENT.forum} title="Talk to other owners" line="Ask, answer and meet other business owners." action="Join the conversation" window="Business forum">
-            {topics.length ? (
-              <ul className="flex flex-col gap-2">
-                {topics.map((t) => (
-                  <li key={t.id}>
-                    <Link href={`/forum/${t.id}`} className="group/row flex items-center gap-3 rounded-md bg-white/[0.05] px-3 py-2 text-white hover:bg-white/[0.09] hover:text-white">
-                      <span className="line-clamp-1 flex-1 text-[13px] font-semibold">{t.title}</span>
-                      <span className={`shrink-0 text-[11px] font-semibold ${ACCENT.forum}`}>{t._count.posts} {t._count.posts === 1 ? "reply" : "replies"}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <Link href="/forum" className="flex items-center gap-2 rounded-full bg-white/[0.07] px-4 py-2.5 text-[13px] text-white/55 hover:bg-white/[0.11] hover:text-white"><MessagesSquare aria-hidden className={`h-4 w-4 ${ACCENT.forum}`} />Ask other owners a question…</Link>
-                <Points start points={FORUM_POINTS} mark={ACCENT.forum} tint="bg-white/[0.08] text-white" />
-              </div>
-            )}
-          </Feature>
-
-          {/* Useful websites */}
-          <Feature href="/websites" accent={ACCENT.websites} className="md:col-span-2" title="Useful websites" line="Government and business sites in one list." action="See all websites" window="Useful websites">
-            <ul className="flex flex-wrap gap-2">
-              {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join pop-up; the other names are never sent. */}
-              {(sell ? websites.slice(0, FREE_WEBSITES) : websites.slice(0, 5)).map((w) => (
-                <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-white/[0.08] px-3 py-1.5 text-[12px] text-white hover:bg-white hover:text-heading">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
-              ))}
-              {sell && websites.length > FREE_WEBSITES ? (
-                <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
-              ) : null}
-            </ul>
-          </Feature>
-        </ul>
+        <HelpTabs tabs={helpTabs} />
       </div>
       </div>
 
-      {/* For businesses, on a light band of its own between the navy section above and the navy footer */}
-      <div className="bg-[#F5F7FB]">
-      <div className="container-site flex flex-col pb-10 pt-4 sm:pb-12 sm:pt-6">
+      {/* For businesses, on the same textured band as the section above, before the navy footer */}
+      <div className="speckle">
+      <div className="container-site flex flex-col pb-8 pt-2 sm:pb-10 sm:pt-2">
         {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing; this is
             the site's other income, so it gets a block of its own. One navy banner inside the page. ── */}
         {!viewer.isStaff ? (
@@ -530,7 +429,7 @@ export async function HomeFeatures() {
             <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-12">
               <div className="flex flex-col items-start gap-4">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-accent">For businesses</span>
-                <h2 className="text-hero text-[28px] leading-[1.12] text-white sm:text-[36px]">Get your business in front of buyers</h2>
+                <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-white">Get your business in front of buyers</h2>
                 <p data-size="" className="max-w-md text-[15px] leading-relaxed text-white/75">Business owners come here every day to find who sells what and who can help. Be the one they find.</p>
                 <p data-size="" className="text-[13px] text-white/65">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-semibold text-accent hover:text-white">Leave your number</Link> and we call you back.</p>
               </div>

@@ -120,10 +120,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
               </span>
               <div className="flex gap-2.5">
                 <button className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-[10px] bg-accent px-7 text-[15px] font-bold text-ink transition-colors hover:bg-white sm:flex-none">Search</button>
-                <label htmlFor="adv-toggle" className="btn-outline min-h-[52px] flex-1 cursor-pointer whitespace-nowrap bg-white peer-focus-visible:ring-4 sm:flex-none">
+                <label htmlFor="adv-toggle" className="btn-outline min-h-[52px] min-w-0 flex-1 cursor-pointer whitespace-nowrap bg-white px-3 text-[14px] sm:px-5 sm:text-[15px] peer-focus-visible:ring-4 sm:flex-none">
                   <SlidersHorizontal aria-hidden className="h-4 w-4" />
-                  <span className="group-has-[#adv-toggle:checked]/adv:hidden">Advanced search</span>
-                  <span className="hidden group-has-[#adv-toggle:checked]/adv:inline">Hide advanced search</span>
+                  <span className="group-has-[#adv-toggle:checked]/adv:hidden">Advanced<span className="hidden min-[360px]:inline"> search</span></span>
+                  <span className="hidden group-has-[#adv-toggle:checked]/adv:inline">Hide<span className="hidden min-[360px]:inline"> advanced</span></span>
                 </label>
               </div>
             </div>

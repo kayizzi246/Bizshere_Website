@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
-import { HeroParticles } from "@/components/HeroParticles";
+import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
 import { ChevronDown, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -24,28 +24,29 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const viewer = await getViewer();
   // Nothing under the hero buttons: no counts, prices or payment talk on the homepage (client, 10 Nov 2026).
-  const [updates, yt, prices] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember)]);
+  const [updates, yt, prices, photos] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), heroPhotos()]);
 
   return (
-    <>
+    <div className="home-wide">
       {/* ── Hero: midnight navy into royal blue (.hero-premium) with a moving network of lights (HeroParticles)
           and no entrance animations. Left:
           "B2B Information Portal", one sentence of what is here, search, every directory as a quiet link
           tile, two actions.
           Right (wide screens): today's market prices, a reason to come back daily. One column below xl:
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
-      {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue
+      {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Big screens (1536px and wider): the hero is a little taller (up to 760px), with its content in the middle. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white 2xl:flex 2xl:min-h-[min(84vh,760px)] 2xl:flex-col 2xl:justify-center">
-        <HeroParticles />
+      {/* Laptops and up (1280px+): the hero fills the screen, up to 780px, with its content in the middle, like the client's example (12 Nov 2026). */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,760px)] xl:flex-col xl:justify-center">
+        {/* Faint flecks over the navy, like the lower sections (.speckle-dark in globals.css; client, 12 Nov 2026) */}
+        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10" />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,680px)_450px] xl:items-start xl:gap-x-[96px]">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,520px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -54,7 +55,7 @@ export default async function HomePage() {
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
                 screen (6.2vw: 20px on a 320px phone, 30px at most) and wider screens step up to 40px and 48px. */}
-            <h1 className="text-hero mb-3 whitespace-nowrap text-[clamp(20px,6.2vw,30px)] text-white sm:text-[40px] lg:text-[48px]">
+            <h1 className="text-hero mb-3 whitespace-nowrap text-[clamp(20px,6.2vw,30px)] leading-[1.08] text-white sm:text-[38px] lg:text-[44px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal
             </h1>
@@ -86,11 +87,13 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Right panel: the live stream while we're live on YouTube; otherwise today's market prices (with
-              the latest video as a link under them); with no prices yet, the latest video (set at /admin/video)
-              or the bakery example. Wide screens only (1280px+): narrower, it pushed the directories down. */}
-          <div id="watch" className="hidden scroll-mt-28 flex-col xl:mt-[24px] xl:flex">
-            {!yt.video?.live && prices.rows.length ? (
+          {/* Right panel: the live stream while we're live on YouTube; otherwise two columns of real photos from the
+              site drifting slowly (HeroCollage; client, 12 Nov 2026); with too few photos, today's market prices,
+              then the latest video or the bakery example. Wide screens only (1280px+). */}
+          <div id="watch" className="hidden scroll-mt-28 flex-col xl:-mt-[16px] xl:flex">
+            {!yt.video?.live && photos.length >= 6 ? (
+              <HeroCollage photos={photos} />
+            ) : !yt.video?.live && prices.rows.length ? (
               <PricePanel {...prices} video={yt.video ? { id: yt.video.id, title: yt.video.title } : null} />
             ) : (
             <div className="w-full rounded-2xl border border-white/15 bg-white/[0.06] p-5">
@@ -128,7 +131,7 @@ export default async function HomePage() {
       {/* ── What the platform offers, a different block for each part ── */}
       <HomeFeatures />
 
-    </>
+    </div>
   );
 }
 
@@ -177,6 +180,26 @@ type Snapshot = { rows: { id: string; name: string; unit: string | null; price: 
  * units only). Visitors see only the first FREE_PREVIEW.markets markets per product, so the panel
  * never shows a member-only price.
  */
+/**
+ * Photos for the hero collage: real, published pages that have a photo (business ideas, machines and suppliers'
+ * products), mixed so the same kind never sits twice in a row. Names and what each is, nothing member-only.
+ */
+async function heroPhotos(): Promise<CollagePhoto[]> {
+  const live = { publicationStatus: "PUBLISHED" } as const;
+  const clean = (t: string) => t.replace(/^Sample:\s*/i, "");
+  const [ideas, machines, products] = await Promise.all([
+    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live, businessIdea: { pictureUrl: { not: null } } }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
+    prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, machine: { select: { pictureUrl: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
+    prisma.supplierProductListing.findMany({ where: { status: "PUBLISHED", imageUrl: { not: null }, supplier: { contentItem: live } }, select: { id: true, productName: true, imageUrl: true, supplier: { select: { contentItem: { select: { slug: true, title: true } } } } }, orderBy: { createdAt: "desc" }, take: 5 }),
+  ]).catch(() => [[], [], []] as const);
+  const a: CollagePhoto[] = ideas.map((i) => ({ src: i.businessIdea!.pictureUrl!, title: clean(i.title), sub: "Business idea", href: `/business-ideas/${i.slug}` }));
+  const b: CollagePhoto[] = machines.map((m) => ({ src: m.machine!.pictureUrl!, title: clean(m.title), sub: "Business machine", href: `/machines/${m.slug}` }));
+  const c: CollagePhoto[] = products.map((p) => ({ src: p.imageUrl!, title: clean(p.productName), sub: clean(p.supplier.contentItem.title), href: `/suppliers/${p.supplier.contentItem.slug}/products/${p.id}` }));
+  const out: CollagePhoto[] = [];
+  for (let i = 0; i < 5; i++) for (const list of [a, b, c]) if (list[i]) out.push(list[i]);
+  return out.slice(0, 12);
+}
+
 async function marketSnapshot(isMember: boolean): Promise<Snapshot> {
   const [products, observations] = await Promise.all([
     prisma.product.findMany({ select: { id: true, name: true, grade: true, standardUnit: true } }),

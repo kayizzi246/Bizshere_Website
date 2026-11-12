@@ -214,8 +214,8 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
             <div className="flex flex-col gap-5">
               <StepBar n={1} />
               <div className="flex flex-col gap-2">
-                <h2 id="onboard-title" className="font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]">Create your account</h2>
-                <p className="text-[13px] leading-relaxed text-ink-muted">Just your phone number. No password. Already a member? Use the same number to get back in.</p>
+                <h2 id="onboard-title" className="font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]">Create your account</h2>
+                <p className="text-[12.5px] leading-relaxed text-ink-muted">Just your phone number. No password. Already a member? Use the same number to get back in.</p>
               </div>
               <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
@@ -227,7 +227,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
         {confirmLeave ? (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/90 p-6 backdrop-blur-sm">
             <div role="alertdialog" aria-labelledby="leave-title" className="flex max-w-sm flex-col gap-3 rounded-2xl border border-line bg-white p-6 text-center shadow-[0_12px_32px_rgba(7,26,51,0.14)]">
-              <p id="leave-title" className="font-display text-[20px] font-extrabold text-heading">Stop this payment?</p>
+              <p id="leave-title" className="font-display text-[18px] font-bold text-heading">Stop this payment?</p>
               <p className="text-[13px] text-ink-muted">If you&apos;ve already approved it on your phone, wait a moment: we&apos;ll open your access as soon as it arrives.</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => setConfirmLeave(false)} className="btn-primary min-h-[44px]">Keep paying</button>
@@ -252,13 +252,13 @@ const WHY = [
 function WhyPanel({ renew }: { renew: boolean }) {
   return (
     <div className="bg-brand-deep px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <p className="font-display text-[24px] font-extrabold leading-[1.12] tracking-[-0.02em] sm:text-[28px] md:text-[30px]">{renew ? "Keep every door open." : "Subscribe now to enjoy full access"}</p>
-      <p className="mt-3 hidden text-[13px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Anyone can read a preview. Members get the whole page:"}</p>
+      <p className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.015em] sm:text-[21px] md:text-[22px]">{renew ? "Keep every door open." : "Subscribe now to enjoy full access"}</p>
+      <p className="mt-2.5 hidden text-[12.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Anyone can read a preview. Members get the whole page:"}</p>
       <ul className="mt-4 hidden flex-col divide-y divide-white/10 sm:flex">
         {WHY.map((w) => (
           <li key={w.title} className="flex items-start gap-3 py-3 first:pt-0">
             <w.icon aria-hidden className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
-            <span className="text-[13px] leading-snug text-white/70"><span className="font-semibold text-white">{w.title}.</span> {w.text}</span>
+            <span className="text-[12.5px] leading-snug text-white/70"><span className="font-semibold text-white">{w.title}.</span> {w.text}</span>
           </li>
         ))}
       </ul>
@@ -270,7 +270,7 @@ function WhyPanel({ renew }: { renew: boolean }) {
 function StepBar({ n }: { n: 1 | 2 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[13px] font-medium text-ink-muted">Step {n} of 2</span>
+      <span className="text-[12px] font-medium text-ink-muted">Step {n} of 2</span>
       <span aria-hidden className="grid grid-cols-2 gap-1.5">
         <span className="h-1.5 rounded-full bg-brand" />
         <span className={`h-1.5 rounded-full ${n === 2 ? "bg-brand" : "bg-line"}`} />
@@ -422,7 +422,7 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
     <form onSubmit={start} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         {renew ? null : <StepBar n={2} />}
-        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[26px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[30px]`}>{renew ? "Renew or change plan" : "Choose your plan"}</h2>
+        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]`}>{renew ? "Renew or change plan" : "Choose your plan"}</h2>
         <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "One membership opens every directory. You're in the moment you pay."}</p>
       </div>
 
@@ -438,7 +438,7 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
                 <input type="radio" name="period" value={p} checked={on} onChange={() => setPeriod(p)} className="sr-only" />
                 <span aria-hidden className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${on ? "border-brand bg-brand text-white" : "border-line-strong"}`}>{on ? <Check className="h-3 w-3" strokeWidth={3} /> : null}</span>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold text-heading">
+                  <span className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-heading">
                     {OPTIONS[p].title}
                     {mine ? <span className="rounded-full bg-heading px-2 py-0.5 text-[11px] font-bold text-white">Your plan</span> : null}
                     {badge ? <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${p === "YEARLY" ? "bg-accent-tint text-accent-dark" : "bg-brand text-white"}`}>{badge}</span> : null}
@@ -446,7 +446,7 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
                   <span className="text-[12px] text-ink-muted">{OPTIONS[p].note}</span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-display text-[17px] font-extrabold tracking-tight text-heading">{fmt(plan.amounts[p]!, plan.currency)}</span>
+                  <span className="block font-display text-[16px] font-bold tracking-tight text-heading">{fmt(plan.amounts[p]!, plan.currency)}</span>
                   <span className="block text-[11px] text-ink-muted">per {OPTIONS[p].per}</span>
                 </span>
               </label>
@@ -469,7 +469,7 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
         </div>
       ) : null}
 
-      <button disabled={busy || !price} className="btn-primary min-h-[50px] w-full text-[15px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Continue · ${price}` : "Continue"}</button>
+      <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Continue · ${price}` : "Continue"}</button>
       <div className="flex flex-col items-center gap-2">
         <span className="flex flex-wrap justify-center gap-1.5">
           {[["MTN MoMo", "bg-[#FFCB05] text-ink"], ["Airtel Money", "bg-[#E40000] text-white"], ["Visa · Mastercard", "bg-heading text-white"]].map(([label, tone]) => (

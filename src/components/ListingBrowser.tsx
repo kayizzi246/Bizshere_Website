@@ -311,8 +311,8 @@ function ListingTable({ rows, start }: { rows: BrowseListing[]; start: number })
   const columns = rows.find((r) => r.cells)?.cells?.map((c) => c.label);
   const applyButton = "inline-flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[14px] font-bold";
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white">
-      <table className="w-full text-left text-[16px]">
+    <div className="relative overflow-x-auto rounded-2xl border border-line bg-white">
+      <table className="w-full min-w-[640px] text-left text-[16px] md:min-w-0">
         <thead className="hidden bg-brand-deep text-[14px] text-white md:table-header-group">
           <tr>
             {columns ? <th className="w-12 whitespace-nowrap px-4 py-3 font-bold">S/N</th> : null}
