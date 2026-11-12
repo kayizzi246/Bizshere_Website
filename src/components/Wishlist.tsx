@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -86,7 +87,9 @@ export function WishlistLink({ className = "" }: { className?: string }) {
       <button type="button" onClick={() => setOpen(true)} aria-label={label} aria-haspopup="dialog" aria-expanded={open} title="Wishlist" className={look}>
         <Heart aria-hidden className="h-[18px] w-[18px]" />{count}
       </button>
-      {open ? <WishlistDrawer onClose={() => setOpen(false)} /> : null}
+      {/* Drawn on the page itself, not inside the header: the header's glass (backdrop-filter) would otherwise
+          hold this full-screen panel inside the menu bar (seen on 12 Nov 2026) */}
+      {open ? createPortal(<WishlistDrawer onClose={() => setOpen(false)} />, document.body) : null}
     </>
   );
 }
