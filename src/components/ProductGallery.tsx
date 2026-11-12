@@ -29,7 +29,8 @@ const isFile = (href: string) => /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(href);
  * white slot where the whole photo shows (nothing cropped), thumbnails in a column beside it on wide
  * screens, and a close-up that follows the mouse when pointing at the photo.
  */
-export function ProductGallery({ images, videos = [], icon, shop = false }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string; shop?: boolean }) {
+/** `wide`: a short 16:9 banner below tablet width, 4:3 from tablet up (business idea page, client 12 Nov 2026: the photo was too big on phones) */
+export function ProductGallery({ images, videos = [], icon, shop = false, wide = false }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string; shop?: boolean; wide?: boolean }) {
   const slides: Slide[] = [...images.map((i) => ({ kind: "image" as const, ...i })), ...videos.map((v) => ({ kind: "video" as const, ...v }))];
   const [current, setCurrent] = useState(0);
   const [full, setFull] = useState(false);
@@ -79,7 +80,7 @@ export function ProductGallery({ images, videos = [], icon, shop = false }: { im
     <div className={shop ? "flex flex-col gap-3 md:flex-row-reverse md:items-start" : "flex flex-col gap-3"}>
       <figure className={`flex flex-col gap-1.5 ${shop ? "min-w-0 md:flex-1" : ""}`}>
         <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-          className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border border-line ${shop ? "aspect-square bg-white" : "aspect-[4/3] bg-page"}`}>
+          className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border border-line ${shop ? "aspect-square bg-white" : wide ? "aspect-[16/9] bg-page md:aspect-[4/3]" : "aspect-[4/3] bg-page"}`}>
           {!shown ? (
             <Icon name={icon} className="h-16 w-16 text-brand/40" strokeWidth={1.25} />
           ) : shown.kind === "image" ? (

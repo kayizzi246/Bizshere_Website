@@ -185,24 +185,43 @@ export function PdfOpenButton({ file, download, title, className, children }: { 
 }
 
 /**
- * A PDF inside a page. Computers show it right there; phones and tablets get a "Read it here"
- * panel that opens the full-screen reader, as a document is too small to read in a narrow box.
+ * A PDF inside a page. Computers show it with the browser's viewer. Phones and tablets, iPhones included
+ * (client, 12 Nov 2026: "force the pdf to show on mobile"), get the pages themselves, drawn by pdf.js
+ * (the legacy build, for older iPhones too) in a box that scrolls on its own, with the section's own Full screen and
+ * Download buttons above it. If a device can't draw it, it says so and offers to open or download it.
  */
 export function PdfReader({ file, download, title, what = "document" }: { file: string; download: string; title: string; what?: string }) {
   const native = useNativePdf();
-  const panel = (
-    <div className={`flex-col items-center gap-3 rounded-xl border border-line bg-page px-5 py-9 text-center ${native === null ? "flex sm:hidden" : "flex"}`}>
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"><BookOpen aria-hidden className="h-5 w-5" /></span>
-      <p className="max-w-xs text-sm text-ink-soft">Read the {what} here first, then download it if you want to keep it.</p>
-      <PdfOpenButton file={file} download={download} title={title} className="btn-primary min-h-[46px] gap-2 px-6 text-sm"><BookOpen aria-hidden className="h-4 w-4" />Read it here</PdfOpenButton>
+  // Phones: the document is loaded only when its box is on screen, so a closed step doesn't download it
+  const box = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || seen) return;
+    const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) { setSeen(true); io.disconnect(); } }, { rootMargin: "300px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [native, seen]);
+  if (native) return <iframe src={withHash(file)} title={`${title} (PDF)`} loading="lazy" className="h-[760px] w-full rounded-xl border border-line bg-page" />;
+  // Until the browser is known: the same room, so the page doesn't jump
+  if (native === null) return <div aria-hidden className="h-[70vh] max-h-[760px] min-h-[420px] w-full rounded-xl border border-line bg-page" />;
+  const bar = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold";
+  const failed = (
+    <div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 py-16 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"><FileText aria-hidden className="h-5 w-5" /></span>
+      <p className="text-sm text-white/85">This {what} can&apos;t be shown on this device. Open it in a new tab, or download it.</p>
+      <span className="flex flex-wrap justify-center gap-2">
+        <a href={file} target="_blank" rel="noopener" className={`${bar} border border-white/30 text-white hover:bg-white/10 hover:text-white`}><ExternalLink aria-hidden className="h-4 w-4" />Open in a new tab</a>
+        <a href={download} className={`${bar} bg-accent text-ink hover:bg-white hover:text-ink`}><FileDown aria-hidden className="h-4 w-4" />Download</a>
+      </span>
     </div>
   );
-  if (native) return <iframe src={withHash(file)} title={`${title} (PDF)`} loading="lazy" className="h-[760px] w-full rounded-xl border border-line bg-page" />;
   return (
-    <>
-      {/* Until the browser is known: room for the viewer on wide screens, so the page doesn't jump */}
-      {native === null ? <div aria-hidden className="hidden h-[760px] w-full rounded-xl border border-line bg-page sm:block" /> : null}
-      {panel}
-    </>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[12px] text-ink-muted">Scroll inside the box to read every page.</span>
+      <div ref={box} data-pdf-scroll="" data-lenis-prevent="" className="h-[70vh] max-h-[760px] min-h-[420px] overflow-auto overscroll-contain rounded-xl bg-[#1B2430]">
+        {seen ? <PdfPages file={file} zoom={1} fallback={failed} /> : null}
+      </div>
+    </div>
   );
 }

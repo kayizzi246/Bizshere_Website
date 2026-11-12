@@ -78,7 +78,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
             <span className="truncate text-ink-soft">{name}</span>
           </nav>
 
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-10">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,500px)_minmax(0,1fr)] lg:items-start lg:gap-12 xl:grid-cols-[minmax(0,540px)_minmax(0,1fr)]">
             {/* The photos */}
             <div className="min-w-0">
               <ProductGallery shop images={photos.map((src, n) => ({ src, alt: n ? `${name}, photo ${n + 1}` : name }))} icon="supplier" />

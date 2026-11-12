@@ -23,6 +23,8 @@ import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
 import { RecentStrip, RememberVisit } from "@/components/Recent";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "@/components/ProductGallery";
+import { OpenOnHash } from "@/components/OpenOnHash";
+import { StickyBar } from "@/components/StickyBar";
 import { WishlistButton } from "@/components/Wishlist";
 import { videoId } from "@/lib/youtube";
 import { popupPlan } from "@/lib/billing";
@@ -86,6 +88,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   // How many items have a sourced price (a count only: public)
   const priced = scenario ? scenario.lines.filter((l) => l.unitCost !== null).length : 0;
   const plan = popupPlan(memberPlan);
+  const unlockFrom = plan.daily ? `${plan.daily} a day` : plan.weekly ? `${plan.weekly} a week` : plan.monthly ? `${plan.monthly} a month` : null;
 
   const unlock = (label: string, cls = "") => (
     <Link href={path} data-onboard="" className={`inline-flex items-center gap-1.5 font-semibold text-brand hover:text-brand-dark ${cls}`}><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{label}</Link>
@@ -173,108 +176,98 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   ].filter((x): x is string => Boolean(x));
 
   const dropHead = "flex cursor-pointer list-none items-center justify-between gap-3";
-  const card = "relative flex scroll-mt-36 flex-col gap-5 rounded-3xl border border-line bg-white p-4 shadow-[0_8px_30px_rgba(7,26,51,0.04)] sm:p-7";
+  const card = "relative flex scroll-mt-36 flex-col gap-5 rounded-xl border border-line bg-white p-4 sm:p-7";
   const h2 = "font-display text-lg font-extrabold text-heading";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
+      <OpenOnHash />
       <article className="bg-page">
-        {/* ── Shop-style top: photo gallery on the left; name, starting capital, key facts and actions on the right ── */}
-        {/* Its own soft background (light blue into warm peach), running up behind the floating header */}
-        <section className="under-header-pad border-b border-line bg-[radial-gradient(70%_90%_at_0%_0%,#DCEBF8_0%,transparent_60%),radial-gradient(60%_80%_at_100%_10%,#FFE8D2_0%,transparent_55%),linear-gradient(180deg,#F5F9FD,#FFFFFF)]">
-          <div className="container-site flex flex-col gap-3 py-3 sm:gap-4 sm:py-5">
+        {/* ── The top (client, 12 Nov 2026: "too much noise, make it convert"): the photo; the name and one line; one
+            card with the starting capital and the key facts; one main action (Unlock for visitors, the budget for
+            members) with the rest as quiet buttons; what the plan holds as a plain checklist. No gradients, no shadows. ── */}
+        <section className="speckle under-header-pad border-b border-line">
+          <div className="container-site flex flex-col gap-4 pb-8 pt-3 sm:pt-5">
             <Link href="/business-ideas" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All business ideas
             </Link>
-            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
-              <div className="mx-auto w-full max-w-[520px] md:max-w-none">
-                <ProductGallery images={images} videos={videos} icon="idea" />
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-12">
+              <div className="order-2 w-full md:order-none">
+                <ProductGallery images={images} videos={videos} icon="idea" wide />
               </div>
 
-              {/* A slim gradient divider down the left of the details (desktop): blue into orange, fading out at both ends */}
-              <div className="flex min-w-0 flex-col gap-4 md:border-l-2 md:border-transparent md:pl-6 md:[border-image:linear-gradient(to_bottom,transparent,#157EC2_18%,#F28C28_82%,transparent)_1] lg:pl-8">
-                <div className="flex flex-col gap-2.5">
-                  {item.primaryCategory ? (
-                    <Link href={`/business-ideas?category=${item.primaryCategory.id}`} className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-bold text-brand-dark hover:text-brand">
-                      <Icon name="idea" className="h-3.5 w-3.5" />{item.primaryCategory.name}
-                    </Link>
-                  ) : null}
-                  <h1 className="text-hero text-[30px] text-heading sm:text-[38px] lg:text-[42px]">{name} business</h1>
-                  {item.shortSummary ? <p className="text-[16px] leading-relaxed text-ink-soft sm:text-[17px]">{item.shortSummary}</p> : null}
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
+                <div className="order-1 flex flex-col gap-2 md:order-none">
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+                    {item.primaryCategory ? <Link href={`/business-ideas?category=${item.primaryCategory.id}`} className="font-semibold text-brand-dark hover:text-brand">{item.primaryCategory.name}</Link> : null}
+                    <span>Reviewed {date(item.lastReviewedAt)}</span>
+                    {viewer.isMember ? <span className="inline-flex items-center gap-1 font-semibold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
                     <RememberVisit item={{ href: path, title: name, kind: "Business idea", icon: "idea", picture: idea.pictureUrl }} />
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Reviewed {date(item.lastReviewedAt)}</span>
-                    {viewer.isMember ? <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-tint px-3 py-1 font-bold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
+                  </p>
+                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px] lg:text-[42px]">{name} business</h1>
+                  {item.shortSummary ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-soft">{item.shortSummary.replace(/\s*\(Sample record for development\.\)\s*$/i, "")}</p> : null}
+                </div>
+
+                {/* The figures, in one card: starting capital first, then the facts beside it */}
+                <dl className="order-3 grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white md:order-none xl:grid-cols-[minmax(0,1.4fr)_repeat(var(--n),minmax(0,1fr))]" style={{ "--n": facts.length } as React.CSSProperties}>
+                  <div className="col-span-2 flex flex-col gap-1 bg-page p-4 xl:col-span-1">
+                    <dt className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-muted"><Wallet aria-hidden className="h-4 w-4 text-accent-dark" />Starting capital</dt>
+                    <dd className="text-hero text-[22px] leading-tight text-heading [overflow-wrap:anywhere] sm:text-[24px]">{capitalFull ?? <span className="text-[17px] font-semibold text-ink-soft [-webkit-text-stroke:0]">Being priced</span>}</dd>
+                    <dd className="text-[12px] text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}</dd>
                   </div>
-                </div>
+                  {facts.map(([Glyph, label, value]) => (
+                    <div key={label} className="flex flex-col gap-1 border-t border-line p-3.5 odd:border-l xl:border-l xl:border-t-0 xl:p-4">
+                      <dt className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-muted"><Glyph aria-hidden className="h-4 w-4 text-brand" />{label}</dt>
+                      <dd className="font-display text-[15px] font-extrabold leading-snug text-heading">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
 
-                {/* Starting capital, shown like a price, on a tinted card */}
-                <div className="relative flex items-center gap-4 overflow-hidden rounded-2xl bg-[linear-gradient(120deg,#E8F2FA,#FFF4E8)] p-4 sm:p-5">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-accent-dark shadow-sm"><Wallet aria-hidden className="h-6 w-6" /></span>
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-muted">Starting capital</span>
-                    <span className="font-display text-[22px] font-extrabold leading-tight tracking-[-0.02em] text-brand-dark [overflow-wrap:anywhere] sm:text-[24px] xl:text-[30px]">{capitalFull ?? <span className="text-lg font-semibold text-ink-soft">Being priced</span>}</span>
-                    <span className="text-xs text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}{idea.capitalNotes ? ` · ${idea.capitalNotes}` : ""}</span>
-                  </span>
-                </div>
-
-                {facts.length ? (
-                  <dl className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2">
-                    {facts.map(([Glyph, label, value]) => (
-                      <div key={label} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3">
-                        <Glyph aria-hidden className="h-5 w-5 shrink-0 text-brand" />
-                        <span className="flex min-w-0 flex-col">
-                          <dt className="text-[12px] font-semibold text-ink-muted">{label}</dt>
-                          <dd className="font-display text-[15px] font-extrabold leading-snug text-heading">{value}</dd>
-                        </span>
-                      </div>
-                    ))}
-                  </dl>
-                ) : null}
-
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {/* No costed budget yet: say so instead of opening an empty page */}
-                  {scenarios.some((sc) => sc.lines.length) ? (
-                    <Link href={reqPath} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
-                  ) : (
-                    <span aria-disabled="true" className="inline-flex h-12 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-page px-5 text-[15px] font-semibold text-ink-muted ring-1 ring-line"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget unavailable</span>
-                  )}
-                  <WishlistButton id={item.id} />
-                </div>
-                <a href={pdfDownload} className="-mt-1 inline-flex h-11 w-fit items-center gap-2 rounded-xl border border-line px-4 text-sm font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Download business plan (PDF)</a>
-                <div className="flex flex-col gap-2.5 rounded-2xl bg-navy p-4 text-white sm:p-5">
-                  <h2 className="font-display text-[16px] font-extrabold">In this plan</h2>
-                  <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-5 gap-y-1.5 lg:grid-cols-2">
-                    {inside.map((t) => <li key={t} className="flex items-start gap-2 text-[15px] leading-snug"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent" strokeWidth={3} />{t}</li>)}
-                  </ul>
+                {/* One main action; the rest quiet */}
+                <div className="order-4 flex flex-col gap-2.5 md:order-none">
                   {gated ? (
-                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-white/15 pt-3 text-[14px] text-white/85">
-                      You are seeing the free preview.
-                      <Link href={path} data-onboard="" className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-accent px-4 text-[14px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock the full plan</Link>
-                    </p>
+                    <Link href={path} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+                      <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{unlockFrom ? `Unlock the full plan · ${unlockFrom}` : "Unlock the full plan"}
+                    </Link>
+                  ) : scenarios.some((sc) => sc.lines.length) ? (
+                    <Link href={reqPath} className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />See the startup budget</Link>
                   ) : null}
+                  <div className="flex flex-wrap gap-2">
+                    {gated && scenarios.some((sc) => sc.lines.length) ? (
+                      <Link href={reqPath} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
+                    ) : null}
+                    <a href={pdfDownload} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Business plan (PDF)</a>
+                    <div className="min-w-[160px] flex-1 sm:flex-none"><WishlistButton id={item.id} small /></div>
+                  </div>
+                  {gated ? <p className="text-[13px] text-ink-muted">Pay with MoMo, Airtel Money or card. Everything opens straight away.</p> : null}
+                </div>
+
+                <div className="order-5 flex flex-col gap-2 border-t border-line pt-4 md:order-none">
+                  <h2 className="text-[13px] font-semibold text-ink-muted">In this plan</h2>
+                  <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-6 gap-y-1.5 lg:grid-cols-2">
+                    {inside.map((t) => <li key={t} className="flex items-start gap-2 text-[14px] leading-snug text-heading"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent-dark" strokeWidth={3} />{t}</li>)}
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── The steps, as one strip: each jumps to its part of the page ── */}
-        <nav aria-label="Steps to start this business" className="bg-navy text-white">
-          <div className="container-site flex flex-col gap-3 py-5 lg:flex-row lg:items-center lg:gap-8">
-            <p className="text-hero shrink-0 text-[18px] sm:text-[20px]">Follow the {steps.length} steps</p>
-            <ol className={`grid flex-1 grid-cols-2 gap-2 ${steps.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-              {steps.map((x, n) => (
-                <li key={x.id}>
-                  <a href={`#${x.id}`} className="group flex h-full items-center gap-2.5 rounded-xl bg-white/[0.08] p-2.5 text-white hover:bg-white hover:text-navy">
-                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent font-display text-[15px] font-extrabold text-ink">{n + 1}</span>
-                    <span className="font-display text-[14px] font-bold leading-tight sm:text-[15px]">{x.title}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </nav>
+        {/* ── The steps, as one light bar: each jumps to its part of the page. It sticks under the menu bar once
+            scrolled up to it, and turns navy with specks while stuck (StickyBar; client, 12 Nov 2026). Phones: one
+            row that scrolls sideways, so it stays slim. ── */}
+        <StickyBar label="Steps to start this business">
+          <ol className={`container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] lg:grid lg:gap-2 lg:overflow-visible lg:py-2.5 [&::-webkit-scrollbar]:hidden ${steps.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+            {steps.map((x, n) => (
+              <li key={x.id} className="shrink-0">
+                <a href={`#${x.id}`} className="group flex h-full items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-heading hover:bg-page hover:text-brand-dark group-data-[stuck]/bar:text-white group-data-[stuck]/bar:hover:bg-white/10 group-data-[stuck]/bar:hover:text-white">
+                  <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint font-display text-[13px] font-extrabold text-brand-dark group-hover:bg-brand group-hover:text-white group-data-[stuck]/bar:bg-accent group-data-[stuck]/bar:text-ink">{n + 1}</span>
+                  <span className="font-display text-[14px] font-bold leading-tight">{x.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </StickyBar>
 
         <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
           {/* The steps sit on a line down the left from md; each step's number is a circle on it (StepHead) */}
@@ -282,7 +275,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           <span aria-hidden className="absolute bottom-8 left-[23px] top-8 hidden w-0.5 bg-line-strong md:block" />
           {/* ── 1. The template, as in the client's document: S/N, Name, Details, Notes ── */}
           <section id="template" className={card} data-reveal="">
-            <details open className="group/drop [&>summary::-webkit-details-marker]:hidden">
+            <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
               <summary className={dropHead}>{head("template", "Everything about this business, as one simple table.")}<DropHint /></summary>
             <div className="mt-5 overflow-x-auto rounded-xl border border-line">
               <table className="w-full min-w-[640px] text-left text-[15px] sm:text-[16px]">
@@ -317,7 +310,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
           {/* ── 2. Start-up Budget, the template's separate sub-table: Sn, Item, Qty, Price (est), Amount, Remarks ── */}
           <section id="budget" className={card} data-reveal="">
-            <details open className="group/drop [&>summary::-webkit-details-marker]:hidden">
+            <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
               <summary className={dropHead}>{head("budget", "What to buy and pay to open, item by item.")}<DropHint /></summary>
             <div className="mt-5 flex flex-col gap-5">
               {scenarios.length > 1 ? (
@@ -398,7 +391,9 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           {/* ── What it takes: the machines, funding, experts and tools linked to this idea ── */}
           {next.length ? (
             <section id="start" className={card} data-reveal="">
-              {head("start", "Machines, money and people for this business, checked by our team.")}
+              <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
+              <summary className={dropHead}>{head("start", "Machines, money and people for this business, checked by our team.")}<DropHint /></summary>
+              <div className="mt-5 flex flex-col gap-5">
               <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {next.map(({ toItem: t }) => (
                   <li key={t.id}>
@@ -414,21 +409,25 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 ))}
               </ul>
               {onward("start")}
+              </div>
+              </details>
             </section>
           ) : null}
 
           {/* ── 3. The business plan as a designed PDF (src/lib/idea-pdf.tsx), viewed right here ── */}
           <section id="plan-pdf" className={card} data-reveal="">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {head("plan-pdf", "The whole plan, with the steps to start, to keep or print.")}
-              <span className="flex gap-2">
+            <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
+            <summary className={dropHead}>{head("plan-pdf", "The whole plan, with the steps to start, to keep or print.")}<DropHint /></summary>
+            <div className="mt-5 flex flex-col gap-4">
+              <span className="flex flex-wrap gap-2">
                 <PdfOpenButton file={pdfPath} download={pdfDownload} title={`${name} business plan`} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
                 <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
               </span>
-            </div>
-            {/* Read on the page on a computer; phones open it in the full-screen reader (PdfViewer.tsx) */}
+            {/* Read on the page: computers in the browser viewer, phones (iPhones too) with the pages drawn right here (PdfViewer.tsx) */}
             <PdfReader file={pdfPath} download={pdfDownload} title={`${name} business plan`} what="plan" />
             {gated ? <p className="text-[12px] text-ink-muted">This is the free preview. Members get the full plan with every budget size and step.</p> : null}
+            </div>
+            </details>
           </section>
           </div>
 
@@ -471,11 +470,11 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 function StepHead({ no, of, kicker, title, sub }: { no: number; of: number; kicker: string; title: string; sub: string }) {
   return (
     <div className="flex items-start gap-3.5">
-      <span aria-hidden className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy font-display text-[20px] font-extrabold text-white md:absolute md:-left-[4.5rem] md:top-5 md:ring-8 md:ring-page">{no}</span>
+      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-display text-[16px] font-extrabold text-white md:absolute md:-left-[4.25rem] md:top-5 md:ring-8 md:ring-page">{no}</span>
       <span className="flex min-w-0 flex-col gap-1">
-        <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-accent-dark">Step {no} of {of} · {kicker}</span>
-        <h2 className="text-hero text-[22px] text-heading sm:text-[26px]">{title}</h2>
-        <p className="text-[15px] text-ink-soft">{sub}</p>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-accent-dark">Step {no} of {of} · {kicker}</span>
+        <h2 className="font-display text-[18px] font-bold leading-tight text-heading sm:text-[19px]">{title}</h2>
+        <p className="text-[14px] text-ink-soft">{sub}</p>
       </span>
     </div>
   );

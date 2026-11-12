@@ -57,12 +57,13 @@ export function WishlistHeart({ id, className = "" }: { id: string; className?: 
 }
 
 /** Wide wishlist button for detail pages. */
-export function WishlistButton({ id }: { id: string }) {
+/** `small`: the same height as the buttons beside it in a row of secondary actions (business idea page) */
+export function WishlistButton({ id, small = false }: { id: string; small?: boolean }) {
   const { ids, toggle } = useContext(WishlistContext);
   const on = ids.has(id);
   return (
     <button type="button" onClick={() => toggle(id)} aria-pressed={on}
-      className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border text-sm font-bold ${on ? "border-accent bg-accent-tint text-accent-dark" : "border-line text-ink hover:border-brand hover:text-brand"}`}>
+      className={`inline-flex w-full items-center justify-center gap-1.5 border ${small ? "h-11 rounded-lg px-4 text-[14px] font-semibold" : "h-12 rounded-xl text-sm font-bold"} ${on ? "border-accent bg-accent-tint text-accent-dark" : "border-line text-ink hover:border-brand hover:text-brand"}`}>
       <Heart aria-hidden className={`h-4 w-4 ${on ? "fill-current" : ""}`} />{on ? "In your wishlist" : "Add to wishlist"}
     </button>
   );
