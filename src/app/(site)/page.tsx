@@ -69,11 +69,11 @@ export default async function HomePage() {
 
             {/* Every directory as a link tile: on phones bigger tiles, two to a row (solid hairline: no dotted borders, client 10 Nov 2026), from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
-            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2">
+            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px]">
-                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4" />
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px] lg:min-h-[44px] lg:gap-2 lg:px-3.5 lg:py-2 lg:text-[15px]">
+                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4 lg:h-[18px] lg:w-[18px]" />
                     {d.title}
                   </Link>
                 </li>
