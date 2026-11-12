@@ -37,7 +37,7 @@ export default async function HomePage() {
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
       {/* Laptops and up (1280px+): the hero fills the screen, up to 780px, with its content in the middle, like the client's example (12 Nov 2026). */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,760px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,640px)] xl:flex-col xl:justify-center">
         {/* Faint flecks over the navy, like the lower sections (.speckle-dark in globals.css; client, 12 Nov 2026) */}
         <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10" />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
@@ -46,7 +46,7 @@ export default async function HomePage() {
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-8 pt-3 sm:pb-10 sm:pt-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -69,21 +69,21 @@ export default async function HomePage() {
 
             {/* Every directory as a link tile: on phones bigger tiles, two to a row (solid hairline: no dotted borders, client 10 Nov 2026), from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
-            <ul aria-label="Directories" className="mt-5 grid w-full max-w-[680px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5">
+            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[42px] sm:px-3 sm:py-2 sm:text-[14px]">
-                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent" />
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px]">
+                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4" />
                     {d.title}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
-              <a href="#features" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[14px] text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
-              <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-lg border border-white/25 px-6 text-[14px] text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
+              <a href="#features" className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg bg-accent px-6 text-[14px] text-ink transition-colors hover:bg-white hover:text-ink">Get started<ChevronDown aria-hidden className="h-4 w-4" /></a>
+              <Link href="/prices" className="inline-flex h-11 items-center justify-center rounded-lg border border-white/25 px-6 text-[14px] text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white">Check today&apos;s prices</Link>
             </div>
           </div>
 

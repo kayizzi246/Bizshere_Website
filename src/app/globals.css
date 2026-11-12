@@ -100,8 +100,7 @@
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
   /* Big headings: Manrope, the brand heading font. Its heaviest weight is ExtraBold (800); the client wants
      900 (12 Nov 2026), so a hairline outline in the text's own colour thickens every letter by about that much. */
-  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15;
-    -webkit-text-stroke: 0.03em currentColor; paint-order: stroke fill; }
+  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
   .text-page-title { @apply font-display text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[42px]; }
   .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[30px]; }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
@@ -476,11 +475,10 @@ img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF
   background-size: 240px 240px, auto, auto, auto, auto;
 }
 /* Fonts on every page (client, 12 Nov 2026): page titles and big section titles in the homepage heading style,
-   Manrope 800 with a hairline of its own colour so it reads as heavy as the homepage. */
+   Manrope ExtraBold (800), as the brand guide shows it: no outline (client, 12 Nov 2026). */
 .text-page-title, .text-section-title, main h1, main h2.font-display.font-extrabold,
 main h2:is([class*="text-[2"], [class*="text-[3"], [class*="text-2xl"], [class*="text-3xl"]) {
   font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em;
-  -webkit-text-stroke: 0.03em currentColor; paint-order: stroke fill;
 }
 /* JPG photos always have a background, so they fill their frame from the first paint, before ImageFit runs */
 main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }
