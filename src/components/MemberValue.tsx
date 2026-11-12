@@ -1,34 +1,39 @@
 import Link from "next/link";
-import { Check, LockKeyhole } from "lucide-react";
+import { ArrowRight, LockKeyhole, Smartphone } from "lucide-react";
 import type { popupPlan } from "@/lib/billing";
 
-const EVERYWHERE = ["Business plans and budgets", "Supplier and expert contacts", "Funding amounts and terms", "Tools, templates and downloads"];
-
 /**
- * What a membership opens, on any paid page: what is locked on this page (names only, never the
- * values), what comes with it across the site, and the way in. Must sit inside an OnboardingGate.
- * `wide` lays it out across the page; otherwise it fits a sidebar.
+ * The box on every paid page for someone who hasn't paid (client, 12 Nov 2026: "straight to the point, no second
+ * guessing"): what is hidden on this page (names only, never the values), then one button that says what it costs
+ * and opens the payment pop-up in place, and how to pay. One line says the same membership opens every directory.
+ * Must sit inside an OnboardingGate. `wide` lays it out across the page; otherwise it fits a sidebar.
  */
 export function MemberValue({ back, unlocks, plan, wide = false }: { back: string; unlocks: string[]; plan: ReturnType<typeof popupPlan>; wide?: boolean }) {
   const here = [...new Set(unlocks)].slice(0, 6);
   const lowest = plan.daily ? `${plan.daily} a day` : plan.weekly ? `${plan.weekly} a week` : plan.monthly ? `${plan.monthly} a month` : null;
-  const item = "flex items-start gap-2 text-[15px] font-semibold leading-snug";
-  const list = (title: string, items: string[], Mark: typeof Check, tone: string) => (
-    <div className="flex min-w-0 flex-col gap-2">
-      <h3 className="text-[14px] font-medium">{title}</h3>
-      <ul className="flex flex-col gap-1.5">{items.map((t) => <li key={t} className={item}><Mark aria-hidden className={`mt-0.5 h-4 w-4 shrink-0 ${tone}`} strokeWidth={Mark === Check ? 3 : 2} />{t}</li>)}</ul>
-    </div>
-  );
 
   return (
-    <section data-member-value="" className="flex flex-col gap-4 rounded-3xl bg-brand p-5 text-white sm:p-6">
-      <h2 className="font-display text-[20px] font-extrabold leading-tight sm:text-[22px]">What membership opens for you</h2>
-      <div className={`grid grid-cols-[minmax(0,1fr)] gap-4 ${wide ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center md:gap-8" : ""}`}>
-        {here.length ? list("Locked on this page", here, LockKeyhole, "text-white") : null}
-        {list("Plus, across BizSphere-Ug", EVERYWHERE, Check, "text-accent")}
-        <div className="flex flex-col gap-1.5">
-          <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white hover:text-ink">Get full access</Link>
-          <p className="text-center text-[13px]">{lowest ? `From ${lowest}. ` : ""}MoMo, Airtel Money or card.</p>
+    <section data-member-value="" className="hero-glow flex flex-col gap-4 rounded-xl p-5 text-white sm:p-6">
+      <div className={`grid grid-cols-[minmax(0,1fr)] gap-5 ${wide ? "md:grid-cols-[minmax(0,1fr)_minmax(0,300px)] md:items-center md:gap-10" : ""}`}>
+        <div className="flex min-w-0 flex-col gap-3">
+          <h2 className="font-display text-[20px] font-extrabold leading-tight sm:text-[22px]">See the rest of this page</h2>
+          {here.length ? (
+            <ul aria-label="Hidden on this page" className="flex flex-wrap gap-2">
+              {here.map((t) => (
+                <li key={t} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[13px] font-semibold">
+                  <LockKeyhole aria-hidden className="h-3.5 w-3.5 text-accent" />{t}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className="text-[13px] text-white/75">The same membership opens every business plan, contact, funding term and price on BizSphere-Ug.</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Link href={back} data-onboard="" className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-accent px-5 text-center text-[15px] font-bold leading-tight text-ink hover:bg-white hover:text-ink">
+            {lowest ? `Unlock now · ${lowest}` : "Unlock now"}<ArrowRight aria-hidden className="h-4 w-4 shrink-0" />
+          </Link>
+          <p className="text-center text-[13px] leading-snug text-white/85"><Smartphone aria-hidden className="mr-1 inline h-4 w-4 align-[-3px]" />Pay with MoMo, Airtel or card.<br />It opens straight away.</p>
+          <Link href="/membership" className="text-center text-[13px] font-semibold text-white underline-offset-2 hover:text-white hover:underline">See all plans</Link>
         </div>
       </div>
     </section>

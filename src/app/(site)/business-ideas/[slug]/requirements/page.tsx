@@ -49,7 +49,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
         <header className="under-header-pad bg-brand-dark text-white">
           <div className="container-site flex flex-col items-center gap-3 py-5 text-center sm:py-6">
             <Link href={overview} className="inline-flex items-center gap-1 text-[13px] font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />{name}</Link>
-            <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.03em] sm:text-[34px]">Startup budget</h1>
+            <h1 className="text-hero text-[28px] leading-tight sm:text-[36px]">Startup budget</h1>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full bg-white p-1">
               <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Business details</Link>
               <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Startup budget</span>

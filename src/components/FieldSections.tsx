@@ -149,7 +149,7 @@ function Value({ f, v, currency }: { f: Field; v: unknown; currency: string }) {
 function Locked({ back }: { back: string }) {
   return (
     <Link href={back} data-onboard="" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
-      <LockKeyhole aria-hidden className="h-3.5 w-3.5" /> Members only
+      <LockKeyhole aria-hidden className="h-3.5 w-3.5" /> Tap to see
     </Link>
   );
 }

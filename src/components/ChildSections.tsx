@@ -112,7 +112,7 @@ function Gallery({ rows, gated, back }: { rows: Row[]; gated: boolean; back: str
           <figure key={String(row.id)} className="flex flex-col gap-1.5">
             {lockedFile ? (
               <Link href={back} data-onboard="" className="flex aspect-[4/3] flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-line-strong bg-page text-xs font-semibold text-brand">
-                <LockKeyhole aria-hidden className="h-4 w-4" />Members only
+                <LockKeyhole aria-hidden className="h-4 w-4" />Tap to see
               </Link>
             ) : row.mediaType === "image" ? (
               <a href={String(row.fileLocation)} target="_blank" rel="noopener noreferrer">
@@ -161,7 +161,7 @@ function Value({ f, v, row, currency }: { f: ChildField; v: unknown; row: Row; c
 function Locked({ back }: { back: string }) {
   return (
     <Link href={back} data-onboard="" className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand">
-      <LockKeyhole aria-hidden className="h-3 w-3" /> Members only
+      <LockKeyhole aria-hidden className="h-3 w-3" /> Tap to see
     </Link>
   );
 }

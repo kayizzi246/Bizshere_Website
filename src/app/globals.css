@@ -102,8 +102,8 @@
      900 (12 Nov 2026), so a hairline outline in the text's own colour thickens every letter by about that much. */
   .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15;
     -webkit-text-stroke: 0.03em currentColor; paint-order: stroke fill; }
-  .text-page-title { @apply font-display text-[30px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[44px]; }
-  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[32px]; }
+  .text-page-title { @apply font-display text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[42px]; }
+  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[30px]; }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
@@ -455,3 +455,32 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 @media (min-width: 640px) {
   p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([data-size]):not([class*="sm:text-"]):not([class*="md:text-"]):not([class*="lg:text-"]) { font-size: 16px; line-height: 1.55; }
 }
+
+/* How pictures sit in their frames (client, 12 Nov 2026; set by src/components/ImageFit.tsx): photos with their own
+   background fill the frame; cut-outs with no background are shown whole on a soft colour. */
+img[data-fit="cover"] { object-fit: cover !important; }
+img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF2F7 !important; padding: 6%; }
+/* In the dark hero the cut-outs sit on a light card so they read clearly */
+.collage img[data-fit="contain"] { background-color: #E8EDF4 !important; padding: 8% 8% 22%; }
+
+/* Specks on every page (client, 12 Nov 2026: "put those particles on the other pages"), the same flecks as the homepage.
+   Only the dark page tops (.hero-glow: directories, item pages, search, forum, sign-in) have them, light flecks over
+   their glow; the content areas under them stay plain (client, 12 Nov 2026). */
+.hero-glow {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23FFFFFF' opacity='0.22'%3E%3Ccircle cx='156.0' cy='217.1' r='0.71'/%3E%3Cpath d='M25.0 54.8l4.7 3.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M78.6 192.6l-1.3 3.4' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='202.3' cy='228.7' r='0.86'/%3E%3Cpath d='M71.5 108.8l-1.1 4.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M61.7 195.0l-2.0 1.6' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='9.3' cy='75.7' r='0.81'/%3E%3Cpath d='M129.8 142.7l-3.5 3.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M89.1 201.0l2.1 0.4' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='97.8' cy='207.9' r='0.56'/%3E%3Cpath d='M187.3 152.9l2.4 5.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M183.9 189.2l-2.6 4.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='72.8' cy='212.7' r='1.04'/%3E%3Cpath d='M195.9 153.4l-3.0 3.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M66.8 49.2l3.5 2.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='90.8' cy='121.8' r='1.12'/%3E%3Cpath d='M98.5 42.7l-3.4 4.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M223.0 8.4l4.7 3.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='85.7' cy='198.3' r='0.74'/%3E%3Cpath d='M15.8 110.4l-1.5 6.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M8.7 18.6l-3.5 0.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='116.1' cy='162.8' r='0.98'/%3E%3Cpath d='M113.1 24.1l0.7 4.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M238.1 22.9l-4.7 4.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='151.7' cy='20.7' r='1.10'/%3E%3Cpath d='M146.6 135.4l0.8 5.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M169.6 141.9l-4.7 1.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='19.7' cy='88.1' r='0.96'/%3E%3Cpath d='M130.4 67.4l1.2 3.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M172.9 60.8l2.1 0.7' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='232.2' cy='219.1' r='1.09'/%3E%3Cpath d='M203.1 100.9l2.2 3.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M235.4 16.0l5.8 0.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='92.0' cy='152.3' r='1.15'/%3E%3Cpath d='M174.2 80.9l-0.1 2.7' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M69.0 21.4l-2.6 0.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='39.9' cy='17.3' r='0.92'/%3E%3Cpath d='M191.1 163.9l1.9 5.6' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M96.6 215.7l-1.7 3.5' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='81.0' cy='41.5' r='1.08'/%3E%3Cpath d='M125.8 43.8l-3.6 1.5' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M198.9 168.5l-0.5 6.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='51.8' cy='176.7' r='0.99'/%3E%3Cpath d='M81.1 19.2l0.3 5.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M61.2 27.1l-1.3 2.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='46.1' cy='125.9' r='1.04'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(60rem 34rem at 88% -8%, rgba(46, 150, 235, 0.38), transparent 62%),
+    radial-gradient(46rem 30rem at -6% 108%, rgba(242, 160, 60, 0.16), transparent 60%),
+    radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.22), transparent 65%),
+    linear-gradient(135deg, #040B1F 0%, #08193F 48%, #0B2466 100%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 240px 240px, auto, auto, auto, auto;
+}
+/* Fonts on every page (client, 12 Nov 2026): page titles and big section titles in the homepage heading style,
+   Manrope 800 with a hairline of its own colour so it reads as heavy as the homepage. */
+.text-page-title, .text-section-title, main h1, main h2.font-display.font-extrabold,
+main h2:is([class*="text-[2"], [class*="text-[3"], [class*="text-2xl"], [class*="text-3xl"]) {
+  font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em;
+  -webkit-text-stroke: 0.03em currentColor; paint-order: stroke fill;
+}
+/* JPG photos always have a background, so they fill their frame from the first paint, before ImageFit runs */
+main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }

@@ -46,7 +46,7 @@ export default async function HomePage() {
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,520px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-10 pb-12 pt-3 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}

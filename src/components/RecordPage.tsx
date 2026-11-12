@@ -152,7 +152,7 @@ export async function RecordPage({
                   <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-bold text-brand-dark">
                     <Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}
                   </span>
-                  <h1 className="font-display text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-heading sm:text-[36px]">{name}</h1>
+                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px]">{name}</h1>
                   {brief ? <p className="text-[15px] leading-relaxed text-ink-soft sm:text-base">{brief}</p> : null}
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />

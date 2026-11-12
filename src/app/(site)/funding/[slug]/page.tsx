@@ -112,7 +112,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const locked = (label: string) => (
     <Link href={path} data-onboard="" aria-label={`See the ${label.toLowerCase()}`} className="inline-flex items-center gap-2 text-brand">
       <span aria-hidden className="hidden select-none blur-[5px] sm:inline">0000 000 000</span>
-      <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" /><span className="whitespace-nowrap text-[13px] font-semibold">For members</span>
+      <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" /><span className="whitespace-nowrap text-[13px] font-semibold">Tap to see</span>
     </Link>
   );
   const cell = (r: Row) => (r.locked ? locked(r.label) : r.value);

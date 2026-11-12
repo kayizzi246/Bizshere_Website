@@ -64,12 +64,15 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
   const [next, setNext] = useState("/");
   const [period, setPeriod] = useState<Period>("MONTHLY");
   const [renew, setRenew] = useState(false);
+  // A plan was already picked before the pop-up opened: step 2 then shows just that plan (client, 12 Nov 2026)
+  const [picked, setPicked] = useState(false);
   const [celebrate, setCelebrate] = useState<{ until: string | null; renewed: boolean } | null>(null);
 
-  const openAt = useCallback((target: string, p: Period, renewing: boolean) => {
+  const openAt = useCallback((target: string, p: Period, renewing: boolean, chosen = false) => {
     setNext(target);
     setPeriod(p);
     setRenew(renewing);
+    setPicked(chosen);
     setStep(signedIn ? "pay" : "account");
     setOpen(true);
   }, [signedIn]);
@@ -90,7 +93,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     if (a.hasAttribute("data-open")) return;
     if (paths && a.hasAttribute("data-pay")) {
       e.preventDefault();
-      openAt(target ?? "/business-ideas", asPeriod(a.dataset.period), false);
+      openAt(target ?? "/business-ideas", asPeriod(a.dataset.period), false, Boolean(a.dataset.period));
       return;
     }
     if (paths) {
@@ -107,7 +110,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
       }
     } else if (!a.hasAttribute("data-onboard")) return;
     e.preventDefault();
-    openAt(a.getAttribute("href") ?? "/", "MONTHLY", false);
+    openAt(a.getAttribute("href") ?? "/", "DAILY", false);
   };
 
   // Full page loads: ?onboard=pay (back from Google sign-in, old links), ?onboard=renew (renewal
@@ -127,7 +130,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     window.history.replaceState(null, "", window.location.pathname + window.location.hash);
     // Renewing while signed out (a reminder opened on another device): sign in first, then the plans
     const renewing = onboard === "renew";
-    if (renewing || !isMember) openAt(target && target.startsWith("/") ? target : renewing ? window.location.pathname : "/", asPeriod(q.get("period")), renewing);
+    if (renewing || !isMember) openAt(target && target.startsWith("/") ? target : renewing ? window.location.pathname : "/", asPeriod(q.get("period")), renewing, !renewing && Boolean(q.get("period")));
   }, [isMember, signedIn, paths, openAt]);
 
   // Paid: the pop-up closes and the full-screen welcome takes over.
@@ -142,7 +145,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     <div onClickCapture={onClickCapture}>
       {children}
       {open ? (
-        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} googleEnabled={googleEnabled} plan={plan} help={help}
+        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} picked={picked} googleEnabled={googleEnabled} plan={plan} help={help}
           onPaid={paid} onClose={() => setOpen(false)} />
       ) : null}
       {celebrate ? (
@@ -155,8 +158,9 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
   );
 }
 
-function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnabled, plan, help, onPaid, onClose }: {
+function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, googleEnabled, plan, help, onPaid, onClose }: {
   step: Step;
+  picked: boolean;
   setStep: (s: Step) => void;
   next: string;
   renew: boolean;
@@ -214,13 +218,13 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, googleEnab
             <div className="flex flex-col gap-5">
               <StepBar n={1} />
               <div className="flex flex-col gap-2">
-                <h2 id="onboard-title" className="font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]">Create your account</h2>
-                <p className="text-[12.5px] leading-relaxed text-ink-muted">Just your phone number. No password. Already a member? Use the same number to get back in.</p>
+                <h2 id="onboard-title" className="font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]">Enter your phone number</h2>
+                <p className="text-[12.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
               </div>
               <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : (
-            <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
+            <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} picked={picked} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
           )}
         </div>
 
@@ -252,8 +256,8 @@ const WHY = [
 function WhyPanel({ renew }: { renew: boolean }) {
   return (
     <div className="bg-brand-deep px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <p className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.015em] sm:text-[21px] md:text-[22px]">{renew ? "Keep every door open." : "Subscribe now to enjoy full access"}</p>
-      <p className="mt-2.5 hidden text-[12.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Anyone can read a preview. Members get the whole page:"}</p>
+      <p className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.015em] sm:text-[21px] md:text-[22px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
+      <p className="mt-2.5 hidden text-[12.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
       <ul className="mt-4 hidden flex-col divide-y divide-white/10 sm:flex">
         {WHY.map((w) => (
           <li key={w.title} className="flex items-start gap-3 py-3 first:pt-0">
@@ -270,7 +274,7 @@ function WhyPanel({ renew }: { renew: boolean }) {
 function StepBar({ n }: { n: 1 | 2 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[12px] font-medium text-ink-muted">Step {n} of 2</span>
+      <span className="text-[12px] font-medium text-ink-muted">Step {n} of 2 · {n === 1 ? "Your number" : "Pay"}</span>
       <span aria-hidden className="grid grid-cols-2 gap-1.5">
         <span className="h-1.5 rounded-full bg-brand" />
         <span className={`h-1.5 rounded-full ${n === 2 ? "bg-brand" : "bg-line"}`} />
@@ -282,10 +286,10 @@ function StepBar({ n }: { n: 1 | 2 }) {
 const fmt = (n: number, currency: string) => `${currency} ${n.toLocaleString("en-UG", { maximumFractionDigits: 0 })}`;
 
 const OPTIONS: Record<Period, { title: string; per: string; note: string }> = {
-  DAILY: { title: "Day pass", per: "day", note: "24 hours of full access" },
-  WEEKLY: { title: "Weekly", per: "week", note: "7 days of full access" },
-  MONTHLY: { title: "Monthly", per: "month", note: "Renews monthly, cancel any time" },
-  YEARLY: { title: "Yearly", per: "year", note: "One payment for 12 months" },
+  DAILY: { title: "1 day", per: "day", note: "24 hours of full access" },
+  WEEKLY: { title: "1 week", per: "week", note: "7 days of full access" },
+  MONTHLY: { title: "1 month", per: "month", note: "A month of full access" },
+  YEARLY: { title: "1 year", per: "year", note: "12 months, at the lowest price" },
 };
 
 /**
@@ -293,8 +297,9 @@ const OPTIONS: Record<Period, { title: string; per: string; note: string }> = {
  * open we check every few seconds whether the payment went through (Pesapal confirms it to the
  * server), and the return page inside the iframe tells us the moment it's done.
  */
-function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid }: {
+function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout, onPaid }: {
   plan: Plan;
+  picked: boolean;
   help?: Help;
   renew: boolean;
   initialPeriod: Period;
@@ -311,6 +316,8 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
     accessState().then((s) => { if (s.memberPeriod) setCurrentPeriod(s.memberPeriod as Period); }).catch(() => {});
   }, [renew]);
   const [busy, setBusy] = useState(false);
+  // Already picked on the page: just that plan, with "Change" to see the others
+  const [showAll, setShowAll] = useState(renew || !picked || !available.includes(initialPeriod));
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<{ url: string; paymentId: string } | null>(null);
   const [frameReady, setFrameReady] = useState(false);
@@ -422,16 +429,24 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
     <form onSubmit={start} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         {renew ? null : <StepBar n={2} />}
-        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]`}>{renew ? "Renew or change plan" : "Choose your plan"}</h2>
-        <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "One membership opens every directory. You're in the moment you pay."}</p>
+        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]`}>{renew ? "Renew or change plan" : showAll ? "Pick how long" : "Pay and you're in"}</h2>
+        <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "Every plan opens everything. Only the length differs."}</p>
       </div>
 
-      {available.length ? (
+      {available.length && !showAll ? (
+        <div className="flex items-center gap-3 rounded-xl border-2 border-brand bg-brand-tint/40 px-4 py-3.5">
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-[15px] font-bold text-heading">{OPTIONS[period].title} of full access</span>
+            <span className="text-[13px] text-ink-muted">{price}, paid once</span>
+          </span>
+          <button type="button" onClick={() => setShowAll(true)} className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold text-brand ring-1 ring-brand/30 hover:bg-white">Change</button>
+        </div>
+      ) : available.length ? (
         <fieldset className="flex flex-col gap-2">
           <legend className="sr-only">Plan</legend>
           {available.map((p) => {
             const on = period === p;
-            const badge = p === "MONTHLY" ? "Most popular" : p === "YEARLY" && saving ? `Save ${saving}%` : null;
+            const badge = p === "MONTHLY" ? "Recommended" : p === "YEARLY" && saving ? `Save ${saving}%` : null;
             const mine = renew && p === currentPeriod;
             return (
               <label key={p} className={`relative flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3.5 transition ${on ? "border-brand bg-brand-tint/50 ring-2 ring-brand" : "border-line hover:border-line-strong"}`}>
@@ -469,14 +484,15 @@ function PayStep({ plan, help, renew, initialPeriod, pending, onCheckout, onPaid
         </div>
       ) : null}
 
-      <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Continue · ${price}` : "Continue"}</button>
+      <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Pay ${price}` : "Continue"}</button>
+      <p className="-mt-2 text-center text-[12px] text-ink-muted">Next: choose MoMo, Airtel Money or card, then approve on your phone.</p>
       <div className="flex flex-col items-center gap-2">
         <span className="flex flex-wrap justify-center gap-1.5">
           {[["MTN MoMo", "bg-[#FFCB05] text-ink"], ["Airtel Money", "bg-[#E40000] text-white"], ["Visa · Mastercard", "bg-heading text-white"]].map(([label, tone]) => (
             <span key={label} className={`rounded-md px-2 py-1 text-[11px] font-bold ${tone}`}>{label}</span>
           ))}
         </span>
-        <p className="flex items-center gap-1.5 text-[12px] text-ink-muted"><ShieldCheck aria-hidden className="h-3.5 w-3.5" />Secured by Pesapal · Reminder before every renewal</p>
+        <p className="flex items-center gap-1.5 text-[12px] text-ink-muted"><ShieldCheck aria-hidden className="h-3.5 w-3.5" />Secured by Pesapal · Never renews without you</p>
       </div>
     </form>
   );

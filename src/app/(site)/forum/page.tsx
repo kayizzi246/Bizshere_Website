@@ -55,7 +55,7 @@ export default async function ForumPage({ searchParams }: { searchParams: SP }) 
         <div className="container-site flex flex-col gap-5 py-10 sm:py-14">
           <div className="flex max-w-3xl flex-col gap-3">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink"><MessagesSquare aria-hidden className="h-4 w-4" />{d.title}</span>
-            <h1 className="text-hero text-[30px] sm:text-[40px] xl:text-[46px]">Talk business with others</h1>
+            <h1 className="text-hero text-[28px] sm:text-[36px] xl:text-[42px]">Talk business with others</h1>
             <p className="text-[15px] leading-relaxed text-white/80 sm:text-base">{d.text} Anyone can read. Members can start topics and reply.</p>
           </div>
           <form action="/forum" role="search" className="flex w-full max-w-2xl items-center gap-2 rounded-2xl bg-white p-2 text-ink">

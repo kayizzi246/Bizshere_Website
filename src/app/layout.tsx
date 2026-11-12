@@ -4,6 +4,7 @@ import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ImageFit } from "@/components/ImageFit";
 import { site } from "@/config/site";
 
 // Brand typography (client style guide, section 5):
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
+        <ImageFit />
       </body>
     </html>
   );
