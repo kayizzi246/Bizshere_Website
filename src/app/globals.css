@@ -100,7 +100,10 @@
   /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
   /* Big headings: Manrope, the brand heading font. Its heaviest weight is ExtraBold (800); the client wants
      900 (12 Nov 2026), so a hairline outline in the text's own colour thickens every letter by about that much. */
-  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+  /* Big headings look 900 (client, 12 Nov 2026): Manrope stops at ExtraBold (800), so a hairline of the text's own
+     colour is drawn round each letter, behind its fill */
+  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15;
+    -webkit-text-stroke: 0.035em currentColor; paint-order: stroke fill; }
   .text-page-title { @apply font-display text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[42px]; }
   .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[30px]; }
   .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
@@ -284,7 +287,8 @@ select {
    so the loop has no jump; the second column moves down. Pauses while pointed at. */
 .collage-col { animation: collage-up 48s linear infinite; will-change: transform; }
 .collage-col.collage-down { animation-name: collage-down; animation-duration: 56s; }
-.collage:hover .collage-col { animation-play-state: paused; }
+/* The strip ignores the mouse (client, 12 Nov 2026): no pause on hover, no pointer, nothing to click */
+.collage { pointer-events: none; user-select: none; }
 @keyframes collage-up { from { transform: translateY(0); } to { transform: translateY(calc(-50% - 6px)); } }
 @keyframes collage-down { from { transform: translateY(calc(-50% - 6px)); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .collage-col, .collage-col.collage-down { animation: none; } }
@@ -460,7 +464,8 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 img[data-fit="cover"] { object-fit: cover !important; }
 img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF2F7 !important; padding: 6%; }
 /* In the dark hero the cut-outs sit on a light card so they read clearly */
-.collage img[data-fit="contain"] { background-color: #E8EDF4 !important; padding: 8% 8% 22%; }
+/* In the dark hero the cut-outs blend into the navy (client, 12 Nov 2026): a faint see-through tint, not a light card */
+.collage img[data-fit="contain"] { background-color: rgb(255 255 255 / 0.05) !important; padding: 8% 8% 22%; }
 
 /* Specks on every page (client, 12 Nov 2026: "put those particles on the other pages"), the same flecks as the homepage.
    Only the dark page tops (.hero-glow: directories, item pages, search, forum, sign-in) have them, light flecks over

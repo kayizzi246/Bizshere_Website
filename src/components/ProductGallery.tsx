@@ -29,7 +29,7 @@ const isFile = (href: string) => /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(href);
  * white slot where the whole photo shows (nothing cropped), thumbnails in a column beside it on wide
  * screens, and a close-up that follows the mouse when pointing at the photo.
  */
-/** `wide`: a short 16:9 banner below tablet width, 4:3 from tablet up (business idea page, client 12 Nov 2026: the photo was too big on phones) */
+/** `shop`: products on clean white, filling most of the frame (left out of ImageFit, src/components/ImageFit.tsx). `wide`: a short 16:9 banner below tablet width, 4:3 from tablet up (business idea page, client 12 Nov 2026: the photo was too big on phones) */
 export function ProductGallery({ images, videos = [], icon, shop = false, wide = false }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string; shop?: boolean; wide?: boolean }) {
   const slides: Slide[] = [...images.map((i) => ({ kind: "image" as const, ...i })), ...videos.map((v) => ({ kind: "video" as const, ...v }))];
   const [current, setCurrent] = useState(0);
@@ -88,9 +88,9 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
               onMouseMove={onMove} onMouseLeave={() => setZoom(null)}>
               {/* Editor-entered addresses; no Next image domain list to maintain. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img key={shown.src} src={shown.src} alt={shown.alt}
+              <img key={shown.src} src={shown.src} alt={shown.alt} data-nofit={shop ? "" : undefined}
                 style={zoom ? { transform: "scale(2)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
-                className={`gallery-fade h-full w-full ${shop ? "object-contain p-3 transition-transform duration-150 sm:p-5" : "object-cover"}`} />
+                className={`gallery-fade h-full w-full ${shop ? "object-contain p-2 transition-transform duration-150 sm:p-3" : "object-cover"}`} />
             </button>
           ) : shown.youtubeId ? (
             <div key={shown.href} className="absolute inset-0 bg-black"><YouTubePlayer id={shown.youtubeId} title={shown.label} live={false} /></div>
@@ -134,7 +134,7 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
                   onMouseEnter={shop ? () => setCurrent(n) : undefined}>
                 {s.kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.src} alt="" loading="lazy" className={`h-full w-full ${shop ? "object-contain p-1" : "object-cover"}`} />
+                  <img src={s.src} alt="" loading="lazy" data-nofit={shop ? "" : undefined} className={`h-full w-full ${shop ? "object-contain p-1" : "object-cover"}`} />
                 ) : (
                   <>
                     {s.youtubeId ? (

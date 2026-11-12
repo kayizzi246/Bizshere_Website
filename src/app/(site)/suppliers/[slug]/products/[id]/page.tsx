@@ -65,9 +65,9 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
   ) : (
     <div className="flex flex-col gap-2">
       {s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className={`${btn} min-h-[54px] w-full bg-brand text-[16px] text-white hover:bg-brand-dark hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call {s.phone}</a> : null}
-      <div className="flex flex-wrap gap-2">
-        {s.phone ? <a href={whatsappHref(s.phone, ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
-        {s.email ? <a href={`mailto:${s.email}?subject=${encodeURIComponent(name)}`} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4" />Email</a> : null}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
+        {s.phone ? <a href={whatsappHref(s.phone, ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
+        {s.email ? <a href={`mailto:${s.email}?subject=${encodeURIComponent(name)}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4" />Email</a> : null}
       </div>
       {!s.phone && !s.email ? <Link href={back} className="text-sm font-semibold">See the seller&apos;s page →</Link> : null}
     </div>
@@ -86,9 +86,9 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
             <span className="truncate text-ink-soft">{name}</span>
           </nav>
 
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-12">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-[minmax(0,360px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-12">
             {/* The photos */}
-            <div className="mx-auto w-full min-w-0 max-w-[420px] md:max-w-none">
+            <div className="mx-auto w-full min-w-0 max-w-[460px] md:max-w-none">
               <ProductGallery shop images={photos.map((src, n) => ({ src, alt: n ? `${name}, photo ${n + 1}` : name }))} icon="supplier" />
             </div>
 
@@ -102,23 +102,30 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
                 <h1 className="text-hero text-[26px] leading-[1.12] text-heading sm:text-[32px] lg:text-[36px]">{name}</h1>
               </div>
 
-              {/* The price and how it is sold, on one card */}
-              <dl className="grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white">
-                <div className="col-span-2 flex flex-col gap-1 p-4">
-                  <dt className="text-[12px] font-semibold text-ink-muted">Price{product.unit ? ` per ${product.unit}` : ""}</dt>
+              {/* The price and how it is sold, on one card: the price large with its unit beside it, then the facts in
+                  a row that always fills the card (client, 12 Nov 2026: premium) */}
+              <div className="overflow-hidden rounded-xl border border-line bg-white">
+                <div className="flex flex-col gap-1.5 p-5">
                   {gated ? (
-                    <dd className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span aria-hidden className="select-none font-display text-[26px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
-                      <span className="text-[13px] text-ink-muted">Shown to members</span>
-                    </dd>
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span aria-hidden className="select-none font-display text-[30px] font-extrabold leading-none text-heading blur-[7px]">UGX 00,000</span>
+                      <span className="text-[13px] text-ink-muted">Price shown to members</span>
+                    </p>
                   ) : (
-                    <dd className="text-hero text-[28px] leading-tight text-heading sm:text-[32px]">{price ?? <span className="text-[17px] font-semibold text-ink-soft">Ask the seller for the price</span>}</dd>
+                    <p className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="text-hero text-[32px] leading-none text-heading sm:text-[38px]">{price ?? <span className="text-[18px] font-semibold text-ink-soft [-webkit-text-stroke:0]">Ask the seller for the price</span>}</span>
+                      {price && product.unit ? <span className="text-[15px] text-ink-muted">/ {product.unit}</span> : null}
+                    </p>
                   )}
-                  {product.quotedAt ? <dd className="text-[12px] text-ink-muted">Price checked {date(product.quotedAt)}</dd> : null}
+                  {product.quotedAt ? <p className="inline-flex items-center gap-1.5 text-[12px] text-ink-muted"><CheckCircle2 aria-hidden className="h-3.5 w-3.5 text-[#1F7A4D]" />Price checked {date(product.quotedAt)}</p> : null}
                 </div>
-                {product.unit ? <div className="flex flex-col gap-0.5 border-t border-line p-3.5"><dt className="text-[12px] text-ink-muted">Sold per</dt><dd className="font-display text-[15px] font-bold text-heading">{product.unit}</dd></div> : null}
-                {minOrder ? <div className={`flex flex-col gap-0.5 border-t border-line p-3.5 ${product.unit ? "border-l" : ""}`}><dt className="text-[12px] text-ink-muted">Smallest order</dt><dd className="font-display text-[15px] font-bold text-heading">{minOrder}</dd></div> : null}
-              </dl>
+                {product.unit || minOrder ? (
+                  <dl className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] border-t border-line bg-page/60">
+                    {product.unit ? <div className="flex flex-col gap-0.5 px-5 py-3"><dt className="text-[12px] text-ink-muted">Sold per</dt><dd className="font-display text-[15px] font-bold text-heading">{product.unit}</dd></div> : null}
+                    {minOrder ? <div className="flex flex-col gap-0.5 border-line px-5 py-3 [&:not(:first-child)]:border-l"><dt className="text-[12px] text-ink-muted">Smallest order</dt><dd className="font-display text-[15px] font-bold text-heading">{minOrder}</dd></div> : null}
+                  </dl>
+                ) : null}
+              </div>
 
               {buy}
 
