@@ -141,7 +141,6 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 function Panel({ href, title, text, action, tint, words, onColour, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; onColour: string; children: React.ReactNode }) {
   return (
     <li data-reveal="" className={`rise-soft relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 sm:p-6 ${PANEL_H} ${tint}`}>
-      <span aria-hidden className="specks-on-colour pointer-events-none absolute inset-0 -z-10" />
       <div className={`flex items-start justify-between gap-4 ${words}`}>
         <div className="flex min-w-0 flex-col items-start gap-2">
           <Label href={href} pill={onColour} />
@@ -242,7 +241,6 @@ export async function HomeFeatures() {
           Client, 11 Nov 2026: every colour box on the homepage has the same height (PANEL_H). */}
       <div className="container-site pb-3 pt-5 sm:pt-6">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
-        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
                 <div className="flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
           <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Business plans with the real costs</h3>
@@ -272,7 +270,6 @@ export async function HomeFeatures() {
       {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
       <div className="container-site">
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
-        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
           <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">The right machine for the job</h3>
@@ -370,7 +367,6 @@ export async function HomeFeatures() {
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
       <div className="container-site pt-3">
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
-        <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10 opacity-70" />
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
           <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Advice from people who know</h3>

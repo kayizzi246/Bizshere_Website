@@ -37,7 +37,7 @@ export default async function HomePage() {
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
       {/* Laptops and up (1280px+): the hero fills the screen, up to 780px, with its content in the middle, like the client's example (12 Nov 2026). */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,780px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,760px)] xl:flex-col xl:justify-center">
         {/* Faint flecks over the navy, like the lower sections (.speckle-dark in globals.css; client, 12 Nov 2026) */}
         <span aria-hidden className="speckle-dark pointer-events-none absolute inset-0 -z-10" />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;

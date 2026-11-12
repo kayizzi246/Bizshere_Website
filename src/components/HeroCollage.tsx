@@ -11,12 +11,12 @@ export type CollagePhoto = { src: string; title: string; sub: string; href: stri
 export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   const cols = [photos.filter((_, i) => i % 2 === 0), photos.filter((_, i) => i % 2 === 1)];
   return (
-    <div aria-label="From BizSphere-Ug" className="collage relative grid h-[540px] grid-cols-2 gap-3 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]">
+    <div aria-label="From BizSphere-Ug" className="collage relative grid h-[520px] grid-cols-2 gap-3 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]">
       {cols.map((col, c) => (
         <div key={c} className={`collage-col flex flex-col gap-3 ${c ? "collage-down" : ""}`}>
           {[...col, ...col].map((p, i) => (
             <div key={`${p.href}-${i}`} aria-hidden={i >= col.length ? true : undefined}
-              className={`relative block shrink-0 overflow-hidden rounded-md bg-white/[0.04] text-white h-[300px]`}>
+              className={`relative block shrink-0 overflow-hidden rounded-md bg-white/[0.04] text-white h-[290px]`}>
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
               <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
               <span aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
