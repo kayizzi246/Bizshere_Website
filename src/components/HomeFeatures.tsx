@@ -195,7 +195,7 @@ export async function HomeFeatures() {
     <section id="features" className="overflow-x-clip">
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
       <div className={BAND.need}>
-      <div className="container-site flex flex-col items-center gap-6 py-10 sm:gap-8 sm:py-14">
+      <div className="container-site flex flex-col items-center gap-6 py-8 sm:gap-8 sm:py-10">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
           <h2 className="text-hero text-[28px] leading-[1.15] text-black sm:text-[36px] lg:text-[40px]">What do you need today?</h2>
@@ -221,8 +221,8 @@ export async function HomeFeatures() {
           its icon large and faint behind the words; the lists sit in glass trays. Same content, same height.
           Polished on 12 Nov 2026 (client: keep these designs, make them better): an eyebrow and left-aligned
           heading like the other sections, smaller corners, no faint icons behind the words, bolder names. */}
-      <div className={`${BAND.all} pb-10 sm:pb-14`}>
-      <div className="container-site flex flex-col gap-3 pt-14 sm:pt-20">
+      <div className={`${BAND.all} pb-6 sm:pb-8`}>
+      <div className="container-site flex flex-col gap-3 pt-10 sm:pt-12">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
         <h2 className="text-hero text-[30px] leading-[1.1] text-black sm:text-[40px] lg:text-[46px]">Everything a business needs</h2>
         <p data-size="" className="max-w-2xl text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
@@ -231,7 +231,7 @@ export async function HomeFeatures() {
       {/* Business Ideas: a green panel built like Machines and Experts below it, and the same height: the words
           and the button on the left, the three newest plans as white photo cards on the right (rows on phones).
           Client, 11 Nov 2026: every colour box on the homepage has the same height (PANEL_H). */}
-      <div className="container-site pb-3 pt-8 sm:pt-10">
+      <div className="container-site pb-3 pt-6 sm:pt-8">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-2xl p-5 sm:p-8 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
@@ -398,7 +398,7 @@ export async function HomeFeatures() {
           filled with real content (guides, news, tips, forum topics, tracked products; the VAT figures are a
           worked example at Uganda's 18%). Small corners, no borders, no shadows, one accent colour per feature. */}
       <div data-everyday="" className="bg-[#F5F7FB]">
-      <div className="container-site flex flex-col gap-8 pb-14 pt-12 sm:gap-10 sm:pb-20 sm:pt-16">
+      <div className="container-site flex flex-col gap-6 pb-8 pt-6 sm:gap-8 sm:pb-10 sm:pt-8">
         <div data-reveal="" className="rise-soft flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex max-w-2xl flex-col gap-3">
             <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">Every working day</span>
@@ -522,7 +522,7 @@ export async function HomeFeatures() {
 
       {/* For businesses, on a light band of its own between the navy section above and the navy footer */}
       <div className="bg-[#F5F7FB]">
-      <div className="container-site flex flex-col py-12 sm:py-16">
+      <div className="container-site flex flex-col pb-10 pt-4 sm:pb-12 sm:pt-6">
         {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing; this is
             the site's other income, so it gets a block of its own. One navy banner inside the page. ── */}
         {!viewer.isStaff ? (
