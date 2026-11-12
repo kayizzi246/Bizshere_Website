@@ -17,6 +17,7 @@ import { memberOnlyLabels } from "@/lib/content-fields";
 import { ProductCard, type Product } from "./ProductCard";
 import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
+import { StickyBar } from "@/components/StickyBar";
 import { videoId } from "@/lib/youtube";
 import { WishlistButton } from "./Wishlist";
 import { ShareButton } from "./ShareButton";
@@ -139,112 +140,101 @@ export async function RecordPage({
 
     return (
       <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={planInfo}>
-        <section className="bg-white">
-          <div className="container-site flex flex-col gap-3 py-3 sm:gap-4 sm:py-5">
+        {/* ── The top, like the business idea page (client, 12 Nov 2026: simple, made to convert): warm specks; on phones
+            the name first, then a short photo; one price card; one main action (Unlock for visitors, Contact for
+            members) with the rest quiet; where to buy only when it can be shown. No gradients, no shadows. ── */}
+        <section className="speckle under-header-pad border-b border-line">
+          <div className="container-site flex flex-col gap-4 pb-8 pt-3 sm:pt-5">
             <Link href={trail[0]} className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
             </Link>
 
-            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-8">
-              {/* Details */}
-              <div className="flex min-w-0 flex-col gap-4">
-                <div className="flex flex-col gap-3">
-                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-bold text-brand-dark">
-                    <Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}
-                  </span>
-                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px]">{name}</h1>
-                  {brief ? <p className="text-[15px] leading-relaxed text-ink-soft sm:text-base">{brief}</p> : null}
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-12">
+              <div className="order-2 w-full md:order-none">
+                <ProductGallery images={images} videos={videos} icon={icon} wide />
+              </div>
+
+              <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
+                <div className="order-1 flex flex-col gap-2 md:order-none">
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-brand-dark"><Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}</span>
+                    <span>Checked {date(item.lastReviewedAt)}</span>
+                    {viewer.isMember ? <span className="inline-flex items-center gap-1 font-semibold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
                     <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-ink-soft"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Checked {date(item.lastReviewedAt)}</span>
-                    {viewer.isMember ? <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-tint px-3 py-1 font-bold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
-                  </div>
+                  </p>
+                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px] lg:text-[42px]">{name}</h1>
+                  {brief ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-soft">{brief.replace(/\s*\(Sample record\.?\)\s*$/i, "")}</p> : null}
                 </div>
 
-                {/* Price */}
+                {/* The price, on one white card */}
                 {priceRow ? (
-                  <div className="flex flex-col gap-1 border-y border-line py-4">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Price</span>
+                  <div className="order-3 flex flex-col gap-1 rounded-xl border border-line bg-white p-4 md:order-none">
+                    <span className="text-[12px] font-semibold text-ink-muted">Price</span>
                     {priceRow.locked ? (
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span aria-hidden className="select-none font-display text-[28px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
-                        {unlock("See the price", "text-sm")}
-                      </div>
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span aria-hidden className="select-none font-display text-[24px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
+                        <span className="text-[13px] text-ink-muted">Shown to members</span>
+                      </span>
                     ) : (
-                      <span className="font-display text-[28px] font-extrabold tracking-[-0.02em] text-brand-dark sm:text-[32px]">{empty(priceRow.value) ? <span className="text-lg font-semibold text-ink-muted">Price not added yet</span> : priceRow.value}</span>
+                      <span className="text-hero text-[24px] leading-tight text-heading sm:text-[28px]">{empty(priceRow.value) ? <span className="text-[17px] font-semibold text-ink-muted [-webkit-text-stroke:0]">Price not added yet</span> : priceRow.value}</span>
                     )}
                   </div>
                 ) : null}
 
-                {/* Actions */}
-                <div className="grid gap-2 sm:grid-cols-2">
+                {/* One main action; the rest quiet */}
+                <div className="order-4 flex flex-col gap-2.5 md:order-none">
                   {locked ? (
-                    <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
-                  ) : (
-                    <a href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
-                  )}
-                  <span className="grid grid-cols-2 gap-2"><WishlistButton id={item.id} /><ShareButton title={name} path={back} /></span>
+                    <Link href={back} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+                      <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{planInfo.daily ? `Unlock the price and sellers · ${planInfo.daily} a day` : "Unlock the price and sellers"}
+                    </Link>
+                  ) : hasContact || (whereRow && !empty(whereRow.value)) ? (
+                    <a href="#contact" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
+                  ) : null}
+                  <div className="flex flex-wrap gap-2">
+                    <div className="min-w-[160px] flex-1 sm:flex-none"><WishlistButton id={item.id} small /></div>
+                    <ShareButton title={name} path={back} small />
+                  </div>
+                  {locked ? <p className="text-[13px] text-ink-muted">Pay with MoMo, Airtel Money or card. The price, the sellers and their phone numbers open straight away.</p> : null}
                 </div>
 
-                {/* Contact and where to buy, right under the details */}
-                <section id="contact" className="flex scroll-mt-28 flex-col gap-3 rounded-2xl bg-page p-4 sm:p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="w-fit font-display text-base font-extrabold text-heading">{whereRow ? "Where to buy" : "Contact"}</h2>
-                    {locked ? <span className="inline-flex items-center gap-1 rounded-full bg-accent-tint px-2.5 py-1 text-[11px] font-bold text-accent-dark"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span> : null}
-                  </div>
-                  {whereRow?.locked || contact === "locked" ? (
-                    <div aria-hidden className="flex flex-col gap-2">
-                      <ContactRow icon={<Icon name="supplier" className="h-4 w-4" />} label="Seller" value="Seller name, Kampala" blurred />
-                      <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value="+256 7•• ••• •••" blurred />
-                    </div>
-                  ) : whereRow && !empty(whereRow.value) ? (
-                    <div className="rounded-xl border border-line bg-white p-3 text-sm leading-relaxed text-heading">{whereRow.value}</div>
-                  ) : null}
-                  {hasContact && contact !== "locked" && contact ? (
-                    <div className="flex flex-col gap-2">
-                      {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
-                      {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
-                      {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
-                    </div>
-                  ) : null}
-                  {listSections.some((x) => x.table.key === "offers") ? (
-                    <a href="#c-offers" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark">See supplier offers <span aria-hidden>↓</span></a>
-                  ) : null}
-                  {locked ? (
-                    <Link href={back} data-onboard="" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-brand bg-white text-sm font-bold text-brand hover:bg-brand hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock sellers and contacts</Link>
-                  ) : !whereRow?.value && !hasContact ? (
-                    <p className="text-sm text-ink-muted">Sellers not added yet.</p>
-                  ) : (
+                {/* Where to buy: for members, the seller and their contacts; visitors were told above what opens */}
+                {!locked && (hasContact || (whereRow && !empty(whereRow.value)) || otherLinks.length || listSections.some((x) => x.table.key === "offers")) ? (
+                  <section id="contact" className="order-5 flex scroll-mt-40 flex-col gap-3 border-t border-line pt-4 md:order-none">
+                    <h2 className="text-[13px] font-semibold text-ink-muted">{whereRow ? "Where to buy" : "Contact"}</h2>
+                    {whereRow && !empty(whereRow.value) ? <div className="rounded-xl border border-line bg-white p-3 text-sm leading-relaxed text-heading">{whereRow.value}</div> : null}
+                    {hasContact && contact !== "locked" && contact ? (
+                      <div className="flex flex-col gap-2">
+                        {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
+                        {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
+                        {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
+                      </div>
+                    ) : null}
+                    {listSections.some((x) => x.table.key === "offers") ? (
+                      <a href="#c-offers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark">See supplier offers <span aria-hidden>↓</span></a>
+                    ) : null}
+                    {otherLinks.length ? (
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        {otherLinks.map((l) => l.locked ? null : (
+                          <a key={l.label} href={l.href!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark"><Icon name={l.icon ?? "link"} className="h-4 w-4" />{l.label} ↗</a>
+                        ))}
+                      </div>
+                    ) : null}
                     <p className="text-xs leading-relaxed text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
-                  )}
-                  {otherLinks.length ? (
-                    <div className="flex flex-col gap-2 border-t border-line pt-3">
-                      {otherLinks.map((l) => l.locked ? (
-                        <Link key={l.label} href={back} data-onboard="" className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-brand"><LockKeyhole aria-hidden className="h-4 w-4" />{l.label}</Link>
-                      ) : (
-                        <a key={l.label} href={l.href!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark"><Icon name={l.icon ?? "link"} className="h-4 w-4" />{l.label} ↗</a>
-                      ))}
-                    </div>
-                  ) : null}
-                </section>
-              </div>
-
-              {/* Gallery: on top on phones; the left column from tablet width */}
-              <div className="order-first mx-auto w-full max-w-[520px] md:max-w-none">
-                <ProductGallery images={images} videos={videos} icon={icon} />
+                  </section>
+                ) : null}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Section tabs: jump links; they scroll with the page (nothing sticky on detail pages) */}
-        <nav aria-label="On this page" className="border-y border-line bg-white">
-          <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none]">
+        {/* Section tabs: stick under the menu bar once scrolled up to them, navy with specks while stuck (StickyBar) */}
+        <StickyBar label="On this page">
+          <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {productTabs.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading">{label}</a>
+              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page group-data-[stuck]/bar:text-white group-data-[stuck]/bar:hover:bg-white/10">{label}</a>
             ))}
           </div>
-        </nav>
+        </StickyBar>
 
         <div className="bg-page">
           <div className="container-site flex flex-col gap-4 py-4 sm:py-5">
@@ -254,7 +244,7 @@ export async function RecordPage({
             <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-2">
             {/* Specifications: one plain table, rows in alternating colours */}
             {(details && detailCount) || facts.length ? (
-              <section id="specs" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+              <section id="specs" className="flex scroll-mt-40 flex-col gap-3 rounded-xl border border-line bg-white p-4">
                 <h2 className="w-fit font-display text-lg font-extrabold text-heading">Specifications</h2>
                 {/* The key facts first (they used to sit beside the photo), then every other field */}
                 {facts.length ? (
@@ -262,7 +252,7 @@ export async function RecordPage({
                     {facts.map((f, i) => (
                       <div key={f.label} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${i % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
                         <dt className="text-ink-muted">{f.label}</dt>
-                        <dd className="min-w-0 break-words font-semibold text-heading">{f.locked ? unlock("Members only", "text-sm") : f.value}</dd>
+                        <dd className="min-w-0 break-words font-semibold text-heading">{f.locked ? unlock("Tap to see", "text-sm") : f.value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -272,7 +262,7 @@ export async function RecordPage({
             ) : null}
 
             {shownTexts.length || children ? (
-              <section id="overview" className="flex scroll-mt-36 flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+              <section id="overview" className="flex scroll-mt-40 flex-col gap-3 rounded-xl border border-line bg-white p-4">
                 {shownTexts.map((t) => (
                   <div key={t.label} className="flex flex-col gap-1.5">
                     <h2 className="w-fit font-display text-base font-extrabold text-heading">{t.label}</h2>

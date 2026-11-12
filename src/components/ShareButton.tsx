@@ -8,7 +8,7 @@ import { Check, Share2 } from "lucide-react";
  * a WhatsApp link with the page's address, and a copied link as the last resort. A member passing a
  * supplier or a machine on to a friend is the cheapest new visitor there is.
  */
-export function ShareButton({ title, path, compact = false }: { title: string; path: string; compact?: boolean }) {
+export function ShareButton({ title, path, compact = false , small = false }: { title: string; path: string; compact?: boolean ; small?: boolean }) {
   const [done, setDone] = useState(false);
   const share = async () => {
     const url = `${location.origin}${path}`;
@@ -29,7 +29,7 @@ export function ShareButton({ title, path, compact = false }: { title: string; p
     );
   }
   return (
-    <button type="button" onClick={share} className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-line text-sm font-bold text-ink hover:border-brand hover:text-brand">
+    <button type="button" onClick={share} className={`inline-flex items-center justify-center gap-1.5 border border-line text-ink hover:border-brand hover:text-brand ${small ? "h-11 rounded-lg px-4 text-[14px] font-semibold" : "h-12 w-full rounded-xl text-sm font-bold"}`}>
       {done ? <Check aria-hidden className="h-4 w-4" /> : <Share2 aria-hidden className="h-4 w-4" />}{done ? "Link copied" : "Share"}
     </button>
   );
