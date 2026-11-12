@@ -188,7 +188,7 @@ select {
 .go-arrow { animation: go-nudge 2.6s ease-in-out infinite; }
 .go-btn:active { transform: scale(0.97); }
 @media (hover: hover) and (pointer: fine) {
-  .go-btn:hover { transform: translateY(-2px); filter: brightness(0.93); box-shadow: 0 10px 22px -8px rgb(7 26 51 / 0.45); }
+  .go-btn:hover { transform: translateY(-2px); filter: brightness(0.93); }
   .go-btn:hover::after { transform: translateX(130%); transition: transform 0.7s var(--ease-out); }
   .go-btn:hover .go-arrow { animation: none; }
 }
@@ -267,13 +267,13 @@ select {
     radial-gradient(46rem 30rem at -6% 108%, rgba(242, 160, 60, 0.16), transparent 60%),
     radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.22), transparent 65%),
     linear-gradient(135deg, #040B1F 0%, #08193F 48%, #0B2466 100%); }
-/* The homepage service panels (HomeFeatures): each service colour as a gentle gradient with a soft light from
-   the top right, so a panel has depth without a shadow. */
-.skin-ideas { background: radial-gradient(38rem 22rem at 100% 0%, rgba(120, 220, 170, 0.24), transparent 60%), linear-gradient(135deg, #12684A 0%, #0A4631 100%); }
-.skin-machines { background: radial-gradient(38rem 22rem at 100% 0%, rgba(60, 140, 255, 0.30), transparent 60%), linear-gradient(135deg, #071A33 0%, #0B2A5C 100%); }
-.skin-funding { background: radial-gradient(30rem 18rem at 100% 0%, rgba(255, 255, 255, 0.30), transparent 60%), linear-gradient(135deg, #F7A040 0%, #EE7F1B 100%); }
-.skin-suppliers { background: radial-gradient(30rem 18rem at 100% 0%, rgba(255, 255, 255, 0.24), transparent 60%), linear-gradient(135deg, #1B8FD8 0%, #0E5E94 100%); }
-.skin-experts { background: radial-gradient(38rem 22rem at 100% 0%, rgba(200, 130, 255, 0.28), transparent 60%), linear-gradient(135deg, #53217A 0%, #34104F 100%); }
+/* The homepage service panels (HomeFeatures): each service in its own flat colour (client, 12 Nov 2026: less
+   gradients, no shadows). */
+.skin-ideas { background: #0F5B3E; }
+.skin-machines { background: #0B1F44; }
+.skin-funding { background: #F28C28; }
+.skin-suppliers { background: #157EC2; }
+.skin-experts { background: #4A1D6B; }
 
 /* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */
 .hero-still { animation: none; }
@@ -356,10 +356,31 @@ body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: 
 
 /* "Become a Supplier | Expert": a tab growing out of the header bar. It overlaps the bar's border by 1px, and
    the two pseudo-elements are the inward curves where it meets the bar. */
-.join-tab { margin-top: -1px; filter: drop-shadow(0 5px 6px rgb(7 26 51 / 0.12)); }
-.join-tab::before, .join-tab::after { content: ""; position: absolute; top: 0; width: 14px; height: 14px; }
-.join-tab::before { left: -14px; background: radial-gradient(circle at 0 100%, transparent 13.5px, #fff 14px); }
-.join-tab::after { right: -14px; background: radial-gradient(circle at 100% 100%, transparent 13.5px, #fff 14px); }
+/* Liquid glass (client, 12 Nov 2026), for the floating menu bar (SiteHeader). See-through frosted glass that
+   blurs, brightens and deepens the colours of what passes under it, with a bright glassy rim and a soft sheen
+   across the top. Pure CSS, so it works in Chrome, Safari and Firefox, costs nothing while scrolling and adds
+   no download. (The liquid-glass-js package was looked at and left out: it fakes the effect by cloning the
+   element behind the glass, here the whole page, and keeping the copy in line on every scroll; it is built for
+   a draggable lens, and it adds a heavy drop shadow.) The inset lines are the rim's highlights, not a shadow. */
+.liquid-glass { position: relative; isolation: isolate;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.74) 0%, rgb(255 255 255 / 0.56) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
+  backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.95), inset 0 -1px 0 rgb(255 255 255 / 0.35); }
+.liquid-glass::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 160% at 12% -60%, rgb(255 255 255 / 0.8), transparent 48%),
+    radial-gradient(70% 140% at 100% 160%, rgb(255 255 255 / 0.4), transparent 55%); }
+/* The tab under the bar (Become a Supplier | Expert): the same glass, joined to the bar */
+.join-tab { margin-top: -1px;
+  background: rgb(255 255 255 / 0.6);
+  -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
+  backdrop-filter: blur(18px) saturate(180%) brightness(1.05);
+  border: 1px solid rgb(255 255 255 / 0.7); border-top: 0; }
+/* Without backdrop-filter (very old browsers) the glass is simply near-white, so the text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass, .join-tab { background: rgb(255 255 255 / 0.96); }
+}
 
 /* Business idea requirements: the "my list" bar along the bottom on phones (BudgetCalculator) lifts the
    floating Services button above it. */

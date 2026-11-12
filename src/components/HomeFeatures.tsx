@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Plus, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
-import { LottieArt } from "./LottieArt";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
 
@@ -75,10 +74,10 @@ const S = {
 const PLUM = "bg-[#4A1D6B]";
 /**
  * Each homepage section sits on its own band, edge to edge, so the sections read as separate rooms (client,
- * 11 Nov 2026). The lower three are calm neutrals, light grey, white, light grey (the mint, lavender and sand
- * were hard on the eyes, client, same day); cards have a hairline edge so they still stand out on white.
+ * 11 Nov 2026). Lower down: a soft blue-grey, then white, then a light blue for "For businesses" (client, 12 Nov
+ * 2026: gentle colours, not the mint, lavender and sand that were hard on the eyes; no fade into the footer). Cards have a hairline edge so they still stand out on white.
  */
-const BAND = { need: "bg-[#EAF4FB]", all: "bg-[#F1F4F8]", everyday: "bg-[#F7F8FA]", know: "bg-white", join: "bg-[#F7F8FA]" } as const;
+const BAND = { need: "bg-[#EAF4FB]", all: "bg-[#F1F4F8]" } as const;
 /** Every colour box on the homepage is this tall on a computer (client, 11 Nov 2026); phones stack and take the room they need. */
 const PANEL_H = "lg:h-[445px] xl:h-[410px]"; // small laptops need the extra room: the panel titles wrap there
 
@@ -113,8 +112,6 @@ function greeting(name: string | null) {
 
 const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]";
-/** Homepage type scale: section titles 28/36/40px, panel titles 24/28/32px, card titles (these) 20/22/24px. Headings keep these sizes; all other text was made one step smaller (reading text 14 to 15px) on 11 Nov 2026 (client). data-size on a paragraph keeps it from the 16px rule in globals.css. */
-const cardHeading = "text-hero text-[20px] leading-[1.2] text-black sm:text-[22px] lg:text-[24px]";
 
 const Label = ({ href, pill }: { href: string; pill: string }) => {
   const d = directory(href);
@@ -128,27 +125,38 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
 );
 
 /**
- * One everyday service as a soft white card with rounded corners (client, 11 Nov 2026: premium, not dark):
- * its icon on a light tint of its colour, its name in that colour, a heading that says what the visitor
- * gets, one sentence, what is inside, and one quiet button at the bottom so cards side by side line up.
- * No solid dark blocks: the colour is in the tints and the text.
+ * One tile of the "Help for every working day" grid. The tiles join edge to edge into one block with a small
+ * radius on its outer corners, no borders and no gaps (client, 12 Nov 2026), each in a deep colour of its own
+ * with white text (the same day: different colours, not white), chosen so that neighbours never look alike.
+ * Each has its icon, a title and one line, what is inside, and one link at the bottom.
  */
-function Tile({ href, title, text, action, soft, softBtn, ink, art, children }: { href: string; title: string; text: string; action: string; soft: string; softBtn: string; ink: string; art?: string; children: React.ReactNode }) {
+function Bento({ href, title, line, action, tone, className = "", children }: { href: string; title: string; line: string; action: string; tone: string; className?: string; children: React.ReactNode }) {
   const d = directory(href);
   return (
-    <li data-reveal="" className="rise-soft flex flex-col items-start gap-3 rounded-3xl border border-line bg-white p-5 transition-transform duration-200 motion-safe:hover:-translate-y-1 sm:p-6">
-      <div className="flex w-full items-center justify-between gap-3">
-        <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${soft}`}><Icon name={d.icon} className="h-6 w-6" strokeWidth={1.75} /></span>
-        {art ? <LottieArt src={art} className="-my-2 h-14 w-14 shrink-0" /> : null}
+    <li className={`flex ${className}`}>
+      <div className={`flex w-full flex-col gap-4 p-5 text-white sm:p-7 ${tone}`}>
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/[0.14] text-white"><Icon name={d.icon} className="h-5 w-5" /></span>
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-white/65">{d.title}</span>
+            <h3 className="font-display text-[19px] font-extrabold leading-snug text-white sm:text-[21px]">{title}</h3>
+          </span>
+        </div>
+        <p data-size="" className="text-[14px] leading-relaxed text-white/80">{line}</p>
+        <div className="flex-1">{children}</div>
+        <Link href={href} className="group/go inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-white hover:text-white">{action}<ArrowRight aria-hidden className="h-4 w-4 transition-transform group-hover/go:translate-x-1" /></Link>
       </div>
-      <span className={`pt-1 text-[13px] uppercase tracking-[0.08em] ${ink}`}>{d.title}</span>
-      <h3 className={cardHeading}>{title}</h3>
-      <p data-size="" className="text-[14px] leading-relaxed text-ink-soft">{text}</p>
-      <div className="w-full flex-1">{children}</div>
-      <Go href={href} tone={softBtn}>{action}</Go>
     </li>
   );
 }
+
+/** The colour of each tile: deep and calm, each one its own. */
+const TILE = {
+  guides: "bg-[#312E81]", tools: "bg-[#0B1F44]", tips: "bg-[#9D174D]",
+  news: "bg-[#5B3A1A]", prices: "bg-[#0F5E5A]", forum: "bg-[#7A5200]", websites: "bg-[#1E293B]",
+} as const;
+/** Chips on a coloured tile */
+const ON_TILE = { mark: "text-white/80", tint: "bg-white/[0.14] text-white" };
 
 /** A panel in a full brand colour, joined to the one beside it: the words at the top and real listings under them, with its button at the bottom so two side by side line up. */
 function Panel({ href, title, text, action, tint, words, onColour, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; onColour: string; children: React.ReactNode }) {
@@ -174,49 +182,6 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
     ))}
   </ul>
 );
-
-/** Pages to read, as cards side by side inside an open row (More): date, name, two lines and "Read". Each opens its page. */
-const Reading = ({ items, note }: { items: { slug: string; title: string; contentType: string; shortSummary: string | null; publishedAt: Date | null }[]; note?: boolean }) => (
-  <ul className="grid w-full grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-3">
-    {items.map((r) => (
-      <li key={r.slug}>
-        <Link href={itemHref(r)} className="group flex h-full flex-col gap-1.5 rounded-2xl bg-page p-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink sm:p-5">
-          {note && r.publishedAt ? <span className="text-[13px] text-ink-muted">{date(r.publishedAt)}</span> : null}
-          <span className="font-display text-[14px] leading-snug text-black">{clean(r.title)}</span>
-          {r.shortSummary ? <span className="line-clamp-2 text-[13px] leading-snug text-ink-soft">{r.shortSummary}</span> : null}
-          <span className="mt-auto inline-flex items-center gap-1 pt-2 text-[13px] text-brand-dark">Read<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" /></span>
-        </Link>
-      </li>
-    ))}
-  </ul>
-);
-
-/**
- * One service as a row that folds open (client, 10 Nov 2026, after a list he liked): its icon on a light tint
- * of its colour, its name as the heading in that colour, one sentence in plain grey text, and a plus that
- * turns to a cross. Open, it shows what is inside and one button. The rows share a name, so opening one
- * closes the others where the browser supports it; it works without JavaScript. Made lighter on 11 Nov 2026
- * (client: premium, not dark): no solid colour squares and no heavy black sentence.
- */
-function More({ href, line, action, soft, softBtn, open, children }: { href: string; line: string; action: string; soft: string; softBtn: string; open?: boolean; children: React.ReactNode }) {
-  const d = directory(href);
-  return (
-    <details name="home-more" open={open} className="group/more border-t border-line first:border-t-0 [&>summary::-webkit-details-marker]:hidden">
-      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 transition-colors hover:bg-page sm:gap-4 sm:px-6 sm:py-5 group-open/more:hover:bg-white">
-        <span aria-hidden className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${soft}`}><Icon name={d.icon} className="h-5 w-5" strokeWidth={1.75} /></span>
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
-          <h3 className={`text-hero shrink-0 bg-transparent text-[16px] leading-snug sm:text-[18px] ${soft.split(" ")[1]}`}>{d.title}</h3>
-          <span className="text-[14px] leading-snug text-ink-soft">{line}</span>
-        </span>
-        <span aria-hidden className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${soft}`}><Plus className="h-4 w-4 transition-transform duration-200 group-open/more:rotate-45 motion-reduce:transition-none" strokeWidth={2.25} /></span>
-      </summary>
-      <div className="flex flex-col items-start gap-4 px-4 pb-6 pt-1 sm:px-6">
-        {children}
-        <Go href={href} tone={softBtn}>{action}</Go>
-      </div>
-    </details>
-  );
-}
 
 export async function HomeFeatures() {
   const [{ ideas, funding, suppliers, machines, guides, news, websites, products, experts }, viewer] = await Promise.all([records(), getViewer()]);
@@ -427,105 +392,126 @@ export async function HomeFeatures() {
 
       </div>
 
-      {/* 3. The everyday services on a mint band: three white cards to use (Tools, Tips, Forum). Then, on a
-          lavender band of its own, Guides, News, Prices and Websites as one list of rows that fold open, the
-          first one open: what is inside and one button. */}
-      <div data-everyday="" className={BAND.everyday}>
-      <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14">
-        <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
-          <h2 className={heading}>Help for every working day</h2>
-          <p data-size="" className={body}>Work out your numbers, learn from other owners and keep up with what is changing.</p>
+      {/* 3. Help for every working day, redesigned (client, 12 Nov 2026: "something premium"): one soft band with a
+          bento grid of cards in different sizes, each with real content: the newest guides (large), the tools on
+          navy as the accent, tips, the latest news, today's price list, the forum, and the useful websites as a
+          slim strip. Then "For businesses" as one navy banner set inside the page, with the supplier and expert
+          offers side by side, and light space under it so it never runs into the footer. */}
+      <div data-everyday="" className="bg-[#F5F7FB]">
+      <div className="container-site flex flex-col gap-8 py-12 sm:gap-10 sm:py-16">
+        <div data-reveal="" className="rise-soft flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex max-w-xl flex-col gap-2">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">Every working day</span>
+            <h2 className="text-hero text-[28px] leading-[1.12] text-black sm:text-[36px] lg:text-[40px]">Help for every working day</h2>
+            <p data-size="" className="text-[15px] leading-relaxed text-ink-soft">Guides, tools, tips, news and today&apos;s prices, checked and kept up to date by our team.</p>
+          </div>
+          <Link href="/search" className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><Icon name="search" className="h-4 w-4" />Search everything</Link>
         </div>
 
-        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-3">
-          <Tile href="/tools" art="/lottie/tools.json" title="Your numbers, done in minutes" action="Open the tools" soft={S.tools.soft} softBtn={S.tools.softBtn} ink={S.tools.ink} text="Ready calculators and templates.">
-            <Points start points={TOOL_POINTS} mark={S.tools.ink} tint={S.tools.soft} />
-          </Tile>
-          <Tile href="/tips" art="/lottie/tips.json" title="Tips that save you money" action="Read the tips" soft={S.tips.soft} softBtn={S.tips.softBtn} ink={S.tips.ink} text="Short tips that work, with members' remarks.">
-            <Points start points={TIP_POINTS} mark={S.tips.ink} tint={S.tips.soft} />
-          </Tile>
-          <Tile href="/forum" art="/lottie/forum.json" title="Talk to other owners" action="Join the conversation" soft={S.forum.soft} softBtn={S.forum.softBtn} ink={S.forum.ink} text="Ask, answer and meet other owners.">
-            <Points start points={FORUM_POINTS} mark={S.forum.ink} tint={S.forum.soft} />
-          </Tile>
-        </ul>
-      </div>
-      </div>
-
-      <div className={BAND.know}>
-      <div className="container-site py-10 sm:py-14">
-        <div data-reveal="" className="rise-soft flex flex-col gap-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-10">
-            <h2 className="text-hero max-w-md text-[22px] leading-[1.2] text-black sm:text-[26px]">Know more before you decide</h2>
-            <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft">Guides, news, today&apos;s market prices and the websites every business needs, kept up to date by our team.</p>
-          </div>
-
-          <div className="overflow-hidden rounded-3xl border border-line bg-white">
-            <More open href="/guides" line="Step-by-step help with registration, licences, EFRIS and tax." action="See all guides" soft={S.guides.soft} softBtn={S.guides.softBtn}>
-              <Reading items={guides} />
-            </More>
-            <More href="/news" line="What is new for business in Uganda." action="Read the news" soft={S.news.soft} softBtn={S.news.softBtn}>
-              <Reading items={news} note />
-            </More>
-            <More href="/prices" line="What things cost today, market by market." action="Check market prices" soft={S.prices.soft} softBtn={S.prices.softBtn}>
-              <p data-size="" className="text-[14px] text-ink-soft">Tap a product to see it.</p>
-              <ul className="flex flex-wrap gap-2">
-              {products.map((x) => <li key={x.name}><Link href={`/prices?q=${encodeURIComponent(x.name)}`} className="inline-flex rounded-full bg-[#FDE8EB] px-3 py-1.5 text-[13px] text-[#C8102E] hover:bg-[#C8102E] hover:text-white">{x.name}</Link></li>)}
-            </ul>
-            </More>
-            <More href="/websites" line="Government and business sites in one list." action="See useful websites" soft={S.websites.soft} softBtn={S.websites.softBtn}>
-              {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join
-                  pop-up; the other names are never sent. */}
-              <ul className="flex flex-wrap gap-2">
-              {(sell ? websites.slice(0, FREE_WEBSITES) : websites).map((w) => (
-                <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-page px-3 py-1.5 text-[13px] text-[#475467] hover:bg-[#475467] hover:text-white">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
+        <ul data-reveal="" className="rise-soft grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-xl md:grid-cols-6 lg:grid-cols-12">
+          {/* Guides: the large card */}
+          <Bento href="/guides" tone={TILE.guides} className="md:col-span-6 lg:col-span-7 lg:row-span-2" title="Step-by-step guides" line="Registration, licences, EFRIS and tax, explained in plain words." action="See all guides">
+            <ul className="flex flex-col divide-y divide-white/15">
+              {guides.map((g) => (
+                <li key={g.slug}>
+                  <Link href={itemHref(g)} className="group/row flex items-start gap-4 py-3.5 text-white hover:text-white">
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="font-display text-[15px] font-bold leading-snug text-white group-hover/row:underline group-hover/row:underline-offset-4">{clean(g.title)}</span>
+                      {g.shortSummary ? <span className="line-clamp-1 text-[13px] text-white/65">{g.shortSummary}</span> : null}
+                    </span>
+                    <ArrowRight aria-hidden className="mt-1 h-4 w-4 shrink-0 text-white/60 transition-transform group-hover/row:translate-x-1 group-hover/row:text-white" />
+                  </Link>
+                </li>
               ))}
-              {sell && websites.length > FREE_WEBSITES ? (
-                <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-[#475467] px-3 py-1.5 text-[13px] text-white hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
-              ) : null}
             </ul>
-            </More>
-          </div>
-        </div>
-      </div>
-      </div>
+          </Bento>
 
-      {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing;
-          this is the site's other income, so it gets a block of its own, not a footer link. ── */}
-      {/* In the page's own language: a centred black title like the sections above, then two flat,
-          square-cornered panels side by side in the Funding (orange) and Suppliers (blue) colours,
-          each with what you get and one button. No new colour, no rounded box, no dark band twice in a row. */}
-      {!viewer.isStaff ? (
-        <div className={BAND.join}>
-        <div className="container-site flex flex-col gap-6 py-10 sm:gap-8 sm:py-14">
-          <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
-            <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">For businesses</span>
-            <h2 className={heading}>Get your business in front of buyers</h2>
-            <p data-size="" className={body}>Business owners come here every day to find who sells what and who can help. Be the one they find.</p>
+          {/* Tools: the navy accent */}
+          <Bento href="/tools" tone={TILE.tools} className="md:col-span-3 lg:col-span-5" title="Your numbers, done in minutes" line="Ready calculators and templates." action="Open the tools">
+            <Points start points={TOOL_POINTS} mark={ON_TILE.mark} tint={ON_TILE.tint} />
+          </Bento>
+
+          {/* Tips */}
+          <Bento href="/tips" tone={TILE.tips} className="md:col-span-3 lg:col-span-5" title="Tips that save you money" line="Short tips that work, with remarks from members." action="Read the tips">
+            <Points start points={TIP_POINTS} mark={ON_TILE.mark} tint={ON_TILE.tint} />
+          </Bento>
+
+          {/* News */}
+          <Bento href="/news" tone={TILE.news} className="md:col-span-2 lg:col-span-4" title="Business news" line="What is new for business in Uganda." action="Read the news">
+            <ul className="flex flex-col gap-2.5">
+              {news.slice(0, 2).map((n) => (
+                <li key={n.slug}><Link href={itemHref(n)} className="group/row flex flex-col text-white hover:text-white">
+                  {n.publishedAt ? <span className="text-[12px] text-white/60">{date(n.publishedAt)}</span> : null}
+                  <span className="line-clamp-2 text-[14px] font-semibold leading-snug text-white group-hover/row:underline group-hover/row:underline-offset-4">{clean(n.title)}</span>
+                </Link></li>
+              ))}
+            </ul>
+          </Bento>
+
+          {/* Market prices */}
+          <Bento href="/prices" tone={TILE.prices} className="md:col-span-2 lg:col-span-4" title="Today's prices" line="What things cost, market by market." action="Check prices">
+            <ul className="flex flex-wrap gap-2">
+              {products.slice(0, 6).map((x) => <li key={x.name}><Link href={`/prices?q=${encodeURIComponent(x.name)}`} className="inline-flex rounded-full bg-white/[0.14] px-3 py-1.5 text-[13px] text-white hover:bg-white hover:text-[#0F5E5A]">{x.name}</Link></li>)}
+            </ul>
+          </Bento>
+
+          {/* Forum */}
+          <Bento href="/forum" tone={TILE.forum} className="md:col-span-2 lg:col-span-4" title="Talk to other owners" line="Ask, answer and meet other business owners." action="Join the conversation">
+            <Points start points={FORUM_POINTS} mark={ON_TILE.mark} tint={ON_TILE.tint} />
+          </Bento>
+
+          {/* Useful websites: a slim strip */}
+          <li className="md:col-span-6 lg:col-span-12">
+            <div className={`flex flex-col gap-4 p-5 text-white sm:px-7 lg:flex-row lg:items-center lg:gap-8 ${TILE.websites}`}>
+              <span className="flex shrink-0 items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.14] text-white"><Icon name={directory("/websites").icon} className="h-5 w-5" /></span>
+                <span className="flex flex-col"><span className="font-display text-[17px] font-bold text-white">Useful websites</span><span className="text-[13px] text-white/65">Government and business sites in one list</span></span>
+              </span>
+              <ul className="flex flex-1 flex-wrap gap-2">
+                {/* A visitor who has not paid sees the first two and one pill for the rest, which opens the join pop-up; the other names are never sent. */}
+                {(sell ? websites.slice(0, FREE_WEBSITES) : websites.slice(0, 5)).map((w) => (
+                  <li key={w.slug}><Link href={itemHref(w)} className="inline-flex rounded-full bg-white/[0.12] px-3 py-1.5 text-[13px] text-white hover:bg-white hover:text-heading">{websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType })}</Link></li>
+                ))}
+                {sell && websites.length > FREE_WEBSITES ? (
+                  <li><Link href="/membership?onboard=pay&next=%2Fwebsites" data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[13px] text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{websites.length - FREE_WEBSITES} more for members</Link></li>
+                ) : null}
+              </ul>
+              <Link href="/websites" className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-semibold text-white hover:text-accent">See all websites<ArrowRight aria-hidden className="h-4 w-4" /></Link>
+            </div>
+          </li>
+        </ul>
+
+        {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing; this is
+            the site's other income, so it gets a block of its own. One navy banner inside the page. ── */}
+        {!viewer.isStaff ? (
+          <div data-reveal="" className="rise-soft relative isolate mt-4 overflow-hidden rounded-xl bg-[#0B1F44] p-6 text-white sm:p-10 lg:p-12">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-12">
+              <div className="flex flex-col items-start gap-4">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-accent">For businesses</span>
+                <h2 className="text-hero text-[28px] leading-[1.12] text-white sm:text-[36px]">Get your business in front of buyers</h2>
+                <p data-size="" className="max-w-md text-[15px] leading-relaxed text-white/75">Business owners come here every day to find who sells what and who can help. Be the one they find.</p>
+                <p data-size="" className="text-[13px] text-white/65">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-semibold text-accent hover:text-white">Leave your number</Link> and we call you back.</p>
+              </div>
+              <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                {([
+                  ["/suppliers/join", "supplier", "Become a Supplier", "Shops, wholesalers, manufacturers, importers and machine dealers.", ["Your own page with photos and products", "Buyers call you directly", "Update it yourself"], "bg-accent text-ink hover:bg-white hover:text-ink"],
+                  ["/experts/join", "expert", "Become an Expert", "Accountants, tax advisors, consultants and trainers.", ["Your own profile and services", "Your past jobs, with photos", "Clients call or WhatsApp you"], "bg-white text-heading hover:bg-accent hover:text-ink"],
+                ] as const).map(([href, icon, title, who, gets, btn]) => (
+                  <li key={href} className="flex flex-col gap-4 rounded-lg bg-white/[0.07] p-5 sm:p-6">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-accent"><Icon name={icon} className="h-5 w-5" /></span>
+                    <span className="flex flex-col gap-1"><span className="font-display text-[20px] font-extrabold leading-tight text-white">{title}</span><span className="text-[13px] leading-snug text-white/70">{who}</span></span>
+                    <ul className="flex flex-1 flex-col gap-2">
+                      {gets.map((g) => <li key={g} className="flex items-start gap-2 text-[13px] text-white/85"><Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-accent" />{g}</li>)}
+                    </ul>
+                    <Link href={href} className={`inline-flex h-11 items-center justify-center gap-1.5 rounded-full px-5 text-[14px] font-semibold transition-colors ${btn}`}>{title}<ArrowRight aria-hidden className="h-4 w-4" /></Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:gap-5 md:grid-cols-2">
-            {([
-              ["/suppliers/join", "supplier", "Trusted Suppliers", "Become a Supplier", "For shops, wholesalers, manufacturers, importers and machine dealers.", ["Your own page with your photo and products", "Buyers call you directly", "A dashboard to update it yourself"], "skin-funding text-ink", S.funding.onColour, "bg-white/40"],
-              ["/experts/join", "expert", "Business Experts", "Become an Expert", "For accountants, tax advisors, consultants, trainers and other professionals.", ["Your own profile with your services", "The jobs you have done, shown with photos", "Clients call or WhatsApp you directly"], "skin-suppliers text-white", S.suppliers.onColour, "bg-white/15"],
-            ] as const).map(([href, icon, kind, title, text, gets, tint, onColour, check], n) => (
-              <li key={href} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className={`rise-soft flex flex-col gap-4 rounded-[28px] p-5 sm:p-6 lg:p-8 ${tint}`}>
-                <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] ${onColour}`}><Icon name={icon} className="h-4 w-4" />{kind}</span>
-                <h3 className="text-hero text-[24px] leading-[1.2] sm:text-[28px] lg:text-[32px]">{title}</h3>
-                <p data-size="" className="max-w-md text-[14px] leading-relaxed sm:text-[14px]">{text}</p>
-                <ul className="flex flex-1 flex-col gap-2">
-                  {gets.map((g) => (
-                    <li key={g} className="flex items-center gap-2.5 text-[13px] sm:text-[14px]">
-                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${check}`}><Icon name="check" className="h-3.5 w-3.5" /></span>{g}
-                    </li>
-                  ))}
-                </ul>
-                <span><Go href={href} tone={onColour}>{title}</Go></span>
-              </li>
-            ))}
-          </ul>
-          <p data-size="" className="text-center text-[13px] text-ink-soft">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="">Leave your number</Link> and we call you back.</p>
-        </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
+      </div>
 
     </section>
   );

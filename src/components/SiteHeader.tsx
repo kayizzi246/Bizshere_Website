@@ -32,7 +32,8 @@ export async function SiteHeader() {
   return (
     // One floating bar over the page: the navy heroes run up behind it to the top of the screen (.under-header).
     <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 sm:px-5 lg:pt-3">
-      <div className="relative mx-auto flex h-[52px] max-w-[1312px] items-center gap-2 rounded-full border border-line/70 bg-white pl-3 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.10)] lg:h-[60px] lg:gap-3 lg:pl-5">
+      {/* Liquid glass (.liquid-glass in globals.css) */}
+      <div className="liquid-glass mx-auto flex h-[52px] max-w-[1312px] items-center gap-2 rounded-full pl-3 pr-2 lg:h-[60px] lg:gap-3 lg:pl-5">
         <Logo full />
 
         {/* The main links, centred. Hover (or keyboard focus) on one shows a small card with what it is. */}
@@ -88,9 +89,9 @@ export async function SiteHeader() {
         </div>
 
         {/* Wide screens: a tab growing out of the bar, under the buttons. Phones and tablets have these in the menu. */}
-        <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-10 items-center gap-2 rounded-b-2xl bg-white px-3 lg:flex">
+        <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-10 items-center gap-2 rounded-b-2xl px-3 lg:flex">
           {JOIN.map(([href, label, icon, tone]) => (
-            <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[11px] font-bold shadow-sm transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
+            <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[11px] font-bold transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
               <Icon name={icon} className="h-3.5 w-3.5" />{label}
             </Link>
           ))}
