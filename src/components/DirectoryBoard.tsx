@@ -195,17 +195,21 @@ export const gridList = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-
 
 /** A grid card (business ideas, machines, suppliers): photo on top with the heart, then category, name, pills, a short
     description and the buttons along the bottom, so the cards in a row line up. */
-export function GridFrame({ id, href, title, src, icon, meta, pills, body, actions }: {
+export function GridFrame({ id, href, title, src, icon, meta, pills, body, actions, placeholder, cover = false }: {
   id: string; href: string; title: string; src: string | null | undefined; icon: string;
   meta: React.ReactNode; pills: React.ReactNode; body: React.ReactNode; actions: React.ReactNode;
+  /** Shown instead of the icon when there is no photo (experts: their initials) */
+  placeholder?: React.ReactNode;
+  /** Fill the frame with the photo (portraits) instead of showing it whole */
+  cover?: boolean;
 }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-colors hover:border-ink-muted/50">
       <div className="relative">
         <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden border-b border-line bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-          {src ? <img src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain transition duration-300 group-hover:scale-[1.04]" /> : (
-            <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name={icon} className="h-9 w-9" strokeWidth={1.5} /></span>
+          {src ? <img src={src} alt="" loading="lazy" className={`absolute inset-0 h-full w-full transition duration-300 group-hover:scale-[1.04] ${cover ? "object-cover object-top" : "object-contain"}`} /> : (
+            <span className="flex h-full w-full items-center justify-center bg-brand-tint/60 text-brand/50">{placeholder ?? <Icon name={icon} className="h-9 w-9" strokeWidth={1.5} />}</span>
           )}
         </Link>
         <span className="absolute right-2 top-2 flex items-center gap-1.5">
@@ -357,7 +361,9 @@ function CellsRow({ i }: { i: BrowseListing }) {
  * The side column: what members get (only when something on the page is locked), a business expert for help,
  * and the other section(s) of this page's tabs. No prices.
  */
-export function BoardAside({ path, tabs, active, locked, members, help, row = false }: {
+export function BoardAside({ path, tabs, active, locked, members, help, row = false, helpLink = ["/experts", "Find an expert"] }: {
+  /** The help card's button: [href, label] (default: find an expert) */
+  helpLink?: [string, string];
   /** Under a photo grid: the cards side by side in a row instead of a pinned column */
   row?: boolean;
   path: string;
@@ -383,7 +389,7 @@ export function BoardAside({ path, tabs, active, locked, members, help, row = fa
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-white p-4 text-center">
         <h3 className="text-[16px] font-bold leading-tight tracking-[-0.02em] text-heading">{h.title}</h3>
         <p data-size="" className="text-[13px] leading-relaxed text-ink-muted">{h.text}</p>
-        <Link href="/experts" className="mt-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white"><Users aria-hidden className="h-3.5 w-3.5" />Find an expert</Link>
+        <Link href={helpLink[0]} className="mt-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white"><Users aria-hidden className="h-3.5 w-3.5" />{helpLink[1]}</Link>
       </div>
       {(others.length ? others : [["/search", "Search everything"] as [string, string]]).map(([href, label]) => (
         <Link key={href} href={href} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5 text-ink hover:border-ink-muted/50 hover:text-ink">
