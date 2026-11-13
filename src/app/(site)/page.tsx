@@ -36,15 +36,15 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero fills the screen, up to 840px (was 760px; slightly taller, client 13 Nov 2026), with its content in the middle. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,840px)] xl:flex-col xl:justify-center">
+      {/* Laptops and up (1280px+): the hero fills the screen, up to 780px (840px was a little too tall, client 13 Nov 2026), with its content in the middle. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,780px)] xl:flex-col xl:justify-center">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-12 pt-5 sm:pb-14 sm:pt-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-10 pt-4 sm:pb-12 sm:pt-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -56,12 +56,12 @@ export default async function HomePage() {
             {/* Big, heavy and tight on ONE line, ending in an orange full stop (client, 13 Nov 2026). The line is about
                 11× the font size wide, so phones scale with the screen (7.8vw) and each wider screen steps up to the
                 largest size that still fits its column (about 700px at 1280px, 800px at 1536px). */}
-            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(20px,7vw,38px)] leading-[1.05] tracking-[-0.035em] text-white sm:text-[42px] lg:text-[48px] xl:text-[52px] 2xl:text-[56px]">
+            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(20px,6.4vw,32px)] leading-[1.05] tracking-[-0.035em] text-white sm:text-[34px] lg:text-[38px] xl:text-[40px] 2xl:text-[44px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
 
-            <p data-size="" className="mb-4 max-w-2xl text-[14px] leading-[1.6] text-white/90">
+            <p data-size="" className="mb-4 max-w-2xl text-[13px] leading-[1.6] text-white/90 sm:text-[14px]">
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
               <span className=" text-white">Start exploring now.</span>
             </p>
@@ -73,7 +73,7 @@ export default async function HomePage() {
             <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px] lg:min-h-[44px] lg:gap-2 lg:px-3.5 lg:py-2 lg:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px] lg:min-h-[40px] lg:gap-2 lg:px-3 lg:py-1.5 lg:text-[13px]">
                     <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4 lg:h-[18px] lg:w-[18px]" />
                     {d.title}
                   </Link>
@@ -84,8 +84,8 @@ export default async function HomePage() {
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
               {/* Solid and outlined, bold, small corners (client, 12 Nov 2026, after an example they sent) */}
-              <a href="#features" className="inline-flex h-14 items-center justify-center rounded-md bg-accent px-8 font-display text-[16px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">Get started</a>
-              <Link href="/prices" className="inline-flex h-14 items-center justify-center rounded-md border-2 border-accent px-8 font-display text-[16px] font-extrabold text-accent transition-colors hover:bg-accent hover:text-ink">Check today&apos;s prices</Link>
+              <a href="#features" className="inline-flex h-12 items-center justify-center rounded-md bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">Get started</a>
+              <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-md border-2 border-accent px-7 font-display text-[14px] font-extrabold text-accent transition-colors hover:bg-accent hover:text-ink">Check today&apos;s prices</Link>
             </div>
           </div>
 

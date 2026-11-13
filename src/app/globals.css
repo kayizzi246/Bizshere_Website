@@ -439,16 +439,20 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 /* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
 
-/* Smaller type on every page but the homepage (client, 13 Nov 2026: "reduce the fonts on the other pages"; this
+/* Smaller, uniform type on every page, the homepage too (client, 13 Nov 2026: "make the all page uniform"; this
    replaces the 9 Nov rule that raised 14–15px paragraphs to 16px). Paragraphs keep 14–15px; anything set at
-   16–18px is drawn at 15px. Section headings (h2) 20px, 22px from 640px; sub-headings (h3) 17px. A paragraph
+   16–18px is drawn at 15px. Section headings (h2) 26, 30, 34px; sub-headings (h3) 20, 22, 25px (bigger again twice, client 13 Nov 2026). Page titles (h1) stay the biggest. A paragraph
    marked data-size keeps the size it was given. */
-main:not(:has(.home-wide)) p:is(.text-base, .text-lg, .text-\[16px\], .text-\[17px\], .text-\[18px\], [class*="sm:text-base"], [class*="sm:text-lg"], [class*="sm:text-[16px]"], [class*="sm:text-[17px]"], [class*="sm:text-[18px]"]):not([data-size]) { font-size: 15px !important; line-height: 1.6; }
-main:not(:has(.home-wide)) h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 20px !important; line-height: 1.2 !important; }
+main p:is(.text-base, .text-lg, .text-\[16px\], .text-\[17px\], .text-\[18px\], [class*="sm:text-base"], [class*="sm:text-lg"], [class*="sm:text-[16px]"], [class*="sm:text-[17px]"], [class*="sm:text-[18px]"]):not([data-size]) { font-size: 15px !important; line-height: 1.6; }
+main h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 26px !important; line-height: 1.15 !important; }
 @media (min-width: 640px) {
-  main:not(:has(.home-wide)) h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 22px !important; }
+  main h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 30px !important; }
 }
-main:not(:has(.home-wide)) h3:is([class*="text-[19px]"], [class*="text-[2"], .text-xl, .text-2xl, [class*="sm:text-[2"], [class*="sm:text-xl"], [class*="sm:text-2xl"]) { font-size: 17px !important; line-height: 1.25 !important; }
+@media (min-width: 1024px) {
+  main h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 34px !important; }
+}
+main h3:is([class*="text-[19px]"], [class*="text-[2"], .text-xl, .text-2xl, [class*="sm:text-[2"], [class*="sm:text-xl"], [class*="sm:text-2xl"]) { font-size: 20px !important; line-height: 1.2 !important; }
+@media (min-width: 640px) { main h3:is([class*="text-[19px]"], [class*="text-[2"], .text-xl, .text-2xl, [class*="sm:text-[2"], [class*="sm:text-xl"], [class*="sm:text-2xl"]) { font-size: 22px !important; } }@media (min-width: 1024px) { main h3:is([class*="text-[19px]"], [class*="text-[2"], .text-xl, .text-2xl, [class*="sm:text-[2"], [class*="sm:text-xl"], [class*="sm:text-2xl"]) { font-size: 25px !important; } }
 
 /* How pictures sit in their frames (client, 12 Nov 2026; set by src/components/ImageFit.tsx): photos with their own
    background fill the frame; cut-outs with no background are shown whole on a soft colour. */
@@ -461,11 +465,11 @@ img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF
 .collage .collage-thumb img[data-fit="contain"] { background-color: #fff !important; padding: 6%; }
 .collage-col.collage-slow { animation-duration: 40s; }
 
-/* Every page's main title one smaller size (client, 13 Nov 2026: "reduce the fonts on the other pages"): 24px on
-   phones, 28px from 640px, 32px from 1280px, whatever size the page set. The homepage headline (data-home) keeps its own. */
-main h1.text-hero:not([data-home]) { font-size: 24px !important; line-height: 1.15 !important; }
-@media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 28px !important; } }
-@media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 32px !important; } }
+/* Every page's main title one size (client, 13 Nov 2026; raised again with the headings): 28px on
+   phones, 34px from 640px, 40px from 1280px, whatever size the page set. The homepage headline (data-home) keeps its own. */
+main h1.text-hero:not([data-home]) { font-size: 28px !important; line-height: 1.15 !important; }
+@media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 34px !important; } }
+@media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 40px !important; } }
 /* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
 /* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example): Inter ExtraBold (800), tight.
    !important so a heading's own weight class (font-bold, font-semibold…) can't make it lighter. */

@@ -233,7 +233,7 @@ export async function HomeFeatures() {
       <div className="container-site flex flex-col gap-2 pt-7 sm:pt-8">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
         <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-black">Everything a business needs</h2>
-        <p data-size="" className="max-w-2xl text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
+        <p data-size="" className="max-w-2xl text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
 
       {/* Business Ideas: a green panel built like Machines and Experts below it, and the same height: the words
@@ -409,7 +409,7 @@ export async function HomeFeatures() {
       <div className="container-site flex flex-col items-center gap-5 pb-6 pt-7 sm:gap-6 sm:pb-8 sm:pt-8">
         <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
           <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-[#0B1F33]">Help for every working day</h2>
-          <p data-size="" className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
+          <p data-size="" className="text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
         </div>
         <HelpTabs tabs={helpTabs} />
       </div>
