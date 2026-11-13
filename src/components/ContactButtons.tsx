@@ -21,21 +21,21 @@ export function ContactButtons({ phone, email, gated, back, me = "me" }: { phone
   ];
   if (!buttons.length) return <p className="text-[14px] text-ink-muted">No phone or email listed yet.</p>;
 
-  const button = "flex min-h-[54px] items-center gap-3 rounded-xl px-4 py-2 font-display transition-colors";
+  const button = "flex min-h-[46px] items-center gap-2.5 rounded-xl px-3.5 py-1.5 font-display transition-colors";
   return (
     <div className="flex flex-col gap-2">
       {buttons.map(({ label, Glyph, tone, href, shows, external }) => (gated ? (
         <Link key={label} href={back} data-onboard="" className={`${button} ${tone}`}>
-          <Glyph aria-hidden className="h-5 w-5 shrink-0" />
-          <span className="flex-1 text-[16px] font-extrabold">{label}</span>
+          <Glyph aria-hidden className="h-4 w-4 shrink-0" />
+          <span className="flex-1 text-[14px] font-bold">{label}</span>
           <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />
         </Link>
       ) : (
         <a key={label} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={`${button} ${tone}`}>
-          <Glyph aria-hidden className="h-5 w-5 shrink-0" />
+          <Glyph aria-hidden className="h-4 w-4 shrink-0" />
           <span className="flex min-w-0 flex-col leading-tight">
-            <span className="text-[16px] font-extrabold">{label}</span>
-            {shows ? <span className="break-all text-[13px] font-semibold">{shows}</span> : null}
+            <span className="text-[14px] font-bold">{label}</span>
+            {shows ? <span className="break-all text-[12px] font-medium">{shows}</span> : null}
           </span>
         </a>
       )))}

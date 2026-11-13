@@ -17,7 +17,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   const [feature, ...rest] = photos;
   const f = KIND[feature.kind];
   return (
-    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[540px] flex-col gap-4 rounded-2xl border border-white/15 bg-[#081A3C]/70 p-4 text-white backdrop-blur-md">
+    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[470px] flex-col gap-3 rounded-2xl border border-white/15 bg-[#081A3C]/70 p-4 text-white backdrop-blur-md">
       <div className="flex items-center justify-between gap-3 px-1">
         <span className="flex flex-col leading-tight">
           <span className="font-display text-[16px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>
@@ -27,7 +27,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
       </div>
 
       {/* The featured listing */}
-      <div className="relative h-[210px] shrink-0 overflow-hidden rounded-xl bg-white/[0.05]">
+      <div className="relative h-[180px] shrink-0 overflow-hidden rounded-xl bg-white/[0.05]">
         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
         <img src={feature.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#04112A]/90 to-transparent" />

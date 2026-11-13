@@ -88,32 +88,32 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         ? <span key="p" className="inline-flex flex-wrap items-center gap-x-3 gap-y-1"><PdfOpenButton file={`${path}/file`} download={`${path}/file?download=1`} title={`${name}: profile`} className="font-semibold text-brand hover:text-brand-dark">Read here</PdfOpenButton><a href={`${path}/file?download=1`} className="text-brand hover:text-brand-dark">Download</a></span>
         : <a key="p" href={c.profileUrl} target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-dark">Download</a>] as [LucideIcon, string, React.ReactNode]] : []),
   ];
-  const card = "flex flex-col gap-3 rounded-3xl border border-line bg-white p-5 sm:p-6";
+  const card = "flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:p-5";
   const h2 = "font-display text-[20px] font-extrabold leading-tight text-heading sm:text-[22px]";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      <article>
+      <article data-compact-page="">
         {item.publicationStatus !== "PUBLISHED" ? (
           <p role="status" className="bg-accent px-4 py-3 text-center text-[14px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/expert" className="underline">Back to my dashboard</Link></p>
         ) : null}
         {/* ── Who they are, and what they do ── */}
         <header className="under-header hero-glow hero-still bg-navy text-white">
-          <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
+          <div className="container-site flex flex-col gap-3 pb-5 pt-3 sm:pb-6 sm:pt-4">
             <Link href="/experts" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-4 w-4" />All experts</Link>
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
                 {c.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
-                  <img src={c.photoUrl} alt="" className="h-24 w-24 shrink-0 rounded-3xl bg-white object-cover ring-4 ring-white/15 sm:h-32 sm:w-32" />
-                ) : <span aria-hidden className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-accent font-display text-[38px] font-extrabold text-ink ring-4 ring-white/15 sm:h-32 sm:w-32">{name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
-                <div className="flex min-w-0 flex-col gap-2">
+                  <img src={c.photoUrl} alt="" className="h-20 w-20 shrink-0 rounded-2xl bg-white object-cover ring-4 ring-white/15 sm:h-24 sm:w-24" />
+                ) : <span aria-hidden className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-accent font-display text-[28px] font-extrabold text-ink ring-4 ring-white/15 sm:h-24 sm:w-24 sm:text-[32px]">{name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
+                <div className="flex min-w-0 flex-col gap-1.5">
                   <h1 className="text-hero text-[28px] leading-[1.1] sm:text-[40px]">{name}</h1>
-                  {role ? <p className="text-[16px] font-medium">{role}</p> : null}
-                  {item.lastReviewedAt ? <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[13px] font-bold text-heading"><BadgeCheck aria-hidden className="h-4 w-4 text-brand" />Checked by our team, {date(item.lastReviewedAt)}</span> : null}
+                  {role ? <p data-size="" className="text-[14px] font-medium text-white/85">{role}</p> : null}
+                  {item.lastReviewedAt ? <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-heading"><BadgeCheck aria-hidden className="h-3.5 w-3.5 text-brand" />Checked by our team, {date(item.lastReviewedAt)}</span> : null}
                   {c.specialties.length ? (
                     <ul aria-label="Specialties" className="flex flex-wrap gap-1.5 pt-1">
-                      {c.specialties.slice(0, 8).map((x) => <li key={x} className="rounded-full bg-white/15 px-3 py-1 text-[14px] font-semibold">{x}</li>)}
+                      {c.specialties.slice(0, 8).map((x) => <li key={x} className="rounded-full bg-white/15 px-2.5 py-0.5 text-[12px] font-medium">{x}</li>)}
                     </ul>
                   ) : null}
                 </div>
@@ -134,7 +134,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                   {proof.map(({ value, label, icon: Glyph }) => (
                     <li key={label} className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-4">
                       <Glyph aria-hidden className="h-5 w-5 text-accent-dark" />
-                      <span className="text-hero text-[28px] leading-none text-heading">{value}</span>
+                      <span className="text-hero text-[22px] leading-none text-heading">{value}</span>
                       <span className="text-[13px] font-medium text-ink-soft">{label}</span>
                     </li>
                   ))}
@@ -144,8 +144,8 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
               {about || c.experience ? (
                 <section className={card}>
                   <h2 className={h2}>About {name}</h2>
-                  {about ? <p className="whitespace-pre-line text-[16px] leading-relaxed text-ink-soft">{about}</p> : null}
-                  {c.experience ? <p className="whitespace-pre-line text-[16px] leading-relaxed text-ink-soft">{c.experience}</p> : null}
+                  {about ? <p data-size="" className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{about}</p> : null}
+                  {c.experience ? <p data-size="" className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{c.experience}</p> : null}
                 </section>
               ) : null}
 
@@ -156,12 +156,12 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                     {c.services.map((s) => (
                       <li key={s.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl bg-page px-4 py-3">
                         <span className="flex min-w-0 flex-col">
-                          <span className="font-display text-[16px] font-extrabold text-heading">{s.name}</span>
+                          <span className="font-display text-[14px] font-bold text-heading">{s.name}</span>
                           {s.remark ? <span className="text-[14px] text-ink-soft">{s.remark}</span> : null}
                         </span>
                         {s.price ? (gated
                           ? <Link href={path} data-onboard="" className="inline-flex items-center gap-1.5 text-[14px] font-bold text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-4 w-4" />See price</Link>
-                          : <span className="font-display text-[16px] font-extrabold text-brand-dark">{s.price}</span>) : null}
+                          : <span className="font-display text-[14px] font-bold text-brand-dark">{s.price}</span>) : null}
                       </li>
                     ))}
                   </ul>
@@ -222,17 +222,17 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
             </div>
 
             {/* ── Get in touch: first on phones, beside the profile on wide screens ── */}
-            <aside className="order-first flex flex-col gap-4 rounded-3xl border border-line bg-white p-5 lg:sticky lg:top-32 lg:order-none">
+            <aside className="order-first flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 lg:sticky lg:top-32 lg:order-none">
               <h2 className={h2}>Talk to this expert</h2>
               <ContactButtons phone={c.phone} email={c.email} gated={gated} back={path} />
               {details.length ? (
                 <dl className="flex flex-col gap-3 border-t border-line pt-4">
                   {details.map(([Glyph, label, value]) => (
                     <div key={label} className="flex min-w-0 items-start gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Glyph aria-hidden className="h-4 w-4" strokeWidth={1.75} /></span>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Glyph aria-hidden className="h-3.5 w-3.5" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-col">
                         <dt className="text-[12px] font-medium text-ink-muted">{label}</dt>
-                        <dd className="min-w-0 break-words font-display text-[15px] font-bold text-heading">{value}</dd>
+                        <dd className="min-w-0 break-words font-display text-[14px] font-semibold text-heading">{value}</dd>
                       </span>
                     </div>
                   ))}
