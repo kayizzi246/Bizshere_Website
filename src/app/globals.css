@@ -264,10 +264,11 @@ select {
    the strip behind the floating header (.under-header) in one piece: no seam. The moving lights on the homepage
    are src/components/HeroParticles.tsx. */
 .hero-premium, .hero-glow { background-color: #061230; background-repeat: no-repeat; background-origin: border-box;
-  background-image: radial-gradient(60rem 34rem at 88% -8%, rgba(46, 150, 235, 0.38), transparent 62%),
+  /* Lighter blues a little stronger (client, 13 Nov 2026): the top-right glow brighter and wider, the far corner bluer */
+  background-image: radial-gradient(66rem 38rem at 88% -8%, rgba(56, 160, 245, 0.48), transparent 64%),
     radial-gradient(46rem 30rem at -6% 108%, rgba(242, 160, 60, 0.16), transparent 60%),
-    radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.22), transparent 65%),
-    linear-gradient(135deg, #040B1F 0%, #08193F 48%, #0B2466 100%); }
+    radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.24), transparent 65%),
+    linear-gradient(135deg, #040B1F 0%, #0A1D4A 46%, #0F3080 100%); }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
 .speckle { background-color: #F3F2EE; } /* the specks are only on the homepage hero now (client, 12 Nov 2026) */
