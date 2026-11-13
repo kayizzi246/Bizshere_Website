@@ -36,15 +36,15 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero fills the screen, up to 780px, with its content in the middle, like the client's example (12 Nov 2026). */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,760px)] xl:flex-col xl:justify-center">
+      {/* Laptops and up (1280px+): the hero fills the screen, up to 840px (was 760px; slightly taller, client 13 Nov 2026), with its content in the middle. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,840px)] xl:flex-col xl:justify-center">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
         <div className="container-site relative pt-1.5 sm:pt-[40px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-8 pt-3 sm:pb-10 sm:pt-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-12 pt-5 sm:pb-14 sm:pt-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -53,9 +53,12 @@ export default async function HomePage() {
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
                 screen (6.2vw: 20px on a 320px phone, 30px at most) and wider screens step up to 40px and 48px. */}
-            <h1 className="text-hero mb-3 whitespace-nowrap text-[clamp(20px,6.2vw,30px)] leading-[1.08] text-white sm:text-[38px] lg:text-[44px]">
+            {/* Big, heavy and tight on ONE line, ending in an orange full stop (client, 13 Nov 2026). The line is about
+                11× the font size wide, so phones scale with the screen (7.8vw) and each wider screen steps up to the
+                largest size that still fits its column (about 700px at 1280px, 800px at 1536px). */}
+            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(20px,7vw,38px)] leading-[1.05] tracking-[-0.035em] text-white sm:text-[42px] lg:text-[48px] xl:text-[52px] 2xl:text-[56px]">
               <span className="sr-only">Bizsphere-UG: </span>
-              <span className="text-accent">B2B</span> Information Portal
+              <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
 
             <p data-size="" className="mb-4 max-w-2xl text-[14px] leading-[1.6] text-white/90">
@@ -191,9 +194,9 @@ async function heroPhotos(): Promise<CollagePhoto[]> {
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, machine: { select: { pictureUrl: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
     prisma.supplierProductListing.findMany({ where: { status: "PUBLISHED", imageUrl: { not: null }, supplier: { contentItem: live } }, select: { id: true, productName: true, imageUrl: true, supplier: { select: { contentItem: { select: { slug: true, title: true } } } } }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]).catch(() => [[], [], []] as const);
-  const a: CollagePhoto[] = ideas.map((i) => ({ src: i.businessIdea!.pictureUrl!, title: clean(i.title), sub: "Business idea", href: `/business-ideas/${i.slug}` }));
-  const b: CollagePhoto[] = machines.map((m) => ({ src: m.machine!.pictureUrl!, title: clean(m.title), sub: "Business machine", href: `/machines/${m.slug}` }));
-  const c: CollagePhoto[] = products.map((p) => ({ src: p.imageUrl!, title: clean(p.productName), sub: clean(p.supplier.contentItem.title), href: `/suppliers/${p.supplier.contentItem.slug}/products/${p.id}` }));
+  const a: CollagePhoto[] = ideas.map((i) => ({ src: i.businessIdea!.pictureUrl!, title: clean(i.title), sub: "Business ideas", href: `/business-ideas/${i.slug}`, kind: "idea" }));
+  const b: CollagePhoto[] = machines.map((m) => ({ src: m.machine!.pictureUrl!, title: clean(m.title), sub: "Business machines", href: `/machines/${m.slug}`, kind: "machine" }));
+  const c: CollagePhoto[] = products.map((p) => ({ src: p.imageUrl!, title: clean(p.productName), sub: clean(p.supplier.contentItem.title), href: `/suppliers/${p.supplier.contentItem.slug}/products/${p.id}`, kind: "product" }));
   const out: CollagePhoto[] = [];
   for (let i = 0; i < 5; i++) for (const list of [a, b, c]) if (list[i]) out.push(list[i]);
   return out.slice(0, 12);

@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { IdeaCard, type CardIdea } from "./IdeaParts";
+import Link from "next/link";
+import { Wallet } from "lucide-react";
+import { type CardIdea } from "./IdeaParts";
+import { compactRange } from "@/lib/format";
+import { BoardAside, BoardEmpty, DirectoryBoard, RowFrame, RowPhoto, chip, softButton, solidButton } from "./DirectoryBoard";
 import { useTypingHint } from "./TypingHint";
-import { BrowseHero, CategoryChips, Pager, SortSelect, countCategories, syncAddress } from "./BrowseParts";
+import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 
 /** A card plus what the in-page search and sort need. `order` is the newest-first position. */
@@ -70,6 +74,8 @@ export function IdeaBrowser({ ideas, intro, initial }: {
   const toList = () => listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const goTo = (n: number) => { setPage(n); toList(); };
   const clear = () => { setQ(""); setCategory(""); setPage(1); };
+  const pick = (id: string) => { setCategory(id); setPage(1); };
+  const order = (v: Sort) => { setSort(v); setPage(1); };
 
   return (
     <>
@@ -81,49 +87,52 @@ export function IdeaBrowser({ ideas, intro, initial }: {
         onSubmit={toList}
         hint={hint}
         label="Search business ideas"
-        popular={ideas.slice(0, 4).map(name)}
+        popular={[]}
         cats={cats}
         category={category}
-        onCategory={(id) => { setCategory(id); setPage(1); }}
+        onCategory={pick}
         sort={sort}
         sorts={SORTS}
-        onSort={(v) => { setSort(v); setPage(1); }}
+        onSort={order}
+        compact
       />
-
-      <div className="bg-page">
-        <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-6">
-          <RecentStrip only="/business-ideas" />
-          <CategoryChips cats={cats} total={ideas.length} chosen={category} onChoose={(id) => { setCategory(id); setPage(1); }} />
-
-          <section ref={listTop} aria-labelledby="ideas" className="flex scroll-mt-4 flex-col gap-5">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                {/* A title only when it says something: the search or the chosen category */}
-                <h2 id="ideas" className={q.trim() || chosenName ? "text-block-title text-heading" : "sr-only"}>
-                  {q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Business ideas"}
-                </h2>
-                <p className="text-sm text-ink-muted" aria-live="polite">
-                  <strong className="font-semibold text-ink-soft">{items.length} {items.length === 1 ? "business" : "businesses"} available</strong>{pages > 1 ? ` · page ${current} of ${pages}` : ""}
-                </p>
-              </div>
-              <SortSelect value={sort} options={SORTS} onChange={(v) => { setSort(v); setPage(1); }} />
-            </div>
-
-            {items.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center">
-                <p className="text-sm font-semibold text-heading">{ideas.length ? "No business ideas match this search. Try other words or another category." : "Nothing published here yet."}</p>
-                {ideas.length ? <button type="button" onClick={clear} className="text-[13px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
-              </div>
-            ) : (
-              <ul className="-mx-3 grid grid-cols-2 gap-1.5 sm:mx-0 sm:grid-cols-3 sm:gap-2 lg:grid-cols-4 xl:grid-cols-5">
-                {shown.map((i) => <li key={i.id} id={i.slug}><IdeaCard idea={i} /></li>)}
-              </ul>
-            )}
-
-            <Pager current={current} pages={pages} goTo={goTo} />
-          </section>
-        </div>
-      </div>
+      {/* The same job-board style list as every directory (DirectoryBoard; client, 13 Nov 2026) */}
+      <DirectoryBoard crumb="Business Ideas" count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
+        heading={q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Businesses you can start"}
+        top={<RecentStrip only="/business-ideas" />}
+        aside={<BoardAside path="/business-ideas" locked={false} tabs={[["/machines", "Business machines"], ["/funding", "Funding Sources"]]}
+          help={{ title: "Not sure where to start?", text: "A business expert can help you pick an idea and plan your budget." }} />}
+        pager={<Pager current={current} pages={pages} goTo={goTo} />}
+        listTop={listTop}>
+        {items.length === 0 ? <BoardEmpty any={ideas.length > 0} onClear={clear} /> : (
+          <ul className="flex flex-col gap-2.5">
+            {shown.map((i) => <li key={i.id} id={i.slug}><IdeaRow idea={i} /></li>)}
+          </ul>
+        )}
+      </DirectoryBoard>
     </>
+  );
+}
+
+/** One business idea as a row card: photo, category, start-up capital, requirements, summary, Budget and Details. */
+function IdeaRow({ idea }: { idea: BrowseIdea }) {
+  const href = `/business-ideas/${idea.slug}`;
+  const bi = idea.businessIdea;
+  const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
+  const hasBudget = Boolean(bi?.scenarios.some((sc) => sc._count.lines > 0));
+  return (
+    <RowFrame id={idea.id} href={href} title={name(idea)}
+      thumb={<RowPhoto href={href} src={bi?.pictureUrl} icon="idea" />}
+      meta={<>
+        <span className="font-semibold text-accent-dark">{idea.primaryCategory?.name ?? "Business idea"}</span>
+        {idea.reqs ? <><span aria-hidden>·</span><span>{idea.reqs} requirement{idea.reqs === 1 ? "" : "s"}</span></> : null}
+      </>}
+      pills={<li className={`${chip} ${cost ? "font-semibold text-heading" : ""}`}><Wallet aria-hidden className="h-3 w-3 text-ink-muted" />{cost ? `Start-up capital ${cost}` : "Being priced"}</li>}
+      body={idea.shortSummary ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-soft">{idea.shortSummary}</p> : null}
+      actions={<>
+        {hasBudget ? <Link href={`${href}/requirements`} className={softButton}>Budget</Link> : null}
+        <Link href={href} className={solidButton}>Details</Link>
+      </>}
+    />
   );
 }

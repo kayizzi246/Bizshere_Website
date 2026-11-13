@@ -1,14 +1,15 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, ExternalLink, FileText, LockKeyhole } from "lucide-react";
+import { BadgeCheck, Banknote, Building2, CalendarCheck, ExternalLink, FileText, LockKeyhole, MapPin, Sparkles } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { popupPlan } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
 import { memberOnlyLabels } from "@/lib/content-fields";
-import { moneyRange } from "@/lib/format";
+import { date, moneyRange } from "@/lib/format";
+import { SaveButton } from "@/components/Wishlist";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { Connected, Evidence, trackView } from "@/components/DetailParts";
 import { DropHint } from "@/components/DropHint";
@@ -29,9 +30,10 @@ const href = (url: string) => (/^https?:\/\//.test(url) ? url : `https://${url}`
 type Row = { label: string; value: React.ReactNode; strong?: boolean; locked?: boolean };
 
 /**
- * One fund, laid out like the client's funding template (Nov 2026): the funder (photo or logo, name,
- * phone, country, email, website), then the fund in numbered rows: name, amount, eligibility,
- * collateral, target group, tenor, eligible sectors and how to apply.
+ * One fund, laid out like a job page (client example, 13 Nov 2026): breadcrumb, the funder, the fund's name, key
+ * facts with icons and tags, Apply now and Save; then "In short", About, the fund in numbered rows (name, amount,
+ * eligibility, collateral, target group, tenor, eligible sectors, how to apply), and a side card for the funder
+ * (logo, name, category, country, phone, email, website, more funds from them).
  *
  * Member detail (the amount, tenor, how to apply and the funder's phone, email and website) is checked
  * here on the server: a visitor who hasn't paid gets a lock in its place, and the value is never sent.
@@ -108,7 +110,9 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const lowest = plan.daily ? `${plan.daily} a day` : plan.weekly ? `${plan.weekly} a week` : plan.monthly ? `${plan.monthly} a month` : null;
 
   const card = "flex scroll-mt-28 flex-col gap-4 rounded-3xl border border-line bg-white p-5 sm:p-7";
-  const h2 = "font-display text-[20px] font-extrabold leading-tight text-heading sm:text-[22px]";
+  const h2 = "text-[19px] font-bold leading-tight tracking-[-0.02em] text-heading sm:text-[20px]";
+  // The funder's contacts for the side card (member detail: locked for visitors)
+  const contacts = funder.filter((r) => ["Phone", "Email", "Website"].includes(r.label));
   const locked = (label: string) => (
     <Link href={path} data-onboard="" aria-label={`See the ${label.toLowerCase()}`} className="inline-flex items-center gap-2 text-brand">
       <span aria-hidden className="hidden select-none blur-[5px] sm:inline">0000 000 000</span>
@@ -117,77 +121,100 @@ export default async function FundingPage({ params }: { params: { slug: string }
   );
   const cell = (r: Row) => (r.locked ? locked(r.label) : r.value);
 
+  // Small logo (or colour tile with the first letter) for the funder line and the side card
+  const logo = (size: string, text: string) => org.logoUrl ? (
+    // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
+    <img src={org.logoUrl} alt="" className={`${size} shrink-0 rounded-lg border border-line bg-white object-contain p-0.5`} />
+  ) : (
+    <span aria-hidden className={`${size} ${colourOf(item.slug)} flex shrink-0 items-center justify-center rounded-lg font-bold text-white ${text}`}>{funderName.charAt(0)}</span>
+  );
+  const checked = item.lastReviewedAt ? date(item.lastReviewedAt) : null;
+  const tags = [...new Set([...f.eligibleBusinessTypes, ...(f.targetGroup ? [f.targetGroup] : [])])].slice(0, 8);
+  const meta = "inline-flex items-center gap-1.5";
+
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="under-header-pad bg-page">
-        <div className="container-site flex flex-col gap-4 pb-8 pt-5 sm:pt-7">
-          {/* ── Heading ── */}
-          <header className="flex flex-col items-start gap-3">
-            <Link href="/funding" className="inline-flex items-center gap-1.5 text-sm font-semibold"><ArrowLeft aria-hidden className="h-4 w-4" />All funding sources</Link>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-brand px-3 py-1 text-[13px] font-bold text-white">{titleCase(f.fundingType)}</span>
-              {status ? <span className={`rounded-full px-3 py-1 text-[13px] font-bold ${isOpen ? "bg-[#E3F4EA] text-[#1F7A4D]" : "bg-white text-ink-soft"}`}>{status}</span> : null}
-              {viewer.isMember ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[13px] font-bold text-accent-dark"><BadgeCheck aria-hidden className="h-4 w-4" />Full access</span> : null}
+        <div className="container-site flex flex-col gap-6 pb-10 pt-5 sm:pt-7">
+          {/* ── Heading, like a job page (client example, 13 Nov 2026): where you are, who funds it, the name, the key facts
+              with icons, tags; Apply now and Save on the right. Member detail stays locked. ── */}
+          <header className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10">
+            <div className="flex min-w-0 flex-col items-start gap-3">
+              <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted">
+                <Link href="/funding" className="text-ink-muted hover:text-brand">Funding Sources</Link>
+                <span aria-hidden>/</span>
+                <span className="text-ink-soft">{titleCase(f.fundingType)}s</span>
+              </nav>
+              <span className="flex items-center gap-2.5 text-[15px] text-ink-soft">
+                {logo("h-8 w-8", "text-[14px]")}{funderName}
+              </span>
+              <h1 className="max-w-4xl text-[24px] font-bold leading-[1.15] tracking-[-0.03em] text-heading sm:text-[28px] lg:text-[32px]">{name}</h1>
+              <p data-size="" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[14px] text-ink-soft">
+                {checked ? <span className={meta}><CalendarCheck aria-hidden className="h-4 w-4 text-ink-muted" />Checked {checked}</span> : null}
+                <span className={meta}><MapPin aria-hidden className="h-4 w-4 text-ink-muted" />{f.provider.country}</span>
+                {amount ? (gated
+                  ? <Link href={path} data-onboard="" className={`${meta} font-semibold text-brand`}><LockKeyhole aria-hidden className="h-4 w-4" />Amount for members</Link>
+                  : <span className={`${meta} font-semibold text-heading`}><Banknote aria-hidden className="h-4 w-4 text-ink-muted" />{amount}</span>) : null}
+                {status ? <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${isOpen ? "bg-[#E3F4EA] text-[#1F7A4D]" : "bg-white text-ink-soft ring-1 ring-line"}`}>{status}</span> : null}
+                {viewer.isMember ? <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-accent-dark ring-1 ring-line"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
+              </p>
+              {tags.length ? (
+                <ul className="flex flex-wrap gap-1.5">
+                  <li className="rounded-full bg-brand px-3 py-1 text-[12px] font-semibold text-white">{titleCase(f.fundingType)}</li>
+                  {tags.map((t) => <li key={t} className="rounded-full border border-line bg-white px-3 py-1 text-[12px] text-ink-soft">{t}</li>)}
+                </ul>
+              ) : (
+                <span className="rounded-full bg-brand px-3 py-1 text-[12px] font-semibold text-white">{titleCase(f.fundingType)}</span>
+              )}
             </div>
-            <h1 className="text-hero text-[30px] leading-[1.05] text-heading sm:text-[40px]">{name}</h1>
-            {item.shortSummary ? <p className="max-w-2xl text-[17px] leading-relaxed text-ink-soft">{item.shortSummary}</p> : null}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {viewer.isMember && applyAt ? (
-                <a data-visit="" href={applyAt} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand px-6 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white">Apply now<ExternalLink aria-hidden className="h-4 w-4" /></a>
-              ) : null}
-              {gated ? (
-                <>
-                  <Link href={path} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-accent-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />See the full details</Link>
-                  {lowest ? <span className="text-[15px] text-ink-soft">From <strong className="font-display font-extrabold text-heading">{lowest}</strong></span> : null}
-                </>
-              ) : null}
+
+            <div className="flex flex-col gap-2 lg:w-[290px] lg:pt-14">
+              <div className="flex gap-2">
+                {viewer.isMember && applyAt ? (
+                  <a data-visit="" href={applyAt} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white">Apply now<ExternalLink aria-hidden className="h-4 w-4" /></a>
+                ) : gated ? (
+                  <Link href={path} data-onboard="" className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Apply now</Link>
+                ) : null}
+                <div className="w-[7.5rem] shrink-0 [&>button]:h-12"><SaveButton id={item.id} /></div>
+              </div>
+              <p data-size="" className="text-[12px] text-ink-muted">
+                {gated && lowest ? <>Members see the full details, from <strong className="font-semibold text-heading">{lowest}</strong>. </> : null}
+                Please mention <strong className="font-semibold text-ink-soft">BizSphere-Ug</strong> when applying.
+              </p>
               <RememberVisit item={{ href: path, title: name, kind: "Funding", icon: "funding" }} />
             </div>
           </header>
 
-          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
-            <div className="flex min-w-0 flex-col gap-4">
-              {/* ── The funder: photo or logo, then its details ── */}
-              <section aria-label="The funder" className="grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-3xl border border-line bg-white sm:grid-cols-[220px_minmax(0,1fr)]">
-                <div className={`flex min-h-[160px] items-center justify-center p-5 ${org.logoUrl ? "bg-white sm:border-r sm:border-line" : `${colourOf(item.slug)} text-white`}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-                  {org.logoUrl ? <img src={org.logoUrl} alt={`${funderName} logo`} className="max-h-[140px] w-full object-contain" /> : (
-                    <span className="flex flex-col items-center gap-2 text-center">
-                      <span aria-hidden className="font-display text-[52px] font-extrabold leading-none">{funderName.charAt(0)}</span>
-                      <span className="font-display text-[15px] font-bold leading-tight">{funderName}</span>
-                    </span>
-                  )}
-                </div>
-                <dl className="divide-y divide-line">
-                  {funder.map((r) => (
-                    <div key={r.label} className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 px-4 py-3 text-[15px] sm:grid-cols-[140px_minmax(0,1fr)] sm:px-5">
-                      <dt className="text-ink-muted">{r.label}</dt>
-                      <dd className={`min-w-0 text-heading ${r.strong ? "font-bold" : ""}`}>{cell(r)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-
-              {/* ── The fund, in numbered rows ── */}
-              <section id="details" aria-label="Fund details" className="overflow-hidden rounded-3xl border border-line bg-white">
-                <ol className="divide-y divide-line">
-                  {fund.map((r, n) => (
-                    <li key={r.label} className="grid grid-cols-[minmax(0,1fr)] gap-1 px-4 py-3.5 text-[16px] sm:grid-cols-[200px_minmax(0,1fr)] sm:gap-4 sm:px-5">
-                      <span className="flex items-baseline gap-2 font-semibold text-ink-soft">
-                        <span className="w-6 shrink-0 font-display font-extrabold text-brand">{n + 1}.</span>{r.label}
-                      </span>
-                      <div className={`min-w-0 pl-8 leading-relaxed text-heading sm:pl-0 ${r.strong ? "font-bold" : ""}`}>{cell(r)}</div>
-                    </li>
-                  ))}
-                </ol>
-              </section>
+          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
+            <div className="flex min-w-0 flex-col gap-6">
+              {item.shortSummary ? (
+                <section aria-label="In short" className="flex flex-col gap-1.5 rounded-2xl border border-accent/20 bg-accent-tint/60 p-5">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent-dark"><Sparkles aria-hidden className="h-3.5 w-3.5" />In short</span>
+                  <p data-size="" className="text-[15px] leading-relaxed text-heading">{item.shortSummary}</p>
+                </section>
+              ) : null}
 
               {item.overview ? (
-                <section className={card}>
+                <section className="flex flex-col gap-2.5">
                   <h2 className={h2}>About this fund</h2>
                   <p className="whitespace-pre-line text-[16px] leading-relaxed text-ink-soft">{item.overview}</p>
                 </section>
               ) : null}
+
+              {/* ── The fund, in numbered rows ── */}
+              <section id="details" aria-labelledby="fund-details" className="flex scroll-mt-28 flex-col gap-3">
+                <h2 id="fund-details" className={h2}>Fund details</h2>
+                <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+                  {fund.map((r, n) => (
+                    <li key={r.label} className="grid grid-cols-[minmax(0,1fr)] gap-1 px-4 py-3 text-[15px] sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-4 sm:px-5">
+                      <span className="flex items-baseline gap-2 font-medium text-ink-muted">
+                        <span className="w-5 shrink-0 font-semibold text-brand">{n + 1}.</span>{r.label}
+                      </span>
+                      <div className={`min-w-0 pl-7 leading-relaxed text-heading sm:pl-0 ${r.strong ? "font-semibold" : ""}`}>{cell(r)}</div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
 
               {visibleGroups("FUNDING_PROGRAMME", record, skip).length ? (
                 <section className={card}>
@@ -203,6 +230,26 @@ export default async function FundingPage({ params }: { params: { slug: string }
             </div>
 
             <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-32">
+              {/* ── The funder: logo, name, what kind and where, then contacts (member detail) ── */}
+              <section aria-label="The funder" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+                {logo("h-14 w-14", "text-[24px]")}
+                <h2 className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
+                <ul className="flex flex-wrap gap-1.5">
+                  {f.providerCategory ?? f.provider.providerCategory ? <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.providerCategory ?? f.provider.providerCategory}</li> : null}
+                  <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><MapPin aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.provider.country}</li>
+                </ul>
+                {contacts.length ? (
+                  <dl className="flex flex-col divide-y divide-line border-y border-line text-[14px]">
+                    {contacts.map((r) => (
+                      <div key={r.label} className="grid grid-cols-[72px_minmax(0,1fr)] gap-2 py-2.5">
+                        <dt className="text-ink-muted">{r.label}</dt>
+                        <dd className="min-w-0 text-heading">{cell(r)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                <Link href={`/funding?q=${encodeURIComponent(funderName)}`} className="inline-flex h-11 items-center justify-center rounded-lg border border-line px-4 text-center text-[14px] font-semibold text-heading hover:border-brand hover:text-brand">More funds from {funderName}</Link>
+              </section>
               {gated ? <MemberValue back={path} unlocks={lockedTerms} plan={plan} /> : null}
               <Connected contentItemId={item.id} title="Goes well with this" />
             </aside>

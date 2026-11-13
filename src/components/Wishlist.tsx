@@ -69,6 +69,18 @@ export function WishlistButton({ id, small = false }: { id: string; small?: bool
   );
 }
 
+/** Short "Save" button for a detail page's top row, beside Apply now (funding page). */
+export function SaveButton({ id }: { id: string }) {
+  const { ids, toggle } = useContext(WishlistContext);
+  const on = ids.has(id);
+  return (
+    <button type="button" onClick={() => toggle(id)} aria-pressed={on} aria-label={on ? "Remove from wishlist" : "Save to wishlist"}
+      className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-lg border bg-white px-4 text-[15px] font-semibold ${on ? "border-accent text-accent-dark" : "border-line text-heading hover:border-brand hover:text-brand"}`}>
+      <Heart aria-hidden className={`h-4 w-4 ${on ? "fill-current" : ""}`} />{on ? "Saved" : "Save"}
+    </button>
+  );
+}
+
 /** Header button with the number saved: opens the wishlist drawer. Signed out, it goes to sign-in. */
 export function WishlistLink({ className = "" }: { className?: string }) {
   const { ids, signedIn } = useContext(WishlistContext);

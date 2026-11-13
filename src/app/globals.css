@@ -55,11 +55,11 @@
     font-feature-settings: "cv11", "ss01"; /* Inter: single-storey a, open digits */
   }
 
-  /* Manrope for headings and titles; Inter (the body font) everywhere else. */
+  /* Inter everywhere (client, 13 Nov 2026): headings in Bold (700) and tight, like the client's example site. */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-extrabold; /* 800 for every heading */
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    @apply font-display font-extrabold;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
   }
 
   a {
@@ -95,18 +95,12 @@
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
   .input { @apply min-h-[44px] rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-4 focus:ring-brand/10; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
-  /* Type scale (Inter, client font recommendation): hero 64px / 800 (homepage only) · page title 30→44 / 800 ·
-     section title 24→32 / 700 · card title 20→24 / 600 */
-  /* Hero headlines: Inter Black 900, big and tight (client request, Nov 2026) */
-  /* Big headings: Manrope, the brand heading font. Its heaviest weight is ExtraBold (800); the client wants
-     900 (12 Nov 2026), so a hairline outline in the text's own colour thickens every letter by about that much. */
-  /* Big headings look 900 (client, 12 Nov 2026): Manrope stops at ExtraBold (800), so a hairline of the text's own
-     colour is drawn round each letter, behind its fill */
-  .text-hero { font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15;
-    -webkit-text-stroke: 0.035em currentColor; paint-order: stroke fill; }
-  .text-page-title { @apply font-display text-[28px] font-extrabold leading-[1.15] tracking-[-0.01em] sm:text-[36px] lg:text-[42px]; }
-  .text-section-title { @apply font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-[28px] lg:text-[30px]; }
-  .text-block-title { @apply font-display text-[20px] font-extrabold leading-[1.25] tracking-[-0.01em] sm:text-[24px]; }
+  /* Type scale, all Inter (client, 13 Nov 2026): hero 800 and very tight · page and section titles 700 · card titles 600–700 */
+  .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }
+  /* Smaller titles on every page (client, 13 Nov 2026): page 24→32 (was 28→42), section 20→24 (was 24→30), block 17→19 (was 20→24) */
+  .text-page-title { @apply font-display text-[24px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
+  .text-section-title { @apply font-display text-[20px] font-bold leading-[1.2] tracking-[-0.025em] sm:text-[22px] lg:text-[24px]; }
+  .text-block-title { @apply font-display text-[17px] font-bold leading-[1.25] tracking-[-0.02em] sm:text-[19px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
@@ -447,15 +441,16 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 /* The same with padding: for a page whose background art is clipped by overflow-hidden (which cuts at the border). */
 .under-header-pad { margin-top: calc(-1 * var(--hh)); padding-top: var(--hh); }
 
-/* Reading text at least 16px (client, 9 Nov 2026): a paragraph set at 14–15px is raised to 16px. On phones
-   always; from 640px only when it has no larger size of its own there. Captions of 13px and under stay small,
-   and so does a paragraph marked data-size, sized on purpose (the homepage panels, client request). */
-@media (max-width: 639.98px) {
-  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([data-size]) { font-size: 16px; line-height: 1.55; }
-}
+/* Smaller type on every page but the homepage (client, 13 Nov 2026: "reduce the fonts on the other pages"; this
+   replaces the 9 Nov rule that raised 14–15px paragraphs to 16px). Paragraphs keep 14–15px; anything set at
+   16–18px is drawn at 15px. Section headings (h2) 20px, 22px from 640px; sub-headings (h3) 17px. A paragraph
+   marked data-size keeps the size it was given. */
+main:not(:has(.home-wide)) p:is(.text-base, .text-lg, .text-\[16px\], .text-\[17px\], .text-\[18px\], [class*="sm:text-base"], [class*="sm:text-lg"], [class*="sm:text-[16px]"], [class*="sm:text-[17px]"], [class*="sm:text-[18px]"]):not([data-size]) { font-size: 15px !important; line-height: 1.6; }
+main:not(:has(.home-wide)) h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 20px !important; line-height: 1.2 !important; }
 @media (min-width: 640px) {
-  p:is(.text-\[14px\], .text-\[15px\], .text-sm):not([data-size]):not([class*="sm:text-"]):not([class*="md:text-"]):not([class*="lg:text-"]) { font-size: 16px; line-height: 1.55; }
+  main:not(:has(.home-wide)) h2:is([class*="text-[2"], [class*="text-[3"], .text-xl, .text-2xl, .text-3xl, .text-4xl, [class*="sm:text-[2"], [class*="sm:text-2xl"], [class*="sm:text-3xl"]) { font-size: 22px !important; }
 }
+main:not(:has(.home-wide)) h3:is([class*="text-[19px]"], [class*="text-[2"], .text-xl, .text-2xl, [class*="sm:text-[2"], [class*="sm:text-xl"], [class*="sm:text-2xl"]) { font-size: 17px !important; line-height: 1.25 !important; }
 
 /* How pictures sit in their frames (client, 12 Nov 2026; set by src/components/ImageFit.tsx): photos with their own
    background fill the frame; cut-outs with no background are shown whole on a soft colour. */
@@ -464,22 +459,24 @@ img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF
 /* In the dark hero the cut-outs sit on a light card so they read clearly */
 /* In the dark hero the cut-outs blend into the navy (client, 12 Nov 2026): a faint see-through tint, not a light card */
 .collage img[data-fit="contain"] { background-color: rgb(255 255 255 / 0.05) !important; padding: 8% 8% 22%; }
+/* Small list thumbnails in the hero panel: cut-outs sit on white with a little room, no caption space */
+.collage .collage-thumb img[data-fit="contain"] { background-color: #fff !important; padding: 6%; }
+.collage-col.collage-slow { animation-duration: 40s; }
 
-/* Fonts on every page (client, 12 Nov 2026): page titles and big section titles in the homepage heading style,
-   Manrope ExtraBold (800), as the brand guide shows it: no outline (client, 12 Nov 2026). */
-.text-page-title, .text-section-title, main h1, main h2.font-display.font-extrabold,
-main h2:is([class*="text-[2"], [class*="text-[3"], [class*="text-2xl"], [class*="text-3xl"]) {
-  font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.015em;
+/* Every page's main title one smaller size (client, 13 Nov 2026: "reduce the fonts on the other pages"): 24px on
+   phones, 28px from 640px, 32px from 1280px, whatever size the page set. The homepage headline (data-home) keeps its own. */
+main h1.text-hero:not([data-home]) { font-size: 24px !important; line-height: 1.15 !important; }
+@media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 28px !important; } }
+@media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 32px !important; } }
+/* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
+/* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example): Inter ExtraBold (800), tight.
+   !important so a heading's own weight class (font-bold, font-semibold…) can't make it lighter. */
+h1, h2, h3, h4, h5, h6, .text-hero, .text-page-title, .text-section-title, .text-block-title {
+  font-family: var(--font-inter), system-ui, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.025em;
 }
 /* JPG photos always have a background, so they fill their frame from the first paint, before ImageFit runs */
 main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }
 
-/* Type, as the brand guide says (client, 12 Nov 2026): Manrope (ExtraBold, Bold, Semibold, Medium) for headings,
-   navigation, hero text and UI titles; Inter (Regular, Medium, Semibold) for body text, forms, tables, buttons, labels
-   and details. Inter has no Bold in the guide (and none is loaded), so Inter text asked to be bold or heavier is shown
-   in Semibold instead of a faked bold. Headings, Manrope text and hero text keep their weights. */
-/* Written as [class~=...]: Tailwind rewrites .font-display inside :not() into other class names, which let it through */
-:is(.font-bold, .font-extrabold, .font-black):not([class~="font-display"], [class~="font-hero"], .text-hero, .text-page-title, .text-section-title, h1, h2, h3, h4, h5, h6, h1 *, h2 *, h3 *, h4 *, h5 *, h6 *, [class~="font-display"] *) { font-weight: 600; }
 
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */

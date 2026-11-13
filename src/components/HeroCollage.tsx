@@ -1,33 +1,64 @@
-export type CollagePhoto = { src: string; title: string; sub: string; href: string };
+export type CollagePhoto = { src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product" };
+
+const KIND: Record<CollagePhoto["kind"], { label: string; tone: string }> = {
+  idea: { label: "Business idea", tone: "bg-[#2E6BFF]/20 text-[#9DBBFF]" },
+  machine: { label: "Machine", tone: "bg-accent/20 text-accent" },
+  product: { label: "Supplier", tone: "bg-[#12B76A]/20 text-[#5BE3A1]" },
+};
 
 /**
- * The right side of the homepage hero (client, 12 Nov 2026, after a SaaS site they liked): two columns of
- * real photos from the site (business ideas, machines, suppliers' products), all the same height (client, 12 Nov
- * 2026, after the example they sent), drifting slowly, one up and
- * one down, each with its name and what it is. Each column holds its photos twice, so the loop has no
- * jump (.collage-col in globals.css). It ignores the mouse (no pause, nothing to click) and stands still for reduced motion.
- * The photos are pictures only, not links (client, 12 Nov 2026).
+ * The right side of the homepage hero (redesigned 13 Nov 2026, replacing the two drifting photo columns):
+ * one glass panel with the newest listing as a large featured photo, then the rest as a list that scrolls
+ * slowly upwards (thumbnail, name, where it's from, a coloured tag for what it is). The list holds its rows
+ * twice so the loop has no jump (.collage-col in globals.css). Pictures only, nothing to click (client,
+ * 12 Nov 2026); stands still for reduced motion.
  */
 export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
-  const cols = [photos.filter((_, i) => i % 2 === 0), photos.filter((_, i) => i % 2 === 1)];
+  const [feature, ...rest] = photos;
+  const f = KIND[feature.kind];
   return (
-    <div aria-label="From BizSphere-Ug" className="collage relative grid h-[520px] grid-cols-2 gap-3 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_10%,#000_90%,transparent)]">
-      {cols.map((col, c) => (
-        <div key={c} className={`collage-col flex flex-col gap-3 ${c ? "collage-down" : ""}`}>
-          {[...col, ...col].map((p, i) => (
-            <div key={`${p.href}-${i}`} aria-hidden={i >= col.length ? true : undefined}
-              className={`relative block shrink-0 overflow-hidden rounded-md bg-white/[0.04] text-white h-[290px]`}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-              <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-              <span aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
-              <span className="absolute bottom-3 left-3 right-3 flex flex-col border-l-2 border-white pl-2.5 leading-tight">
-                <span className="truncate font-display text-[14px] font-bold">{p.title}</span>
-                <span className="truncate text-[12px] text-white/85">{p.sub}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      ))}
+    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[540px] flex-col gap-4 rounded-2xl border border-white/15 bg-[#081A3C]/70 p-4 text-white backdrop-blur-md">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <span className="flex flex-col leading-tight">
+          <span className="font-display text-[16px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>
+          <span className="text-[12px] text-white/55">Ideas · Machines · Suppliers</span>
+        </span>
+        <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] uppercase tracking-wide text-white/70">New</span>
+      </div>
+
+      {/* The featured listing */}
+      <div className="relative h-[210px] shrink-0 overflow-hidden rounded-xl bg-white/[0.05]">
+        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+        <img src={feature.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <span aria-hidden className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#04112A]/90 to-transparent" />
+        <span className="absolute bottom-3 left-3 right-3 flex flex-col items-start gap-1.5">
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${f.tone} backdrop-blur-sm`}>{f.label}</span>
+          <span className="w-full truncate font-display text-[18px] font-extrabold leading-tight tracking-[-0.01em]">{feature.title}</span>
+        </span>
+      </div>
+
+      {/* The rest, scrolling slowly upwards */}
+      <div className="relative min-h-0 flex-1 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_12%,#000_88%,transparent)]">
+        <ul className="collage-col collage-slow flex flex-col gap-3">
+          {[...rest, ...rest].map((p, i) => {
+            const k = KIND[p.kind];
+            return (
+              <li key={`${p.href}-${i}`} aria-hidden={i >= rest.length ? true : undefined}
+                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2">
+                <span className="collage-thumb relative h-[52px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+                  <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-tight">
+                  <span className="truncate font-display text-[14px] font-bold">{p.title}</span>
+                  <span className="truncate text-[12px] text-white/60">{p.sub}</span>
+                </span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${k.tone}`}>{k.label}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }

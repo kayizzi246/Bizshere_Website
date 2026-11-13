@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
 import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
 import "./globals.css";
@@ -7,16 +7,10 @@ import { Providers } from "./providers";
 import { ImageFit } from "@/components/ImageFit";
 import { site } from "@/config/site";
 
-// Brand typography (client style guide, section 5):
-//   Manrope: headings, navigation, hero text, marketing pages, UI titles (Medium to ExtraBold).
-//   Inter: body text, forms, tables, buttons, labels and details (Regular, Medium, Semibold).
-// Only the guide's weights are loaded, so nothing can drift outside it: a heavier class (font-bold on
-// Inter, font-black on Manrope) is drawn with the heaviest weight the guide allows (Inter Semibold,
-// Manrope ExtraBold). Self-hosted by next/font: no request to Google, no layout shift on load.
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter", display: "swap" });
-// The big headings (.text-hero in globals.css) use Manrope ExtraBold, as the brand guide says (client,
-// 12 Nov 2026: "use those fonts on the whole site"). Outfit and Inter Black, tried before, are no longer loaded.
-const manrope = Manrope({ subsets: ["latin"], weight: ["500", "600", "700", "800"], variable: "--font-manrope", display: "swap" });
+// One font on the whole site (client, 13 Nov 2026, after an example site): Inter for headings and body text alike.
+// Headings in Bold (700) with tight letter spacing, the big homepage headline in ExtraBold (800), body text in
+// Regular to Semibold. Self-hosted by next/font: no request to Google, no layout shift on load.
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-inter", display: "swap" });
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
 export const viewport: Viewport = { themeColor: "#071A33" };
@@ -37,7 +31,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
         <ImageFit />

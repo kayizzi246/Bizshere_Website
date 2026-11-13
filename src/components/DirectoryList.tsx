@@ -23,7 +23,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   /** Optional one-line detail per card, e.g. yield or deadline. Keyed by content item id. Public fields only. */
   meta?: (ids: string[]) => Promise<Record<string, string>>;
   /** "documents" shows the items as digital products (file tile per item); `meta` is used as the document type. */
-  variant?: "cards" | "documents" | "table" | "suppliers";
+  variant?: "cards" | "documents" | "table" | "suppliers" | "funding";
   /** Photo per card (keyed by content item id). Turns the cards into photo cards. */
   images?: (ids: string[]) => Promise<Record<string, string>>;
   /** A display name per item instead of its title (useful websites named with their address). */

@@ -43,7 +43,7 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
   }, [open]);
 
   const cell = (p: BoardPrice, unit: string | null) => p.value
-    ? <span className="font-display text-[17px] font-semibold tabular-nums text-white sm:text-[20px]">{p.value}{unit ? <span className="ml-1 font-sans text-[13px] font-medium text-white/60">/{unit}</span> : null}</span>
+    ? <span className="font-display text-[14px] font-semibold tabular-nums text-white sm:text-[15px]">{p.value}{unit ? <span className="ml-1 font-sans text-[11px] font-medium text-white/60">/{unit}</span> : null}</span>
     : p.locked
       ? <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-accent"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span>
       : <span className="text-[13px] text-white/30">—</span>;
@@ -51,8 +51,8 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
   const change = (c: number | null) => {
     const up = (c ?? 0) > 0, down = (c ?? 0) < 0;
     return (
-      <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[12px] font-semibold tabular-nums ${up ? "bg-[#27AD75]/15 text-[#27AD75]" : down ? "bg-[#F0616D]/15 text-[#F0616D]" : "text-white/35"}`}>
-        {up ? <ArrowUpRight aria-hidden className="h-3.5 w-3.5" /> : down ? <ArrowDownLeft aria-hidden className="h-3.5 w-3.5" /> : null}
+      <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[11px] font-semibold tabular-nums ${up ? "bg-[#27AD75]/15 text-[#27AD75]" : down ? "bg-[#F0616D]/15 text-[#F0616D]" : "text-white/35"}`}>
+        {up ? <ArrowUpRight aria-hidden className="h-3 w-3" /> : down ? <ArrowDownLeft aria-hidden className="h-3 w-3" /> : null}
         {c === null ? "--" : `${Math.abs(c).toFixed(1)}%`}
         <span className="sr-only">{up ? "up" : down ? "down" : ""} since the previous price</span>
       </span>
@@ -62,19 +62,19 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
   const body = (r: BoardRow) => (
     <>
       {/* Product */}
-      <span className="flex min-w-0 items-center gap-3">
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold text-white ${r.tone}`}>{r.initial}</span>
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold text-white ${r.tone}`}>{r.initial}</span>
         <span className="flex min-w-0 flex-col">
-          <span className="truncate font-display text-[16px] font-semibold sm:text-[18px]">{r.name}</span>
+          <span className="truncate font-display text-[14px] font-semibold sm:text-[15px]">{r.name}</span>
           {r.supplier.href ? (
-            <a href={r.supplier.href} className="relative z-10 w-fit py-0.5 text-[13px] font-semibold text-accent hover:text-white">Supplier</a>
+            <a href={r.supplier.href} className="relative z-10 w-fit text-[11px] font-semibold text-accent hover:text-white">Supplier</a>
           ) : (
-            <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" className="relative z-10 inline-flex w-fit items-center gap-1 py-0.5 text-[13px] font-semibold text-accent hover:text-white"><LockKeyhole aria-hidden className="h-3 w-3" />Supplier</a>
+            <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" className="relative z-10 inline-flex w-fit items-center gap-1 text-[11px] font-semibold text-accent hover:text-white"><LockKeyhole aria-hidden className="h-2.5 w-2.5" />Supplier</a>
           )}
         </span>
       </span>
       {/* Price: the price, then the change and the date under it */}
-      <span className="flex flex-col items-end gap-1 text-right">
+      <span className="flex flex-col items-end gap-0.5 text-right">
         {cell(r.price, r.unit)}
         <span className="flex items-center gap-2">
           {change(r.change)}
@@ -84,21 +84,21 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
     </>
   );
 
-  const rowCls = `relative w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-3 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
+  const rowCls = `relative w-full rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
 
   return (
     <>
-      <div role="table" aria-label="Prices" className="flex flex-col gap-2">
-        <div role="row" className={`px-4 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/40 ${GRID}`}>
+      <div role="table" aria-label="Prices" className="flex flex-col gap-1.5">
+        <div role="row" className={`px-4 pb-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/40 ${GRID}`}>
           <span role="columnheader">Product</span>
           <span role="columnheader" className="text-right">Price</span>
         </div>
         {rows.map((r) => (
           <div key={r.id} role="row" className={rowCls}>
             {details ? (
-              <button type="button" onClick={() => setOpen(r)} aria-label={`${r.name}: prices in every market`} className="absolute inset-0 rounded-2xl" />
+              <button type="button" onClick={() => setOpen(r)} aria-label={`${r.name}: prices in every market`} className="absolute inset-0 rounded-xl" />
             ) : (
-              <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" aria-label={`${r.name}: see every market`} className="absolute inset-0 rounded-2xl" />
+              <a href="/membership?onboard=pay&next=%2Fprices" data-pay="" data-next="/prices" aria-label={`${r.name}: see every market`} className="absolute inset-0 rounded-xl" />
             )}
             {body(r)}
           </div>

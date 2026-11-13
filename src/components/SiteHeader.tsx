@@ -14,7 +14,7 @@ const WIDE_ONLY = "/experts";
 // For businesses that want to be listed: they register, pay and our team checks the listing.
 const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "bg-accent text-[#071A33] hover:text-[#071A33]"], ["/experts/join", "Become an Expert", "expert", "bg-brand text-white hover:bg-brand-dark hover:text-white"]];
 
-// Navigation links in Manrope (style guide); buttons (Log in, Get started) in Inter.
+// Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
 const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[13px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
 

@@ -156,7 +156,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     : null;
 
   const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-white";
-  const tab = (on: boolean) => `whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-bold ${on ? "bg-white text-[#0A0B0D] hover:text-[#0A0B0D]" : "bg-white/[0.06] text-white/80 hover:bg-white/[0.12] hover:text-white"}`;
+  const tab = (on: boolean) => `whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold ${on ? "bg-white text-[#0A0B0D] hover:text-[#0A0B0D]" : "bg-white/[0.06] text-white/80 hover:bg-white/[0.12] hover:text-white"}`;
 
   // One dark page from the very top: title, tabs and the table share the same background.
   return (
