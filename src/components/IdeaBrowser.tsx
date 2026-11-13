@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { type CardIdea } from "./IdeaParts";
 import { compactRange } from "@/lib/format";
-import { BoardAside, BoardEmpty, DirectoryBoard, RowFrame, RowPhoto, chip, softButton, solidButton } from "./DirectoryBoard";
+import { BoardAside, BoardEmpty, DirectoryBoard, GridFrame, gridChip, gridList, softButton, solidButton } from "./DirectoryBoard";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
@@ -104,9 +104,10 @@ export function IdeaBrowser({ ideas, intro, initial }: {
           help={{ title: "Not sure where to start?", text: "A business expert can help you pick an idea and plan your budget." }} />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
+        {/* A photo grid beside the side column, four a row from 1280px (client, 13 Nov 2026) */}
         {items.length === 0 ? <BoardEmpty any={ideas.length > 0} onClear={clear} /> : (
-          <ul className="flex flex-col gap-2.5">
-            {shown.map((i) => <li key={i.id} id={i.slug}><IdeaRow idea={i} /></li>)}
+          <ul className={gridList}>
+            {shown.map((i) => <li key={i.id} id={i.slug}><IdeaTile idea={i} /></li>)}
           </ul>
         )}
       </DirectoryBoard>
@@ -114,21 +115,20 @@ export function IdeaBrowser({ ideas, intro, initial }: {
   );
 }
 
-/** One business idea as a row card: photo, category, start-up capital, requirements, summary, Budget and Details. */
-function IdeaRow({ idea }: { idea: BrowseIdea }) {
+/** One business idea as a grid card: photo, category and requirements, name, start-up capital, summary, Budget and Details. */
+function IdeaTile({ idea }: { idea: BrowseIdea }) {
   const href = `/business-ideas/${idea.slug}`;
   const bi = idea.businessIdea;
   const cost = bi ? compactRange(bi.capitalMin, bi.capitalMax, bi.currency) : null;
   const hasBudget = Boolean(bi?.scenarios.some((sc) => sc._count.lines > 0));
   return (
-    <RowFrame id={idea.id} href={href} title={name(idea)}
-      thumb={<RowPhoto href={href} src={bi?.pictureUrl} icon="idea" />}
+    <GridFrame id={idea.id} href={href} title={name(idea)} src={bi?.pictureUrl} icon="idea"
       meta={<>
-        <span className="font-semibold text-accent-dark">{idea.primaryCategory?.name ?? "Business idea"}</span>
-        {idea.reqs ? <><span aria-hidden>·</span><span>{idea.reqs} requirement{idea.reqs === 1 ? "" : "s"}</span></> : null}
+        <span className="truncate font-semibold text-accent-dark">{idea.primaryCategory?.name ?? "Business idea"}</span>
+        {idea.reqs ? <><span aria-hidden>·</span><span className="shrink-0">{idea.reqs} requirement{idea.reqs === 1 ? "" : "s"}</span></> : null}
       </>}
-      pills={<li className={`${chip} ${cost ? "font-semibold text-heading" : ""}`}><Wallet aria-hidden className="h-3 w-3 text-ink-muted" />{cost ? `Start-up capital ${cost}` : "Being priced"}</li>}
-      body={idea.shortSummary ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-soft">{idea.shortSummary}</p> : null}
+      pills={<li className={`${gridChip} ${cost ? "font-semibold text-heading" : ""}`}><Wallet aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{cost ?? "Being priced"}</span></li>}
+      body={idea.shortSummary ? <p data-size="" className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{idea.shortSummary}</p> : null}
       actions={<>
         {hasBudget ? <Link href={`${href}/requirements`} className={softButton}>Budget</Link> : null}
         <Link href={href} className={solidButton}>Details</Link>

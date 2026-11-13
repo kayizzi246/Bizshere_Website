@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
-import { BoardAside, BoardEmpty, DirectoryBoard, ListingRow } from "./DirectoryBoard";
+import { BoardAside, BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
 export type BrowseListing = {
@@ -129,6 +129,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   const board = BOARD[path] ?? { heading: title };
   const heading = q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} ${unit[1]}` : board.heading;
   const locked = all.some((i) => i.applyLocked || i.locked || i.cells?.some((c) => c.locked));
+  // Machines as a photo grid, four a row (client, 13 Nov 2026); suppliers and the rest keep the row cards.
+  const grid = path === "/machines";
 
   return (
     <>
@@ -157,7 +159,11 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         aside={<BoardAside path={path} tabs={tabs} active={active} locked={locked} members={board.members} help={board.help} />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
-        {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : (
+        {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : grid ? (
+          <ul className={gridList}>
+            {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
+          </ul>
+        ) : (
           <ul className="flex flex-col gap-2.5">
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingRow i={i} icon={icon} variant={variant} /></li>)}
           </ul>

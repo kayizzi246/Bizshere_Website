@@ -18,7 +18,9 @@ import type { BrowseListing } from "./ListingBrowser";
  * (categories) with the sort that stays pinned to the top while the list scrolls, then one row card per listing
  * and a side column. Small, tight type.
  */
-export function DirectoryBoard<T extends string>({ crumb, heading, count, note, cats, category, onCategory, sort, sorts, onSort, top, aside, pager, listTop, children }: {
+export function DirectoryBoard<T extends string>({ crumb, heading, count, note, cats, category, onCategory, sort, sorts, onSort, top, aside, pager, listTop, children, grid = false }: {
+  /** Photo grid (business ideas, machines, suppliers): no side column, so four cards fit a row; the side cards go below. */
+  grid?: boolean;
   /** This page's name in the breadcrumb */
   crumb: string;
   heading: string;
@@ -57,7 +59,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
 
         <FilterBar cats={cats} category={category} onCategory={onCategory} sort={sort} sorts={sorts} onSort={onSort} />
 
-        <section ref={listTop} aria-labelledby="listings" className="grid scroll-mt-40 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <section ref={listTop} aria-labelledby="listings" className={`grid scroll-mt-40 grid-cols-[minmax(0,1fr)] gap-4 ${grid ? "" : "lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start"}`}>
           <div className="flex min-w-0 flex-col gap-2.5">
             {children}
             {pager}
@@ -188,6 +190,64 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
   );
 }
 
+/** The list as a photo grid beside the side column: two a row on phones, three on tablets, four from 1280px. */
+export const gridList = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-4";
+
+/** A grid card (business ideas, machines, suppliers): photo on top with the heart, then category, name, pills, a short
+    description and the buttons along the bottom, so the cards in a row line up. */
+export function GridFrame({ id, href, title, src, icon, meta, pills, body, actions }: {
+  id: string; href: string; title: string; src: string | null | undefined; icon: string;
+  meta: React.ReactNode; pills: React.ReactNode; body: React.ReactNode; actions: React.ReactNode;
+}) {
+  return (
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-colors hover:border-ink-muted/50">
+      <div className="relative">
+        <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden border-b border-line bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+          {src ? <img src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain transition duration-300 group-hover:scale-[1.04]" /> : (
+            <span className="flex h-full w-full items-center justify-center text-brand/50"><Icon name={icon} className="h-9 w-9" strokeWidth={1.5} /></span>
+          )}
+        </Link>
+        <span className="absolute right-2 top-2 flex items-center gap-1.5">
+          <SeenBadge href={href} className="bg-white/95" />
+          <WishlistHeart id={id} />
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:p-3">
+        <p data-size="" className="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-ink-muted">{meta}</p>
+        <Link href={href} className="line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
+        {pills ? <ul className="flex flex-wrap gap-1">{pills}</ul> : null}
+        {body}
+        <div className="mt-auto flex gap-1.5 pt-1.5 [&>*]:h-8 [&>*]:flex-1 [&>*]:px-2 [&>*]:text-[11px]">{actions}</div>
+      </div>
+    </article>
+  );
+}
+
+/** A smaller pill for grid cards */
+export const gridChip = "inline-flex h-6 max-w-full items-center gap-1 rounded-full border border-line bg-page px-2 text-[11px] text-ink-soft";
+
+/** Machines and suppliers as grid cards. */
+export function ListingTile({ i, icon, variant }: { i: BrowseListing; icon: string; variant: string }) {
+  return (
+    <GridFrame id={i.id} href={i.href} title={clean(i.title)} src={i.picture} icon={icon}
+      meta={<>
+        <span className="truncate font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
+        {i.extra ? <><span aria-hidden>·</span><span className="truncate">{i.extra}</span></> : null}
+      </>}
+      pills={i.locked || i.price || i.country ? <>
+        {i.locked ? <li className={`${gridChip} font-semibold text-ink-muted`}><LockKeyhole aria-hidden className="h-3 w-3 shrink-0" /><span className="truncate">Price for members</span></li>
+          : i.price ? <li className={`${gridChip} font-semibold text-heading`}><Banknote aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{i.price}</span></li> : null}
+        {i.country ? <li className={gridChip}><MapPin aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{i.country}</span></li> : null}
+      </> : null}
+      body={i.sells ? (
+        <p data-size="" className="line-clamp-2 text-[12px] leading-snug text-ink-soft"><Package aria-hidden className="mr-1 inline h-3 w-3 text-ink-muted" />{i.sells}</p>
+      ) : i.summary ? <p data-size="" className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{i.summary}</p> : null}
+      actions={<Link href={i.href} className={solidButton}>{variant === "suppliers" ? "Products" : "View"}</Link>}
+    />
+  );
+}
+
 /** A photo on the left of a row (machines, suppliers, ideas): smaller on phones. */
 export function RowPhoto({ href, src, icon = "link" }: { href: string; src: string | null | undefined; icon?: string }) {
   return (
@@ -297,7 +357,9 @@ function CellsRow({ i }: { i: BrowseListing }) {
  * The side column: what members get (only when something on the page is locked), a business expert for help,
  * and the other section(s) of this page's tabs. No prices.
  */
-export function BoardAside({ path, tabs, active, locked, members, help }: {
+export function BoardAside({ path, tabs, active, locked, members, help, row = false }: {
+  /** Under a photo grid: the cards side by side in a row instead of a pinned column */
+  row?: boolean;
   path: string;
   tabs?: [string, string][];
   active?: string;
@@ -309,7 +371,7 @@ export function BoardAside({ path, tabs, active, locked, members, help }: {
   const m = members ?? { title: "See every detail", text: "Members see the full details on every page: prices, sources and contacts." };
   const h = help ?? { title: "Need advice?", text: "A business expert can help you choose well and get started." };
   return (
-    <aside className="flex flex-col gap-2.5 lg:sticky lg:top-[calc(var(--hh)+6.5rem)]">
+    <aside className={row ? "grid grid-cols-[minmax(0,1fr)] items-stretch gap-2.5 pt-2 sm:grid-cols-2 lg:grid-cols-3 [&>*]:justify-center" : "flex flex-col gap-2.5 lg:sticky lg:top-[calc(var(--hh)+6.5rem)]"}>
       {locked ? (
         <div className="flex flex-col gap-2.5 rounded-2xl bg-navy p-4 text-white">
           <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Members</span>
