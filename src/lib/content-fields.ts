@@ -120,17 +120,21 @@ export const DIRECTORIES: Directory[] = [
     type: "SUPPLIER", label: "Trusted supplier", model: "supplier",
     link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
     labels: {
-      title: "Business name", shortSummary: "Short description (optional)", overview: "About the business (optional)", category: "Category",
-      main: "Contact details and photo", mainNote: "Shown on the supplier's page. You add their products after saving.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
+      title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
+      main: "Address", mainNote: "Shown on the supplier's page. Call and WhatsApp are shown to members only. You add their products after saving.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
     },
-    // Only what the supplier page and the suppliers list use, the most used first. Products are added after saving.
+    // The client's field list (14 Nov 2026): business name, description and category (Basics), then the
+    // address: contact person, location, website, WhatsApp, call. The rest after it. Products are added after saving.
     fields: [
-      { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
-      t("phone", "Phone number", MAIN, "e.g. 0772 123 456"), t("email", "Email address", MAIN),
-      { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
-      { ...t("address", "Address", MAIN, "Street, building or area"), virtual: true },
-      { ...t("country", "Country", MAIN), initial: "Uganda" },
+      t("contactPerson", "Contact person name", MAIN, "e.g. John Okello"),
+      { ...t("address", "Address / location", MAIN, "Street, building or area, e.g. Shop 12, Kikuubo Lane, Kampala"), virtual: true },
       { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },
+      t("whatsapp", "WhatsApp number", MAIN, "e.g. 0772 123 456. Leave empty if it is the same as the call number"),
+      t("phone", "Call contact", MAIN, "e.g. 0772 123 456"),
+      t("email", "Email address", MAIN),
+      { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
+      { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
+      { ...t("country", "Country", MAIN), initial: "Uganda" },
       e("supplierType", "Type of business", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
       l("brandsSupplied", "Brands they sell", SUPPLIER_MORE), b("sellsWholesale", "Sells wholesale", SUPPLIER_MORE), b("sellsRetail", "Sells retail", SUPPLIER_MORE),
       b("offersInstallation", "Installs what they sell", SUPPLIER_MORE), b("offersMaintenance", "Does maintenance", SUPPLIER_MORE), b("offersTraining", "Trains staff", SUPPLIER_MORE),
@@ -304,7 +308,7 @@ export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
  */
 export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
   MACHINE: { fields: ["priceMin", "priceMax", "sources", "providerName", "providerPhone", "providerEmail", "providerWebsite"] },
-  SUPPLIER: { fields: ["email", "phone", "minimumOrder", "paymentMethods", "leadTime"] },
+  SUPPLIER: { fields: ["email", "phone", "whatsapp", "minimumOrder", "paymentMethods", "leadTime"] },
   FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl", "tenor", "howToApply", "funderPhone", "funderEmail", "funderWebsite"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },
   CONSULTANT: { fields: ["email", "phone", "feeMin", "feeMax", "bookingUrl", "profileUrl"] },

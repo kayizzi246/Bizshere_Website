@@ -12,11 +12,12 @@ const whatsappNumber = (phone: string) => {
  * (`gated`) the same buttons show with a lock and open the sign-up pop-up: only whether a number or
  * address exists reaches the page, never the number or address itself.
  */
-export function ContactButtons({ phone, email, gated, back, me = "me" }: { phone?: string | null; email?: string | null; gated: boolean; back: string; me?: "me" | "us" }) {
+export function ContactButtons({ phone, whatsapp, email, gated, back, me = "me" }: { phone?: string | null; /** A separate WhatsApp number; the phone is used when empty. */ whatsapp?: string | null; email?: string | null; gated: boolean; back: string; me?: "me" | "us" }) {
   const hello = encodeURIComponent("Hello, I found you on BizSphere-Ug.");
+  const wa = whatsapp?.trim() || phone;
   const buttons: { label: string; Glyph: LucideIcon; tone: string; href: string; shows?: string | null; external?: boolean }[] = [
     ...(phone ? [{ label: `Call ${me}`, Glyph: Phone, tone: "bg-brand text-white hover:bg-brand-dark hover:text-white", href: `tel:${phone.replace(/\s/g, "")}`, shows: phone }] : []),
-    ...(phone ? [{ label: `WhatsApp ${me}`, Glyph: MessageCircle, tone: "bg-[#1F7A4D] text-white hover:bg-[#17603C] hover:text-white", href: `https://wa.me/${whatsappNumber(phone)}?text=${hello}`, external: true }] : []),
+    ...(wa ? [{ label: `WhatsApp ${me}`, Glyph: MessageCircle, tone: "bg-[#1F7A4D] text-white hover:bg-[#17603C] hover:text-white", href: `https://wa.me/${whatsappNumber(wa)}?text=${hello}`, shows: wa !== phone ? wa : null, external: true }] : []),
     ...(email ? [{ label: `Email ${me}`, Glyph: Mail, tone: "bg-accent text-ink hover:bg-accent-dark hover:text-white", href: `mailto:${email}?subject=${hello}`, shows: email }] : []),
   ];
   if (!buttons.length) return <p className="text-[14px] text-ink-muted">No phone or email listed yet.</p>;

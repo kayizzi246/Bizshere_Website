@@ -1,7 +1,7 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, MapPin, type LucideIcon } from "lucide-react";
+import { ArrowLeft, FileDown, Globe, Link2, LockKeyhole, MapPin, UserRound, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -72,6 +72,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   }));
 
   const details: [LucideIcon, string, React.ReactNode][] = [
+    ...(s.contactPerson ? [[UserRound, "Contact person", s.contactPerson] as [LucideIcon, string, React.ReactNode]] : []),
     ...(address ? [[MapPin, "Address", address] as [LucideIcon, string, React.ReactNode]] : []),
     ...(s.country ? [[Globe, "Country", s.country] as [LucideIcon, string, React.ReactNode]] : []),
     ...(s.website ? [[Link2, "Website", <a key="w" href={s.website} target="_blank" rel="noopener noreferrer" className="break-all font-semibold text-brand hover:text-brand-dark">{s.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a>] as [LucideIcon, string, React.ReactNode]] : []),
@@ -133,14 +134,14 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                 </section>
               ) : null}
               <div id="products" className="scroll-mt-28"><SupplierCatalog items={products} gated={gated} back={path} wide={false} /></div>
-              {gated ? <MemberValue wide back={path} plan={plan} unlocks={[...(s.phone ? ["Phone and WhatsApp"] : []), ...(s.email ? ["Email address"] : []), ...(s.listings.some((l) => l.priceMin !== null || l.priceMax !== null) ? ["Product prices"] : []), ...(catalogueLocked ? ["Catalogue download"] : [])]} /> : null}
+              {gated ? <MemberValue wide back={path} plan={plan} unlocks={[...(s.phone || s.whatsapp ? ["Phone and WhatsApp"] : []), ...(s.email ? ["Email address"] : []), ...(s.listings.some((l) => l.priceMin !== null || l.priceMax !== null) ? ["Product prices"] : []), ...(catalogueLocked ? ["Catalogue download"] : [])]} /> : null}
               <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
             </div>
 
             {/* ── Contact: first on phones, beside the shop on wide screens ── */}
             <aside className="order-first flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 lg:sticky lg:top-32 lg:order-none">
               <h2 className="font-display text-lg font-extrabold text-heading">Contact this supplier</h2>
-              <ContactButtons me="us" phone={s.phone} email={s.email} gated={gated} back={path} />
+              <ContactButtons me="us" phone={s.phone} whatsapp={s.whatsapp} email={s.email} gated={gated} back={path} />
               {details.length ? (
                 <dl className="flex flex-col gap-3 border-t border-line pt-4">
                   {details.map(([Glyph, label, value]) => (
