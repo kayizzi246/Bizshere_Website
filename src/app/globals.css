@@ -45,6 +45,12 @@
 }
 
 @layer base {
+  /* Nothing may make the page wider than the phone screen (client, 14 Nov 2026: "when i zoom it does not
+     come back"). A single over-wide element used to let the whole page be dragged sideways, and after a
+     pinch-zoom the reader could not get back to the left edge. "clip" rather than "hidden" so sticky
+     headers and bars keep working; rails that are meant to scroll sideways still do, inside their own box. */
+  html, body { overflow-x: clip; }
+
   /* Site-wide text spacing (client, 10 Nov 2026: "standard spacing"): the fonts' own letter and word spacing,
      line height 1.6, reading text 16–18px. Headings are only slightly tightened, with room between their lines. */
   body {
@@ -269,7 +275,11 @@ select {
    bottom-left corner fading into near-black towards the top-right, with the blue light drifting slowly
    like waves (the ::before layer below). .hero-premium is the homepage hero and footer; .hero-glow is
    every other dark hero. background-origin: border-box so it runs behind the header in one piece. */
-.hero-premium, .hero-glow { position: relative; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
+/* overflow-x: clip keeps the wave layer below (inset: -20%) from widening the page on phones: it was
+   pushing the whole document ~105px wider than the screen, so the page could be dragged sideways and
+   would not spring back after a pinch-zoom (client, 14 Nov 2026). clip, not hidden: it still lets
+   sticky bars inside a hero stick, and does not turn the section into a scroll container. */
+.hero-premium, .hero-glow { position: relative; overflow-x: clip; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
   background-image:
     radial-gradient(52% 78% at 2% 55%, rgba(16, 140, 255, 0.85) 0%, rgba(10, 98, 218, 0.44) 32%, rgba(6, 46, 112, 0.15) 58%, transparent 76%),
     radial-gradient(40% 66% at 100% 50%, rgba(14, 122, 242, 0.46) 0%, rgba(8, 68, 165, 0.18) 36%, transparent 72%),
