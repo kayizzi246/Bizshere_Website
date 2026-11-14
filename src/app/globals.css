@@ -269,23 +269,24 @@ select {
    bottom-left corner fading into near-black towards the top-right, with the blue light drifting slowly
    like waves (the ::before layer below). .hero-premium is the homepage hero and footer; .hero-glow is
    every other dark hero. background-origin: border-box so it runs behind the header in one piece. */
-.hero-premium, .hero-glow { position: relative; background-color: #05080f; background-repeat: no-repeat; background-origin: border-box;
-  background-image: linear-gradient(120deg, #0a1b40 0%, #071024 44%, #05080f 100%); }
-/* The waves: soft blue blobs anchored bottom-left that drift and swell, so the dark area moves like water.
-   z-index -1 keeps them above the flat gradient but behind all the hero content. */
+.hero-premium, .hero-glow { position: relative; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
+  background-image:
+    radial-gradient(52% 78% at 2% 55%, rgba(16, 140, 255, 0.85) 0%, rgba(10, 98, 218, 0.44) 32%, rgba(6, 46, 112, 0.15) 58%, transparent 76%),
+    linear-gradient(90deg, #02101f 0%, #000408 50%, #000000 100%); }
+/* The waves: softer blue light over the glow that drifts and swells, so the dark area moves like water.
+   z-index -1 keeps it above the flat gradient but behind all the hero content. */
 .hero-premium::before, .hero-glow::before {
-  content: ""; position: absolute; inset: -25%; z-index: -1; pointer-events: none; filter: blur(8px);
+  content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none; filter: blur(14px);
   background-repeat: no-repeat;
   background-image:
-    radial-gradient(38% 48% at 12% 92%, rgba(9, 105, 218, 0.55), transparent 62%),
-    radial-gradient(32% 42% at 28% 104%, rgba(0, 170, 255, 0.34), transparent 60%),
-    radial-gradient(30% 40% at 2% 72%, rgba(70, 120, 255, 0.30), transparent 62%);
-  animation: hero-waves 16s ease-in-out infinite alternate;
+    radial-gradient(26% 34% at 16% 48%, rgba(40, 170, 255, 0.35), transparent 70%),
+    radial-gradient(22% 30% at 10% 66%, rgba(0, 120, 255, 0.30), transparent 70%);
+  animation: hero-waves 18s ease-in-out infinite alternate;
 }
 @keyframes hero-waves {
   0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(5%, -3%, 0) scale(1.12); }
-  100% { transform: translate3d(-3%, 2%, 0) scale(1.06); }
+  50%  { transform: translate3d(3%, -4%, 0) scale(1.14); }
+  100% { transform: translate3d(-2%, 3%, 0) scale(1.06); }
 }
 @media (prefers-reduced-motion: reduce) { .hero-premium::before, .hero-glow::before { animation: none; } }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
