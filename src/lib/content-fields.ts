@@ -8,7 +8,7 @@ import type { ContentType } from "@prisma/client";
  *
  * `name` must match the Prisma field on the specialised model exactly.
  */
-export type FieldKind = "text" | "textarea" | "int" | "decimal" | "bool" | "date" | "list" | "enum" | "url" | "json";
+export type FieldKind = "text" | "textarea" | "int" | "decimal" | "bool" | "date" | "list" | "enum" | "url" | "json" | "images";
 /** `upload` adds an "Upload" button that stores the file and fills in its address. */
 export type Field = {
   name: string; label: string; kind: FieldKind; options?: string[]; help?: string; required?: boolean; group?: string; upload?: "image" | "file";
@@ -20,6 +20,8 @@ export type Field = {
   ref?: "supplier";
   /** Render this field in the Basics section, right after the category (e.g. supplier "Business type"). */
   basics?: boolean;
+  /** For kind "images": the array column that holds the extra photos (the main one stays in `name`). */
+  extra?: string;
 };
 
 /** Child rows edited as one line each in a textarea. */
@@ -102,7 +104,8 @@ export const DIRECTORIES: Directory[] = [
     fields: [
       ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
       d("priceMin", "Price from", MAIN, MONEY_HELP), d("priceMax", "Price to", MAIN, "Same as the first box for a single price"), cur(MAIN),
-      ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"), { ...u("pictureUrl", "Picture", MAIN), upload: "image" },
+      ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"),
+      { name: "pictureUrl", label: "Pictures (add several; the first is the main one)", kind: "images", group: MAIN, extra: "moreImages" },
       t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
       { name: "supplierId", label: "Supplier already on the site", kind: "text", group: PROVIDER, ref: "supplier", help: "Choose one to link their page and use their contacts. Leave on \"None\" to type the provider below." },

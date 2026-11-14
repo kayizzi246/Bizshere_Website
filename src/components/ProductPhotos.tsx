@@ -15,7 +15,7 @@ export const MAX_PRODUCT_PHOTOS = 8;
  *     as `imageUrl` and the others as `moreImages`;
  *   - controlled (the admin's product window): pass `onChange` and keep the list yourself.
  */
-export function ProductPhotos({ initial, onChange }: { initial: string[]; onChange?: (photos: string[]) => void }) {
+export function ProductPhotos({ initial, onChange, mainName = "imageUrl", extraName = "moreImages" }: { initial: string[]; onChange?: (photos: string[]) => void; mainName?: string; extraName?: string }) {
   const [own, setOwn] = useState(initial);
   const [busy, setBusy] = useState(0);
   const [error, setError] = useState("");
@@ -44,8 +44,8 @@ export function ProductPhotos({ initial, onChange }: { initial: string[]; onChan
     <div className="flex flex-col gap-2">
       {onChange ? null : (
         <>
-          <input type="hidden" name="imageUrl" value={photos[0] ?? ""} />
-          {photos.slice(1).map((p) => <input key={p} type="hidden" name="moreImages" value={p} />)}
+          <input type="hidden" name={mainName} value={photos[0] ?? ""} />
+          {photos.slice(1).map((p) => <input key={p} type="hidden" name={extraName} value={p} />)}
         </>
       )}
       <ul className="flex flex-wrap gap-2">

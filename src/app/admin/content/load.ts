@@ -65,7 +65,16 @@ export async function loadValues(id: string) {
   const dir = directoryFor(item.contentType)!;
   const record = item[dir.model] as Record<string, unknown> | null;
   const values: Record<string, string> = {};
-  for (const f of dir.fields) values[`f_${f.name}`] = toFormValue(f, record?.[f.name]);
+  for (const f of dir.fields) {
+    // An images field (e.g. machine photos) flattens to a JSON list: the main photo, then the extras.
+    if (f.kind === "images") {
+      const main = record?.[f.name];
+      const extra = (f.extra ? record?.[f.extra] : null) as string[] | null | undefined;
+      values[`f_${f.name}`] = JSON.stringify([main, ...(extra ?? [])].filter((x): x is string => Boolean(x)));
+    } else {
+      values[`f_${f.name}`] = toFormValue(f, record?.[f.name]);
+    }
+  }
   if (dir.link && record) values[dir.link.field] = String(record[dir.link.field] ?? "");
   if (item.supplier) values.f_address = item.supplier.organization.locations[0]?.physicalAddress ?? "";
   const funder = item.fundingProgramme?.provider;

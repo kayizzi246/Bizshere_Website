@@ -33,6 +33,7 @@ const ERROR: Record<string, string> = {
   photo: "Use the Upload button, or an address starting with https://.",
   details: "Check your details: the email must be valid, and the website must start with https://.",
   product: "Not saved. The product needs a name, and the price must be a number, e.g. 150,000.",
+  productphoto: "Add at least one photo of the product before saving.",
 };
 
 // What each product status means to a seller, in plain words.

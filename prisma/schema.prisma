@@ -853,7 +853,8 @@ model Machine {
   currency                 String   @default("UGX")
   sources                  String? // where to buy, in Uganda and overseas
   remarks                  String?
-  pictureUrl               String?
+  pictureUrl               String? // main photo
+  moreImages               String[] @default([]) // extra photos after the main one, shown in the machine's gallery
   pictureCredit            String? // photographer and licence, shown under the photo
   videoUrls                String[]
   manufacturer             String?

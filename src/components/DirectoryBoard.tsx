@@ -51,7 +51,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
             <ChevronRight aria-hidden className="h-3 w-3" />
             <span className="text-ink-soft">{crumb}</span>
           </nav>
-          <h2 id="listings" className="text-[19px] font-bold leading-tight tracking-[-0.025em] text-heading sm:text-[21px]">
+          <h2 id="listings" className="text-[16px] font-bold leading-tight tracking-[-0.02em] text-heading sm:text-[18px]">
             {heading} <span className="font-semibold text-ink-muted" aria-live="polite">({count})</span>
           </h2>
           {note ? <p data-size="" className="text-[12px] text-ink-muted">{note}</p> : null}

@@ -61,6 +61,7 @@ export default async function MachinePage({ params }: { params: { slug: string }
       title={item.title}
       brief={item.shortSummary}
       picture={m.pictureUrl}
+      extraImages={m.moreImages}
       pictureCredit={m.pictureCredit}
       rows={[
         { label: "Function", value: m.function },

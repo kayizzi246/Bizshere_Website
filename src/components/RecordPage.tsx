@@ -39,7 +39,7 @@ export type ContactInfo = { email?: string | null; phone?: string | null; websit
 const empty = (v: React.ReactNode) => v === null || v === undefined || v === "" || (Array.isArray(v) && v.length === 0);
 
 export async function RecordPage({
-  trail, eyebrow, title, brief, picture, pictureCredit, rows, texts = [], links = [], contact, children, viewer, item, back, details, product, layout = "default", catalog, catalogLabel = "Products", hideSections = [],
+  trail, eyebrow, title, brief, picture, extraImages = [], pictureCredit, rows, texts = [], links = [], contact, children, viewer, item, back, details, product, layout = "default", catalog, catalogLabel = "Products", hideSections = [],
 }: {
   /** "product": shop-style page (gallery, price, where to buy, then specifications), used for machines. */
   layout?: "default" | "product";
@@ -55,6 +55,8 @@ export async function RecordPage({
   brief?: string | null;
   /** Main photo URL, if the record has one. */
   picture?: string | null;
+  /** Extra photos after the main one (product layout), shown in the gallery. */
+  extraImages?: string[];
   /** Photographer and licence, shown under the photo. */
   pictureCredit?: string | null;
   /** Key facts: the client's main fields for this directory. */
@@ -122,6 +124,7 @@ export async function RecordPage({
     });
     const images: GalleryImage[] = [
       ...(picture ? [{ src: picture, alt: title, credit: pictureCredit }] : []),
+      ...extraImages.map((src) => ({ src, alt: title, credit: pictureCredit })),
       ...media.map((m) => ({ src: m.fileLocation, alt: m.altText || m.caption || title, credit: m.credit })),
     ];
     // Videos play inside the gallery: YouTube links in its player, video files with the browser controls.

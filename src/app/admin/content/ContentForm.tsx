@@ -5,6 +5,7 @@ import type { ContentType } from "@prisma/client";
 import { directoryFor, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
+import { ProductPhotos } from "@/components/ProductPhotos";
 import type { FormOptions } from "./load";
 import { NewSupplierProducts } from "./NewSupplierProducts";
 
@@ -32,7 +33,9 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   // A machine's provider: its own section, always open, right after the main details
   const providerFields = dir.fields.filter((f) => f.group === PROVIDER);
   const slug = (g: string) => "s-" + g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  const field = (f: Field) => <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} options={f.ref === "supplier" ? options.suppliers : undefined} />;
+  const field = (f: Field) => f.kind === "images"
+    ? <ImagesField key={f.name} f={f} value={v(`f_${f.name}`)} />
+    : <FieldInput key={f.name} f={f} value={values.id ? v(`f_${f.name}`) : v(`f_${f.name}`) || (f.initial ?? "")} error={err(f.name)} member={isMemberOnly(type, f)} options={f.ref === "supplier" ? options.suppliers : undefined} />;
   const mainTitle = lb.main ?? MAIN;
   const linkAdvanced = dir.link?.advanced;
   // A new supplier: their first products are typed right here and saved with the page
@@ -167,6 +170,18 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
       </div>
       </div>
     </form>
+  );
+}
+
+/** A multi-photo uploader for an "images" field (e.g. a machine's pictures): the main one plus extras. */
+function ImagesField({ f, value }: { f: Field; value: string }) {
+  let initial: string[] = [];
+  try { initial = JSON.parse(value || "[]"); } catch { initial = []; }
+  return (
+    <div className="flex basis-full flex-col gap-1.5">
+      <span className="text-[13px] font-semibold text-ink-soft">{f.label}</span>
+      <ProductPhotos initial={initial} mainName={`f_${f.name}`} extraName={`f_${f.extra ?? "moreImages"}`} />
+    </div>
   );
 }
 

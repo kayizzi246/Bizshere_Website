@@ -95,8 +95,9 @@ export async function saveProduct(form: FormData) {
   const { imageUrl, ...rest } = parsed.data;
   // The other photos (ProductPhotos): the same rule as the main one, at most 7 more, none twice
   const extra = [...new Set(form.getAll("moreImages").map(String))].filter((p) => p && p !== imageUrl && photo.safeParse(p).success).slice(0, 7);
-  // With no main photo the first of the others takes its place
+  // With no main photo the first of the others takes its place; every product must have at least one.
   const main = imageUrl || extra.shift() || null;
+  if (!main) redirect("/supplier?error=productphoto");
   const data = { ...rest, imageUrl: main, moreImages: extra, quotedAt: rest.priceMin !== null || rest.priceMax !== null ? new Date() : null };
   const id = String(form.get("id") ?? "");
   if (id) {

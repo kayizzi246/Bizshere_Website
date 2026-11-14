@@ -109,6 +109,12 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   const specialised: Record<string, unknown> = {};
   for (const f of dir.fields) {
     if (f.virtual) continue;
+    // An images field (e.g. machine photos): the main photo in `name`, the extras in `extra` (an array).
+    if (f.kind === "images") {
+      specialised[f.name] = str(form.get(`f_${f.name}`)) || null;
+      if (f.extra) specialised[f.extra] = form.getAll(`f_${f.extra}`).map(String).map((s) => s.trim()).filter(Boolean);
+      continue;
+    }
     const raw = str(form.get(`f_${f.name}`));
     // Currency: "ugx", "Shs" or "$" is read as its code; left empty, the default (UGX) applies below
     if (f.name === "currency" && raw) {
