@@ -11,18 +11,19 @@ import { useTypingHint } from "./TypingHint";
  * so anyone who types one straight in gets real results rather than an empty page.
  */
 const EXAMPLES = [
-  "tax returns expert",
-  "accountant for bookkeeping",
+  "tax returns",
   "register a business",
-  "EFRIS and e-invoicing help",
-  "audit for my company",
-  "business plan for a loan",
-  "VAT and PAYE",
-  "loans for small business",
-  "export and import clearing",
   "trading licence",
-  "maize milling machine",
-  "start a bakery",
+  "business plan",
+  "EFRIS",
+  "VAT",
+  "PAYE",
+  "loans",
+  "export",
+  "licences",
+  "bakery",
+  "soap making",
+  "hammer mill",
 ];
 
 /** Homepage search: one compact box with a solid blue edge and a typed-out example; searches every directory. */

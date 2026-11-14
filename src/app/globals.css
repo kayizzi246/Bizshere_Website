@@ -264,111 +264,26 @@ select {
 }
 
 /* Homepage hero: blue gradient mesh (src/components/ui/gradient-mesh.tsx). Soft blobs drift slowly. */
-/* The dark hero background, the same on every page that has one (client, 11 Nov 2026: the homepage hero colour
-   everywhere): midnight navy running into deep royal blue, lit by a soft blue glow from the top right, a faint gold
-   one from the bottom left and a touch of violet below. .hero-premium is the homepage hero and the footer;
-   .hero-glow is every other dark hero (directory lists, item pages, search, forum, sign-in panels). It is the
-   section own background, laid out from its outer edge (background-origin: border-box), so it runs through
-   the strip behind the floating header (.under-header) in one piece: no seam. The moving lights on the homepage
-   are src/components/HeroParticles.tsx. */
-/* Hero background (client, 14 Nov 2026, like the 2checkout hero but blue): a bright blue glow in the
-   bottom-left corner fading into near-black towards the top-right, with the blue light drifting slowly
-   like waves (the ::before layer below). .hero-premium is the homepage hero and footer; .hero-glow is
-   every other dark hero. background-origin: border-box so it runs behind the header in one piece. */
-/* The wave layer below bleeds 20% outside the hero on purpose, so the moving light has somewhere to
-   come from. It used to widen the page on phones; that is held by `html, body { overflow-x: clip }`
-   in the base layer instead, so the waves keep their full bleed here (client, 14 Nov 2026). */
-/* isolation: isolate is what makes the waves visible at all. The wave layer sits at z-index -1, and a
-   negative layer only paints above its parent's own background when that parent starts a stacking
-   context. The homepage hero had `isolate` in its markup, so its waves showed; every other hero did
-   not, so the wave layer was painted behind the black background and never seen (client, 14 Nov 2026). */
-.hero-premium, .hero-glow { position: relative; isolation: isolate; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
-  background-image:
-    /* Dimmer than the moving layers below on purpose: this is only the still water. If the fixed glow
-       carries most of the light, the waves move underneath it and the eye never sees them. */
-    radial-gradient(52% 78% at 2% 55%, rgba(16, 140, 255, 0.40) 0%, rgba(10, 98, 218, 0.21) 32%, rgba(6, 46, 112, 0.08) 58%, transparent 76%),
-    radial-gradient(40% 66% at 100% 50%, rgba(14, 122, 242, 0.26) 0%, rgba(8, 68, 165, 0.10) 36%, transparent 72%),
-    linear-gradient(90deg, #02101f 0%, #000408 50%, #000000 100%); }
-/* "Get started" in the header (client, 14 Nov 2026): not a flat blue pill any more. A lit blue
-   gradient with a soft blue glow under it; on hover it brightens, lifts a little and a band of light
-   sweeps across once. The sweep is a ::before so the label and arrow stay untouched; overflow-hidden
-   on the button keeps it inside the pill. */
-.cta-glow {
-  position: relative; overflow: hidden; isolation: isolate;
-  background-image: linear-gradient(180deg, #2b84ff 0%, #0969da 52%, #0550ae 100%);
-  transition: transform 0.25s var(--ease-out), filter 0.25s var(--ease-out);
-}
-.cta-glow::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.42) 50%, transparent 62%);
-  transform: translateX(-120%);
-}
-/* No glow or drop shadow under it (client, 14 Nov 2026): the lift and the light sweep carry the hover. */
-.cta-glow:hover { filter: saturate(1.08) brightness(1.06); transform: translateY(-1px); }
-.cta-glow:hover::before { animation: cta-sweep 0.75s var(--ease-out); }
-.cta-glow:active { transform: translateY(0); }
-@keyframes cta-sweep { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
-@media (prefers-reduced-motion: reduce) {
-  .cta-glow, .cta-glow:hover { transition: none; transform: none; }
-  .cta-glow:hover::before { animation: none; }
-}
+/* The dark hero background, the same on every page that has one. .hero-premium is the homepage hero
+   and the footer; .hero-glow is every other dark hero (directory lists, item pages, search, forum,
+   sign-in panels). It is the section's own background, laid out from its outer edge
+   (background-origin: border-box), so it runs through the strip behind the floating header
+   (.under-header) in one piece, with no seam.
 
-/* The hero light (client, 14 Nov 2026: "the animated must be one place — am trying to make the person
-   focus — and add slight shinning"). The light stays anchored to the left edge, where the heading and
-   the search box are, instead of wandering around the hero: wandering light pulls the eye away from
-   the words. It swells in place, and a thin band of shine drifts across it now and then.
-   Both layers blend with `screen`, so their light adds to the flat glow underneath rather than
-   covering it. z-index -1 puts them above that flat glow and behind every bit of hero content; the
-   hero's `isolation: isolate` is what lets a negative layer show at all. inset: 0 keeps them inside
-   the hero, so they cannot widen the page. */
-.hero-premium::before, .hero-glow::before,
-.hero-premium::after, .hero-glow::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-repeat: no-repeat; mix-blend-mode: screen; will-change: transform, opacity;
-}
-/* The glow: one pool of light on the left edge and one on the right (client, 14 Nov 2026: "don't make
-   it be on the left only"), both breathing in and out where they stand. transform-origin is the middle
-   of the hero, so a swell pushes each pool further into its own edge instead of sliding the light
-   across the hero and dragging the eye with it. */
-.hero-premium::before, .hero-glow::before {
-  filter: blur(20px); transform-origin: 50% 52%;
+   Light blue into dark blue, and nothing moving (client, 14 Nov 2026: "remove the animated glowing and
+   add colors of light blue and dark blue"). The breathing glow and the shine layers are gone, so a hero
+   now costs nothing to paint and holds still behind the words. The light blue is kept to the left edge
+   and the top right, where there is no body text, and the panel darkens towards the middle and the
+   bottom, so white type always sits on the dark blue. */
+.hero-premium, .hero-glow {
+  position: relative; background-color: #061529; background-repeat: no-repeat; background-origin: border-box;
   background-image:
-    radial-gradient(32% 42% at 7% 52%, rgba(64, 186, 255, 0.88), transparent 70%),
-    radial-gradient(24% 32% at 3% 72%, rgba(0, 132, 255, 0.72), transparent 72%),
-    radial-gradient(17% 23% at 19% 38%, rgba(130, 216, 255, 0.46), transparent 74%),
-    radial-gradient(28% 38% at 97% 48%, rgba(50, 170, 255, 0.70), transparent 72%),
-    radial-gradient(20% 28% at 88% 70%, rgba(0, 120, 248, 0.46), transparent 74%);
-  animation: hero-breathe 9s ease-in-out infinite;
-}
-/* The shine: one soft band of blue light that crosses the glow and fades out, every 7.5s. Blue, not
-   white (client, 14 Nov 2026), so it reads as light inside the water rather than a glare on glass.
-   Masked to the two pools, so it shines on the light and not across the whole black middle. */
-.hero-premium::after, .hero-glow::after {
-  filter: blur(12px);
-  background-image: linear-gradient(104deg, transparent 38%, rgba(32, 140, 255, 0.26) 46%,
-    rgba(96, 192, 255, 0.52) 50%, rgba(32, 140, 255, 0.26) 54%, transparent 62%);
-  -webkit-mask-image:
-    radial-gradient(54% 92% at 6% 56%, #000 0%, rgba(0, 0, 0, 0.55) 44%, transparent 74%),
-    radial-gradient(44% 86% at 96% 50%, #000 0%, rgba(0, 0, 0, 0.5) 46%, transparent 76%);
-  mask-image:
-    radial-gradient(54% 92% at 6% 56%, #000 0%, rgba(0, 0, 0, 0.55) 44%, transparent 74%),
-    radial-gradient(44% 86% at 96% 50%, #000 0%, rgba(0, 0, 0, 0.5) 46%, transparent 76%);
-  animation: hero-shine 7.5s ease-in-out infinite;
-}
-@keyframes hero-breathe {
-  0%, 100% { transform: scale(0.94); opacity: 0.48; }
-  50%      { transform: scale(1.18); opacity: 1; }
-}
-/* It travels left to right and fades before the end, so the jump back to the start is never seen. */
-@keyframes hero-shine {
-  0%   { transform: translate3d(-55%, 0, 0); opacity: 0; }
-  14%  { opacity: 0.75; }
-  46%  { transform: translate3d(38%, 0, 0); opacity: 0.55; }
-  62%  { transform: translate3d(62%, 0, 0); opacity: 0; }
-  100% { transform: translate3d(62%, 0, 0); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-premium::before, .hero-glow::before, .hero-premium::after, .hero-glow::after { animation: none; }
+    /* light blue, left edge */
+    radial-gradient(58% 86% at 0% 52%, rgba(93, 190, 255, 0.50) 0%, rgba(38, 124, 214, 0.26) 38%, rgba(12, 58, 120, 0.10) 62%, transparent 78%),
+    /* light blue, top right */
+    radial-gradient(46% 68% at 100% 22%, rgba(74, 170, 255, 0.34) 0%, rgba(24, 96, 184, 0.14) 42%, transparent 74%),
+    /* dark blue body, light to dark across the panel */
+    linear-gradient(118deg, #10467f 0%, #0b2d58 28%, #072038 58%, #061529 100%);
 }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
