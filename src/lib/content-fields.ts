@@ -211,14 +211,17 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "CONSULTANT", label: "Business expert", model: "consultant",
-    // One name, typed once (the title is their name). The essentials first; the rest folds away.
+    // Business-oriented (client, 14 Nov 2026): business name, category and description (Basics), then the
+    // services, contact person and address together. The title holds the business name.
+    hideShortSummary: true,
     labels: {
-      title: "Expert's full name", shortSummary: "Short description (optional)", overview: "About them (optional)", category: "Main area",
-      main: "Contact details and photo", mainNote: "Shown on the expert's page. Phone and email are shown to members only.", moreNote: "Optional. Fill in what you know.",
+      title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
+      main: "Services, contact person and address", mainNote: "Shown on the expert's page. Phone and email are shown to members only.", moreNote: "Optional. Fill in what you know.",
     },
     fields: [
-      { ...l("specialties", "What they help with", MAIN), help: "Separate with commas, e.g. tax, accounting, export" },
-      t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant"), t("businessName", "Business or firm", MAIN),
+      { ...l("specialties", "Services offered", MAIN), help: "Separate with commas, e.g. tax, accounting, export" },
+      t("fullName", "Contact person name", MAIN, "The person buyers will talk to"),
+      t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant"),
       t("phone", "Phone number", MAIN, "e.g. 0772 123 456"), t("email", "Email address", MAIN),
       { ...u("photoUrl", "Photo", MAIN), upload: "image" },
       t("address", "Physical address", MAIN, "Street, building or area, e.g. Plot 12, Kampala Road, 2nd floor"),
@@ -229,7 +232,6 @@ export const DIRECTORIES: Directory[] = [
       d("feeMin", "Fee from", "Fees", MONEY_HELP), d("feeMax", "Fee to", "Fees", MONEY_HELP), cur("Fees"), t("pricingBasis", "Charged", "Fees", "per hour, per day, per project"),
       i("consultationMins", "Consultation length (minutes)", "Fees"), b("quotationRequired", "Gives a quote first", "Fees"),
       t("availability", "When they are available", "Availability"), t("responseTime", "How fast they reply", "Availability"), u("bookingUrl", "Booking or enquiry link", "Availability"),
-      { name: "fullName", label: "Name on the page, if different", kind: "text", group: "Other details", help: "Leave empty: the name above is used" },
     ],
   },
   {

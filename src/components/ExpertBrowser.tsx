@@ -2,17 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BadgeCheck, MonitorSmartphone } from "lucide-react";
+import { Heart, LockKeyhole, MonitorSmartphone, Star } from "lucide-react";
 import { searchTerms } from "@/lib/search-terms";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
-import { BoardAside, BoardEmpty, DirectoryBoard, GridFrame, gridChip, gridList, solidButton } from "./DirectoryBoard";
+import { BoardAside, BoardEmpty, DirectoryBoard, gridList } from "./DirectoryBoard";
 
 /** One expert as the browser needs it: public fields only (email and phone stay on the member profile). */
 export type BrowseExpert = {
   id: string; slug: string; href: string; name: string; about: string | null; place: string | null;
   category: string | null; specialties: string[]; online: boolean; photo: string | null;
+  /** Contact person shown as the seller, when set. */
+  person: string | null;
+  /** Starting fee for members (e.g. "From UGX 50,000 per hour"); null when unknown. */
+  fee: string | null;
+  /** True when a fee exists but the viewer isn't a member (shown as a lock). */
+  feeLocked: boolean;
+  /** Average review rating (1–5, one decimal) and how many approved reviews, for the Fiverr-style card. */
+  rating: number | null; reviews: number;
   /** Newest-first position */
   order: number;
   /** Everything the search looks in, lower case: name, business, title, summary, category, town, country, skills, languages */
@@ -95,22 +103,65 @@ export function ExpertBrowser({ experts, intro, initial }: {
   );
 }
 
-/** One expert as a grid card: photo (or initials), category and town, name, specialties, a short line, Profile. */
+/**
+ * One expert as a Fiverr-style gig card (client, 14 Nov 2026): a cover photo with a save heart, the
+ * seller row (avatar + contact person or business, and their line of work), the gig title (the services
+ * or short description), the rating, then the starting fee. The whole card links to the profile.
+ */
 function ExpertTile({ e }: { e: BrowseExpert }) {
   const initials = e.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const seller = e.person ?? e.name;
+  const line = e.category ?? "Business expert";
+  const gig = (e.specialties.length ? e.specialties.join(", ") : e.about) || `${e.name} — ${line}`;
   return (
-    <GridFrame id={e.id} href={e.href} title={e.name} src={e.photo} icon="expert" cover
-      placeholder={<span className="text-[34px] font-extrabold tracking-[-0.03em] text-brand/70">{initials}</span>}
-      meta={<>
-        <span className="truncate font-semibold text-accent-dark">{e.category ?? "Business expert"}</span>
-        {e.place ? <><span aria-hidden>·</span><span className="truncate">{e.place}</span></> : null}
-      </>}
-      pills={<>
-        {e.specialties.slice(0, 2).map((s) => <li key={s} className={gridChip}><BadgeCheck aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{s}</span></li>)}
-        {e.online ? <li className={gridChip}><MonitorSmartphone aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" />Online</li> : null}
-      </>}
-      body={e.about ? <p data-size="" className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{e.about}</p> : null}
-      actions={<Link href={e.href} className={solidButton}>Profile</Link>}
-    />
+    <div className="group flex h-full flex-col overflow-hidden rounded-md border border-line bg-surface transition-colors hover:border-brand">
+      {/* Cover photo */}
+      <Link href={e.href} aria-label={e.name} className="relative block aspect-[4/3] overflow-hidden bg-page">
+        {e.photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={e.photo} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center bg-brand-tint text-[34px] font-extrabold tracking-[-0.03em] text-brand/70">{initials}</span>
+        )}
+        <span className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 text-ink-soft" aria-hidden><Heart className="h-4 w-4" /></span>
+        {e.online ? <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/90 px-2 py-0.5 text-[11px] font-semibold text-ink-soft"><MonitorSmartphone className="h-3 w-3" />Online</span> : null}
+      </Link>
+
+      <div className="flex flex-1 flex-col gap-2 p-3">
+        {/* Seller row */}
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint text-[10px] font-bold text-brand">
+            {e.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={e.photo} alt="" className="h-full w-full object-cover" />
+            ) : initials}
+          </span>
+          <span className="truncate text-[13px] font-semibold text-heading">{seller}</span>
+          <span aria-hidden className="text-ink-muted">·</span>
+          <span className="truncate text-[12px] text-ink-muted">{line}</span>
+        </div>
+
+        {/* Gig title */}
+        <Link href={e.href} className="line-clamp-2 min-h-[2.4em] text-[13px] font-medium leading-snug text-ink hover:text-brand">{gig}</Link>
+
+        {/* Rating */}
+        <div className="flex items-center gap-1 text-[12px]">
+          {e.rating != null ? (
+            <><Star className="h-3.5 w-3.5 fill-[#ffb33e] text-[#ffb33e]" aria-hidden /><span className="font-bold text-heading">{e.rating.toFixed(1)}</span><span className="text-ink-muted">({e.reviews})</span></>
+          ) : <span className="text-ink-muted">New expert</span>}
+          {e.place ? <><span aria-hidden className="text-ink-muted">·</span><span className="truncate text-ink-muted">{e.place}</span></> : null}
+        </div>
+
+        {/* Footer: starting fee */}
+        <div className="mt-auto flex items-center justify-between border-t border-line pt-2">
+          {e.feeLocked ? (
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-ink-muted"><LockKeyhole className="h-3.5 w-3.5" />Price for members</span>
+          ) : e.fee ? (
+            <span className="text-[11px] uppercase tracking-wide text-ink-muted">Starting at <strong className="ml-1 text-[14px] normal-case tracking-normal text-heading">{e.fee.replace(/^From\s*/i, "")}</strong></span>
+          ) : <span className="text-[12px] text-ink-muted">Contact for a quote</span>}
+          <Link href={e.href} aria-label={`View ${e.name}`} className="text-[12px] font-semibold text-brand hover:text-brand-dark">View →</Link>
+        </div>
+      </div>
+    </div>
   );
 }
