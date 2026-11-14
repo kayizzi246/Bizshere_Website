@@ -12,7 +12,6 @@ import { date, moneyRange } from "@/lib/format";
 import { SaveButton } from "@/components/Wishlist";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
 import { Connected, Evidence, trackView } from "@/components/DetailParts";
-import { DropHint } from "@/components/DropHint";
 import { FieldSections, visibleGroups } from "@/components/FieldSections";
 import { MemberValue } from "@/components/MemberValue";
 import { OnboardingGate } from "@/components/Onboarding";
@@ -109,7 +108,6 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const media = sections.filter((x) => x.table.layout === "gallery");
   const lowest = plan.daily ? `${plan.daily} a day` : plan.weekly ? `${plan.weekly} a week` : plan.monthly ? `${plan.monthly} a month` : null;
 
-  const card = "flex scroll-mt-28 flex-col gap-4 rounded-3xl border border-line bg-white p-5 sm:p-7";
   const h2 = "text-[19px] font-bold leading-tight tracking-[-0.02em] text-heading sm:text-[20px]";
   // The funder's contacts for the side card (member detail: locked for visitors)
   const contacts = funder.filter((r) => ["Phone", "Email", "Website"].includes(r.label));
@@ -150,7 +148,6 @@ export default async function FundingPage({ params }: { params: { slug: string }
               </span>
               <h1 className="max-w-4xl text-[24px] font-bold leading-[1.15] tracking-[-0.03em] text-heading sm:text-[28px] lg:text-[32px]">{name}</h1>
               <p data-size="" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[14px] text-ink-soft">
-                {checked ? <span className={meta}><CalendarCheck aria-hidden className="h-4 w-4 text-ink-muted" />Checked {checked}</span> : null}
                 <span className={meta}><MapPin aria-hidden className="h-4 w-4 text-ink-muted" />{f.provider.country}</span>
                 {amount ? (gated
                   ? <Link href={path} data-onboard="" className={`${meta} font-semibold text-brand`}><LockKeyhole aria-hidden className="h-4 w-4" />Amount for members</Link>
@@ -194,14 +191,8 @@ export default async function FundingPage({ params }: { params: { slug: string }
                 </section>
               ) : null}
 
-              {item.overview ? (
-                <section className="flex flex-col gap-2.5">
-                  <h2 className={h2}>About this fund</h2>
-                  <p className="whitespace-pre-line text-[16px] leading-relaxed text-ink-soft">{item.overview}</p>
-                </section>
-              ) : null}
-
-              {/* ── The fund, in numbered rows ── */}
+              {/* ── The fund in one place (client, 14 Nov 2026): the numbered rows, then every other
+                   detail underneath, nothing folded away and no separate "About"/"More about" sections. ── */}
               <section id="details" aria-labelledby="fund-details" className="flex scroll-mt-28 flex-col gap-3">
                 <h2 id="fund-details" className={h2}>Fund details</h2>
                 <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
@@ -214,16 +205,10 @@ export default async function FundingPage({ params }: { params: { slug: string }
                     </li>
                   ))}
                 </ol>
+                {visibleGroups("FUNDING_PROGRAMME", record, skip).length ? (
+                  <div className="mt-1 flex flex-col gap-4"><FieldSections bare type="FUNDING_PROGRAMME" record={record} gated={gated} skip={skip} back={path} /></div>
+                ) : null}
               </section>
-
-              {visibleGroups("FUNDING_PROGRAMME", record, skip).length ? (
-                <section className={card}>
-                  <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3"><h2 className={h2}>More about this fund</h2><DropHint /></summary>
-                    <div className="mt-4 flex flex-col gap-4"><FieldSections bare type="FUNDING_PROGRAMME" record={record} gated={gated} skip={skip} back={path} /></div>
-                  </details>
-                </section>
-              ) : null}
 
               <ChildSections sections={media} gated={gated} back={path} />
               <Evidence contentItemId={item.id} lastReviewedAt={item.lastReviewedAt} nextReviewDueAt={item.nextReviewDueAt} viewer={viewer} back={path} />

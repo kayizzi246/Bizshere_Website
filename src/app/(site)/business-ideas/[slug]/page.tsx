@@ -434,8 +434,6 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           <ChildSections compact sections={otherMedia} gated={gated} back={path} />
 
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck aria-hidden className="h-4 w-4 text-brand" />Checked {date(item.lastReviewedAt)}</span>
-            <span aria-hidden>·</span>
             <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
           </p>
 

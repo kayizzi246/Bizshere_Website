@@ -291,7 +291,6 @@ export function ListingRow({ i, icon, variant }: { i: BrowseListing; icon: strin
         <span className="font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
         {i.extra ? <><span aria-hidden>·</span><span>{i.extra}</span></> : null}
         {host ? <><span aria-hidden>·</span><span className="truncate">{host}</span></> : null}
-        {checked(i.reviewed) ? <><span aria-hidden>·</span><span>Checked {i.reviewed}</span></> : null}
       </>}
       pills={i.locked || i.source || i.price || i.country || i.sells ? <>
         {i.locked ? <li className={`${chip} font-semibold text-ink-muted`}><LockKeyhole aria-hidden className="h-3 w-3" />Source and price for members</li> : <>
@@ -329,7 +328,6 @@ function CellsRow({ i }: { i: BrowseListing }) {
       meta={<>
         {by ? <span className="font-semibold text-accent-dark">{clean(by)}</span> : null}
         {type ? <><span aria-hidden>·</span><span>{type}</span></> : null}
-        {checked(i.reviewed) ? <><span aria-hidden>·</span><span>Checked {i.reviewed}</span></> : null}
       </>}
       pills={<>
         {where ? <li className={chip}><MapPin aria-hidden className="h-3 w-3 text-ink-muted" />{where}</li> : null}

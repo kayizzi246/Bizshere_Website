@@ -161,7 +161,6 @@ export async function RecordPage({
                 <div className="order-1 flex flex-col gap-2 md:order-none">
                   <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
                     <span className="inline-flex items-center gap-1.5 font-semibold text-brand-dark"><Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}</span>
-                    <span>Checked {date(item.lastReviewedAt)}</span>
                     {viewer.isMember ? <span className="inline-flex items-center gap-1 font-semibold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
                     <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
                   </p>
@@ -286,8 +285,6 @@ export async function RecordPage({
 
             {/* Checks: one short line instead of a panel */}
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
-              <span className="inline-flex items-center gap-1.5"><BadgeCheck aria-hidden className="h-4 w-4 text-brand" />Checked {date(item.lastReviewedAt)}</span>
-              <span aria-hidden>·</span>
               <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
             </p>
             <div id="related" className="scroll-mt-36">
@@ -329,7 +326,6 @@ export async function RecordPage({
               {brief ? <p className="max-w-2xl text-base leading-relaxed text-white/80">{brief}</p> : null}
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-white/80"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Checked {date(item.lastReviewedAt)}</span>
                 <ShareButton compact title={title} path={back} />
                 {viewer.isMember ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 font-bold text-ink"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span>

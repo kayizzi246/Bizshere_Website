@@ -86,12 +86,7 @@ export async function SiteFooter() {
                     <li><Link href={portal} className={footerLink}>My dashboard</Link></li>
                     <li><SignOutButton plain to="/" className={footerLink} /></li>
                   </>
-                ) : (
-                  <>
-                    <li><Link href="/suppliers/join" className={footerLink}>Become a Supplier</Link></li>
-                    <li><Link href="/experts/join" className={footerLink}>Become an Expert</Link></li>
-                  </>
-                )}
+                ) : null}
               </ul>
             </nav>
           ))}

@@ -11,20 +11,14 @@ import { WishlistLink } from "./Wishlist";
 const NAV = ["/business-ideas", "/funding", "/prices", "/forum", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 const WIDE_ONLY = "/experts";
 
-// For businesses that want to be listed: they register, pay and our team checks the listing.
-const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "bg-accent text-ink hover:text-ink"], ["/experts/join", "Become an Expert", "expert", "bg-brand text-white hover:bg-brand-dark hover:text-white"]];
-
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
 const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
-// Outline pill button on the right (like the reference's "Talk to sales").
-const outline = "inline-flex h-10 items-center whitespace-nowrap rounded-full border border-line px-4 font-display text-[13px] font-semibold text-ink transition-colors hover:border-brand hover:text-brand";
 
 /**
  * Full-width flat header bar (client, 14 Nov 2026, like 2checkout): a solid white bar that spans the
  * screen and sticks to the top on scroll, with a hairline underneath. Logo on the left; the main links
- * next to it; on the right the log in link, the "Become a Supplier" outline button and the solid call
- * to action. Phones: logo, wishlist and a menu button; everything else is in the menu.
+ * next to it; on the right the log in link and the solid call to action. Phones: logo, wishlist and a menu button; everything else is in the menu.
  */
 export async function SiteHeader() {
   const viewer = await getViewer();
@@ -57,7 +51,6 @@ export async function SiteHeader() {
           <WishlistLink className="rounded-full" />
           {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link> : null}
           {/* Right side like the reference: an outline button, then the solid call to action. In the menu on phones. */}
-          <Link href="/suppliers/join" className={`hidden xl:inline-flex ${outline}`}>Become a Supplier</Link>
           <span className="hidden lg:contents"><AccessButton viewer={viewer} /></span>
 
           {/* Phones and tablets: everything else in one menu. Opens without JavaScript; MobileMenu closes it on
@@ -80,7 +73,6 @@ export async function SiteHeader() {
               <div className="my-1 border-t border-line" />
               <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
               <Link href="/about" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">About</Link>
-              {JOIN.map(([href, label]) => <Link key={label} href={href} className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">{label}</Link>)}
               <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact</Link>
               {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Log in</Link> : null}
               {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}

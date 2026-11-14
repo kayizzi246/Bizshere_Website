@@ -82,7 +82,7 @@ export function TwoColumn({ main, aside }: { main: React.ReactNode; aside: React
 }
 
 /** 4. Evidence: sources, dates and freshness. Also hosts the Wishlist and Report actions. */
-export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt, viewer, back, extra }: {
+export async function Evidence({ contentItemId, nextReviewDueAt, viewer, back, extra }: {
   contentItemId: string;
   lastReviewedAt: Date | null;
   nextReviewDueAt: Date | null;
@@ -91,17 +91,9 @@ export async function Evidence({ contentItemId, lastReviewedAt, nextReviewDueAt,
   extra?: React.ReactNode;
 }) {
   const sources = await prisma.evidenceLink.findMany({ where: { contentItemId }, include: { source: true } });
-  const overdue = Boolean(nextReviewDueAt && nextReviewDueAt < new Date());
   // One short line people can trust at a glance; the source list and dates are one tap away.
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 text-sm text-ink-muted sm:p-6">
-      <div className="flex items-center gap-3">
-        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold ${overdue ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`} aria-hidden>{overdue ? "!" : "✓"}</span>
-        <span className="flex min-w-0 flex-col">
-          <h2 className="w-fit font-display text-base font-extrabold text-heading">{overdue ? "Being re-checked" : "Checked by our team"}</h2>
-          <span className="text-[13px]">Last checked {date(lastReviewedAt)}</span>
-        </span>
-      </div>
       {extra}
       {sources.length || nextReviewDueAt ? (
         <details className="group rounded-xl bg-page px-4 py-3 [&_summary::-webkit-details-marker]:hidden">
