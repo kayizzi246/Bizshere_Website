@@ -26,7 +26,7 @@ export async function SiteHeader() {
 
   return (
     <header data-site-header="" className="sticky top-0 z-[45] border-b border-line bg-surface">
-      <div className="mx-auto flex h-[60px] w-full max-w-site items-center gap-3 px-4 sm:px-5 lg:h-[72px] lg:gap-5 lg:px-8">
+      <div className="mx-auto flex h-[56px] w-full max-w-site items-center gap-3 px-4 sm:px-5 lg:h-[64px] lg:gap-5 lg:px-8">
         <Logo full />
 
         {/* The main links. Hover (or keyboard focus) on one shows a small card with what it is. */}
