@@ -151,7 +151,8 @@ function iconFor(name: string) {
 
 // ── Shared card pieces ──
 export const chip = "inline-flex h-7 items-center gap-1.5 rounded-full border border-line bg-page px-2.5 text-[12px] text-ink-soft";
-export const solidButton = "inline-flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-ink px-4 text-[12px] font-bold uppercase tracking-[0.06em] text-white hover:bg-brand hover:text-white sm:w-auto";
+/* The action on a card (Details, View, Products, Apply): the brand orange (client, 14 Nov 2026). */
+export const solidButton = "inline-flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-4 text-[12px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-accent-dark hover:text-white sm:w-auto";
 export const softButton = "inline-flex h-9 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-line bg-white px-4 text-[12px] font-bold uppercase tracking-[0.06em] text-heading hover:border-ink hover:text-heading sm:w-auto";
 const clean = (t: string) => t.replace(/^Sample:\s*/i, "");
 const initials = (s: string) => s.replace(/^Sample:?\s+/i, "").split(/\s+/).filter((w) => /^[A-Za-z0-9]/.test(w)).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "B";
