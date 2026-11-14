@@ -37,6 +37,8 @@ export type Directory = {
   labels?: { title?: string; shortSummary?: string; overview?: string; category?: string; main?: string; mainNote?: string; moreNote?: string };
   /** Leave out the short-summary field entirely (client, 14 Nov 2026: suppliers keep only the business description). */
   hideShortSummary?: boolean;
+  /** Hide the "Advanced settings" fold to keep the form simple (client, 14 Nov 2026). */
+  simpleForm?: boolean;
   fields: Field[];
   children?: ChildList[];
 };
@@ -56,7 +58,6 @@ const e = (name: string, label: string, options: string[], group?: string): Fiel
 const cur = (group?: string): Field => ({ name: "currency", label: "Currency", kind: "text", group, help: "e.g. UGX or USD" });
 
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
-const SUPPLIER_MORE = "What else they offer";
 /** The funder's details on a funding source. */
 export const FUNDER = "Funder details";
 /** Who sells a machine: a supplier on the site, or a name and contacts typed in. Always open in the form. */
@@ -126,7 +127,7 @@ export const DIRECTORIES: Directory[] = [
   {
     type: "SUPPLIER", label: "Trusted supplier", model: "supplier",
     link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
-    hideShortSummary: true,
+    hideShortSummary: true, simpleForm: true,
     labels: {
       title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
       main: "Address", mainNote: "Shown on the supplier's page. Call and WhatsApp are shown to members only. You add their products after saving.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
@@ -144,9 +145,6 @@ export const DIRECTORIES: Directory[] = [
       { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
       { ...t("country", "Country", MAIN), initial: "Uganda" },
       { ...e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN), basics: true },
-      l("brandsSupplied", "Brands they sell", SUPPLIER_MORE), b("sellsWholesale", "Sells wholesale", SUPPLIER_MORE), b("sellsRetail", "Sells retail", SUPPLIER_MORE),
-      b("offersInstallation", "Installs what they sell", SUPPLIER_MORE), b("offersMaintenance", "Does maintenance", SUPPLIER_MORE), b("offersTraining", "Trains staff", SUPPLIER_MORE),
-      b("sparePartsLocal", "Has spare parts in Uganda", SUPPLIER_MORE), b("exportCapability", "Exports", SUPPLIER_MORE),
     ],
   },
   {
@@ -310,6 +308,9 @@ export const RELATIONSHIP_TYPES = [
 
 /** Directories the admin can add and list. Recipes stay out at the client's request (existing ones still open by link). */
 export const ADMIN_DIRECTORIES = DIRECTORIES.filter((x) => x.type !== "RECIPE");
+
+/** Directories that are free for everyone: always saved as PUBLIC, never gated (client, 14 Nov 2026). */
+export const FREE_TYPES = new Set<ContentType>(["NEWS", "WEBSITE", "BUSINESS_TIP"]);
 
 /**
  * Member detail on a gated page (access level not PUBLIC, viewer not a member):

@@ -8,7 +8,7 @@ import { prisma, transaction, type Tx } from "@/lib/prisma";
 import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { categorySlug, DIRECTORY_KINDS, findOrAddCategory } from "@/lib/categories";
-import { directoryFor, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
+import { directoryFor, FREE_TYPES, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
 import { currencyCode, looseNumber, parseField } from "@/lib/field-parse";
 
 export type ContentFormState = { errors?: Record<string, string> };
@@ -102,9 +102,10 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   if (type === "BUSINESS_TIP" && !str(form.get("overview"))) errors.overview = "Required";
 
   const status = str(form.get("publicationStatus")) as PublicationStatus;
-  const access = str(form.get("accessLevel")) as AccessLevel;
+  // Free directories (news, useful websites, business tips) are always public: everyone sees them.
+  const access: AccessLevel = FREE_TYPES.has(type) ? "PUBLIC" : (str(form.get("accessLevel")) as AccessLevel);
   if (!STATUSES.includes(status)) errors.publicationStatus = "Choose a status";
-  if (!ACCESS.includes(access)) errors.accessLevel = "Choose an access level";
+  if (!FREE_TYPES.has(type) && !ACCESS.includes(access)) errors.accessLevel = "Choose an access level";
 
   const specialised: Record<string, unknown> = {};
   for (const f of dir.fields) {

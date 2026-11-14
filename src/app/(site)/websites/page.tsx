@@ -2,7 +2,6 @@ import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
 import { directory, directoryMetadata } from "@/config/directories";
 import { GUIDE_TABS, websiteName } from "@/lib/format";
-import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const metadata = directoryMetadata("/websites");
@@ -19,12 +18,12 @@ async function meta(ids: string[]) {
  */
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/websites");
-  const viewer = await getViewer();
   const sites = (ids: string[]) => prisma.usefulWebsite.findMany({
     where: { contentItemId: { in: ids } },
     select: { contentItemId: true, canonicalUrl: true, siteType: true, contentItem: { select: { title: true, accessLevel: true } } },
   });
-  const open = (accessLevel: string) => viewer.isMember || accessLevel === "PUBLIC";
+  // Useful websites are free for everyone (client, 14 Nov 2026): the address is never hidden.
+  const open = (_accessLevel: string) => true;
 
   // Each row a member may follow goes straight to the website (only https or http addresses).
   async function links(ids: string[]) {

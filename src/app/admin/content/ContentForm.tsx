@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
+import { directoryFor, FREE_TYPES, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import { ProductPhotos } from "@/components/ProductPhotos";
@@ -126,15 +126,18 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         );
       })}
 
-      <Section id="s-publish" title="Who can see it" note="Live or draft is chosen next to Save, at the bottom of the screen.">
-        <Row>
-          <Select name="accessLevel" label="Who sees the full details?" defaultValue={v("accessLevel") || (type === "BUSINESS_TIP" ? "PUBLIC" : "PREVIEW")} error={err("accessLevel")} options={[
-            { value: "PREVIEW", label: "Members only; everyone sees a preview" }, { value: "PUBLIC", label: "Everyone, free" }, { value: "MEMBERS", label: "Members only, with no preview" },
-          ]} />
-        </Row>
-      </Section>
+      {/* Free directories (news, useful websites, business tips) are always public: no access choice shown. */}
+      {FREE_TYPES.has(type) ? null : (
+        <Section id="s-publish" title="Who can see it" note="Live or draft is chosen next to Save, at the bottom of the screen.">
+          <Row>
+            <Select name="accessLevel" label="Who sees the full details?" defaultValue={v("accessLevel") || "PREVIEW"} error={err("accessLevel")} options={[
+              { value: "PREVIEW", label: "Members only; everyone sees a preview" }, { value: "PUBLIC", label: "Everyone, free" }, { value: "MEMBERS", label: "Members only, with no preview" },
+            ]} />
+          </Row>
+        </Section>
+      )}
 
-      <Fold id="s-advanced" title="Advanced settings" note="You can usually leave these alone." open={advancedOpen}>
+      <Fold id="s-advanced" title="Advanced settings" note="You can usually leave these alone." open={advancedOpen} hidden={dir.simpleForm}>
         <Row><Input name="slug" label="Web address (slug)" defaultValue={v("slug")} error={err("slug")} help="Leave empty to build it from the name." /></Row>
         {linkAdvanced ? <div className="flex flex-col gap-1"><Row>{linkSelect}</Row><span className="text-xs text-ink-muted">{linkAdvanced}</span></div> : null}
         <Row>
@@ -220,9 +223,11 @@ function FieldInput({ f: raw, value, error, member, options }: { f: Field; value
 const titleWord = (o: string) => { const w = o.replace(/_/g, " ").toLowerCase(); return w.charAt(0).toUpperCase() + w.slice(1); };
 
 /** A section that stays closed until it is wanted. Its fields are sent with the form either way. */
-function Fold({ id, title, note, open, children }: { id: string; title: string; note?: string; open?: boolean; children: React.ReactNode }) {
+function Fold({ id, title, note, open, hidden, children }: { id: string; title: string; note?: string; open?: boolean; hidden?: boolean; children: React.ReactNode }) {
+  // `hidden`: the section is taken off the form visually, but its inputs still submit their current
+  // values, so hiding "Advanced settings" never wipes the slug, dates or categories on save.
   return (
-    <details id={id} open={open} className="group/fold scroll-mt-20 rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
+    <details id={id} open={open} hidden={hidden} className="group/fold scroll-mt-20 rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:px-6 sm:py-5">
         <span className="flex flex-col gap-0.5"><span className="text-base font-extrabold text-heading">{title}</span>{note ? <span className="text-[13px] text-ink-muted">{note}</span> : null}</span>
         <span aria-hidden className="text-lg text-ink-muted transition group-open/fold:rotate-90">›</span>
