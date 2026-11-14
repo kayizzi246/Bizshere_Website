@@ -18,6 +18,8 @@ export type Field = {
   virtual?: boolean;
   /** A choice of an existing record (the id is stored), listed in src/app/admin/content/load.ts. */
   ref?: "supplier";
+  /** Render this field in the Basics section, right after the category (e.g. supplier "Business type"). */
+  basics?: boolean;
 };
 
 /** Child rows edited as one line each in a textarea. */
@@ -138,7 +140,7 @@ export const DIRECTORIES: Directory[] = [
       { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
       { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
       { ...t("country", "Country", MAIN), initial: "Uganda" },
-      e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
+      { ...e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN), basics: true },
       l("brandsSupplied", "Brands they sell", SUPPLIER_MORE), b("sellsWholesale", "Sells wholesale", SUPPLIER_MORE), b("sellsRetail", "Sells retail", SUPPLIER_MORE),
       b("offersInstallation", "Installs what they sell", SUPPLIER_MORE), b("offersMaintenance", "Does maintenance", SUPPLIER_MORE), b("offersTraining", "Trains staff", SUPPLIER_MORE),
       b("sparePartsLocal", "Has spare parts in Uganda", SUPPLIER_MORE), b("exportCapability", "Exports", SUPPLIER_MORE),

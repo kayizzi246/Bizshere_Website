@@ -17,13 +17,13 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   const [feature, ...rest] = photos;
   const f = KIND[feature.kind];
   return (
-    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[470px] flex-col gap-3 rounded-2xl border border-white/15 bg-[#081A3C]/70 p-4 text-white backdrop-blur-md">
+    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[470px] flex-col gap-3 rounded-2xl border border-white/5 bg-transparent p-4 text-white">
       <div className="flex items-center justify-between gap-3 px-1">
         <span className="flex flex-col leading-tight">
-          <span className="font-display text-[16px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>
-          <span className="text-[12px] text-white/55">Ideas · Machines · Suppliers</span>
+          <span className="font-display text-[13px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>
+          <span className="text-[10.5px] text-white/55">Ideas · Machines · Suppliers</span>
         </span>
-        <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] uppercase tracking-wide text-white/70">New</span>
+        <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white/70">New</span>
       </div>
 
       {/* The featured listing */}
@@ -32,8 +32,8 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
         <img src={feature.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#04112A]/90 to-transparent" />
         <span className="absolute bottom-3 left-3 right-3 flex flex-col items-start gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${f.tone} backdrop-blur-sm`}>{f.label}</span>
-          <span className="w-full truncate font-display text-[18px] font-extrabold leading-tight tracking-[-0.01em]">{feature.title}</span>
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${f.tone} backdrop-blur-sm`}>{f.label}</span>
+          <span className="w-full truncate font-display text-[15px] font-extrabold leading-tight tracking-[-0.01em]">{feature.title}</span>
         </span>
       </div>
 
@@ -50,10 +50,10 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
                   <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-tight">
-                  <span className="truncate font-display text-[14px] font-bold">{p.title}</span>
-                  <span className="truncate text-[12px] text-white/60">{p.sub}</span>
+                  <span className="truncate font-display text-[12px] font-bold">{p.title}</span>
+                  <span className="truncate text-[10.5px] text-white/60">{p.sub}</span>
                 </span>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${k.tone}`}>{k.label}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${k.tone}`}>{k.label}</span>
               </li>
             );
           })}

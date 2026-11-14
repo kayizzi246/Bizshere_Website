@@ -27,7 +27,8 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER && g !== PROVIDER);
   // A funding source's funder details sit with the fund provider choice, always open
   const funderFields = dir.fields.filter((f) => f.group === FUNDER);
-  const mainFields = dir.fields.filter((f) => f.group === MAIN);
+  const mainFields = dir.fields.filter((f) => f.group === MAIN && !f.basics);
+  const basicsFields = dir.fields.filter((f) => f.basics);
   // A machine's provider: its own section, always open, right after the main details
   const providerFields = dir.fields.filter((f) => f.group === PROVIDER);
   const slug = (g: string) => "s-" + g.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -70,6 +71,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
           <Select name="primaryCategoryId" label={lb.category ?? "Category"} defaultValue={v("primaryCategoryId")} options={[{ value: "", label: "Choose…" }, ...options.primaryCategories]} />
           <Input name="newCategory" label="Not in the list? Add a new category" error={err("newCategory")} help="Type its name. It is added and chosen when you save." maxLength={80} />
         </Row>
+        {basicsFields.length ? <div className="flex flex-wrap gap-3.5">{basicsFields.map(field)}</div> : null}
       </Section>
 
       {dir.link && !linkAdvanced ? (

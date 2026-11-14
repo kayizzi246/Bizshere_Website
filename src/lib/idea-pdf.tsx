@@ -36,7 +36,7 @@ export type IdeaPdfData = {
   member: boolean;
 };
 
-const C = { deep: "#0550ae", brand: "#0969da", tint: "#E7F2FA", accent: "#1f883d", accentTint: "#FEF1E4", ink: "#111111", soft: "#2B2B2B", muted: "#6B6B6B", line: "#E9E7E4", page: "#F4F7FA" };
+const C = { deep: "#0550ae", brand: "#0969da", tint: "#E7F2FA", accent: "#F28C28", accentTint: "#FEF1E4", ink: "#111111", soft: "#2B2B2B", muted: "#6B6B6B", line: "#E9E7E4", page: "#F4F7FA" };
 
 const s = StyleSheet.create({
   page: { paddingBottom: 56, fontFamily: "Helvetica", fontSize: 10, color: C.soft, lineHeight: 1.45 },

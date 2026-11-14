@@ -125,7 +125,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             </span>
             {plan.count.optional ? (
               <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-[14px] font-medium">
-                <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#1f883d]" />
+                <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#F28C28]" />
                 Include {plan.count.optional} optional {plan.count.optional === 1 ? "item" : "items"}
               </label>
             ) : null}

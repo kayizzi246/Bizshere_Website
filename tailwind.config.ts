@@ -22,11 +22,11 @@ const config: Config = {
           deep: "#0550ae", // darker GitHub blue: top bar, dark buttons, admin sidebar
           admin: "#0550ae",
           tint: v("brand-tint"),
-          mint: "#1f883d", // GitHub green accent on dark panels
+          mint: "#F28C28", // logo orange accent
           sky: "#b6e3ff",
         },
         accent: {
-          DEFAULT: "#1f883d", // GitHub green: primary fills, icons
+          DEFAULT: "#F28C28", // logo orange: primary fills, icons
           dark: v("accent-dark"), // orange small text (5:1 on white)
           tint: v("accent-tint"),
         },

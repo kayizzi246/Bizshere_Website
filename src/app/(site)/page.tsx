@@ -36,8 +36,8 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 690px tall (client, 13 Nov 2026, after trying 840, 820, 790 and 780px), or the screen's height if that is less, with its content in the middle. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,690px)] xl:flex-col xl:justify-center">
+      {/* Laptops and up (1280px+): the hero is 740px tall (client, 14 Nov 2026; was 690), or the screen's height if that is less, with its content in the middle. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,740px)] xl:flex-col xl:justify-center">
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
@@ -73,8 +73,8 @@ export default async function HomePage() {
             <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
-                  <Link href={d.href} className="group flex h-full min-h-[52px] w-full items-center gap-2 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3 py-2.5 text-[13px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[36px] sm:gap-1.5 sm:rounded-lg sm:px-2.5 sm:py-1.5 sm:text-[13px] lg:min-h-[40px] lg:gap-2 lg:px-3 lg:py-1.5 lg:text-[13px]">
-                    <Icon name={d.icon} className="h-[18px] w-[18px] shrink-0 text-accent sm:h-4 sm:w-4 lg:h-[18px] lg:w-[18px]" />
+                  <Link href={d.href} className="group flex h-full min-h-[56px] w-full items-center gap-2.5 rounded-xl border border-solid border-white/25 bg-white/[0.06] px-3.5 py-3 text-[14px] leading-tight text-white transition-colors hover:border-accent hover:bg-white/10 hover:text-white sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[44px] sm:gap-2 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[15px] lg:min-h-[48px] lg:gap-2.5 lg:px-4 lg:py-2.5 lg:text-[15px]">
+                    <Icon name={d.icon} className="h-5 w-5 shrink-0 text-accent sm:h-[18px] sm:w-[18px] lg:h-5 lg:w-5" />
                     {d.title}
                   </Link>
                 </li>
