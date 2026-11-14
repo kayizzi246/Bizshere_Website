@@ -1,0 +1,15 @@
+node_modules
+.next
+.next-ci
+.git
+.env
+.env.*
+npm-debug.log*
+*.log
+.DS_Store
+tsconfig.tsbuildinfo
+coverage
+.vscode
+.idea
+README.md
+docs
