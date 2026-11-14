@@ -322,10 +322,10 @@ export async function HomeFeatures() {
                     <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#FFF6EC] hover:text-heading">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[14px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
-                        {org ? <span className="truncate text-[12px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
+                        <span className="truncate font-display text-[13px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
+                        {org ? <span className="truncate text-[11px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
                       </span>
-                      {type ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
+                      {type ? <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
                       <ArrowRight aria-hidden className="hidden h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent-dark sm:block" />
                     </Link>
                   </li>
@@ -348,12 +348,12 @@ export async function HomeFeatures() {
                     <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#EEF6FC] hover:text-heading">
                       <span className={`relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[14px] font-extrabold leading-none">{name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase()}</span>}
+                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[13px] font-extrabold leading-none">{name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase()}</span>}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[14px] font-bold leading-snug group-hover:text-brand">{name}</span>
-                        {sells ? <span className="truncate text-[11px] text-ink-soft">{sells}</span> : null}
-                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[10px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
+                        <span className="truncate font-display text-[13px] font-bold leading-snug group-hover:text-brand">{name}</span>
+                        {sells ? <span className="truncate text-[10px] text-ink-soft">{sells}</span> : null}
+                        {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[9.5px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
                       </span>
                     </Link>
                   </li>

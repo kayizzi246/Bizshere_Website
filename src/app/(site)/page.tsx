@@ -54,7 +54,7 @@ export default async function HomePage() {
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
                 screen (6.2vw: 20px on a 320px phone, 30px at most) and wider screens step up to 40px and 48px. */}
             {/* One line, smaller (client, 14 Nov 2026), ending in an orange full stop. Scales with the screen on phones. */}
-            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(17px,5.4vw,26px)] leading-[1.1] tracking-[-0.03em] text-white sm:text-[30px] lg:text-[32px] xl:text-[36px] 2xl:text-[40px]">
+            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(19px,5.9vw,29px)] leading-[1.1] tracking-[-0.03em] text-white sm:text-[34px] lg:text-[37px] xl:text-[41px] 2xl:text-[46px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
