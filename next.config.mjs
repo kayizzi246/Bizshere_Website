@@ -24,7 +24,9 @@ const csp = [
   "frame-ancestors 'none'",
   // Google sign-in and card payments continue on their own sites after a form post.
   "form-action 'self' https:",
-  ...(dev ? [] : ["upgrade-insecure-requests"]),
+  // "upgrade-insecure-requests" is deliberately left out (14 Nov 2026): it makes the browser fetch
+  // everything over HTTPS, which breaks the plain-HTTP test address (…sslip.io) while the site has no
+  // certificate yet. Put it back once it runs on its own domain with HTTPS.
 ].join("; ");
 
 const securityHeaders = [
