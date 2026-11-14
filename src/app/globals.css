@@ -265,11 +265,29 @@ select {
    section own background, laid out from its outer edge (background-origin: border-box), so it runs through
    the strip behind the floating header (.under-header) in one piece: no seam. The moving lights on the homepage
    are src/components/HeroParticles.tsx. */
-/* GitHub dark hero (client, 14 Nov 2026): near-black canvas with faint blue and violet glows, like github.com */
-.hero-premium, .hero-glow { background-color: #0d1117; background-repeat: no-repeat; background-origin: border-box;
-  background-image: radial-gradient(60rem 34rem at 86% -10%, rgba(56, 139, 253, 0.20), transparent 62%),
-    radial-gradient(44rem 28rem at 6% 112%, rgba(130, 80, 223, 0.16), transparent 60%),
-    linear-gradient(180deg, #0d1117 0%, #010409 100%); }
+/* Hero background (client, 14 Nov 2026, like the 2checkout hero but blue): a bright blue glow in the
+   bottom-left corner fading into near-black towards the top-right, with the blue light drifting slowly
+   like waves (the ::before layer below). .hero-premium is the homepage hero and footer; .hero-glow is
+   every other dark hero. background-origin: border-box so it runs behind the header in one piece. */
+.hero-premium, .hero-glow { position: relative; background-color: #05080f; background-repeat: no-repeat; background-origin: border-box;
+  background-image: linear-gradient(120deg, #0a1b40 0%, #071024 44%, #05080f 100%); }
+/* The waves: soft blue blobs anchored bottom-left that drift and swell, so the dark area moves like water.
+   z-index -1 keeps them above the flat gradient but behind all the hero content. */
+.hero-premium::before, .hero-glow::before {
+  content: ""; position: absolute; inset: -25%; z-index: -1; pointer-events: none; filter: blur(8px);
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(38% 48% at 12% 92%, rgba(9, 105, 218, 0.55), transparent 62%),
+    radial-gradient(32% 42% at 28% 104%, rgba(0, 170, 255, 0.34), transparent 60%),
+    radial-gradient(30% 40% at 2% 72%, rgba(70, 120, 255, 0.30), transparent 62%);
+  animation: hero-waves 16s ease-in-out infinite alternate;
+}
+@keyframes hero-waves {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(5%, -3%, 0) scale(1.12); }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) { .hero-premium::before, .hero-glow::before { animation: none; } }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
 .speckle { background-color: #F3F2EE; } /* the specks are only on the homepage hero now (client, 12 Nov 2026) */
