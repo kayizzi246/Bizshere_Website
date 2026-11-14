@@ -10,14 +10,15 @@
   /* Motion: a strong ease-out for anything entering or answering a tap; the drawer curve for side panels */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --surface: 255 255 255; --page: 244 247 250; --heading: 17 17 17;
-  --ink: 10 10 10; --ink-soft: 43 43 43; --ink-muted: 85 85 85;
-  --line: 233 231 228; --line-strong: 214 211 207;
-  --brand-dark: 14 94 148; --brand-tint: 231 242 250;
-  --accent-dark: 179 95 12; --accent-tint: 254 241 228;
-  --warn-bg: 255 241 214; --warn-fg: 122 78 0;
-  --bad-bg: 251 231 228; --bad-fg: 138 42 28;
-  --info-bg: 242 241 239; --info-fg: 43 43 43;
+  /* GitHub (Primer) light palette (client, 14 Nov 2026) */
+  --surface: 255 255 255; --page: 246 248 250; --heading: 31 35 40;
+  --ink: 31 35 40; --ink-soft: 71 78 86; --ink-muted: 101 109 118;
+  --line: 208 215 222; --line-strong: 175 184 193;
+  --brand-dark: 5 80 174; --brand-tint: 221 244 255;
+  --accent-dark: 26 127 55; --accent-tint: 218 251 225;
+  --warn-bg: 255 248 197; --warn-fg: 154 103 0;
+  --bad-bg: 255 235 233; --bad-fg: 207 34 46;
+  --info-bg: 246 248 250; --info-fg: 71 78 86;
 }
 /* In dark mode --brand-dark is a light blue for text: as a hover fill it would wash out a white label */
 .theme-dark .btn-primary:hover { background-color: #0E5E94; }
@@ -87,13 +88,14 @@
   .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-16; }
   /* The homepage is a little wider than the other pages (client, 12 Nov 2026) */
   .home-wide .container-site { max-width: 1440px; } /* 64px on desktop leaves room for the left service rail */
-  .card { @apply rounded-2xl border border-line bg-surface; }
-  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[10px] px-5 text-[15px] font-semibold transition-[color,background-color,border-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:active:scale-100; }
-  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark hover:text-white; }
-  .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
-  .btn-danger { @apply btn border border-[#C9A39C] bg-white text-bad-fg; }
+  /* GitHub (Primer) components: small radius, thin borders, flat fills, green primary, gray default button */
+  .card { @apply rounded-md border border-line bg-surface; }
+  .btn { @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition-[color,background-color,border-color] duration-150 ease-out; }
+  .btn-primary { @apply btn border border-[rgba(27,31,36,0.15)] bg-[#1f883d] text-white hover:bg-[#1a7f37] hover:text-white; }
+  .btn-outline { @apply btn border border-line bg-[#f6f8fa] text-ink hover:bg-[#eff2f5] hover:text-ink; }
+  .btn-danger { @apply btn border border-[rgba(27,31,36,0.15)] bg-white text-bad-fg hover:bg-bad-fg hover:text-white; }
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
-  .input { @apply min-h-[44px] rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-4 focus:ring-brand/10; }
+  .input { @apply min-h-[40px] rounded-md border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/40; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
   /* Type scale, all Inter (client, 13 Nov 2026): hero 800 and very tight · page and section titles 700 · card titles 600–700 */
   .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }
@@ -263,12 +265,11 @@ select {
    section own background, laid out from its outer edge (background-origin: border-box), so it runs through
    the strip behind the floating header (.under-header) in one piece: no seam. The moving lights on the homepage
    are src/components/HeroParticles.tsx. */
-.hero-premium, .hero-glow { background-color: #061230; background-repeat: no-repeat; background-origin: border-box;
-  /* Lighter blues a little stronger (client, 13 Nov 2026): the top-right glow brighter and wider, the far corner bluer */
-  background-image: radial-gradient(66rem 38rem at 88% -8%, rgba(56, 160, 245, 0.48), transparent 64%),
-    radial-gradient(46rem 30rem at -6% 108%, rgba(242, 160, 60, 0.16), transparent 60%),
-    radial-gradient(40rem 26rem at 50% 120%, rgba(90, 70, 220, 0.24), transparent 65%),
-    linear-gradient(135deg, #040B1F 0%, #0A1D4A 46%, #0F3080 100%); }
+/* GitHub dark hero (client, 14 Nov 2026): near-black canvas with faint blue and violet glows, like github.com */
+.hero-premium, .hero-glow { background-color: #0d1117; background-repeat: no-repeat; background-origin: border-box;
+  background-image: radial-gradient(60rem 34rem at 86% -10%, rgba(56, 139, 253, 0.20), transparent 62%),
+    radial-gradient(44rem 28rem at 6% 112%, rgba(130, 80, 223, 0.16), transparent 60%),
+    linear-gradient(180deg, #0d1117 0%, #010409 100%); }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
 .speckle { background-color: #F3F2EE; } /* the specks are only on the homepage hero now (client, 12 Nov 2026) */
@@ -484,6 +485,13 @@ main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" 
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */
 main :is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
+
+/* GitHub (Primer) look (client, 14 Nov 2026): tighter corners site-wide (Primer uses 6px), and white text on
+   the solid green fills so the primary call to action reads like a GitHub button. Pills (rounded-full) are left
+   alone, and inputs/buttons keep their own small radius from the component classes above. */
+main :is([class*="rounded-xl"]):not([class*="rounded-full"]) { border-radius: 6px; }
+main :is([class*="rounded-2xl"], [class*="rounded-3xl"]):not([class*="rounded-full"]) { border-radius: 8px; }
+main :is(a, button).bg-accent { color: #ffffff; }
 
 /* The "Become a Supplier / Become an Expert" tab hides with the menu bar when scrolling down (client, 12 Nov 2026):
    it hangs below the bar, outside the part that slides up, so it slides further and fades out. */

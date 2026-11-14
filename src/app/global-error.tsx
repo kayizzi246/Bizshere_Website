@@ -12,7 +12,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           <div style={{ maxWidth: 420, textAlign: "center" }}>
             <h1 style={{ fontSize: 24, margin: "0 0 8px" }}>BizSphere-Ug didn&apos;t load</h1>
             <p style={{ color: "#5B6475", lineHeight: 1.5, margin: "0 0 20px" }}>Something went wrong on our side. It usually works on a second try.</p>
-            <button type="button" onClick={() => reset()} style={{ background: "#157EC2", color: "#fff", border: 0, borderRadius: 10, padding: "12px 22px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Try again</button>
+            <button type="button" onClick={() => reset()} style={{ background: "#0969da", color: "#fff", border: 0, borderRadius: 10, padding: "12px 22px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Try again</button>
             {error.digest ? <p style={{ fontSize: 12, color: "#8A8F98", marginTop: 16 }}>Reference: {error.digest}</p> : null}
           </div>
         </main>

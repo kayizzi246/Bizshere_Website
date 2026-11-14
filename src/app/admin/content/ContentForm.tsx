@@ -64,7 +64,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
 
       <Section id="s-name" title="Basics">
         <Row><Input name="title" label={`${lb.title ?? "Title"} *`} defaultValue={v("title")} error={err("title")} required /></Row>
-        {type === "BUSINESS_TIP" ? null : <TextArea name="shortSummary" label={lb.shortSummary ?? "Short summary"} help="One or two lines, shown on its card in the list." defaultValue={v("shortSummary")} rows={2} />}
+        {type === "BUSINESS_TIP" || dir.hideShortSummary ? null : <TextArea name="shortSummary" label={lb.shortSummary ?? "Short summary"} help="One or two lines, shown on its card in the list." defaultValue={v("shortSummary")} rows={2} />}
         <TextArea name="overview" label={lb.overview ?? "Overview"} defaultValue={v("overview")} rows={type === "BUSINESS_TIP" ? 8 : 4} error={err("overview")} />
         <Row>
           <Select name="primaryCategoryId" label={lb.category ?? "Category"} defaultValue={v("primaryCategoryId")} options={[{ value: "", label: "Choose…" }, ...options.primaryCategories]} />

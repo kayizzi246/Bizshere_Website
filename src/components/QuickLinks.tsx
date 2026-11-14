@@ -13,7 +13,7 @@ type Service = { href: string; icon: string; nav: string; text: string };
  * panel reads as twelve different things and not twelve blue squares (client, 11 Nov 2026: make it premium).
  */
 const TINT: Record<string, string> = {
-  "/business-ideas": "bg-[#E3F3EC] text-[#0F5B3E]", "/machines": "bg-[#E6ECF5] text-[#0B2A5C]", "/suppliers": "bg-[#E3F1FA] text-[#0E5E94]",
+  "/business-ideas": "bg-[#E3F3EC] text-[#0F5B3E]", "/machines": "bg-[#E6ECF5] text-[#0B2A5C]", "/suppliers": "bg-[#E3F1FA] text-[#0550ae]",
   "/funding": "bg-[#FDEFD9] text-[#B45F06]", "/guides": "bg-[#ECEBFB] text-[#4338CA]", "/experts": "bg-[#F1E8F8] text-[#4A1D6B]",
   "/tools": "bg-[#E4F3F1] text-[#0F766E]", "/prices": "bg-[#FDE8EB] text-[#C8102E]", "/websites": "bg-[#EDF0F4] text-[#475467]",
   "/news": "bg-[#F6EEDF] text-[#8B5E1A]", "/tips": "bg-[#FCE8F1] text-[#BE185D]", "/forum": "bg-[#FDF3D0] text-[#8A6A00]",

@@ -9,7 +9,7 @@ export type ServiceStyle = { name: string; what: string; colour: string; soft: s
 
 export const SERVICE_STYLE: Record<ContentType, ServiceStyle> = {
   BUSINESS_IDEA: { name: "Business idea", what: "A business plan with its costs", colour: "#0F5B3E", soft: "#E3F4EA" },
-  MACHINE: { name: "Business machine", what: "A machine, what it does and costs", colour: "#071A33", soft: "#E4E8EF" },
+  MACHINE: { name: "Business machine", what: "A machine, what it does and costs", colour: "#0d1117", soft: "#E4E8EF" },
   SUPPLIER: { name: "Trusted supplier", what: "A business that sells stock or materials", colour: "#1268A6", soft: "#E3F0FA" },
   FUNDING_PROGRAMME: { name: "Funding source", what: "A loan, grant or investor", colour: "#B35F0C", soft: "#FDF0E2" },
   INVESTMENT_OPPORTUNITY: { name: "Investment opportunity", what: "A business looking for investors", colour: "#B35F0C", soft: "#FDF0E2" },

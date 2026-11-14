@@ -11,7 +11,7 @@ import {
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 /**
- * Hero with an animated gradient mesh on a blue background (brand blue #157EC2 / deep #0E5E94).
+ * Hero with an animated gradient mesh on a blue background (brand blue #0969da / deep #0550ae).
  * Copy, stats and tabs are placeholder content from the original component: replace before use.
  */
 
@@ -81,7 +81,7 @@ const BLOBS: {
   delay: string;
 }[] = [
   {
-    className: "left-[-12%] top-[-14%] h-[46rem] w-[46rem] bg-[#157EC2]/70",
+    className: "left-[-12%] top-[-14%] h-[46rem] w-[46rem] bg-[#0969da]/70",
     anim: "heroxmesh-drift-1",
     duration: "22s",
     delay: "0s",
@@ -105,7 +105,7 @@ const BLOBS: {
     delay: "-11s",
   },
   {
-    className: "left-[40%] top-[8%] h-[30rem] w-[30rem] bg-[#F28C28]/20",
+    className: "left-[40%] top-[8%] h-[30rem] w-[30rem] bg-[#1f883d]/20",
     anim: "heroxmesh-drift-2",
     duration: "24s",
     delay: "-14s",
@@ -240,9 +240,9 @@ export default function HeroxGradientMesh() {
         >
           <a
             href="#changelog"
-            className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur transition-colors hover:border-[#F28C28]/70 hover:text-white"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur transition-colors hover:border-[#1f883d]/70 hover:text-white"
           >
-            <span className="inline-flex h-4 items-center rounded-full bg-[#F28C28] px-1.5 text-[10px] font-semibold uppercase tracking-wide text-brand-deep">
+            <span className="inline-flex h-4 items-center rounded-full bg-[#1f883d] px-1.5 text-[10px] font-semibold uppercase tracking-wide text-brand-deep">
               New
             </span>
             Nimbus Agents are now generally available
@@ -294,7 +294,7 @@ export default function HeroxGradientMesh() {
               </div>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#F28C28] px-5 py-3 text-sm font-semibold text-brand-deep transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f883d] px-5 py-3 text-sm font-semibold text-brand-deep transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 active:scale-[0.98]"
               >
                 Start free
                 <Arrow className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function HeroxGradientMesh() {
                       {activeTab.bars.map((h, bi) => (
                         <div
                           key={bi}
-                          className="heroxmesh-bar w-3 rounded-t bg-gradient-to-t from-[#157EC2] to-sky-300"
+                          className="heroxmesh-bar w-3 rounded-t bg-gradient-to-t from-[#0969da] to-sky-300"
                           style={{ height: `${h}%`, animationDelay: reduce ? "0s" : `${bi * 60}ms` }}
                         />
                       ))}

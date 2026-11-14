@@ -36,7 +36,7 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
 
   return (
     <section id="membership" className="scroll-mt-28 overflow-hidden rounded-[20px] border border-line bg-surface">
-      <div className={`flex flex-wrap items-center justify-between gap-5 p-6 sm:p-7 ${isMember ? "bg-[linear-gradient(120deg,#0E5E94,#157EC2)] text-white" : ""}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-5 p-6 sm:p-7 ${isMember ? "bg-[linear-gradient(120deg,#0550ae,#0969da)] text-white" : ""}`}>
         <div className="flex min-w-0 items-center gap-4">
           <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${isMember ? "bg-white/15 text-white" : "bg-brand-tint text-brand"}`}>
             {isMember ? <Crown aria-hidden className="h-6 w-6" /> : <Sparkles aria-hidden className="h-6 w-6" />}

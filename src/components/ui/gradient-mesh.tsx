@@ -1,6 +1,6 @@
 /**
- * Animated gradient mesh: soft brand blue #157EC2 glows (with a hint of brand orange)
- * drifting on deep navy #071A33 (bg-navy), and a wash for text contrast. No particles or grid: a clean
+ * Animated gradient mesh: soft brand blue #0969da glows (with a hint of brand orange)
+ * drifting on deep navy #0d1117 (bg-navy), and a wash for text contrast. No particles or grid: a clean
  * background keeps the content first.
  * Pure CSS (keyframes in globals.css); stops with reduced motion. Place inside a
  * `relative isolate overflow-hidden` section.

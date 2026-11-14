@@ -13,7 +13,7 @@ import { site } from "@/config/site";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-inter", display: "swap" });
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
-export const viewport: Viewport = { themeColor: "#071A33" };
+export const viewport: Viewport = { themeColor: "#0d1117" };
 
 // What search engines and shared links show. metadataBase turns every page's relative picture into a
 // full address; the share picture is src/app/opengraph-image.tsx; the sitemap and robots files sit beside it.

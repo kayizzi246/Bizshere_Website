@@ -31,6 +31,8 @@ export type Directory = {
   link?: { field: "organizationId" | "providerId"; label: string; /** Rarely needed: kept under Advanced settings, with this explanation. */ advanced?: string };
   /** Form labels for the shared fields, in the client's wording (e.g. "Machine name", "Brief"). */
   labels?: { title?: string; shortSummary?: string; overview?: string; category?: string; main?: string; mainNote?: string; moreNote?: string };
+  /** Leave out the short-summary field entirely (client, 14 Nov 2026: suppliers keep only the business description). */
+  hideShortSummary?: boolean;
   fields: Field[];
   children?: ChildList[];
 };
@@ -119,6 +121,7 @@ export const DIRECTORIES: Directory[] = [
   {
     type: "SUPPLIER", label: "Trusted supplier", model: "supplier",
     link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
+    hideShortSummary: true,
     labels: {
       title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
       main: "Address", mainNote: "Shown on the supplier's page. Call and WhatsApp are shown to members only. You add their products after saving.", moreNote: "Optional. Buyers can filter the suppliers list by these.",

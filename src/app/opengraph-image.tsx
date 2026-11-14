@@ -12,9 +12,9 @@ export const contentType = "image/png";
 export default function Image() {
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "linear-gradient(135deg, #071A33 0%, #0B2240 60%, #0E3A6E 100%)", color: "white", fontFamily: "sans-serif" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "linear-gradient(135deg, #0d1117 0%, #0B2240 60%, #0E3A6E 100%)", color: "white", fontFamily: "sans-serif" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div style={{ width: 64, height: 64, borderRadius: 16, background: "#F5A524", display: "flex", alignItems: "center", justifyContent: "center", color: "#071A33", fontSize: 40, fontWeight: 900 }}>B</div>
+          <div style={{ width: 64, height: 64, borderRadius: 16, background: "#F5A524", display: "flex", alignItems: "center", justifyContent: "center", color: "#0d1117", fontSize: 40, fontWeight: 900 }}>B</div>
           <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: -1 }}>BizSphere-Ug</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

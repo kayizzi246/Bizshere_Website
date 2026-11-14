@@ -13,20 +13,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Client style guide: blue #157EC2 and orange #F28C28.
+        // GitHub (Primer) palette (client, 14 Nov 2026): blue #0969da (links/selected), green #1f883d (primary).
         // Blue is the main colour (buttons, links); orange is the accent.
-        navy: "#071A33", // deep navy behind every hero (client request, Nov 2026)
+        navy: "#0d1117", // GitHub dark canvas behind every hero (client, 14 Nov 2026)
         brand: {
-          DEFAULT: "#157EC2",
+          DEFAULT: "#0969da",
           dark: v("brand-dark"), // hover and blue text; white text on it 7:1 in light mode
-          deep: "#0E5E94", // darker brand blue: top bar, dark buttons, admin sidebar
-          admin: "#0E5E94",
+          deep: "#0550ae", // darker GitHub blue: top bar, dark buttons, admin sidebar
+          admin: "#0550ae",
           tint: v("brand-tint"),
-          mint: "#F28C28", // orange accent on blue panels
-          sky: "#CDE4F4",
+          mint: "#1f883d", // GitHub green accent on dark panels
+          sky: "#b6e3ff",
         },
         accent: {
-          DEFAULT: "#F28C28", // fills, icons, large text; too light for small text on white
+          DEFAULT: "#1f883d", // GitHub green: primary fills, icons
           dark: v("accent-dark"), // orange small text (5:1 on white)
           tint: v("accent-tint"),
         },

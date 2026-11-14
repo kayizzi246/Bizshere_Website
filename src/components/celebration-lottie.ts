@@ -4,12 +4,12 @@
  *   - badge:    a brand-blue circle pops in, a white check mark draws itself, a ring pulses out and
  *               sparks burst around it
  *   - confetti: brand-coloured pieces falling across the whole screen
- * Brand colours: #157EC2 (brand), #F28C28 (accent), #0E5E94 (deep), #34C38F (green).
+ * Brand colours: #0969da (brand), #1f883d (accent), #0550ae (deep), #34C38F (green).
  */
 type Rgba = [number, number, number, number];
 const hex = (h: string): Rgba => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255, 1];
-const BRAND = hex("#157EC2");
-const PALETTE = ["#157EC2", "#F28C28", "#0E5E94", "#34C38F", "#FFCB05", "#E8F2FA"].map(hex);
+const BRAND = hex("#0969da");
+const PALETTE = ["#0969da", "#1f883d", "#0550ae", "#34C38F", "#FFCB05", "#E8F2FA"].map(hex);
 
 const still = <T,>(k: T) => ({ a: 0, k });
 const ease = { i: { x: [0.2], y: [1] }, o: { x: [0.4], y: [0] } };

@@ -39,7 +39,7 @@ export function Celebration({ until, renewed, onContinue }: { until: string | nu
   const untilText = until ? new Date(until).toLocaleDateString("en-UG", { day: "numeric", month: "long", year: "numeric" }) : null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="celebrate-title" className="celebrate-in fixed inset-0 z-[80] flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,#0E5E94_0%,#071A33_75%)] px-5 text-white">
+    <div role="dialog" aria-modal="true" aria-labelledby="celebrate-title" className="celebrate-in fixed inset-0 z-[80] flex items-center justify-center overflow-hidden bg-[radial-gradient(ellipse_at_center,#0550ae_0%,#0d1117_75%)] px-5 text-white">
       {!still ? (
         <div aria-hidden className="pointer-events-none absolute inset-0 [&_svg]:!h-full [&_svg]:!w-full">
           <Lottie animationData={confetti} loop={false} rendererSettings={{ preserveAspectRatio: "xMidYMid slice" }} className="h-full w-full" />
