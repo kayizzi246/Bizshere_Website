@@ -135,7 +135,7 @@ export const DIRECTORIES: Directory[] = [
       { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
       { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
       { ...t("country", "Country", MAIN), initial: "Uganda" },
-      e("supplierType", "Type of business", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
+      e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN),
       l("brandsSupplied", "Brands they sell", SUPPLIER_MORE), b("sellsWholesale", "Sells wholesale", SUPPLIER_MORE), b("sellsRetail", "Sells retail", SUPPLIER_MORE),
       b("offersInstallation", "Installs what they sell", SUPPLIER_MORE), b("offersMaintenance", "Does maintenance", SUPPLIER_MORE), b("offersTraining", "Trains staff", SUPPLIER_MORE),
       b("sparePartsLocal", "Has spare parts in Uganda", SUPPLIER_MORE), b("exportCapability", "Exports", SUPPLIER_MORE),
