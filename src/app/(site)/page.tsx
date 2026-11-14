@@ -53,8 +53,8 @@ export default async function HomePage() {
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
             {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
                 screen (6.2vw: 20px on a 320px phone, 30px at most) and wider screens step up to 40px and 48px. */}
-            {/* Big, heavy and tight, wrapping like the reference hero (client, 14 Nov 2026), ending in an orange stop. */}
-            <h1 data-home="" className="text-hero mb-4 max-w-[14ch] text-[34px] leading-[1.04] tracking-[-0.035em] text-white sm:text-[44px] lg:text-[50px] xl:text-[56px] 2xl:text-[64px]">
+            {/* One line, smaller (client, 14 Nov 2026), ending in an orange full stop. Scales with the screen on phones. */}
+            <h1 data-home="" className="text-hero mb-4 whitespace-nowrap text-[clamp(17px,5.4vw,26px)] leading-[1.1] tracking-[-0.03em] text-white sm:text-[30px] lg:text-[32px] xl:text-[36px] 2xl:text-[40px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
