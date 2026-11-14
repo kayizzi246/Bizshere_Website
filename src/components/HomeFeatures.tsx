@@ -144,7 +144,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
       <div className={`flex items-start justify-between gap-4 ${words}`}>
         <div className="flex min-w-0 flex-col items-start gap-2">
           <Label href={href} pill={onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] sm:text-[22px] lg:text-[24px]">{title}</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[22px] leading-[1.2] sm:text-[24px] lg:text-[26px]">{title}</h3>
           <p data-size="" className="max-w-lg text-[13px] leading-relaxed opacity-90">{text}</p>
         </div>
         <Link href={href} className={`group hidden h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold sm:inline-flex ${onColour}`}>
@@ -243,7 +243,7 @@ export async function HomeFeatures() {
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
           <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Business plans with the real costs</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business plans with the real costs</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -273,7 +273,7 @@ export async function HomeFeatures() {
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">The right machine for the job</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">The right machine for the job</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -370,7 +370,7 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[20px] leading-[1.2] text-white sm:text-[22px] lg:text-[24px]">Advice from people who know</h3>
+          <h3 className="font-display font-extrabold tracking-[-0.015em] text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Advice from people who know</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
