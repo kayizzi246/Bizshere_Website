@@ -15,31 +15,28 @@ const WIDE_ONLY = "/experts";
 const JOIN: [string, string, string, string][] = [["/suppliers/join", "Become a Supplier", "supplier", "bg-accent text-ink hover:text-ink"], ["/experts/join", "Become an Expert", "expert", "bg-brand text-white hover:bg-brand-dark hover:text-white"]];
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[13px]";
+const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
 const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
+// Outline pill button on the right (like the reference's "Talk to sales").
+const outline = "inline-flex h-10 items-center whitespace-nowrap rounded-full border border-line px-4 font-display text-[13px] font-semibold text-ink transition-colors hover:border-brand hover:text-brand";
 
 /**
- * 2026 SaaS header: one floating rounded white bar that stays at the top, with the heroes running up
- * behind it. Logo on the left; the main links in the middle; wishlist, Log in and one rounded call
- * to action on the right, with a small tab growing out of the bar's underside for suppliers and experts to join.
- * Phones: logo, wishlist and a round menu button only (the call to action is in the menu), so the
- * bar never runs wider than the screen. No search box: search is in the Directories menu and heroes.
+ * Full-width flat header bar (client, 14 Nov 2026, like 2checkout): a solid white bar that spans the
+ * screen and sticks to the top on scroll, with a hairline underneath. Logo on the left; the main links
+ * next to it; on the right the log in link, the "Become a Supplier" outline button and the solid call
+ * to action. Phones: logo, wishlist and a menu button; everything else is in the menu.
  */
 export async function SiteHeader() {
   const viewer = await getViewer();
   const staff = viewer.isStaff;
 
   return (
-    // One floating bar over the page: the navy heroes run up behind it to the top of the screen (.under-header).
-    <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 sm:px-5 lg:pt-3">
-      {/* The bar and, under it, the tab: siblings, so each has its own glass (.liquid-glass, .join-tab in globals.css).
-          Inside the bar the tab could not blur the page, as a backdrop-filter only sees its parent's own glass. */}
-      <div className="relative mx-auto max-w-[1312px]">
-      <div className="liquid-glass flex h-[52px] items-center gap-2 rounded-full pl-3 pr-2 lg:h-[60px] lg:gap-3 lg:pl-5">
+    <header data-site-header="" className="sticky top-0 z-[45] border-b border-line bg-surface">
+      <div className="mx-auto flex h-[60px] w-full max-w-site items-center gap-3 px-4 sm:px-5 lg:h-[72px] lg:gap-5 lg:px-8">
         <Logo full />
 
-        {/* The main links, centred. Hover (or keyboard focus) on one shows a small card with what it is. */}
-        <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
+        {/* The main links. Hover (or keyboard focus) on one shows a small card with what it is. */}
+        <nav aria-label="Main" className="hidden flex-1 lg:flex">
           <ul className="flex items-center gap-0.5">
             <li><Link href="/" className={link}>Home</Link></li>
             {NAV.map((n) => (
@@ -56,10 +53,11 @@ export async function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-2 lg:gap-2.5">
           <WishlistLink className="rounded-full" />
-          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link> : null}
-          {/* The one call to action; on phones and tablets it is in the menu */}
+          {!viewer.userId ? <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link> : null}
+          {/* Right side like the reference: an outline button, then the solid call to action. In the menu on phones. */}
+          <Link href="/suppliers/join" className={`hidden xl:inline-flex ${outline}`}>Become a Supplier</Link>
           <span className="hidden lg:contents"><AccessButton viewer={viewer} /></span>
 
           {/* Phones and tablets: everything else in one menu. Opens without JavaScript; MobileMenu closes it on
@@ -69,7 +67,7 @@ export async function SiteHeader() {
               <Icon name="menu" />
             </summary>
           }>
-            <div className="absolute right-0 top-12 flex max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3 lg:hidden">
+            <div className="absolute right-0 top-12 flex max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3 shadow-[0_12px_32px_rgba(7,26,51,0.12)] lg:hidden">
               <AccessButton viewer={viewer} mobile />
               <span className="px-3 pb-1 pt-3 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Directories</span>
               {DIRECTORIES.map((d) => (
@@ -89,16 +87,6 @@ export async function SiteHeader() {
             </div>
           </MobileMenu>
         </div>
-
-      </div>
-      {/* Wide screens: a tab growing out of the bar, under the buttons. Phones and tablets have these in the menu. */}
-      <nav aria-label="Join us" className="join-tab absolute right-9 top-full hidden h-10 items-center gap-2 rounded-b-2xl px-3 lg:flex">
-        {JOIN.map(([href, label, icon, tone]) => (
-          <Link key={label} href={href} className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-display text-[11px] font-bold transition-[background-color,transform] duration-150 hover:-translate-y-px active:scale-[0.97] motion-reduce:transform-none ${tone}`}>
-            <Icon name={icon} className="h-3.5 w-3.5" />{label}
-          </Link>
-        ))}
-      </nav>
       </div>
     </header>
   );
