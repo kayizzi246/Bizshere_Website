@@ -4,7 +4,26 @@ import { useState } from "react";
 import { Icon } from "./Icon";
 import { useTypingHint } from "./TypingHint";
 
-const EXAMPLES = ["start a bakery", "poultry farming", "maize milling machine", "loans for small business", "soap making", "register a business"];
+/**
+ * What the box types out by itself. Jobs people are already paying someone for come first (client,
+ * 14 Nov 2026: "add things that will bring clients, for example filing returns expert"), then the
+ * things people browse for. Every phrase is built from words in TOPICS (src/lib/advanced-search.ts),
+ * so anyone who types one straight in gets real results rather than an empty page.
+ */
+const EXAMPLES = [
+  "tax returns expert",
+  "accountant for bookkeeping",
+  "register a business",
+  "EFRIS and e-invoicing help",
+  "audit for my company",
+  "business plan for a loan",
+  "VAT and PAYE",
+  "loans for small business",
+  "export and import clearing",
+  "trading licence",
+  "maize milling machine",
+  "start a bakery",
+];
 
 /** Homepage search: one compact box with a solid blue edge and a typed-out example; searches every directory. */
 export function HomeSearch() {
