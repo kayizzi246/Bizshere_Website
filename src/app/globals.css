@@ -275,15 +275,42 @@ select {
    bottom-left corner fading into near-black towards the top-right, with the blue light drifting slowly
    like waves (the ::before layer below). .hero-premium is the homepage hero and footer; .hero-glow is
    every other dark hero. background-origin: border-box so it runs behind the header in one piece. */
-/* overflow-x: clip keeps the wave layer below (inset: -20%) from widening the page on phones: it was
-   pushing the whole document ~105px wider than the screen, so the page could be dragged sideways and
-   would not spring back after a pinch-zoom (client, 14 Nov 2026). clip, not hidden: it still lets
-   sticky bars inside a hero stick, and does not turn the section into a scroll container. */
-.hero-premium, .hero-glow { position: relative; overflow-x: clip; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
+/* The wave layer below bleeds 20% outside the hero on purpose, so the moving light has somewhere to
+   come from. It used to widen the page on phones; that is held by `html, body { overflow-x: clip }`
+   in the base layer instead, so the waves keep their full bleed here (client, 14 Nov 2026). */
+/* isolation: isolate is what makes the waves visible at all. The wave layer sits at z-index -1, and a
+   negative layer only paints above its parent's own background when that parent starts a stacking
+   context. The homepage hero had `isolate` in its markup, so its waves showed; every other hero did
+   not, so the wave layer was painted behind the black background and never seen (client, 14 Nov 2026). */
+.hero-premium, .hero-glow { position: relative; isolation: isolate; background-color: #000000; background-repeat: no-repeat; background-origin: border-box;
   background-image:
     radial-gradient(52% 78% at 2% 55%, rgba(16, 140, 255, 0.85) 0%, rgba(10, 98, 218, 0.44) 32%, rgba(6, 46, 112, 0.15) 58%, transparent 76%),
     radial-gradient(40% 66% at 100% 50%, rgba(14, 122, 242, 0.46) 0%, rgba(8, 68, 165, 0.18) 36%, transparent 72%),
     linear-gradient(90deg, #02101f 0%, #000408 50%, #000000 100%); }
+/* "Get started" in the header (client, 14 Nov 2026): not a flat blue pill any more. A lit blue
+   gradient with a soft blue glow under it; on hover it brightens, lifts a little and a band of light
+   sweeps across once. The sweep is a ::before so the label and arrow stay untouched; overflow-hidden
+   on the button keeps it inside the pill. */
+.cta-glow {
+  position: relative; overflow: hidden; isolation: isolate;
+  background-image: linear-gradient(180deg, #2b84ff 0%, #0969da 52%, #0550ae 100%);
+  transition: transform 0.25s var(--ease-out), filter 0.25s var(--ease-out);
+}
+.cta-glow::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.42) 50%, transparent 62%);
+  transform: translateX(-120%);
+}
+/* No glow or drop shadow under it (client, 14 Nov 2026): the lift and the light sweep carry the hover. */
+.cta-glow:hover { filter: saturate(1.08) brightness(1.06); transform: translateY(-1px); }
+.cta-glow:hover::before { animation: cta-sweep 0.75s var(--ease-out); }
+.cta-glow:active { transform: translateY(0); }
+@keyframes cta-sweep { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) {
+  .cta-glow, .cta-glow:hover { transition: none; transform: none; }
+  .cta-glow:hover::before { animation: none; }
+}
+
 /* The waves: softer blue light over the glow that drifts and swells, so the dark area moves like water.
    z-index -1 keeps it above the flat gradient but behind all the hero content. */
 .hero-premium::before, .hero-glow::before {

@@ -256,7 +256,8 @@ export async function HomeFeatures() {
                     <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="absolute inset-0 h-full transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:p-3">
-                    <span className="font-display text-[14px] font-bold leading-snug text-black">{clean(idea.title)}</span>
+                    {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
+                    <span className="font-display text-[12.5px] font-bold leading-snug text-black sm:text-[13px]">{clean(idea.title)}</span>
                     <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E6F2EC] text-[#0F5B3E] transition-colors group-hover:bg-[#0F5B3E] group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
@@ -387,9 +388,10 @@ export async function HomeFeatures() {
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="font-display text-[13px] font-bold leading-snug sm:text-[14px]">{name}</span>
-                    {role ? <span className="line-clamp-1 text-[11px] text-white/85 sm:text-[12px]">{role}</span> : null}
-                    {c?.district ? <span className="flex items-center gap-1 text-[10px] text-white/70 sm:text-[11px]"><MapPin aria-hidden className="h-3 w-3" />{c.district}</span> : null}
+                    {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
+                    <span className="font-display text-[12.5px] font-bold leading-snug sm:text-[13px]">{name}</span>
+                    {role ? <span className="line-clamp-1 text-[10px] text-white/85 sm:text-[11px]">{role}</span> : null}
+                    {c?.district ? <span className="flex items-center gap-1 text-[9.5px] text-white/70 sm:text-[10px]"><MapPin aria-hidden className="h-2.5 w-2.5" />{c.district}</span> : null}
                   </span>
                   <ArrowRight aria-hidden className="mr-1 h-4 w-4 shrink-0 text-white transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>

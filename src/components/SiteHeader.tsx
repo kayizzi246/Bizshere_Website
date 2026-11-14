@@ -91,7 +91,7 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
     // Signed in: straight to the payment pop-up (data-pay), wherever they are.
-    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand pl-4 pr-1.5 font-semibold text-white transition hover:bg-brand-dark hover:text-white ${size}`}>
+    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`cta-glow group inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand pl-4 pr-1.5 font-semibold text-white hover:text-white ${size}`}>
       {label}
       <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition group-hover:translate-x-0.5">→</span>
     </Link>
