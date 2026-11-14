@@ -169,17 +169,20 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   }
 
   // A new supplier's first products, typed on the same form (NewSupplierProducts.tsx): rows with no name are skipped
-  const firstProducts: { productName: string; priceMin: Prisma.Decimal | null; unit: string | null; imageUrl: string | null }[] = [];
+  const firstProducts: { productName: string; priceMin: Prisma.Decimal | null; unit: string | null; imageUrl: string | null; moreImages: string[] }[] = [];
   if (type === "SUPPLIER" && !id) {
     const col = (k: string) => form.getAll(k).map((v) => String(v).trim());
-    const [names, prices, units, images] = [col("np_name"), col("np_price"), col("np_unit"), col("np_image")];
+    const [names, prices, units, galleries] = [col("np_name"), col("np_price"), col("np_unit"), col("np_images")];
+    const ok = (p: unknown) => typeof p === "string" && /^(https:\/\/|\/uploads\/)/.test(p);
     names.slice(0, 100).forEach((productName, n) => {
       if (!productName) return;
       const problems: Record<string, string> = {};
       const priceMin = prices[n] ? (parseField({ name: "price", kind: "decimal" }, looseNumber(prices[n]), problems) as Prisma.Decimal | null) : null;
       if (problems.price) errors.products = `"${productName}": the price must be a number, e.g. 5000. Leave it empty if you don't know it.`;
-      const image = images[n] && /^(https:\/\/|\/uploads\/)/.test(images[n]) ? images[n] : null;
-      firstProducts.push({ productName: productName.slice(0, 200), priceMin, unit: units[n]?.slice(0, 100) || null, imageUrl: image });
+      // The row's gallery: the first photo is the main one, the rest sit behind it. At most 8, none twice.
+      let photos: string[] = [];
+      try { const parsed: unknown = JSON.parse(galleries[n] || "[]"); if (Array.isArray(parsed)) photos = [...new Set(parsed.filter(ok) as string[])].slice(0, 8); } catch { photos = []; }
+      firstProducts.push({ productName: productName.slice(0, 200), priceMin, unit: units[n]?.slice(0, 100) || null, imageUrl: photos[0] ?? null, moreImages: photos.slice(1) });
     });
   }
 

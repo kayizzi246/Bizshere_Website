@@ -9,7 +9,8 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
   if (full) {
     return (
       <Link href={href} aria-label="BizSphere-Ug home" className="shrink-0">
-        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority className="h-[48px] w-auto lg:h-[56px]" />
+        {/* data-nofit: the logo is a transparent cut-out, so it must not get ImageFit's grey plate (client, 14 Nov 2026) */}
+        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[48px] w-auto lg:h-[56px]" />
       </Link>
     );
   }

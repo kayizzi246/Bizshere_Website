@@ -14,7 +14,7 @@ export function SplitShell({ heading, sub, foot, panel, panelOnPhone = false, ch
     <div data-bare="" className="grid min-h-[100dvh] grid-cols-[minmax(0,1fr)] bg-white lg:grid-cols-2">
       <div className="flex flex-col gap-8 p-5 sm:p-8">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" aria-label="BizSphere-Ug home"><Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} className="h-16 w-auto sm:h-20" priority /></Link>
+          <Link href="/" aria-label="BizSphere-Ug home"><Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-16 w-auto sm:h-20" priority /></Link>
           <Link href="/" className="inline-flex items-center gap-2 text-[16px] font-semibold text-ink-soft hover:text-brand sm:text-[17px]"><ArrowLeft aria-hidden className="h-5 w-5" />Back to website</Link>
         </div>
 
