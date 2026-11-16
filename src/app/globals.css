@@ -542,7 +542,8 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
    margin, so what shows is a bright arc sweeping round the perimeter. Rotating one element is a
    compositor job, unlike animating a border colour, which repaints.
 
-   The element carries the dim base of the ring as its own background, so the rest of the edge stays
+   The travelling arc is the button's own orange, brightening to white at its peak (client, 16 Nov
+   2026). The element carries that orange as its background too, so the rest of the edge stays
    visible while the bright arc is elsewhere. Its child must create a stacking context (position:
    relative) or the gradient paints over the words. */
 .ring-shine { position: relative; overflow: hidden; }
@@ -550,11 +551,12 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   content: ""; position: absolute; left: 50%; top: 50%; width: 220%; aspect-ratio: 1; translate: -50% -50%;
   background: conic-gradient(from 0deg,
     transparent 0deg 200deg,
-    rgba(242,140,40,0.55) 248deg,
-    #FFD9A8 280deg,
-    #ffffff 294deg,
-    #8FD0FF 308deg,
-    rgba(9,105,218,0.55) 336deg,
+    rgba(242,140,40,0) 225deg,
+    #F28C28 255deg,
+    #FFC789 285deg,
+    #FFFFFF 300deg,
+    #FFC789 315deg,
+    #F28C28 340deg,
     transparent 360deg);
   animation: ring-spin 6s linear infinite;
 }
