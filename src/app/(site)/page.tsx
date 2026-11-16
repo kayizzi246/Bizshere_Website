@@ -8,6 +8,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
+import { ParticleField } from "@/components/ui/particle-field";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -36,8 +37,13 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 790px tall (client, 14 Nov 2026; was 740), or the screen's height if that is less, with its content in the middle. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,790px)] xl:flex-col xl:justify-center">
+      {/* Laptops and up (1280px+): the hero is 660px tall (16 Nov 2026; was 790, and 740 before that), or
+          the screen's height if that is less, with its content in the middle. The content itself is about
+          600px, so this is a little room around it rather than a band of empty blue underneath. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,660px)] xl:flex-col xl:justify-center">
+        {/* A quiet drift of specks over the gradient (16 Nov 2026). Faint on purpose: texture behind the
+            words, not the moving network of lights that was taken off on 12 Nov. Still with reduced motion. */}
+        <ParticleField />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
