@@ -15,7 +15,7 @@ export function SplitShell({ heading, sub, foot, panel, panelOnPhone = false, ch
       <div className="flex flex-col gap-8 p-5 sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" aria-label="BizSphere-Ug home"><Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-16 w-auto sm:h-20" priority /></Link>
-          <Link href="/" className="inline-flex items-center gap-2 text-[16px] font-semibold text-ink-soft hover:text-brand sm:text-[17px]"><ArrowLeft aria-hidden className="h-5 w-5" />Back to website</Link>
+          <Link href="/" className="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-soft hover:text-brand sm:text-[14px]"><ArrowLeft aria-hidden className="h-4 w-4" />Back to website</Link>
         </div>
 
         <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center gap-6">
