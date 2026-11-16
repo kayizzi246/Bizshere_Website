@@ -54,9 +54,20 @@ const config: Config = {
         colors: "color, background-color, border-color, text-decoration-color, fill, stroke, scale",
       },
       maxWidth: { site: "1440px" }, // content width up to 1,312px inside 64px margins (wide screens use the room)
+      // Open/close movement for the Radix-based components in src/components/ui. Radix sets
+      // data-state="open"/"closed" and keeps the element mounted until the animation ends, so a
+      // panel can fade out instead of vanishing.
+      keyframes: {
+        "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
+        "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
+      },
+      animation: {
+        "accordion-down": "accordion-down 160ms cubic-bezier(0.23, 1, 0.32, 1)",
+        "accordion-up": "accordion-up 160ms cubic-bezier(0.23, 1, 0.32, 1)",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 
 export default config;
