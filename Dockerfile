@@ -1,4 +1,4 @@
-# Bizsphere-Ug — container image for Railway (or any Docker host).
+# Bizsphere-Ug — container image for Coolify (or any Docker host).
 # Next.js (App Router) + Prisma + PostgreSQL. Migrations run at container START (see
 # scripts/docker-entrypoint.sh), so the database is always up to date with the deployed code.
 
