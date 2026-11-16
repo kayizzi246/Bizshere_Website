@@ -1,12 +1,12 @@
 #!/bin/sh
 # Container start: bring the database up to date, then run the server.
-# This is why Coolify deploys never leave the database "behind" the code (the cause of
+# This is why container deploys never leave the database "behind" the code (the cause of
 # the "This page didn't load" crashes on Netlify, where migrations never ran).
 set -e
 
 # ── Check the variables we cannot start without ──
 # The image deliberately does NOT contain .env (see .dockerignore), so every one of these has to
-# come from the host's environment variables (Coolify → app → Environment Variables). Without the
+# come from the host (Railway → Variables, Coolify → Environment Variables). Without this check
 # a missing DATABASE_URL surfaces as a 40-line Prisma P1012 stack trace in a restart loop, which
 # looks like a code fault but never is.
 missing=""
@@ -20,12 +20,13 @@ done
 if [ -n "$missing" ]; then
   echo "✗ Cannot start: missing required environment variable(s):$missing" >&2
   echo "" >&2
-  echo "  Set them in Coolify → your app → Environment Variables, then redeploy." >&2
+  echo "  Set them on the host (Railway → Variables, Coolify → Environment Variables)," >&2
+  echo "  then redeploy." >&2
   echo "  DATABASE_URL must use the database's INTERNAL host, not localhost (inside this" >&2
   echo "  container localhost is the container itself)." >&2
   echo "  NEXTAUTH_URL is the site's public https address, not http://localhost:3000." >&2
-  echo "  Leave 'Build Variable' OFF — build-only variables never reach the running container." >&2
-  echo "  Full list: docs/deploy-coolify.md" >&2
+  echo "  Build-only variables never reach the running container — check it applies at runtime." >&2
+  echo "  Guides: docs/deploy-railway.md, docs/deploy-coolify.md" >&2
   exit 1
 fi
 
