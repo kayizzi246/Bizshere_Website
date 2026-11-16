@@ -63,6 +63,12 @@ services:
     volumes:
       # Uploads must outlive the container; a rebuild replaces the filesystem otherwise.
       - bizsphere-uploads:/data/uploads
+    # Reachable as `app:3000` on this stack's network, which is how Coolify's proxy reaches it.
+    expose:
+      - "3000"
+    # Published on the host too, so a plain `docker compose up` on any VPS serves the site without
+    # a proxy in front. Coolify ignores this and routes through its own proxy; if it ever collides
+    # with something already on the host's port 3000, set APP_PORT to a free port.
     ports:
       - "${APP_PORT:-3000}:3000"
 
