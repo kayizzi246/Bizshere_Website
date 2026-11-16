@@ -91,8 +91,14 @@ export default async function HomePage() {
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
               {/* Solid and outlined, bold, small corners (client, 12 Nov 2026, after an example they sent) */}
-              <a href="#features" className="inline-flex h-12 items-center justify-center rounded-md bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">Get started</a>
-              <Link href="/prices" className="inline-flex h-12 items-center justify-center rounded-md border-2 border-accent px-7 font-display text-[14px] font-extrabold text-accent transition-colors hover:bg-accent hover:text-ink">Check today&apos;s prices</Link>
+              {/* Animated (16 Nov 2026): a band of light sweeps across the solid button on hover, both
+                  rise a little, and a press settles them back down so a tap is felt on a phone. The
+                  sweep is a ::before inside overflow-hidden, so it costs one transform and no repaint.
+                  All of it is dropped under prefers-reduced-motion. */}
+              <a href="#features" className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-[background-color,transform] duration-150 hover:-translate-y-0.5 hover:bg-[#FFA54A] hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0 before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] hover:before:left-[150%] motion-reduce:before:hidden">
+                <span className="relative">Get started</span>
+              </a>
+              <Link href="/prices" className="relative inline-flex h-12 items-center justify-center rounded-md border-2 border-accent px-7 font-display text-[14px] font-extrabold text-accent transition-[background-color,color,transform] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">Check today&apos;s prices</Link>
             </div>
           </div>
 
