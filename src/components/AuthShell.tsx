@@ -56,7 +56,8 @@ export function AuthShell({ title, text, children }: { title: string; text: stri
         {/* Form */}
         <div className="flex flex-col justify-center rounded-t-[28px] bg-surface px-6 py-8 sm:px-10 md:rounded-l-none md:rounded-r-[28px] md:rounded-bl-[72px] md:py-12">
           <Link href="/" aria-label="BizSphere-Ug home" className="mx-auto mb-6 block">
-            <Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-16 w-auto" priority />
+            {/* 40/48px, matching SplitShell (16 Nov 2026; was 64). */}
+            <Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-10 w-auto sm:h-12" priority />
           </Link>
           {children}
         </div>
