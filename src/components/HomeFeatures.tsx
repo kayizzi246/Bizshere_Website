@@ -412,7 +412,12 @@ export async function HomeFeatures() {
       <div data-everyday="" className="speckle">
       <div className="container-site flex flex-col items-center gap-5 pb-6 pt-7 sm:gap-6 sm:pb-8 sm:pt-8">
         <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
-          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-[#0B1F33]">Help for every working day</h2>
+          {/* The site's heading treatment (16 Nov 2026): the words the promise rests on in the logo
+              orange, closing on an orange full stop. Here that is "every working day" — the point is
+              that there is a reason to come back daily, not that help exists. */}
+          <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+            Help for <span className="text-accent">every working day</span><span className="text-accent">.</span>
+          </h2>
           <p data-size="" className="text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
         </div>
         <HelpTabs tabs={helpTabs} />
