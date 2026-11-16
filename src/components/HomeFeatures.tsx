@@ -139,8 +139,10 @@ const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-w
  * lines between them; the hero's specks across the colour. On phones the button sits under the list.
  */
 function Panel({ href, title, text, action, tint, words, onColour, children }: { href: string; title: string; text: string; action: string; tint: string; words: string; onColour: string; children: React.ReactNode }) {
+  // Lifts a little under the pointer (16 Nov 2026), so the panel reads as one thing you can open
+  // rather than a block of colour with a button somewhere in it. Held still for reduced motion.
   return (
-    <li data-reveal="" className={`rise-soft relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 sm:p-6 ${PANEL_H} ${tint}`}>
+    <li data-reveal="" className={`rise-soft group/panel relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 transition-transform duration-200 hover:-translate-y-1 motion-reduce:hover:translate-y-0 sm:p-6 ${PANEL_H} ${tint}`}>
       <div className={`flex items-start justify-between gap-4 ${words}`}>
         <div className="flex min-w-0 flex-col items-start gap-2">
           <Label href={href} pill={onColour} />

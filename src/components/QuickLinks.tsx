@@ -94,7 +94,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
               {services.map((s) => (
                 <li key={s.href}>
                   <Link href={s.href} onClick={() => setOpen(false)}
-                    className="flex h-full min-h-[100px] flex-col items-center justify-center gap-2.5 rounded-2xl bg-white p-3 text-center text-[12px] font-semibold leading-tight text-heading shadow-[0_1px_3px_rgba(7,26,51,0.08)] transition-transform hover:text-heading active:scale-[0.97]">
+                    className="flex h-full min-h-[100px] flex-col items-center justify-center gap-2.5 rounded-2xl border border-line bg-white p-3 text-center text-[12px] font-semibold leading-tight text-heading transition-[border-color,background-color,transform] hover:border-brand hover:bg-brand-tint/40 hover:text-heading active:scale-[0.97]">
                     <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tint(s.href)}`}><Icon name={s.icon} className="h-5 w-5" strokeWidth={1.75} /></span>
                     {s.nav}
                   </Link>
