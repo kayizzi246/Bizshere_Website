@@ -429,7 +429,12 @@ export async function HomeFeatures() {
             <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-12">
               <div className="flex flex-col items-start gap-4">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-accent">For businesses</span>
-                <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-white">Get your business in front of buyers</h2>
+                {/* Designed like the hero's "B2B Information Portal." (16 Nov 2026): the word the whole
+                    offer turns on is in the logo orange, and the sentence closes on an orange full stop.
+                    One treatment used twice reads as the site's voice; used once it reads as an accident. */}
+                <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-white sm:text-[28px] lg:text-[30px]">
+                  Get your business in front of <span className="text-accent">buyers</span><span className="text-accent">.</span>
+                </h2>
                 <p data-size="" className="max-w-md text-[15px] leading-relaxed text-white/75">Business owners come here every day to find who sells what and who can help. Be the one they find.</p>
                 <p data-size="" className="text-[13px] text-white/65">Prefer to talk first? <Link href="/contact?about=supplier_listing" className="font-semibold text-accent hover:text-white">Leave your number</Link> and we call you back.</p>
               </div>
@@ -438,7 +443,7 @@ export async function HomeFeatures() {
                   ["/suppliers/join", "supplier", "Become a Supplier", "Shops, wholesalers, manufacturers, importers and machine dealers.", ["Your own page with photos and products", "Buyers call you directly", "Update it yourself"], "bg-accent text-ink hover:bg-white hover:text-ink"],
                   ["/experts/join", "expert", "Become an Expert", "Accountants, tax advisors, consultants and trainers.", ["Your own profile and services", "Your past jobs, with photos", "Clients call or WhatsApp you"], "bg-white text-heading hover:bg-accent hover:text-ink"],
                 ] as const).map(([href, icon, title, who, gets, btn]) => (
-                  <li key={href} className="flex flex-col gap-4 rounded-lg bg-white/[0.07] p-5 sm:p-6">
+                  <li key={href} className="group/join flex flex-col gap-4 rounded-lg border border-white/10 bg-white/[0.07] p-5 transition-[background-color,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:bg-white/[0.11] motion-reduce:hover:translate-y-0 sm:p-6">
                     <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-accent"><Icon name={icon} className="h-5 w-5" /></span>
                     <span className="flex flex-col gap-1"><span className="font-display text-[20px] font-bold leading-tight text-white">{title}</span><span className="text-[13px] leading-snug text-white/70">{who}</span></span>
                     <ul className="flex flex-1 flex-col gap-2">
