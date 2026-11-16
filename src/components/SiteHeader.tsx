@@ -12,7 +12,7 @@ const NAV = ["/business-ideas", "/funding", "/prices", "/forum", "/experts"].map
 const WIDE_ONLY = "/experts";
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-lg px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
+const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3 xl:text-[13px]";
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /** The chevron on links that open a card, so it reads as "there is more under this". */
@@ -64,7 +64,7 @@ export async function SiteHeader() {
           <WishlistLink className="rounded-lg" />
           {!viewer.userId ? (
             <>
-              <Link href="/login" className="hidden h-9 items-center whitespace-nowrap rounded-lg px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link>
+              <Link href="/login" className="hidden h-9 items-center whitespace-nowrap rounded-lg px-3 text-[12px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link>
               {/* The hairline between the quiet link and the solid button, as in the reference. */}
               <span aria-hidden className="hidden h-5 w-px bg-line lg:block" />
             </>
@@ -105,7 +105,7 @@ export async function SiteHeader() {
 
 /** The one call to action: start free or finish subscribing. */
 function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
-  const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-9 text-[13px]";
+  const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-9 text-[12px]";
   if (viewer.isMember) return null; // members have nothing to sign up for: their badge is in the footer
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
