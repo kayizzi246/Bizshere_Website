@@ -95,10 +95,12 @@ export default async function HomePage() {
                   rise a little, and a press settles them back down so a tap is felt on a phone. The
                   sweep is a ::before inside overflow-hidden, so it costs one transform and no repaint.
                   All of it is dropped under prefers-reduced-motion. */}
-              <a href="#features" className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-[background-color,transform] duration-150 hover:-translate-y-0.5 hover:bg-[#FFA54A] hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0 before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] hover:before:left-[150%] motion-reduce:before:hidden">
+              <a href="#features" className="group relative inline-flex h-12 animate-sheen items-center justify-center overflow-hidden rounded-md bg-gradient-to-r from-accent via-[#FFB366] to-accent bg-[length:200%_100%] px-7 font-display text-[14px] font-extrabold text-ink transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0 before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] hover:before:left-[150%] motion-reduce:before:hidden">
                 <span className="relative">Get started</span>
               </a>
-              <Link href="/prices" className="relative inline-flex h-12 items-center justify-center rounded-md border-2 border-accent px-7 font-display text-[14px] font-extrabold text-accent transition-[background-color,color,transform] duration-150 hover:-translate-y-0.5 hover:bg-accent hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">Check today&apos;s prices</Link>
+              {/* The outlined button fills with the same moving gradient on hover, so the pair behave
+                  as one set rather than two unrelated buttons. */}
+              <Link href="/prices" className="relative inline-flex h-12 animate-sheen items-center justify-center rounded-md border-2 border-accent bg-gradient-to-r from-accent via-[#FFB366] to-accent bg-[length:200%_100%] bg-clip-text px-7 font-display text-[14px] font-extrabold text-transparent transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0">Check today&apos;s prices</Link>
             </div>
           </div>
 

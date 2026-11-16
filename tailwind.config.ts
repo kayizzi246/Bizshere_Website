@@ -60,10 +60,16 @@ const config: Config = {
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
         "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
+        // A wide gradient slid back and forth behind a button, so its colour is always moving. The
+        // element keeps one background and only its position changes, which the compositor handles.
+        sheen: { "0%, 100%": { backgroundPosition: "0% 50%" }, "50%": { backgroundPosition: "100% 50%" } },
       },
       animation: {
         "accordion-down": "accordion-down 160ms cubic-bezier(0.23, 1, 0.32, 1)",
         "accordion-up": "accordion-up 160ms cubic-bezier(0.23, 1, 0.32, 1)",
+        // Slow on purpose: at this speed it reads as a living surface. Any faster and it draws the
+        // eye away from the words on the button.
+        sheen: "sheen 7s ease-in-out infinite",
       },
     },
   },
