@@ -37,10 +37,10 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 700px tall (16 Nov 2026; 790 before, briefly 660), or the
-          screen's height if that is less, with its content in the middle. 660 was too short — the panel
-          on the right lost its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,700px)] xl:flex-col xl:justify-center">
+      {/* Laptops and up (1280px+): the hero is 740px tall (16 Nov 2026; 790 before, then 660 and 700), or
+          the screen's height if that is less, with its content in the middle. Below about 700 the panel
+          on the right loses its third row to the overflow-hidden on this section. */}
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,740px)] xl:flex-col xl:justify-center">
         {/* A quiet drift of specks over the gradient (16 Nov 2026). Faint on purpose: texture behind the
             words, not the moving network of lights that was taken off on 12 Nov. Still with reduced motion. */}
         <ParticleField />
