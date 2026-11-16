@@ -536,3 +536,28 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   main [data-compact-page] :is(h2, h2[class]) { font-size: 20px !important; }
 }
 @media (min-width: 1280px) { main [data-compact-page] h1.text-hero:not([data-home]) { font-size: 30px !important; } }
+
+/* A light travelling around a button's edge (client, 16 Nov 2026: "shining moving through the border").
+   A conic gradient is rotated behind the button; the filled label on top covers all of it but the 2px
+   margin, so what shows is a bright arc sweeping round the perimeter. Rotating one element is a
+   compositor job, unlike animating a border colour, which repaints.
+
+   The element carries the dim base of the ring as its own background, so the rest of the edge stays
+   visible while the bright arc is elsewhere. Its child must create a stacking context (position:
+   relative) or the gradient paints over the words. */
+.ring-shine { position: relative; overflow: hidden; }
+.ring-shine::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 220%; aspect-ratio: 1; translate: -50% -50%;
+  background: conic-gradient(from 0deg,
+    transparent 0deg 200deg,
+    rgba(242,140,40,0.55) 248deg,
+    #FFD9A8 280deg,
+    #ffffff 294deg,
+    #8FD0FF 308deg,
+    rgba(9,105,218,0.55) 336deg,
+    transparent 360deg);
+  animation: ring-spin 6s linear infinite;
+}
+.ring-shine > * { position: relative; }
+@keyframes ring-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ring-shine::before { animation: none; } }
