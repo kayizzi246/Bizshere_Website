@@ -119,7 +119,7 @@ function greeting(name: string | null) {
 
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
 
-const heading = "text-hero text-[22px] leading-[1.2] text-black sm:text-[26px] lg:text-[30px]";
+const heading = "text-hero text-[22px] leading-[1.2] text-heading sm:text-[26px] lg:text-[30px]";
 const body = "mx-auto max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]";
 
 const Label = ({ href, pill }: { href: string; pill: string }) => {
@@ -208,14 +208,14 @@ export async function HomeFeatures() {
       <div className="container-site flex flex-col items-center gap-5 py-6 sm:gap-6 sm:py-8">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
-          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-black">What do you need today?</h2>
+          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-heading">What do you need today?</h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
         <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {NEEDS.map(([say, href, colour]) => (
             <li key={href}>
-              <Link href={href} className="group flex min-h-[68px] items-center gap-3 bg-white p-3 pr-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink">
-                <span className={`flex h-11 w-11 shrink-0 items-center justify-center ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
+              <Link href={href} className="group flex min-h-[68px] items-center gap-3 bg-white p-3 pr-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink active:bg-brand-tint/70">
+                <span className={`flex h-11 w-11 shrink-0 items-center justify-center transition-transform duration-150 group-hover:scale-105 motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
                 <span className="flex-1 font-display text-[14px] leading-snug">{say}</span>
                 <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
               </Link>
@@ -234,7 +234,7 @@ export async function HomeFeatures() {
       <div className={`${BAND.all} pb-4 sm:pb-5`}>
       <div className="container-site flex flex-col gap-2 pt-7 sm:pt-8">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
-        <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-black">Everything a business needs</h2>
+        <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-heading">Everything a business needs</h2>
         <p data-size="" className="max-w-2xl text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
 
@@ -259,7 +259,7 @@ export async function HomeFeatures() {
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:p-3">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-bold leading-snug text-black sm:text-[13px]">{clean(idea.title)}</span>
+                    <span className="font-display text-[12.5px] font-bold leading-snug text-heading sm:text-[13px]">{clean(idea.title)}</span>
                     <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E6F2EC] text-[#0F5B3E] transition-colors group-hover:bg-[#0F5B3E] group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
