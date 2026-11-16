@@ -12,8 +12,8 @@ const NAV = ["/business-ideas", "/funding", "/prices", "/forum", "/experts"].map
 const WIDE_ONLY = "/experts";
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
-const round = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink hover:border-brand hover:text-brand";
+const link = "whitespace-nowrap rounded-lg px-3 py-1.5 font-display text-[13px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3.5 xl:text-[14px]";
+const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /** The chevron on links that open a card, so it reads as "there is more under this". */
 function Chevron() {
@@ -25,8 +25,10 @@ function Chevron() {
 }
 
 /**
- * Floating pill header: a white rounded bar that sits just inside the edges of the page rather than
- * spanning it, so the hero's colour shows around it, and sticks to the top on scroll. Logo on the
+ * Floating header: a short white bar with softly rounded corners (not a full pill) that sits just
+ * inside the edges of the page rather than spanning it, so the hero's colour shows around it, and
+ * sticks to the top on scroll. Its height plus the gap above it must equal --hh in globals.css,
+ * which is what every dark hero pulls up by to run behind it. Logo on the
  * left; the main links in the middle; on the right the sign-in link, a hairline divider and the
  * solid call to action. Phones: logo, wishlist and a menu button; everything else is in the menu.
  */
@@ -36,7 +38,7 @@ export async function SiteHeader() {
 
   return (
     <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 sm:px-4 sm:pt-3">
-      <div className="mx-auto flex h-[56px] w-full max-w-site items-center gap-3 rounded-full border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 lg:h-[64px] lg:gap-5 lg:pr-2.5">
+      <div className="mx-auto flex h-[48px] w-full max-w-site items-center gap-3 rounded-2xl border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 lg:h-[56px] lg:gap-5 lg:pr-2.5">
         <Logo full />
 
         {/* The main links, centred in the space left between the logo and the buttons. Hover (or
@@ -59,10 +61,10 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2 lg:gap-2.5">
-          <WishlistLink className="rounded-full" />
+          <WishlistLink className="rounded-lg" />
           {!viewer.userId ? (
             <>
-              <Link href="/login" className="hidden h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link>
+              <Link href="/login" className="hidden h-9 items-center whitespace-nowrap rounded-lg px-3.5 text-[13px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link>
               {/* The hairline between the quiet link and the solid button, as in the reference. */}
               <span aria-hidden className="hidden h-5 w-px bg-line lg:block" />
             </>
@@ -103,13 +105,13 @@ export async function SiteHeader() {
 
 /** The one call to action: start free or finish subscribing. */
 function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
-  const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-10 text-[13px]";
+  const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-9 text-[13px]";
   if (viewer.isMember) return null; // members have nothing to sign up for: their badge is in the footer
   const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
     // Deep blue rather than the mid blue, so the one button carries the most weight in the bar.
     // Signed in: straight to the payment pop-up (data-pay), wherever they are.
-    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`inline-flex items-center justify-center whitespace-nowrap rounded-full bg-brand-deep px-5 font-semibold text-white transition-colors hover:bg-navy hover:text-white ${size}`}>
+    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-deep px-4 font-semibold text-white transition-colors hover:bg-navy hover:text-white ${size}`}>
       {label}
     </Link>
   );
