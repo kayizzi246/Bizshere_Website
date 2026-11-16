@@ -1,85 +1,65 @@
-# Recovering the data from Prisma Postgres
+# The old Prisma Postgres database
 
-The site's old data is still in the Prisma Postgres database at `db.prisma.io`. Nothing was
-deleted — the server simply cannot open a connection to it, which is why the site was moved to a
-Postgres running beside the app.
+**Decision, 16 Nov 2026: the data in the old database was abandoned, not recovered.** It was
+mostly test content from a site that spent most of its life crash-looping, and unlocking it was
+not worth the cost. The live site runs on the Postgres container in `docker-compose.prod.yml` and
+was seeded fresh with `npm run db:seed:production`. This page is kept as the record of why.
 
-To get the data across you need **one machine with a route to port 5432 on `db.prisma.io`**. The
-VPS does not have one, and many home and office networks block outbound 5432 as well.
+## What actually happened
 
-## 1. Check the Console first
+The site was down for a day with `prisma migrate deploy` failing on:
 
-Sign in at [console.prisma.io](https://console.prisma.io) and open your database's **Backups**
-tab. On paid plans Prisma takes daily snapshots (on days the database saw activity) and can
-restore them from the Console. That is worth knowing about before you touch anything: if the data
-you want is in a snapshot, restore it there first, then dump from the restored state.
+```
+Error: P1001  Can't reach database server at `db.prisma.io:5432`
+```
 
-## 2. Find a machine that can reach the database
+That message says "can't reach", so it reads like a firewall or a wrong host — and it was chased
+that way for a long time, across two hosting providers. It was neither. Connecting with a plain
+Postgres driver gave the real answer:
 
-Try, in order:
+```
+Failed to identify your database: Your account has restrictions: planLimitReached.
+Please contact Prisma support to resolve account restrictions.
+```
 
-1. **Your own computer, on a different network.** A mobile hotspot often works where home
-   broadband does not. Test it before installing anything:
-   ```
-   pg_isready -h db.prisma.io -p 5432
-   ```
-2. **A cloud shell.** [Google Cloud Shell](https://shell.cloud.google.com) and GitHub Codespaces
-   both have `pg_dump` installed and unrestricted outbound networking, and both are free for this
-   amount of use. This is usually the quickest route.
+The TCP connection and the TLS handshake both succeeded. Prisma Postgres was **refusing to
+authenticate** because the account had hit a Free-plan ceiling (200,000 operations a month, 2 GB
+storage). The Free plan is a hard cap: nothing is billed, access simply stops. It would have
+failed from any network, which is why moving the app between hosts never helped.
 
-You need PostgreSQL **client version 17** — Prisma Postgres runs on 17, and a newer `pg_dump`
-(18+) produces an archive it will not read back.
+The crash loop probably made it worse: every container restart ran `prisma migrate deploy`, and
+the container restarted roughly once a minute for days.
 
-## 3. Take the dump
+## What to take from it
+
+- **`P1001` does not mean "network problem".** It is Prisma's generic message for a refused
+  connection, including when the refusal is about your account. Test with a plain Postgres client
+  before concluding anything about firewalls — the real error is usually in that reply.
+- **A free tier that hard-caps database access does not belong under a production site.** The
+  failure is total, gives no warning in the application logs, and looks like an infrastructure
+  fault.
+- The database now runs beside the app as a container, so there is no external service that can
+  lock the site out of its own data.
+
+## If you ever do want it back
+
+The data still exists in Prisma Postgres. Upgrading the account (Starter was $10/month, which
+also adds backups) lifts the restriction and makes it readable again. Then take a dump from any
+machine — the network was never the obstacle:
 
 ```
 pg_dump "postgres://USER:PASSWORD@db.prisma.io:5432/postgres?sslmode=require" \
   --no-owner --no-privileges -Fc -f bizsphere.dump
 ```
 
-Use the connection string from the Prisma Console. `-Fc` is the custom format that
-`scripts/restore-dump.sh` expects.
+Use PostgreSQL client **17**; an 18+ `pg_dump` writes an archive Prisma Postgres cannot read back.
 
-Check the file is not empty — a few hundred KB at least:
-```
-ls -lh bizsphere.dump
-```
-
-## 4. Copy it to the server
-
-```
-scp bizsphere.dump root@161.97.109.77:/path/to/Bizshere_Website/
-```
-
-## 5. Restore
-
-On the server, in the directory holding `docker-compose.prod.yml`:
+Copy the file to the server and load it with:
 
 ```
 sh scripts/restore-dump.sh bizsphere.dump
 ```
 
-The script refuses to run if the database already holds content items or payments, so it cannot
-quietly overwrite work entered since the site came back. If you do want the dump's version
-instead, it prints the command to empty the database first.
-
-Afterwards it runs `prisma migrate deploy`, so the restored schema is brought up to date with the
-code.
-
-## 6. Check your sign-in
-
-If the dump contains its own admin user, the one created by `npm run db:seed:production` may have
-been replaced. Sign in at `/staff/<ADMIN_LOGIN_KEY>` with the **old** credentials. If neither
-works, re-run the seed — it upserts, so it will recreate the admin without disturbing the rest.
-
-## If none of this is possible
-
-If no machine you have can reach `db.prisma.io:5432`, open a support request with Prisma from the
-Console and ask for an export of the database. The data is theirs to hand over; it is only the
-network path that is blocked.
-
-## Worth deciding first
-
-If the Prisma Postgres database only ever held test records — the site was crash-looping for most
-of its life there — this whole exercise may not be worth it. Check what is actually in it before
-spending time on the recovery.
+That script refuses to run if the database already holds content items or payments, so it will
+not overwrite anything entered since the site came back. By now it almost certainly would —
+which is the other reason this was a now-or-never decision.
