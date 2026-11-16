@@ -10,9 +10,10 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
     return (
       <Link href={href} aria-label="BizSphere-Ug home" className="shrink-0">
         {/* data-nofit: the logo is a transparent cut-out, so it must not get ImageFit's grey plate (client, 14 Nov 2026) */}
-        {/* 32/36px (16 Nov 2026). It was 48/56, the full height of the header bar, so the logo met
-            both edges and left the row no air. */}
-        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[32px] w-auto lg:h-[36px]" />
+        {/* 36/42px (16 Nov 2026). It was 48/56 — the full height of the header bar, so it met both
+            edges — then briefly 32/36, which read small. This keeps a few pixels of air top and
+            bottom inside the 48/56px bar. */}
+        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[36px] w-auto lg:h-[42px]" />
       </Link>
     );
   }
