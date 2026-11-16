@@ -1,0 +1,71 @@
+# Bizsphere-Ug — the whole site as two containers: the app and its database.
+#
+# This is the portable way to run the site. It needs nothing but Docker, so it behaves the same on
+# a bare VPS, on Coolify, or anywhere else that can run Compose. The database is a container on a
+# private network with a named volume, so no managed database has to be reachable from the
+# outside and no host firewall can cut the app off from it (the cause of the P1001 crash loop).
+#
+#   cp .env.production.example .env.production   # then fill in the secrets
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Railway does not run Compose: there, add a PostgreSQL service in the dashboard and set
+# DATABASE_URL to ${{Postgres.DATABASE_URL}}. See docs/deploy-railway.md.
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bizsphere}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.production}
+      POSTGRES_DB: ${POSTGRES_DB:-bizsphere}
+    volumes:
+      - bizsphere-pgdata:/var/lib/postgresql/data
+    # No `ports:` on purpose. The database is reachable from the app over the private network as
+    # the host `db`, and publishing 5432 would expose it to the whole internet.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bizsphere} -d ${POSTGRES_DB:-bizsphere}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # `db` is the service name above — inside the app container, localhost would mean the app
+      # container itself, which is what breaks a copied-from-.env connection string.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bizsphere}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-bizsphere}?schema=public
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?set NEXTAUTH_URL to the public https address}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?set NEXTAUTH_SECRET}
+      ADMIN_LOGIN_KEY: ${ADMIN_LOGIN_KEY:?set ADMIN_LOGIN_KEY}
+      UPLOAD_DIR: /data/uploads
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+      PESAPAL_CONSUMER_KEY: ${PESAPAL_CONSUMER_KEY:-}
+      PESAPAL_CONSUMER_SECRET: ${PESAPAL_CONSUMER_SECRET:-}
+      PESAPAL_ENV: ${PESAPAL_ENV:-}
+      PESAPAL_IPN_ID: ${PESAPAL_IPN_ID:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EGOSMS_USERNAME: ${EGOSMS_USERNAME:-}
+      EGOSMS_PASSWORD: ${EGOSMS_PASSWORD:-}
+      EGOSMS_SENDER_ID: ${EGOSMS_SENDER_ID:-}
+      EGOSMS_URL: ${EGOSMS_URL:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      # Uploads must outlive the container; a rebuild replaces the filesystem otherwise.
+      - bizsphere-uploads:/data/uploads
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  bizsphere-pgdata:
+  bizsphere-uploads:

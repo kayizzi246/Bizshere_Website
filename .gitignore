@@ -5,6 +5,10 @@ build/
 coverage/
 .env
 .env*.local
+# Every .env variant holds real secrets, so ignore them all and keep only the examples.
+.env.*
+!.env.example
+!.env.production.example
 *.log
 .DS_Store
 next-env.d.ts

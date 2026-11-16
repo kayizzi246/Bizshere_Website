@@ -37,6 +37,30 @@ case "$DATABASE_URL" in
     ;;
 esac
 
+# ── Wait for the database to accept connections ──
+# A database container next to this one is usually still starting when the app boots, and a
+# database behind a managed host can be briefly unreachable during a restart. Without this the
+# first `migrate deploy` fails on P1001 and the whole container restarts, which on most hosts
+# turns a few seconds of waiting into a crash loop.
+echo "→ Waiting for the database…"
+attempt=1
+until npx prisma db execute --stdin --schema prisma/schema.prisma >/dev/null 2>&1 <<'PROBE'
+SELECT 1;
+PROBE
+do
+  if [ "$attempt" -ge 30 ]; then
+    echo "✗ Database unreachable after 30 attempts (about 60s)." >&2
+    echo "  Host in DATABASE_URL must be reachable from inside this container:" >&2
+    echo "  a sibling container is its service name (e.g. 'db'), never localhost." >&2
+    echo "  A managed database on another network also needs outbound TCP 5432 to be open." >&2
+    exit 1
+  fi
+  printf '  not ready yet (%s/30)\n' "$attempt"
+  attempt=$((attempt + 1))
+  sleep 2
+done
+echo "  database is up."
+
 echo "→ Applying database migrations (prisma migrate deploy)…"
 npx prisma migrate deploy
 
