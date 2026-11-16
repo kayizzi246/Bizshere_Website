@@ -95,12 +95,19 @@ export default async function HomePage() {
                   rise a little, and a press settles them back down so a tap is felt on a phone. The
                   sweep is a ::before inside overflow-hidden, so it costs one transform and no repaint.
                   All of it is dropped under prefers-reduced-motion. */}
-              <a href="#features" className="group relative inline-flex h-12 animate-sheen items-center justify-center overflow-hidden rounded-md bg-gradient-to-r from-accent via-[#FFB366] to-accent bg-[length:200%_100%] px-7 font-display text-[14px] font-extrabold text-ink transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0 before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] hover:before:left-[150%] motion-reduce:before:hidden">
-                <span className="relative">Get started</span>
+              <a href="#features" className="group inline-flex h-12 animate-sheen rounded-md bg-[linear-gradient(90deg,#F28C28_0%,#FFB366_18%,#2E9BFF_38%,#0969da_52%,#2E9BFF_66%,#FFB366_84%,#F28C28_100%)] bg-[length:200%_100%] p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0">
+                {/* The label keeps a solid fill so it stays readable while the ring behind it changes
+                    colour. Dark text on the deep blue of that gradient would not pass contrast. */}
+                <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[4px] bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors group-hover:bg-[#FFA54A] before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] group-hover:before:left-[150%] motion-reduce:before:hidden">
+                  <span className="relative">Get started</span>
+                </span>
               </a>
-              {/* The outlined button fills with the same moving gradient on hover, so the pair behave
-                  as one set rather than two unrelated buttons. */}
-              <Link href="/prices" className="relative inline-flex h-12 animate-sheen items-center justify-center rounded-md border-2 border-accent bg-gradient-to-r from-accent via-[#FFB366] to-accent bg-[length:200%_100%] bg-clip-text px-7 font-display text-[14px] font-extrabold text-transparent transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0">Check today&apos;s prices</Link>
+              {/* The same moving ring, over the hero rather than a fill, so the pair read as one set.
+                  Its label takes the gradient through the text instead, which is safe here because
+                  the text sits on the dark hero rather than on the gradient itself. */}
+              <Link href="/prices" className="group inline-flex h-12 animate-sheen rounded-md bg-[linear-gradient(90deg,#F28C28_0%,#FFB366_18%,#2E9BFF_38%,#0969da_52%,#2E9BFF_66%,#FFB366_84%,#F28C28_100%)] bg-[length:200%_100%] p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:animate-none motion-reduce:hover:translate-y-0">
+                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Check today&apos;s prices</span>
+              </Link>
             </div>
           </div>
 
