@@ -208,7 +208,12 @@ export async function HomeFeatures() {
       <div className="container-site flex flex-col items-center gap-5 py-6 sm:gap-6 sm:py-8">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
-          <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-heading">What do you need today?</h2>
+          {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
+              businesses banner: the word the line turns on in the logo orange, closing on an orange
+              mark — here the question mark, since this one asks rather than promises. */}
+          <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+            What do you <span className="text-accent">need</span> today<span className="text-accent">?</span>
+          </h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
         <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -234,7 +239,12 @@ export async function HomeFeatures() {
       <div className={`${BAND.all} pb-4 sm:pb-5`}>
       <div className="container-site flex flex-col gap-2 pt-7 sm:pt-8">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
-        <h2 className="text-hero text-[24px] leading-[1.15] sm:text-[28px] lg:text-[30px] text-heading">Everything a business needs</h2>
+        {/* The site's heading treatment (16 Nov 2026). The word is "Everything", not "needs": the promise
+            here is that the whole lot is in one place, and "need" is already the orange word in the heading
+            above this one — repeating it would blunt both. */}
+        <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+          <span className="text-accent">Everything</span> a business needs<span className="text-accent">.</span>
+        </h2>
         <p data-size="" className="max-w-2xl text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
 
@@ -272,7 +282,7 @@ export async function HomeFeatures() {
 
       {/* Business Machines, Funding and Suppliers: one joined block. Machines sit on top, photos on the left. */}
       <div className="container-site">
-      <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-machines isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
+      <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] panel-drop panel-drop-left isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/machines" pill={S.machines.onColour} />
           <h3 className="font-display font-extrabold tracking-[-0.015em] text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">The right machine for the job</h3>
@@ -430,7 +440,7 @@ export async function HomeFeatures() {
         {/* ── For businesses: be found by the buyers who come here. Suppliers and experts pay for a listing; this is
             the site's other income, so it gets a block of its own. One navy banner inside the page. ── */}
         {!viewer.isStaff ? (
-          <div data-reveal="" className="rise-soft relative isolate overflow-hidden rounded-xl bg-[#0B1F44] p-6 text-white sm:p-10 lg:p-12">
+          <div data-reveal="" className="rise-soft panel-drop relative isolate overflow-hidden rounded-xl p-6 text-white sm:p-10 lg:p-12">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-12">
               <div className="flex flex-col items-start gap-4">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-accent">For businesses</span>

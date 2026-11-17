@@ -52,19 +52,24 @@ export function InstallPrompt() {
   };
 
   return (
-    <div role="region" aria-label="Add to home screen" className="onboard-pop fixed inset-x-3 bottom-3 z-[64] flex items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-[0_12px_32px_rgba(7,26,51,0.18)] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:max-w-[420px] sm:p-4">
+    // Smaller and tighter (client, 17 Nov 2026: "make fonts small, effective on all devices"). It sits over
+    // the page on every screen, so it is sized to take as little of it as possible: 13px name, 11.5px line
+    // under it, a 36px Install button. The bottom offset clears the iPhone's home indicator (safe-area-inset);
+    // on a phone it spans the width, from sm it is a 360px card in the corner. The icon gets a tinted plate
+    // and a hairline, so a pale or transparent icon is still a visible square rather than a blank gap.
+    <div role="region" aria-label="Add to home screen" className="onboard-pop fixed inset-x-2.5 bottom-[calc(0.625rem+env(safe-area-inset-bottom))] z-[64] flex items-center gap-2.5 rounded-xl border border-line bg-white p-2.5 shadow-[0_8px_24px_rgba(7,26,51,0.14)] sm:inset-x-auto sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:right-4 sm:max-w-[360px] sm:gap-3 sm:p-3">
       {/* eslint-disable-next-line @next/next/no-img-element -- the site's own icon */}
-      <img src="/icon.png" alt="" className="h-12 w-12 shrink-0 rounded-xl" />
+      <img src="/icon.png" alt="" className="h-10 w-10 shrink-0 rounded-lg bg-brand-tint object-contain ring-1 ring-line" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="font-display text-[15px] font-extrabold leading-tight text-heading">Keep BizSphere-Ug on your phone</p>
+        <p className="font-display text-[13px] font-bold leading-[1.25] text-heading [text-wrap:balance]">Keep BizSphere-Ug on your phone</p>
         {mode === "install" ? (
-          <p className="text-[13px] leading-snug text-ink-soft">Open it from your home screen, like an app.</p>
+          <p className="text-[11.5px] leading-snug text-ink-soft sm:text-[12px]">Open it from your home screen, like an app.</p>
         ) : (
-          <p className="text-[13px] leading-snug text-ink-soft">Tap <Share aria-label="Share" className="inline h-4 w-4 align-[-3px] text-brand" />, then <strong className="text-heading">Add to Home Screen</strong>.</p>
+          <p className="text-[11.5px] leading-snug text-ink-soft sm:text-[12px]">Tap <Share aria-label="Share" className="inline h-3.5 w-3.5 align-[-2px] text-brand" />, then <strong className="font-bold text-heading">Add to Home Screen</strong>.</p>
         )}
       </div>
-      {mode === "install" ? <button type="button" onClick={install} className="btn-primary min-h-[44px] shrink-0 px-4">Install</button> : null}
-      <button type="button" onClick={notNow} aria-label="Not now" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-page hover:text-heading"><X aria-hidden className="h-5 w-5" /></button>
+      {mode === "install" ? <button type="button" onClick={install} className="inline-flex h-9 shrink-0 items-center rounded-lg border border-[rgba(27,31,36,0.15)] bg-accent px-3 font-display text-[12.5px] font-bold text-ink transition-colors hover:bg-accent-dark hover:text-white">Install</button> : null}
+      <button type="button" onClick={notNow} aria-label="Not now" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-page hover:text-heading"><X aria-hidden className="h-4 w-4" /></button>
     </div>
   );
 }
