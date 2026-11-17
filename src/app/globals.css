@@ -676,3 +676,16 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 /* The orange panel carries dark ink text, so its grain is darker rather than lighter: white grain on
    orange greys the panel and takes the edge off the colour. */
 .skin-funding::before { mix-blend-mode: soft-light; }
+
+/* ── .card-title: the title inside a panel card (client, 17 Nov 2026, after a trading-site card) ──
+   The reference title is lighter and airier than this site's headings: Semibold rather than ExtraBold,
+   letter spacing close to normal rather than tight, and the two lines set apart rather than packed.
+   Still Inter — the site runs on one font (13 Nov 2026) and nothing new is loaded for this.
+   !important, and placed after the global heading rule, because that rule forces every h1-h6 to
+   weight 800 and line-height 1.06 with !important of its own; without this the card titles cannot be
+   made lighter at all. It changes the weight, spacing and leading only — the size rules still apply. */
+.card-title {
+  font-weight: 600 !important;
+  letter-spacing: -0.004em !important;
+  line-height: 1.24 !important;
+}
