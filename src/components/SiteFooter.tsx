@@ -38,9 +38,11 @@ export async function SiteFooter() {
     c.address && { icon: "pin", text: c.address },
   ].filter(Boolean) as { icon: string; text: string; href?: string }[];
 
-  // The same background as the homepage hero (.hero-premium in globals.css; client, 11 Nov 2026). Small type (client, 13 Nov 2026): links 13px, titles 12px, contacts 12px, bottom line 11px.
+  // The quieter of the two hero backgrounds (.hero-glow in globals.css; 17 Nov 2026). It used to take
+  // .hero-premium, the homepage one, which after the blue was strengthened read louder than the links
+  // sitting on it. Small type (client, 13 Nov 2026): links 13px, titles 12px, contacts 12px, bottom line 11px.
   return (
-    <footer className="hero-premium mt-auto overflow-hidden text-white">
+    <footer className="hero-glow mt-auto overflow-hidden text-white">
       <div className="container-site">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 py-10 sm:py-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-8">
