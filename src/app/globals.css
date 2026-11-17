@@ -724,3 +724,13 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   letter-spacing: -0.004em !important;
   line-height: 1.24 !important;
 }
+
+/* ── .hero-title: the homepage headline (client, 17 Nov 2026, after a reference they sent) ──
+   Bold rather than ExtraBold, and the letters not pulled as tight. The global heading rule forces
+   every h1 to weight 800 with !important, so matching the reference needs !important back — this is
+   the one place that rule is deliberately overridden. Size is set on the element itself. */
+.hero-title {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.12 !important;
+}
