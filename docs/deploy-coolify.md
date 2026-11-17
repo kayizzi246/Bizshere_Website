@@ -82,4 +82,39 @@ deploy rebuilds the image and re-runs migrations on start — no manual database
 - **Health check:** point Coolify's health check at `/` or `/robots.txt`.
 - **Cron jobs:** the daily job is `GET /api/cron/daily` with the `CRON_SECRET`. Add a Coolify
   **Scheduled Task** (or external cron) to call it once a day.
-- **Resources:** the Node server is modest; 1 vCPU / 1 GB RAM is enough to start.
+- **Resources:** running the site is modest — 1 vCPU / 1 GB RAM carries it. **Building it is not.**
+  `next build` wants about 2 GB on its own, and Coolify builds on the same machine the site runs
+  on, so on a 1 GB box a deploy starves everything else, Coolify's own screen included. Give the
+  server **2 GB or more, and swap** (below). This line used to say 1 GB was enough to start; that
+  was true of the running site and wrong about deploys, and it cost an afternoon on 17 Nov 2026.
+
+## When the server goes slow, or Coolify will not open
+
+Nearly always the build, not the site. Run this over SSH — it only reads:
+
+```sh
+sh scripts/vps-health.sh
+```
+
+It reports memory, disk, Docker's leftovers, load and whether the kernel has been killing
+processes, then names what to change. The two fixes that matter most:
+
+**Swap**, so a heavy build slows the machine down instead of killing it. Safe on a live server:
+
+```sh
+sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+**Pruning**, because every build leaves layers behind until the disk fills. This touches no
+running container, no database volume and nothing of Coolify's own:
+
+```sh
+sudo docker builder prune -af
+sudo docker image prune -af
+```
+
+And push once. Each push to `main` starts another build; several in a row queue up and starve
+each other on a small box. If deploys stay painful, build the image in a GitHub Action and have
+Coolify pull it, so the server never builds at all.
