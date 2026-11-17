@@ -94,7 +94,7 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
           Only <strong className="font-semibold text-heading">Name</strong> is required.
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={template} className="inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-white px-3 text-[13px] font-semibold text-heading hover:bg-page">
+          <button type="button" onClick={template} className="inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-heading hover:bg-page">
             <Download className="h-4 w-4" />Download the template
           </button>
           <button type="button" onClick={() => fileInput.current?.click()} className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-deep">
@@ -176,7 +176,7 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
 
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={save} disabled={busy || !good.length}
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-5 font-display text-[14px] font-bold text-ink hover:bg-accent-dark hover:text-white disabled:opacity-50">
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-5 font-display text-[14px] font-bold text-[#1F2328] hover:bg-accent-dark hover:text-white disabled:opacity-50">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {busy ? "Saving…" : `Save ${good.length} as drafts`}
             </button>
