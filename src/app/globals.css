@@ -653,3 +653,26 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   .help-panel::after { animation: none; opacity: 0; }
   .help-rise { animation: none; }
 }
+
+/* ── The grain and the big soft discs (client, 17 Nov 2026, after two trading-site cards they liked) ──
+   Every lit panel — the dark .panel-drop ones and the four colour panels — gets the same two things over
+   its colour: two large, very faint discs, and a fine grain. Together they stop a big flat area from
+   looking like a plain fill, which is what gives those cards their texture.
+   It sits on ::before at z-index -1: the panels are all `relative isolate`, so the layer paints above
+   the panel's own background and below everything in the panel. Nothing here takes the pointer.
+   The discs are white at 5-7% and the grain at 14%, so no text loses contrast. */
+.panel-drop::before,
+.skin-ideas::before, .skin-funding::before, .skin-suppliers::before, .skin-experts::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    /* the two discs, as on the reference: one low left, one through the middle */
+    radial-gradient(circle 150px at 10% 82%, rgba(255, 255, 255, 0.07) 0 94%, transparent 100%),
+    radial-gradient(circle 190px at 58% 44%, rgba(255, 255, 255, 0.05) 0 94%, transparent 100%),
+    /* the grain: one 180px tile of fractal noise, repeated */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.14'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size: auto, auto, 180px 180px;
+}
+/* The orange panel carries dark ink text, so its grain is darker rather than lighter: white grain on
+   orange greys the panel and takes the edge off the colour. */
+.skin-funding::before { mix-blend-mode: soft-light; }
