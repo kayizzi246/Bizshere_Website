@@ -38,6 +38,24 @@ export type HelpTab = {
  * stat card floating at its edge) and the words, one dark button and a real figure on the right. No invented
  * quotes or numbers: the figures are counts of what is on the site.
  */
+/**
+ * One colour per tab (client, 17 Nov 2026). These are the colours each of these sections already uses
+ * elsewhere on the homepage (S in HomeFeatures), so a tab and its panel below match the section it
+ * leads to. `ink` is the dark colour; everything light is mixed from it in globals.css (.help-panel,
+ * .help-preview, .help-rule), and `soft` is only the fallback where color-mix is unsupported.
+ */
+const SKIN: Record<string, { ink: string; soft: string }> = {
+  guides: { ink: "#4338CA", soft: "#ECEBFB" },
+  tools: { ink: "#0F766E", soft: "#E4F3F1" },
+  prices: { ink: "#C8102E", soft: "#FDE8EB" },
+  news: { ink: "#8B5E1A", soft: "#F6EEDF" },
+  tips: { ink: "#BE185D", soft: "#FCE8F1" },
+  forum: { ink: "#8A6A00", soft: "#FDF3D0" },
+  websites: { ink: "#475467", soft: "#EDF0F4" },
+};
+const skin = (id: string) => SKIN[id] ?? { ink: "#0B1F33", soft: "#E4E2DA" };
+const vars = (id: string) => ({ "--tab-ink": skin(id).ink, "--tab-soft": skin(id).soft }) as React.CSSProperties;
+
 export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
   const [active, setActive] = useState(tabs[0]?.id);
   const t = tabs.find((x) => x.id === active) ?? tabs[0];
@@ -53,42 +71,45 @@ export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
             <button key={x.id} type="button" role="tab" id={`help-tab-${x.id}`} aria-selected={on} aria-controls="help-panel" tabIndex={on ? 0 : -1}
               onClick={() => setActive(x.id)}
               onKeyDown={(e) => { if (e.key === "ArrowRight") pick(i + 1); else if (e.key === "ArrowLeft") pick(i - 1); }}
-              className={`shrink-0 whitespace-nowrap rounded-full border-2 px-4 py-1.5 font-display text-[14px] font-bold transition-colors ${on ? "border-[#0B1F33] bg-white text-[#0B1F33]" : "border-transparent bg-[#E2E0D8] text-[#0B1F33] hover:bg-[#D8D6CD]"}`}>
+              style={vars(x.id)}
+              /* The picked tab wears its own colour; the rest stay the quiet stone, so one tab is
+                 clearly chosen and the panel below opens in the colour the pill just showed. */
+              className={`shrink-0 whitespace-nowrap rounded-full border-2 px-4 py-1.5 font-display text-[14px] font-bold transition-colors duration-200 ${on ? "border-[var(--tab-ink)] bg-[var(--tab-soft)] text-[var(--tab-ink)]" : "border-transparent bg-[#E2E0D8] text-[#0B1F33] hover:bg-[#D8D6CD]"}`}>
               {x.label}
             </button>
           );
         })}
       </div>
 
-      <div key={t.id} role="tabpanel" id="help-panel" aria-labelledby={`help-tab-${t.id}`} className="help-fade grid w-full max-w-[1040px] overflow-hidden rounded-md bg-[#E4E2DA] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div key={t.id} role="tabpanel" id="help-panel" aria-labelledby={`help-tab-${t.id}`} style={vars(t.id)} className="help-fade help-panel grid w-full max-w-[1040px] overflow-hidden rounded-md md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {/* The preview */}
-        <div className="relative flex min-h-[320px] items-end overflow-hidden bg-[#D9D6CC] px-5 pt-[112px] sm:px-8 lg:pt-10">
+        <div className="help-preview relative flex min-h-[320px] items-end overflow-hidden px-5 pt-[112px] sm:px-8 lg:pt-10">
           {t.stat ? (
             <div className="absolute left-4 top-4 z-10 flex flex-col gap-1 rounded-md bg-white p-3 sm:left-6 sm:top-6">
               <span className="text-[11px] font-semibold text-ink-muted">{t.stat.label}</span>
-              <span className="font-display text-[24px] font-extrabold leading-none text-[#0B1F33]">{t.stat.value}</span>
-              <span aria-hidden className="mt-1 h-1.5 w-16 rounded-full bg-[#EDEBE4]" />
+              <span className="font-display text-[24px] font-extrabold leading-none text-[var(--tab-ink)]">{t.stat.value}</span>
+              <span aria-hidden className="mt-1 h-1.5 w-16 rounded-full bg-[var(--tab-soft)]" />
             </div>
           ) : null}
-          <div className="relative ml-auto w-full max-w-[420px] translate-y-2 overflow-hidden rounded-t-md bg-white">
+          <div className="help-rise relative z-[2] ml-auto w-full max-w-[420px] translate-y-2 overflow-hidden rounded-t-md bg-white">
             <div className="flex items-center gap-1.5 border-b border-[#EEECE6] px-3 py-2">
               <span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" /><span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" /><span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" />
-              <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-ink-muted"><Icon name={t.icon} className="h-3.5 w-3.5" />{t.window}</span>
+              <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-ink-muted"><Icon name={t.icon} className="h-3.5 w-3.5 text-[var(--tab-ink)]" />{t.window}</span>
             </div>
             <div className="p-4 sm:p-5"><Preview t={t} /></div>
           </div>
         </div>
 
         {/* The words */}
-        <div className="flex flex-col gap-4 p-6 sm:p-9">
+        <div className="relative z-[2] flex flex-col gap-4 p-6 sm:p-9">
           <h3 className="font-display text-[22px] font-extrabold leading-tight text-[#0B1F33] sm:text-[26px]">{t.title}</h3>
           <p className="text-[15px] leading-relaxed text-ink-soft">{t.text}</p>
           {/* Like the hero buttons: solid, bold, small corners (client, 12 Nov 2026) */}
           <Link href={t.href} className="inline-flex h-14 w-fit items-center justify-center rounded-md bg-accent px-8 font-display text-[16px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">{t.action}</Link>
-          <span aria-hidden className="my-2 h-px w-full bg-[#CFCCC2]" />
-          {t.stat ? <p className="font-display text-[15px] font-bold text-[#0B1F33]">{t.stat.value} {t.stat.label.toLowerCase()} on BizSphere-Ug</p> : null}
+          <span aria-hidden className="help-rule my-2 h-px w-full" />
+          {t.stat ? <p className="font-display text-[15px] font-bold text-[var(--tab-ink)]">{t.stat.value} {t.stat.label.toLowerCase()} on BizSphere-Ug</p> : null}
           <ul className="flex flex-col gap-2">
-            {t.points.map((p) => <li key={p} className="flex items-start gap-2 text-[14px] text-ink-soft"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A4D]" />{p}</li>)}
+            {t.points.map((p) => <li key={p} className="flex items-start gap-2 text-[14px] text-ink-soft"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--tab-ink)]" />{p}</li>)}
           </ul>
         </div>
       </div>

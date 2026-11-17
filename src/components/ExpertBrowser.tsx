@@ -128,17 +128,22 @@ function ExpertTile({ e }: { e: BrowseExpert }) {
       </Link>
 
       <div className="flex flex-1 flex-col gap-2 p-3">
-        {/* Seller row */}
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint text-[10px] font-bold text-brand">
+        {/* Seller row. The name may run to two lines (client, 17 Nov 2026): it shared one line with the
+            category before, so both were cut after a few characters ("Sample T… · Taxation and…"). The
+            category now sits under the name instead of beside it, which gives the name the full width
+            twice over; it stays semi-bold (600). Two lines is the ceiling — a longer name still ends in
+            an ellipsis rather than pushing the card out of line with its neighbours. */}
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint text-[10px] font-bold text-brand">
             {e.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={e.photo} alt="" className="h-full w-full object-cover" />
             ) : initials}
           </span>
-          <span className="truncate text-[13px] font-semibold text-heading">{seller}</span>
-          <span aria-hidden className="text-ink-muted">·</span>
-          <span className="truncate text-[12px] text-ink-muted">{line}</span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-heading">{seller}</span>
+            <span className="truncate text-[12px] text-ink-muted">{line}</span>
+          </span>
         </div>
 
         {/* Gig title */}

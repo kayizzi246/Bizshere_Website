@@ -309,11 +309,38 @@ select {
 
 /* The homepage service panels (HomeFeatures): each service in its own flat colour (client, 12 Nov 2026: less
    gradients, no shadows). */
-.skin-ideas { background: #0F5B3E; }
-.skin-machines { background: #0B1F44; }
-.skin-funding { background: #F28C28; }
-.skin-suppliers { background: #157EC2; }
-.skin-experts { background: #4A1D6B; }
+/* Lit, not flat (client, 17 Nov 2026: "make this have gradient colour like the previous one", after
+   .panel-drop on the dark panels). Each keeps its own colour and gains the same two things: a broad light
+   entering at the right, and a body that runs from a deeper shade on the left to a lighter one under the
+   light. Same hue throughout — nothing is tinted towards another colour — so the panels still read as the
+   flat set they replaced, only lit. This supersedes the flat fills of 12 Nov 2026.
+   The light is white at 12-16%: strong enough to see on the deep colours, weak enough to leave the orange
+   panel's dark ink text and the white text on the others at their old contrast. */
+.skin-ideas {
+  background-color: #0F5B3E;
+  background-image:
+    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.14) 0%, transparent 64%),
+    linear-gradient(100deg, #0A4530 0%, #0F5B3E 48%, #17784F 100%);
+}
+.skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
+.skin-funding {
+  background-color: #F28C28;
+  background-image:
+    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.16) 0%, transparent 64%),
+    linear-gradient(100deg, #D9741A 0%, #F28C28 48%, #FFA64D 100%);
+}
+.skin-suppliers {
+  background-color: #157EC2;
+  background-image:
+    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 64%),
+    linear-gradient(100deg, #0E5F96 0%, #157EC2 48%, #2E9BE0 100%);
+}
+.skin-experts {
+  background-color: #4A1D6B;
+  background-image:
+    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.14) 0%, transparent 64%),
+    linear-gradient(100deg, #351049 0%, #4A1D6B 48%, #652A8E 100%);
+}
 
 /* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */
 .hero-still { animation: none; }
@@ -594,4 +621,35 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
     radial-gradient(76% 150% at 7% 50%, rgba(150, 200, 255, 0.22) 0%, rgba(96, 158, 228, 0.10) 34%, transparent 66%),
     radial-gradient(42% 92% at 0% 2%, rgba(93, 190, 255, 0.20) 0%, transparent 72%),
     linear-gradient(260deg, #071A36 0%, #0B2450 48%, #123A74 100%);
+}
+
+/* ── HelpTabs: one colour per tab (client, 17 Nov 2026: "make every tab have different light colours
+   and effects when the user switches") ── Each tab sets --tab-ink (its own dark colour, the same one
+   that section uses elsewhere on the site) and --tab-soft (its light tint). Everything below is mixed
+   from --tab-ink, so adding a tab means adding one colour, not six.
+   The panel is remounted on every switch (key={t.id}), so these animations run once per switch. */
+.help-panel {
+  position: relative; isolation: isolate;
+  background-color: var(--tab-soft, #E4E2DA); /* used as-is where color-mix is not supported */
+  background-color: color-mix(in srgb, var(--tab-ink) 6%, #FFFFFF);
+}
+.help-preview {
+  background-color: var(--tab-soft, #D9D6CC);
+  background-color: color-mix(in srgb, var(--tab-ink) 14%, #FFFFFF);
+}
+.help-rule { background-color: color-mix(in srgb, var(--tab-ink) 22%, transparent); }
+/* The light washing across the panel once, in that tab's own colour, when a tab is picked */
+.help-panel::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg, transparent 0%, color-mix(in srgb, var(--tab-ink) 20%, transparent) 46%, transparent 72%);
+  transform: translateX(-120%);
+  animation: help-wash 0.8s var(--ease-out) 1;
+}
+@keyframes help-wash { to { transform: translateX(125%); } }
+/* The preview card rising a little later than the panel, so the switch has two beats, not one */
+.help-rise { animation: help-rise 0.5s 0.08s var(--ease-out) both; }
+@keyframes help-rise { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) {
+  .help-panel::after { animation: none; opacity: 0; }
+  .help-rise { animation: none; }
 }
