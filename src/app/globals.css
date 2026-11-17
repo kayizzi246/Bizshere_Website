@@ -734,3 +734,33 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   letter-spacing: -0.02em !important;
   line-height: 1.12 !important;
 }
+
+/* ── The admin, compact (client, 17 Nov 2026, from a reference dashboard) ──────────────────────────
+   The admin is a tool you work in, not a page you read: smaller type and tighter rows put more on
+   one screen, so there is less scrolling to reach the thing you came for. Scoped to #admin-shell
+   (src/app/admin/layout.tsx) so the public site keeps its larger, friendlier scale.
+
+   The Tailwind size utilities are redefined here rather than edited on every one of the admin's
+   screens: one scale, and a page added later is compact without anyone remembering to make it so.
+   Only the size is set — each utility keeps its own line-height, which at these sizes reads as a
+   little more air between lines, not less. */
+#admin-shell { font-size: 13px; }
+#admin-shell .text-xs { font-size: 11.5px; }
+#admin-shell .text-sm { font-size: 13px; }
+#admin-shell .text-base { font-size: 13.5px; }
+#admin-shell .text-lg { font-size: 15px; }
+#admin-shell .text-xl { font-size: 16px; }
+#admin-shell .text-2xl { font-size: 19px; }
+/* The heading rule further up sets size and weight with !important, so these have to as well. */
+#admin-shell h1 { font-size: 19px !important; line-height: 1.16 !important; }
+#admin-shell h2 { font-size: 15px !important; line-height: 1.2 !important; }
+#admin-shell h3 { font-size: 13.5px !important; line-height: 1.25 !important; }
+#admin-shell :is(h4, h5, h6) { font-size: 13px !important; line-height: 1.3 !important; }
+@media (min-width: 1024px) {
+  #admin-shell h1 { font-size: 21px !important; }
+  #admin-shell h2 { font-size: 16px !important; }
+}
+/* Inputs and selects come down with everything else, but keep 16px on phones: below that iOS zooms
+   the page in the moment the field is tapped, and leaves it zoomed. */
+#admin-shell :is(input, select, textarea) { font-size: 13px; }
+@media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }

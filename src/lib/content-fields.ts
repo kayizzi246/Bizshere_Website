@@ -153,14 +153,17 @@ export const DIRECTORIES: Directory[] = [
     // The client's field list (14 Nov 2026): business name, description and category (Basics), then the
     // address: contact person, location, website, WhatsApp, call. The rest after it. Products are added after saving.
     fields: [
-      t("contactPerson", "Contact person name", MAIN, "e.g. John Okello"),
-      { ...t("address", "Address / location", MAIN, "Street, building or area, e.g. Shop 12, Kikuubo Lane, Kampala"), virtual: true },
+      // Five to fill in, and the rest under "More details" (client, 17 Nov 2026: fewer fields). These
+      // five are what a buyer sees on the card and at the top of the page — who to ask for, where
+      // they are, how to reach them, what they sell, and what the place looks like.
+      ess(t("contactPerson", "Contact person name", MAIN, "e.g. John Okello")),
+      ess({ ...t("address", "Address / location", MAIN, "Street, building or area, e.g. Shop 12, Kikuubo Lane, Kampala"), virtual: true }),
+      ess(t("phone", "Call contact", MAIN, "e.g. 0772 123 456")),
+      ess({ ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" }),
+      ess({ ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" }),
       { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },
       t("whatsapp", "WhatsApp number", MAIN, "e.g. 0772 123 456. Leave empty if it is the same as the call number"),
-      t("phone", "Call contact", MAIN, "e.g. 0772 123 456"),
       t("email", "Email address", MAIN),
-      { ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" },
-      { ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" },
       { ...t("country", "Country", MAIN), initial: "Uganda" },
       { ...e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN), basics: true },
     ],

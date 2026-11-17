@@ -27,6 +27,8 @@ const GUIDES: { title: string; steps: string[]; href: string; start: string; are
     steps: ["Open Supplier products.", "Look at the name, photo and price.", "Press Approve to show it, or Hide if it is wrong."] },
   { title: "Add a business idea", area: contentArea("BUSINESS_IDEA"), href: "/admin/content/new?type=BUSINESS_IDEA", start: "Add a business idea",
     steps: ["Type the name, a short brief and choose a category.", "Fill in the main details: capital, requirements, location.", "Add a picture.", "Press Save, then add the start-up budget on its page."] },
+  { title: "Add many at once from a spreadsheet", area: contentArea("BUSINESS_IDEA"), href: "/admin/import", start: "Open the importer",
+    steps: ["Choose what you are importing, then download the template.", "Fill a row for each one and save the sheet.", "Choose the file and check what was read.", "Press Save. They arrive as drafts, ready to publish."] },
   { title: "Add a funding source", area: contentArea("FUNDING_PROGRAMME"), href: "/admin/content/new?type=FUNDING_PROGRAMME", start: "Add a funding source",
     steps: ["Type the fund name and choose the fund type (loan, grant…).", "Type the amounts as plain numbers; the currency can be UGX or USD.", "Add the funder's phone and website.", "Press Save."] },
   { title: "Update today's market prices", area: "prices", href: "/admin/prices", start: "Open market prices",
@@ -40,11 +42,17 @@ const GUIDES: { title: string; steps: string[]; href: string; start: string; are
 ];
 
 /**
- * Dashboard, redesigned on 11 Nov 2026 (client: easier to manage, linked to the website, clear in light and
- * dark, with directions): 1. what to do today, as numbered steps; 2. every part of the website as a card with
- * Add, Manage and See on website; 3. the numbers and latest payments; 4. "How do I…?" directions that fold open.
- * Only theme colours are used (surface, page, ink, line…), so it reads the same in light and dark mode.
- * Sub-admins see only their own areas.
+ * Dashboard. Redesigned 11 Nov 2026 (client: easier to manage, linked to the website, clear in light
+ * and dark, with directions), then tightened on 17 Nov 2026 against a reference dashboard the client
+ * sent: smaller type, shorter rows, and the help folded away.
+ *
+ * Four parts, in the order the work happens: 1. what is waiting today, as numbered steps; 2. every
+ * part of the website as a card with Add and Manage; 3. the numbers and the latest payments;
+ * 4. "How do I…?" directions, closed until asked for — they are for the first week, not every day,
+ * and open they were longer than the rest of the page put together.
+ *
+ * Only theme colours are used (surface, page, ink, line…), so it reads the same in light and dark
+ * mode. Sub-admins see only their own areas.
  */
 export default async function AdminDashboard({ searchParams }: { searchParams: { denied?: string } }) {
   const user = await staffAccess();
@@ -102,39 +110,39 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   ].filter(Boolean);
 
   const BTN: Record<string, string> = { info: "bg-brand text-white", warn: "bg-accent text-ink", bad: "bg-bad-fg text-white" };
-  const stepNo = "flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-[14px] font-bold";
+  const stepNo = "flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-[11.5px] font-bold";
 
   return (
     <>
       {/* Greeting, and the way to the website */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-display text-[24px] font-extrabold tracking-tight text-heading sm:text-[28px]">{greeting}, {user.name?.split(" ")[0] ?? "there"}</h1>
-          <p className="text-sm text-ink-muted">{date(now)}. Start with step 1 below, then work down the page.</p>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div className="flex flex-col gap-0.5">
+          <h1 className="font-display tracking-tight text-heading">{greeting}, {user.name?.split(" ")[0] ?? "there"}</h1>
+          <p className="text-[12px] text-ink-muted">{date(now)}. Start with step 1 below, then work down the page.</p>
         </div>
-        <Link href="/" target="_blank" className="btn-outline gap-2 text-sm"><Icon name="link" className="h-4 w-4" />Open the website ↗</Link>
+        <Link href="/" target="_blank" className="btn-outline min-h-[34px] gap-1.5 px-3 text-[12px]"><Icon name="link" className="h-3.5 w-3.5" />Open the website ↗</Link>
       </div>
-      {searchParams.denied ? <p role="alert" className="rounded-xl bg-warn-bg px-4 py-3 text-sm font-semibold text-warn-fg">You don&apos;t have access to {searchParams.denied.startsWith("content") ? "that directory" : areaLabel(searchParams.denied)}. Ask the super admin to add it to your areas.</p> : null}
-      {!user.superAdmin ? <p className="-mt-2 text-[13px] text-ink-muted">Your areas: {[...user.areas].map(areaLabel).join(", ") || "none yet. Ask the super admin to give you some."}</p> : null}
+      {searchParams.denied ? <p role="alert" className="rounded-lg bg-warn-bg px-3 py-2.5 text-[12.5px] font-semibold text-warn-fg">You don&apos;t have access to {searchParams.denied.startsWith("content") ? "that directory" : areaLabel(searchParams.denied)}. Ask the super admin to add it to your areas.</p> : null}
+      {!user.superAdmin ? <p className="-mt-2 text-[12px] text-ink-muted">Your areas: {[...user.areas].map(areaLabel).join(", ") || "none yet. Ask the super admin to give you some."}</p> : null}
 
       {/* Phones only: the top bar's search is hidden at this width */}
-      {canContent ? <form action="/admin/content" role="search" className="-mt-2 flex h-11 w-full items-center gap-2 rounded-[10px] border border-line bg-surface px-4 sm:hidden">
+      {canContent ? <form action="/admin/content" role="search" className="-mt-1 flex h-10 w-full items-center gap-2 rounded-[10px] border border-line bg-surface px-3 sm:hidden">
         <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
-        <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-sm text-ink outline-none" />
+        <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-ink outline-none" />
       </form> : null}
 
       {/* ── 1. What to do today: each waiting job as a numbered step with one button ── */}
       <Panel step="1" title="To do today" note={attention.length ? "These are waiting for you. Do them from the top." : undefined}>
         {attention.length === 0 ? (
-          <p className="flex items-center gap-3 rounded-xl bg-page p-4 text-sm text-ink"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-tint text-brand"><Icon name="check" className="h-4 w-4" /></span>All clear. Nothing is waiting for you. You can add something new in step 2.</p>
+          <p className="flex items-center gap-2.5 rounded-lg bg-page p-3 text-[12.5px] text-ink"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint text-brand"><Icon name="check" className="h-3.5 w-3.5" /></span>All clear. Nothing is waiting for you. You can add something new in step 2.</p>
         ) : (
-          <ol className="flex flex-col gap-2">
+          <ol className="flex flex-col gap-1.5">
             {attention.map((a, n) => (
               <li key={a.href + a.text}>
-                <Link href={a.href} className="group flex items-center gap-3 rounded-xl border border-line bg-surface p-3 text-ink transition-colors hover:border-brand hover:text-ink">
+                <Link href={a.href} className="group flex items-center gap-2.5 rounded-lg border border-line bg-surface p-2.5 text-ink transition-colors hover:border-brand hover:text-ink">
                   <span className={`${stepNo} bg-page text-heading`}>{n + 1}</span>
-                  <span className="min-w-0 flex-1 text-[14px] font-semibold">{a.text}</span>
-                  <span className={`inline-flex h-9 shrink-0 items-center rounded-lg px-3 text-[13px] font-semibold ${BTN[a.tone]}`}>Open →</span>
+                  <span className="min-w-0 flex-1 text-[12.5px] font-semibold">{a.text}</span>
+                  <span className={`inline-flex h-7 shrink-0 items-center rounded-md px-2.5 text-[12px] font-semibold ${BTN[a.tone]}`}>Open →</span>
                 </Link>
               </li>
             ))}
@@ -144,32 +152,32 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
       {/* ── 2. Every part of the website: add to it, manage it, or see it as visitors do ── */}
       {canContent || can("prices") ? <Panel step="2" title="Your website" note="Each box is one part of the website. Add to it, manage what is there, or see how it looks to visitors.">
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {myTypes.map((d) => (
-            <li key={d.type} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name={iconOf(d.type)} className="h-5 w-5" /></span>
+            <li key={d.type} className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={iconOf(d.type)} className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-display text-[15px] font-bold text-heading">{SITE_DIRECTORIES.find((x) => x.type === d.type)?.title ?? d.label}</span>
-                  <span className="text-[12px] text-ink-muted"><strong className="text-ink">{countOf(d.type, "PUBLISHED")}</strong> on the website{countOf(d.type, "DRAFT") ? ` · ${countOf(d.type, "DRAFT")} draft` : ""}</span>
+                  <span className="truncate font-display text-[13px] font-bold text-heading">{SITE_DIRECTORIES.find((x) => x.type === d.type)?.title ?? d.label}</span>
+                  <span className="text-[11.5px] text-ink-muted"><strong className="text-ink">{countOf(d.type, "PUBLISHED")}</strong> on the website{countOf(d.type, "DRAFT") ? ` · ${countOf(d.type, "DRAFT")} draft` : ""}</span>
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href={`/admin/content/new?type=${d.type}`} className="inline-flex h-9 items-center gap-1 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><Icon name="plus" className="h-3.5 w-3.5" />Add</Link>
-                <Link href={`/admin/content?type=${d.type}`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">Manage</Link>
-                <Link href={siteHref(d.type)} target="_blank" className="inline-flex h-9 items-center rounded-lg px-2 text-[13px] font-semibold text-brand hover:text-brand-dark">See on website ↗</Link>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Link href={`/admin/content/new?type=${d.type}`} className="inline-flex h-8 items-center gap-1 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-white hover:bg-brand-dark hover:text-white"><Icon name="plus" className="h-3.5 w-3.5" />Add</Link>
+                <Link href={`/admin/content?type=${d.type}`} className="inline-flex h-8 items-center rounded-md border border-line px-2.5 text-[12px] font-semibold text-ink hover:border-brand hover:text-brand">Manage</Link>
+                <Link href={siteHref(d.type)} target="_blank" className="ml-auto inline-flex h-8 items-center rounded-md px-1.5 text-[12px] font-semibold text-brand hover:text-brand-dark">View ↗</Link>
               </div>
             </li>
           ))}
           {can("prices") ? (
-            <li className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand"><Icon name="prices" className="h-5 w-5" /></span>
-                <span className="flex min-w-0 flex-col"><span className="truncate font-display text-[15px] font-bold text-heading">Market prices</span><span className="text-[12px] text-ink-muted">{stalePrices ? `${stalePrices} older than 30 days` : "Up to date"}</span></span>
+            <li className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name="prices" className="h-4 w-4" /></span>
+                <span className="flex min-w-0 flex-col"><span className="truncate font-display text-[13px] font-bold text-heading">Market prices</span><span className="text-[11.5px] text-ink-muted">{stalePrices ? `${stalePrices} older than 30 days` : "Up to date"}</span></span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/admin/prices" className="inline-flex h-9 items-center gap-1 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><Icon name="plus" className="h-3.5 w-3.5" />Add or update</Link>
-                <Link href="/prices" target="_blank" className="inline-flex h-9 items-center rounded-lg px-2 text-[13px] font-semibold text-brand hover:text-brand-dark">See on website ↗</Link>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Link href="/admin/prices" className="inline-flex h-8 items-center gap-1 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-white hover:bg-brand-dark hover:text-white"><Icon name="plus" className="h-3.5 w-3.5" />Add or update</Link>
+                <Link href="/prices" target="_blank" className="ml-auto inline-flex h-8 items-center rounded-md px-1.5 text-[12px] font-semibold text-brand hover:text-brand-dark">View ↗</Link>
               </div>
             </li>
           ) : null}
@@ -178,25 +186,25 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
       {/* ── 3. The numbers, and the money coming in ── */}
       {kpis.length || can("payments") ? <Panel step="3" title="How the site is doing" note="Tap a number to see what is behind it.">
-        {kpis.length ? <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">{kpis}</section> : null}
+        {kpis.length ? <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">{kpis}</section> : null}
         {can("payments") ? (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-3"><h3 className="text-sm font-bold text-heading">Latest payments</h3><Link href="/admin/payments" className="text-[13px] font-semibold">View all →</Link></div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-heading">Latest payments</h3><Link href="/admin/payments" className="text-[12px] font-semibold">View all →</Link></div>
             {payments.length === 0 ? (
-              <p className="rounded-xl bg-page p-6 text-center text-sm text-ink-muted">No payments yet. They appear here as soon as members pay on the site.</p>
+              <p className="rounded-lg bg-page p-4 text-center text-[12.5px] text-ink-muted">No payments yet. They appear here as soon as members pay on the site.</p>
             ) : (
               <ul className="flex flex-col divide-y divide-line">
                 {payments.map((p) => {
                   const c = customerOf(p);
                   return (
-                    <li key={p.id} className="flex items-center gap-3 py-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-page text-xs font-bold text-heading">{c.name.slice(0, 2).toUpperCase()}</span>
+                    <li key={p.id} className="flex items-center gap-2.5 py-2">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-page text-[11px] font-bold text-heading">{c.name.slice(0, 2).toUpperCase()}</span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm font-semibold text-ink">{c.name}</span>
-                        <span className="truncate text-xs text-ink-muted">{p.subscription.plan.name} · {METHOD_LABEL[p.method]} · {date(p.paidAt ?? p.createdAt)}</span>
+                        <span className="truncate text-[12.5px] font-semibold text-ink">{c.name}</span>
+                        <span className="truncate text-[11.5px] text-ink-muted">{p.subscription.plan.name} · {METHOD_LABEL[p.method]} · {date(p.paidAt ?? p.createdAt)}</span>
                       </span>
-                      <span className="flex shrink-0 flex-col items-end gap-1">
-                        <span className="text-sm font-bold text-heading">{money(p.amount, p.currency)}</span>
+                      <span className="flex shrink-0 flex-col items-end gap-0.5">
+                        <span className="text-[12.5px] font-bold text-heading">{money(p.amount, p.currency)}</span>
                         <span className={`badge ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span>
                       </span>
                     </li>
@@ -208,19 +216,19 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
         ) : null}
       </Panel> : null}
 
-      {/* ── 4. Directions: tap a question to see the steps, then one button starts it ── */}
-      {guides.length ? <Panel step="4" title="How do I…?" note="Tap a question to see the steps.">
-        <div className="grid gap-2 lg:grid-cols-2">
+      {/* ── 4. Directions, folded: one line until someone needs them, then a question at a time ── */}
+      {guides.length ? <Panel step="4" title="How do I…?" note="Directions for every job, step by step." fold>
+        <div className="grid gap-1.5 lg:grid-cols-2">
           {guides.map((g) => (
-            <details key={g.title} className="group/guide rounded-xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3.5 text-[14px] font-semibold text-ink hover:text-brand">{g.title}<span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-page text-ink-muted transition-transform group-open/guide:rotate-45">+</span></summary>
-              <div className="flex flex-col gap-3 border-t border-line p-3.5">
-                <ol className="flex flex-col gap-2">
+            <details key={g.title} className="group/guide rounded-lg border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-2.5 p-2.5 text-[12.5px] font-semibold text-ink hover:text-brand">{g.title}<span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-page text-ink-muted transition-transform group-open/guide:rotate-45">+</span></summary>
+              <div className="flex flex-col gap-2.5 border-t border-line p-2.5">
+                <ol className="flex flex-col gap-1.5">
                   {g.steps.map((t, n) => (
-                    <li key={t} className="flex items-start gap-2.5 text-[13px] text-ink-soft"><span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-tint text-[11px] font-bold text-brand-dark">{n + 1}</span>{t}</li>
+                    <li key={t} className="flex items-start gap-2 text-[12px] text-ink-soft"><span className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-tint text-[10px] font-bold text-brand-dark">{n + 1}</span>{t}</li>
                   ))}
                 </ol>
-                <Link href={g.href} className="btn-primary min-h-[40px] w-fit px-4 text-[13px]">{g.start} →</Link>
+                <Link href={g.href} className="btn-primary min-h-[34px] w-fit px-3 text-[12px]">{g.start} →</Link>
               </div>
             </details>
           ))}
@@ -230,16 +238,34 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   );
 }
 
-function Panel({ title, note, step, children }: { title: string; note?: string; step?: string; children: React.ReactNode }) {
-  return (
-    <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-      <div className="flex items-center gap-3">
-        {step ? <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[15px] font-bold text-white">{step}</span> : null}
-        <div className="flex min-w-0 flex-col">
-          <h2 className="text-lg font-extrabold text-heading">{title}</h2>
-          {note ? <p className="text-[13px] text-ink-muted">{note}</p> : null}
-        </div>
+/**
+ * One numbered part of the dashboard. `fold` closes it behind its own title: used for help, which is
+ * read in the first week and then never again, and which open is longer than the rest of the page.
+ */
+function Panel({ title, note, step, fold = false, children }: { title: string; note?: string; step?: string; fold?: boolean; children: React.ReactNode }) {
+  const head = (
+    <>
+      {step ? <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[12px] font-bold text-white">{step}</span> : null}
+      <div className="flex min-w-0 flex-col">
+        <h2 className="text-heading">{title}</h2>
+        {note ? <p className="text-[12px] text-ink-muted">{note}</p> : null}
       </div>
+    </>
+  );
+  if (fold) {
+    return (
+      <details className="group/panel min-w-0 rounded-xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center gap-2.5 p-3.5 sm:p-4">
+          {head}
+          <span aria-hidden className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-page text-ink-muted transition-transform group-open/panel:rotate-45">+</span>
+        </summary>
+        <div className="border-t border-line p-3.5 sm:p-4">{children}</div>
+      </details>
+    );
+  }
+  return (
+    <section className="flex min-w-0 flex-col gap-3 rounded-xl border border-line bg-surface p-3.5 sm:p-4">
+      <div className="flex items-center gap-2.5">{head}</div>
       {children}
     </section>
   );
@@ -247,13 +273,13 @@ function Panel({ title, note, step, children }: { title: string; note?: string; 
 
 function Kpi({ href, label, value, sub, warn = false, icon }: { href: string; label: string; value: number | string; sub: string; warn?: boolean; icon: string }) {
   return (
-    <Link href={href} className="group flex min-w-0 flex-col gap-3 rounded-xl border border-line bg-page p-4 text-ink transition-colors hover:border-brand hover:text-ink">
+    <Link href={href} className="group flex min-w-0 flex-col gap-1.5 rounded-lg border border-line bg-page p-3 text-ink transition-colors hover:border-brand hover:text-ink">
       <span className="flex items-center justify-between gap-2">
-        <span className="text-[13px] text-ink-muted">{label}</span>
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-4 w-4" /></span>
+        <span className="min-w-0 truncate text-[11.5px] text-ink-muted">{label}</span>
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-3.5 w-3.5" /></span>
       </span>
-      <span className="truncate font-display text-[26px] font-bold leading-none tracking-tight text-heading sm:text-[30px]">{value}</span>
-      <span className={`text-xs ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
+      <span className="truncate font-display text-[19px] font-bold leading-none tracking-tight text-heading sm:text-[21px]">{value}</span>
+      <span className={`truncate text-[11px] ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
     </Link>
   );
 }

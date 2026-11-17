@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTypingHint } from "./TypingHint";
-import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
+import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 import { BoardAside, BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
 
@@ -40,7 +40,8 @@ export type BrowseListing = {
   description?: string | null;
 };
 
-const PER_PAGE = 24;
+/** How many listings show before "Load more" (client, 17 Nov 2026). Each press adds another ten. */
+const PER_PAGE = 10;
 const SORTS = [
   { value: "newest", label: "Newest" },
   { value: "reviewed", label: "Recently checked" },
@@ -113,7 +114,10 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
 
   const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
   const current = Math.min(page, pages);
-  const shown = items.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+  // Everything up to the current page, so Load more adds to the list instead of replacing it. The
+  // page number still rides in the address, so a reload or a shared link reopens the same amount.
+  const shown = items.slice(0, current * PER_PAGE);
+  const remaining = items.length - shown.length;
   const chosenName = cats.find(([id]) => id === category)?.[1].name;
   const examples = useMemo(() => all.slice(0, 6).map((i) => name(i.title).toLowerCase()), [all]);
   const hint = useTypingHint(examples.length ? examples : [unit[1]], { prefix: `Search ${title.toLowerCase()}, e.g. `, paused: Boolean(q) });
@@ -157,7 +161,9 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
         aside={<BoardAside path={path} tabs={tabs} active={active} locked={locked} members={board.members} help={board.help} />}
-        pager={<Pager current={current} pages={pages} goTo={goTo} />}
+        pager={remaining > 0 ? (
+          <LoadMore remaining={remaining} step={PER_PAGE} unit={unit} onMore={() => setPage(current + 1)} />
+        ) : null}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : grid ? (
           <ul className={gridList}>
@@ -170,5 +176,25 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         )}
       </DirectoryBoard>
     </>
+  );
+}
+
+/**
+ * "Load more": the whole list stays on one page and grows ten at a time.
+ *
+ * It says how many are left rather than only "Load more", so the size of what is still below is
+ * known before pressing. A plain button, not an infinite scroll: these pages are read with a
+ * purpose, and a list that keeps growing by itself makes the footer impossible to reach.
+ */
+function LoadMore({ remaining, step, unit, onMore }: { remaining: number; step: number; unit: readonly [string, string] | string[]; onMore: () => void }) {
+  const next = Math.min(step, remaining);
+  return (
+    <div className="flex flex-col items-center gap-2 py-2">
+      <button type="button" onClick={onMore}
+        className="inline-flex h-11 items-center justify-center rounded-xl border border-line bg-surface px-6 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page">
+        Show {next} more
+      </button>
+      <span className="text-[12.5px] text-ink-muted">{remaining} more {remaining === 1 ? unit[0] : unit[1]} to see</span>
+    </div>
   );
 }

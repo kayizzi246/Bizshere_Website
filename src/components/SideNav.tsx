@@ -38,9 +38,9 @@ export function SideNav({ items, dark = false }: { items: NavItem[]; dark?: bool
       : active ? "bg-brand-tint font-semibold text-brand-dark hover:text-brand-dark" : "font-medium text-ink-soft hover:bg-page hover:text-heading";
     return (
       <Link key={it.href + it.label} href={it.href} aria-current={active ? "page" : undefined}
-        className={`group relative flex min-h-[40px] items-center gap-3 rounded-xl px-3 font-display text-[13px] transition-colors ${nested ? "ml-4 min-h-[34px] pl-4" : ""} ${cls}`}>
+        className={`group relative flex min-h-[40px] items-center gap-2.5 rounded-lg px-2.5 font-display text-[12.5px] transition-colors lg:min-h-[34px] ${nested ? "ml-3.5 min-h-[34px] pl-3.5 lg:min-h-[30px]" : ""} ${cls}`}>
         {active && dark ? <span aria-hidden className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-accent" /> : null}
-        {it.icon && !nested ? <Icon name={it.icon} className={`h-[17px] w-[17px] shrink-0 ${active ? (dark ? "text-accent" : "") : dark ? "text-white/50 group-hover:text-white/80" : "text-ink-muted group-hover:text-brand"}`} /> : null}
+        {it.icon && !nested ? <Icon name={it.icon} className={`h-4 w-4 shrink-0 ${active ? (dark ? "text-accent" : "") : dark ? "text-white/50 group-hover:text-white/80" : "text-ink-muted group-hover:text-brand"}`} /> : null}
         <span className="min-w-0 flex-1 truncate">{it.label}</span>
         {it.badge ? <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-bold text-ink">{it.badge}</span> : null}
       </Link>
@@ -51,14 +51,14 @@ export function SideNav({ items, dark = false }: { items: NavItem[]; dark?: bool
     <nav aria-label={dark ? "Admin" : "Account"} className="flex flex-col gap-0.5">
       {items.map((it, i) => {
         if ("section" in it) {
-          return <span key={i} className={`px-3 pb-1.5 pt-5 text-[10px] font-bold uppercase tracking-[0.16em] ${dark ? "text-white/35" : "text-ink-muted"}`}>{it.section}</span>;
+          return <span key={i} className={`px-2.5 pb-1 pt-4 text-[10px] font-bold uppercase tracking-[0.16em] ${dark ? "text-white/35" : "text-ink-muted"}`}>{it.section}</span>;
         }
         if ("group" in it) {
           const open = it.items.some((x) => x.href === best);
           return (
             <details key={i} open={open} className="group/g [&_summary::-webkit-details-marker]:hidden">
-              <summary className={`flex min-h-[40px] cursor-pointer list-none items-center gap-3 rounded-xl px-3 font-display text-[13px] font-medium transition-colors ${dark ? "text-white/70 hover:bg-white/[0.06] hover:text-white" : "text-ink-soft hover:bg-page hover:text-heading"}`}>
-                {it.icon ? <Icon name={it.icon} className={`h-[17px] w-[17px] shrink-0 ${dark ? "text-white/50" : "text-ink-muted"}`} /> : null}
+              <summary className={`flex min-h-[40px] cursor-pointer list-none items-center gap-2.5 rounded-lg px-2.5 font-display text-[12.5px] font-medium transition-colors lg:min-h-[34px] ${dark ? "text-white/70 hover:bg-white/[0.06] hover:text-white" : "text-ink-soft hover:bg-page hover:text-heading"}`}>
+                {it.icon ? <Icon name={it.icon} className={`h-4 w-4 shrink-0 ${dark ? "text-white/50" : "text-ink-muted"}`} /> : null}
                 <span className="flex-1">{it.group}</span>
                 <span aria-hidden className="text-xs transition group-open/g:rotate-90">›</span>
               </summary>

@@ -77,9 +77,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const initials = (user.name ?? "A").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const userCard = (
     <div className="flex items-center gap-3 px-1">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-ink">{initials}</span>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-ink">{initials}</span>
       <span className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-[13px] font-semibold text-white">{user.name}</span>
+        <span className="truncate text-[12.5px] font-semibold text-white">{user.name}</span>
         <span className="text-[11px] text-white/50">{user.superAdmin ? "Super admin" : "Sub-admin"}</span>
       </span>
     </div>
@@ -88,42 +88,42 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div id="admin-shell" className={`min-h-screen bg-page text-ink lg:flex ${theme === "dark" ? "theme-dark" : ""}`}>
       <Suspense fallback={null}><NavProgress /></Suspense>
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[260px] lg:shrink-0 lg:flex-col lg:bg-brand-deep">
-        <div className="flex h-16 items-center gap-2 px-5">
+      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[236px] lg:shrink-0 lg:flex-col lg:bg-brand-deep">
+        <div className="flex h-14 items-center gap-2 px-4">
           <Logo href="/admin" light sub="Admin" />
         </div>
         {canContent ? (
-          <div className="mx-4 mb-2 flex flex-col gap-1.5">
-            <Link href="/admin/content/new" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-[#1F2328] hover:bg-white hover:text-[#1F2328]">
+          <div className="mx-3 mb-2 flex flex-col gap-1.5">
+            <Link href="/admin/content/new" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent text-[13px] font-semibold text-[#1F2328] hover:bg-white hover:text-[#1F2328]">
               <Icon name="plus" className="h-4 w-4" />Add content
             </Link>
             {/* Many at once, from a spreadsheet (17 Nov 2026). Quiet beside Add content: it is the
                 second thing you reach for, not the first. */}
-            <Link href="/admin/import" className="inline-flex h-9 items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-white/70 ring-1 ring-white/20 hover:bg-white/10 hover:text-white">
+            <Link href="/admin/import" className="inline-flex h-8 items-center justify-center gap-2 rounded-lg text-[12px] font-semibold text-white/70 ring-1 ring-white/20 hover:bg-white/10 hover:text-white">
               <Icon name="files" className="h-4 w-4" />Import a spreadsheet
             </Link>
           </div>
         ) : <span className="mb-2" />}
-        <div className="flex-1 overflow-y-auto px-3 pb-4">
+        <div className="flex-1 overflow-y-auto px-2.5 pb-4">
           <Suspense fallback={null}><SideNav items={items} dark /></Suspense>
         </div>
         <div className="flex flex-col gap-1 border-t border-white/10 p-3">
-          <Link href="/" target="_blank" className="flex h-11 items-center gap-3 rounded-xl px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
+          <Link href="/" target="_blank" className="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
             <Icon name="external" className="h-4 w-4" />View website
           </Link>
-          <div className="mt-1 rounded-xl bg-white/[0.06] p-2.5">{userCard}</div>
+          <div className="mt-1 rounded-lg bg-white/[0.06] p-2">{userCard}</div>
           <SignOutButton className="text-white/70 hover:bg-white/[0.06] hover:text-white" />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Solid, not frosted: a backdrop filter would trap the phone menu panel inside this bar */}
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6 lg:h-16 lg:px-7">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface px-4 sm:px-6 lg:h-14 lg:px-6">
           <Suspense fallback={null}><MobileNav items={items} footer={<>{userCard}<SignOutButton className="mt-3 text-white/70 hover:bg-white/[0.06] hover:text-white" /></>} /></Suspense>
           <span className="lg:hidden"><Logo full href="/admin" /></span>
-          <form action="/admin/content" role="search" className={`ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand focus-within:bg-surface lg:ml-0 ${canContent ? "sm:flex" : ""}`}>
+          <form action="/admin/content" role="search" className={`ml-auto hidden h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-line bg-page px-3 focus-within:border-brand focus-within:bg-surface lg:ml-0 ${canContent ? "sm:flex" : ""}`}>
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
-            <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
+            <input name="q" type="search" placeholder="Search content…" aria-label="Search content" className="w-full bg-transparent text-ink outline-none placeholder:text-ink-muted" />
           </form>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle initial={theme} />
@@ -133,7 +133,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
         {/* Left-aligned to the sidebar (no centring), so wide screens don't open a gap beside it */}
-        <main className="flex w-full min-w-0 max-w-[1600px] flex-col gap-6 px-4 pb-20 pt-6 sm:px-6 lg:gap-7 lg:px-7 lg:pt-7">{children}</main>
+        <main className="flex w-full min-w-0 max-w-[1600px] flex-col gap-3.5 px-3.5 pb-16 pt-4 sm:px-5 lg:gap-4 lg:px-6 lg:pt-5">{children}</main>
       </div>
     </div>
   );
