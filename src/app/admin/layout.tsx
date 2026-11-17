@@ -92,9 +92,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex h-16 items-center gap-2 px-5">
           <Logo href="/admin" light sub="Admin" />
         </div>
-        {canContent ? <Link href="/admin/content/new" className="mx-4 mb-2 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
-          <Icon name="plus" className="h-4 w-4" />Add content
-        </Link> : <span className="mb-2" />}
+        {canContent ? (
+          <div className="mx-4 mb-2 flex flex-col gap-1.5">
+            <Link href="/admin/content/new" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-[13px] font-semibold text-ink hover:bg-white hover:text-ink">
+              <Icon name="plus" className="h-4 w-4" />Add content
+            </Link>
+            {/* Many at once, from a spreadsheet (17 Nov 2026). Quiet beside Add content: it is the
+                second thing you reach for, not the first. */}
+            <Link href="/admin/import" className="inline-flex h-9 items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-white/70 ring-1 ring-white/20 hover:bg-white/10 hover:text-white">
+              <Icon name="files" className="h-4 w-4" />Import a spreadsheet
+            </Link>
+          </div>
+        ) : <span className="mb-2" />}
         <div className="flex-1 overflow-y-auto px-3 pb-4">
           <Suspense fallback={null}><SideNav items={items} dark /></Suspense>
         </div>

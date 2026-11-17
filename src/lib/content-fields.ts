@@ -20,6 +20,22 @@ export type Field = {
   ref?: "supplier";
   /** Render this field in the Basics section, right after the category (e.g. supplier "Business type"). */
   basics?: boolean;
+  /**
+   * Shown on the first screen (client, 17 Nov 2026: "reduce the fields, make it simple for all users").
+   *
+   * A business idea has 39 fields and a funding source 42; asking for all of them at once is why
+   * entering content feels like filling in a form at a bank. Where a directory marks its essentials,
+   * only those are shown, and everything else moves into one "More details" fold — still there, one
+   * click away, and opened automatically when a field inside it has a value or an error, so nothing
+   * already filled in can hide.
+   *
+   * What counts as essential: what a visitor sees on the card and at the top of the page. These match
+   * the columns of the spreadsheet importer (src/lib/bulk-import.ts), so typing one in and importing
+   * a hundred ask for the same things.
+   *
+   * A directory that marks none keeps its old behaviour.
+   */
+  essential?: boolean;
   /** For kind "images": the array column that holds the extra photos (the main one stays in `name`). */
   extra?: string;
 };
@@ -56,6 +72,8 @@ const l = (name: string, label: string, group?: string): Field => ({ name, label
 const u = (name: string, label: string, group?: string): Field => ({ name, label, kind: "url", group });
 const e = (name: string, label: string, options: string[], group?: string): Field => ({ name, label, kind: "enum", options, group });
 const cur = (group?: string): Field => ({ name: "currency", label: "Currency", kind: "text", group, help: "e.g. UGX or USD" });
+/** Marks a field as one of the few shown before "More details" (see Field.essential). */
+const ess = (f: Field): Field => ({ ...f, essential: true });
 
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
 /** The funder's details on a funding source. */
@@ -72,18 +90,18 @@ export const DIRECTORIES: Directory[] = [
     // Main details follow the client's business idea template (rows 1–13); row 14, the start-up
     // budget, is edited under "Startup budget scenarios".
     fields: [
-      e("businessSize", "Business size", ["SMALL", "MEDIUM", "LARGE"], MAIN),
-      t("businessType", "Business type", MAIN, "e.g. Retail business, Manufacturing, Service"),
-      ta("keyRequirements", "Key requirements", MAIN, "One per line, e.g. Space, Fridges, Shelves"),
+      ess(e("businessSize", "Business size", ["SMALL", "MEDIUM", "LARGE"], MAIN)),
+      ess(t("businessType", "Business type", MAIN, "e.g. Retail business, Manufacturing, Service")),
+      ess(ta("keyRequirements", "Key requirements", MAIN, "One per line, e.g. Space, Fridges, Shelves")),
       ta("locationRequirements", "Best location", MAIN, "One per line, e.g. Residential area"), ta("locationNotes", "Best location: notes", MAIN, "e.g. Parking area is key"),
-      d("capitalMin", "Starting capital from", MAIN, MONEY_HELP), d("capitalMax", "Starting capital to", MAIN, MONEY_HELP), cur(MAIN),
+      ess(d("capitalMin", "Starting capital from", MAIN, MONEY_HELP)), ess(d("capitalMax", "Starting capital to", MAIN, MONEY_HELP)), ess(cur(MAIN)),
       ta("capitalNotes", "Starting capital: notes", MAIN, "e.g. Depends on the amount of stock and kind of equipment bought"),
       ta("licencesToInvestigate", "Special requirements", MAIN, "Licences and registrations, one per line, e.g. Trading licence"),
       ta("targetCustomers", "Target market", MAIN), ta("successFactors", "Success factors", MAIN),
-      e("profitPotential", "Profit potential", ["LOW", "MEDIUM", "HIGH"], MAIN),
-      ta("requiredSkills", "Key skills", MAIN, "One per line, e.g. Business management"), t("setupTime", "Time to set up", MAIN, "e.g. 2 – 3 weeks"),
+      ess(e("profitPotential", "Profit potential", ["LOW", "MEDIUM", "HIGH"], MAIN)),
+      ta("requiredSkills", "Key skills", MAIN, "One per line, e.g. Business management"), ess(t("setupTime", "Time to set up", MAIN, "e.g. 2 – 3 weeks")),
       ta("remarks", "Remarks", MAIN),
-      { ...u("pictureUrl", "Picture", MAIN), upload: "image" }, t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
+      ess({ ...u("pictureUrl", "Picture", MAIN), upload: "image" }), t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       ta("businessModel", "Business model", "Concept"), ta("productsOrServices", "Products or services", "Concept"),
       ta("customerProblem", "Customer problem", "Concept"), ta("valueProposition", "Value proposition", "Concept"),
       e("experienceLevel", "Experience level", ["BEGINNER", "INTERMEDIATE", "ADVANCED"], "Suitability"),
@@ -103,10 +121,10 @@ export const DIRECTORIES: Directory[] = [
     type: "MACHINE", label: "Business machine", model: "machine",
     labels: { title: "Machine name", shortSummary: "Brief", overview: "Description", category: "Category" },
     fields: [
-      ta("function", "Function", MAIN), t("machineType", "Type", MAIN),
-      d("priceMin", "Price from", MAIN, MONEY_HELP), d("priceMax", "Price to", MAIN, "Same as the first box for a single price"), cur(MAIN),
+      ess(ta("function", "Function", MAIN)), ess(t("machineType", "Type", MAIN)),
+      ess(d("priceMin", "Price from", MAIN, MONEY_HELP)), ess(d("priceMax", "Price to", MAIN, "Same as the first box for a single price")), ess(cur(MAIN)),
       ta("sources", "Source", MAIN, "Where to buy it, in Uganda and overseas"),
-      { name: "pictureUrl", label: "Pictures (add several; the first is the main one)", kind: "images", group: MAIN, extra: "moreImages" },
+      ess({ name: "pictureUrl", label: "Pictures (add several; the first is the main one)", kind: "images", group: MAIN, extra: "moreImages" }),
       t("pictureCredit", "Picture credit", MAIN, "e.g. Photo: Jane Doe, CC BY-SA 4.0"),
       l("videoUrls", "Videos (links)", MAIN), ta("remarks", "Remarks", MAIN),
       { name: "supplierId", label: "Supplier already on the site", kind: "text", group: PROVIDER, ref: "supplier", help: "Choose one to link their page and use their contacts. Leave on \"None\" to type the provider below." },
@@ -153,16 +171,16 @@ export const DIRECTORIES: Directory[] = [
     labels: { title: "Fund name", shortSummary: "Brief", overview: "Description (optional)", category: "Category" },
     fields: [
       // In the order of the client's funding template (Nov 2026): the list's columns, then the fund details' rows
-      { ...e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN), required: true },
-      t("purpose", "Purpose", MAIN, "e.g. Working capital, Education, Women empowerment"),
-      d("amountMin", "Amount given, from", MAIN, MONEY_HELP), d("amountMax", "Amount given, up to", MAIN, "A ceiling, not a guarantee"), cur(MAIN),
+      ess({ ...e("fundingType", "Fund type", ["LOAN", "GRANT", "EQUITY", "GUARANTEE", "OTHER"], MAIN), required: true }),
+      ess(t("purpose", "Purpose", MAIN, "e.g. Working capital, Education, Women empowerment")),
+      ess(d("amountMin", "Amount given, from", MAIN, MONEY_HELP)), ess(d("amountMax", "Amount given, up to", MAIN, "A ceiling, not a guarantee")), ess(cur(MAIN)),
       t("amountBasis", "Amount note", MAIN, "e.g. 10m to 20m for beginners, 200m for repeat customers"),
-      ta("eligibilityText", "Eligibility", MAIN, "One requirement per line"),
+      ess(ta("eligibilityText", "Eligibility", MAIN, "One requirement per line")),
       b("collateralRequired", "Collateral required", MAIN),
       t("targetGroup", "Target group", MAIN, "e.g. SMEs, Women, Youth"),
       t("tenor", "Tenor", MAIN, "e.g. 4 months to 24 months"),
       l("eligibleBusinessTypes", "Eligible sectors", MAIN),
-      ta("howToApply", "How to apply", MAIN, "e.g. SMS MAALI to 8979, or fill in the form on their website"),
+      ess(ta("howToApply", "How to apply", MAIN, "e.g. SMS MAALI to 8979, or fill in the form on their website")),
       u("officialTermsUrl", "Apply link", MAIN),
       t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
       // The funder's own details, kept on the fund provider and shared by all its funds (saved in src/app/admin/content/actions.ts)
@@ -222,11 +240,11 @@ export const DIRECTORIES: Directory[] = [
       main: "Services, contact person and address", mainNote: "Shown on the expert's page. Phone and email are shown to members only.", moreNote: "Optional. Fill in what you know.",
     },
     fields: [
-      { ...l("specialties", "Services offered", MAIN), help: "Separate with commas, e.g. tax, accounting, export" },
-      t("fullName", "Contact person name", MAIN, "The person buyers will talk to"),
-      t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant"),
-      t("phone", "Phone number", MAIN, "e.g. 0772 123 456"), t("email", "Email address", MAIN),
-      { ...u("photoUrl", "Photo", MAIN), upload: "image" },
+      ess({ ...l("specialties", "Services offered", MAIN), help: "Separate with commas, e.g. tax, accounting, export" }),
+      ess(t("fullName", "Contact person name", MAIN, "The person buyers will talk to")),
+      ess(t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant")),
+      ess(t("phone", "Phone number", MAIN, "e.g. 0772 123 456")), ess(t("email", "Email address", MAIN)),
+      ess({ ...u("photoUrl", "Photo", MAIN), upload: "image" }),
       t("address", "Physical address", MAIN, "Street, building or area, e.g. Plot 12, Kampala Road, 2nd floor"),
       t("district", "District", MAIN, "e.g. Kampala"), { ...t("country", "Country", MAIN), initial: "Uganda" },
       { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },

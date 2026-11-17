@@ -28,7 +28,13 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
   const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER && g !== PROVIDER);
   // A funding source's funder details sit with the fund provider choice, always open
   const funderFields = dir.fields.filter((f) => f.group === FUNDER);
-  const mainFields = dir.fields.filter((f) => f.group === MAIN && !f.basics);
+  // Where a directory marks its essentials (Field.essential), the first screen shows only those and
+  // the rest of its main details join the optional groups below. A directory that marks none is
+  // unchanged. Nothing is ever dropped — "More details" holds everything that is not up here.
+  const allMain = dir.fields.filter((f) => f.group === MAIN && !f.basics);
+  const marksEssentials = allMain.some((f) => f.essential);
+  const mainFields = marksEssentials ? allMain.filter((f) => f.essential) : allMain;
+  const restOfMain = marksEssentials ? allMain.filter((f) => !f.essential) : [];
   const basicsFields = dir.fields.filter((f) => f.basics);
   // A machine's provider: its own section, always open, right after the main details
   const providerFields = dir.fields.filter((f) => f.group === PROVIDER);
@@ -49,7 +55,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
     ...(providerFields.length ? [[slug(PROVIDER), "Provider"] as [string, string]] : []),
     ...(newSupplier ? [["s-products", "Products"] as [string, string]] : []),
     ...(dir.children ?? []).map((c) => [slug(c.label), c.label] as [string, string]),
-    ...extraGroups.map((g) => [slug(g), g] as [string, string]),
+    ...(extraGroups.length || restOfMain.length ? [["s-more", "More details"] as [string, string]] : []),
     ["s-publish", "Who can see it"],
     ["s-advanced", "Advanced settings"],
   ];
@@ -117,14 +123,33 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
         </Section>
       ))}
 
-      {extraGroups.map((g) => {
-        const fields = dir.fields.filter((f) => (f.group ?? "Details") === g);
+      {/* One fold, not six or seven (client, 17 Nov 2026: "make it very simple"). A business idea had
+          seven separate sections to scroll past; everything optional now lives behind a single
+          heading, with each group as a sub-heading inside. It opens by itself when something inside
+          is filled in or needs fixing, so an item that already has these details never hides them. */}
+      {(() => {
+        const groups: [string, Field[]][] = [
+          ...(restOfMain.length ? ([[lb.main ?? MAIN, restOfMain]] as [string, Field[]][]) : []),
+          ...extraGroups.map((g) => [g, dir.fields.filter((f) => (f.group ?? "Details") === g)] as [string, Field[]]),
+        ];
+        const fields = groups.flatMap(([, fs]) => fs);
+        if (!fields.length) return null;
+        const filled = fields.some((f) => v(`f_${f.name}`));
+        const broken = fields.some((f) => err(f.name));
+        const count = fields.length;
         return (
-          <Fold key={g} id={slug(g)} title={g} note={lb.moreNote ?? "Optional. Shown under Full details on the public page when filled."} open={fields.some((f) => err(f.name))}>
-            <div className="flex flex-wrap gap-3.5">{fields.map(field)}</div>
+          <Fold id="s-more" title="More details" note={lb.moreNote ?? `Optional — ${count} more field${count === 1 ? "" : "s"}. Shown on the public page when filled.`} open={filled || broken}>
+            <div className="flex flex-col gap-6">
+              {groups.map(([g, fs]) => (
+                <div key={g} className="flex flex-col gap-3">
+                  {groups.length > 1 ? <h3 id={slug(g)} className="scroll-mt-20 text-[13px] font-bold uppercase tracking-wide text-ink-muted">{g}</h3> : null}
+                  <div className="flex flex-wrap gap-3.5">{fs.map(field)}</div>
+                </div>
+              ))}
+            </div>
           </Fold>
         );
-      })}
+      })()}
 
       {/* Free directories (news, useful websites, business tips) are always public: no access choice shown. */}
       {FREE_TYPES.has(type) ? null : (
