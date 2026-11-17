@@ -204,7 +204,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, go
     <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8">
       {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right.
           While paying, the Pesapal page takes the whole card. */}
-      <div className={`onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:overflow-hidden md:rounded-3xl ${checkout ? "max-w-[620px]" : "max-w-[920px] md:grid-cols-[1fr_1.1fr]"}`}>
+      <div className={`onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:overflow-hidden md:rounded-3xl ${checkout ? "max-w-[680px]" : "max-w-[1020px] md:grid-cols-[1fr_1.1fr]"}`}>
         {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
         {/* Desktop: positioned absolutely, so it is not a grid cell and the two panels keep their columns */}
         <div className="sticky top-0 z-20 col-span-full h-0 md:absolute md:inset-x-0 md:top-0">
