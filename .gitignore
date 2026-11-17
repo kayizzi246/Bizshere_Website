@@ -16,6 +16,7 @@ next-env.d.ts
 uploads/
 .pgdata/
 .next-verify/
+.next-ci/
 public/uploads/
 
 tests/artifacts/

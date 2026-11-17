@@ -40,7 +40,7 @@ export default async function HomePage() {
       {/* Laptops and up (1280px+): the hero is 740px tall (16 Nov 2026; 790 before, then 660 and 700), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(88vh,640px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(92vh,700px)] xl:flex-col xl:justify-center">
         {/* A quiet drift of specks over the gradient (16 Nov 2026). Faint on purpose: texture behind the
             words, not the moving network of lights that was taken off on 12 Nov. Still with reduced motion. */}
         <ParticleField />

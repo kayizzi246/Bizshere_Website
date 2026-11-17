@@ -3,19 +3,24 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-type Dot = { x: number; y: number; vx: number; vy: number; r: number; a: number; tint: number };
+/** `phase` and `speed` drive the twinkle; `drift` is the barely-there sideways movement. */
+type Dot = { x: number; y: number; r: number; base: number; phase: number; speed: number; drift: number; tint: number };
 
 /**
- * A quiet field of drifting specks for a dark panel.
+ * A night sky for a dark panel: specks that hold their place and slowly brighten and dim.
  *
- * Deliberately less than HeroParticles: no lines between dots, nothing that follows the pointer, and
- * low enough in contrast to read as texture rather than decoration competing with the words. It fills
- * its parent, which must be positioned, and sits behind the content.
+ * Chosen over drifting dots (17 Nov 2026). Each star breathes on its own timer, so the field is
+ * always changing without anything actually travelling across the panel — calm enough to sit behind
+ * a headline, where motion across the screen pulls the eye off the words. A touch of sideways drift
+ * is kept so it does not look like a static image.
+ *
+ * Deliberately less than HeroParticles: no lines between dots and nothing that follows the pointer.
+ * It fills its parent, which must be positioned, and sits behind the content.
  *
  * Decorative only — it takes no clicks and is hidden from screen readers. It stops when scrolled out
  * of view or the tab is hidden, and with `prefers-reduced-motion` it is painted once and left still.
  */
-export function ParticleField({ className, count = 44 }: { className?: string; count?: number }) {
+export function ParticleField({ className, count = 90 }: { className?: string; count?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -49,11 +54,15 @@ export function ParticleField({ className, count = 44 }: { className?: string; c
       dots = Array.from({ length: n }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        // Slow: a dot crosses the panel in a few minutes, so it reads as drift, not motion.
-        vx: (Math.random() - 0.5) * 0.08,
-        vy: (Math.random() - 0.5) * 0.08,
-        r: Math.random() * 1.3 + 0.5,
-        a: Math.random() * 0.28 + 0.08,
+        r: Math.random() * 1.5 + 0.6,
+        // The brightness each star settles around; the twinkle swings either side of it.
+        base: Math.random() * 0.34 + 0.16,
+        // A random starting point in the cycle, so they are not all bright at the same moment.
+        phase: Math.random() * Math.PI * 2,
+        // Each on its own clock: the slowest takes about 11 seconds a cycle, the quickest about 2.5.
+        speed: Math.random() * 0.021 + 0.005,
+        // Barely moving — a few pixels a minute, just enough that the field is never quite still.
+        drift: (Math.random() - 0.5) * 0.02,
         tint: Math.random(),
       }));
     };
@@ -62,23 +71,27 @@ export function ParticleField({ className, count = 44 }: { className?: string; c
       ctx.clearRect(0, 0, width, height);
       for (const d of dots) {
         // Mostly white, a few in the hero's light blue, so it sits inside the existing palette.
-        const rgb = d.tint > 0.78 ? "150,205,255" : "255,255,255";
+        const rgb = d.tint > 0.62 ? "150,205,255" : "255,255,255";
+        // sin() swings between -1 and 1; this maps it to 35%-100% of the star's own brightness, so
+        // one never blinks out completely — that would read as a fault rather than a twinkle.
+        const a = d.base * (0.675 + 0.325 * Math.sin(d.phase));
+        // The brightest moment also grows it very slightly, which is what sells it as light.
+        const r = d.r * (0.92 + 0.08 * Math.sin(d.phase));
         ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${rgb},${d.a})`;
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb},${a})`;
         ctx.fill();
       }
     };
 
     const step = () => {
       for (const d of dots) {
-        d.x += d.vx;
-        d.y += d.vy;
+        d.phase += d.speed;
+        if (d.phase > Math.PI * 2) d.phase -= Math.PI * 2;
+        d.x += d.drift;
         // Wrap rather than bounce: bouncing makes the edges visible as the dots pile up against them.
         if (d.x < -2) d.x = width + 2;
         else if (d.x > width + 2) d.x = -2;
-        if (d.y < -2) d.y = height + 2;
-        else if (d.y > height + 2) d.y = -2;
       }
       draw();
       frame = requestAnimationFrame(step);

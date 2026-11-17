@@ -276,7 +276,7 @@ select {
    and the top right, where there is no body text, and the panel darkens towards the middle and the
    bottom, so white type always sits on the dark blue. */
 .hero-premium, .hero-glow {
-  position: relative; background-color: #061529; background-repeat: no-repeat; background-origin: border-box;
+  position: relative; background-color: #03101F; background-repeat: no-repeat; background-origin: border-box;
   /* A scrim over the search box, the twelve chips and the two buttons (17 Nov 2026: "this area has to
      be dark so that they show well"). The chips are translucent white, so once the blue was taken up
      to the logo colour they had nothing to stand against. It is a variable because the controls sit in
@@ -299,7 +299,7 @@ select {
        needs a quiet background. White text measures 4.89:1 on the logo blue itself and more on
        every stop after it, so it clears the 4.5:1 minimum — but only just, which is why the blue
        does not get any lighter than the logo. */
-    linear-gradient(118deg, #0072CE 0%, #0068BE 22%, #005CA8 42%, #073C6E 68%, #061529 100%);
+    linear-gradient(118deg, #0A4E8C 0%, #083C6C 20%, #06294C 44%, #051C34 70%, #03101F 100%);
 }
 /* Below xl the hero is a single column: the controls are no longer in the bottom-left corner but
    across the whole width, so the scrim is wider, centred, and sits higher. */
@@ -545,9 +545,9 @@ img[data-fit="contain"] { object-fit: contain !important; background-color: #EEF
 
 /* Every page's main title one size (client, 13 Nov 2026; raised again with the headings): 28px on
    phones, 34px from 640px, 40px from 1280px, whatever size the page set. The homepage headline (data-home) keeps its own. */
-main h1.text-hero:not([data-home]) { font-size: 30px !important; line-height: 1.06 !important; }
-@media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 38px !important; } }
-@media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 46px !important; } }
+main h1.text-hero:not([data-home]) { font-size: 25px !important; line-height: 1.1 !important; }
+@media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 31px !important; } }
+@media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 36px !important; } }
 /* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
 /* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example): Inter ExtraBold (800), tight.
    !important so a heading's own weight class (font-bold, font-semibold…) can't make it lighter. */
