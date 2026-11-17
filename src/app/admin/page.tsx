@@ -93,7 +93,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     pending && can("review") ? { href: "/admin/review", text: `${pending} item${pending === 1 ? "" : "s"} waiting for review${oldPending ? ` (${oldPending} older than 3 days)` : ""}`, tone: oldPending ? "warn" : "info" } : null,
     corrections && can("corrections") ? { href: "/admin/corrections", text: `${corrections} reported mistake${corrections === 1 ? "" : "s"} to check`, tone: "info" } : null,
     pendingPayments && can("payments") ? { href: "/admin/payments?status=PENDING", text: `${pendingPayments} payment${pendingPayments === 1 ? "" : "s"} waiting to confirm`, tone: "warn" } : null,
-    failedPayments && can("payments") ? { href: "/admin/payments?status=FAILED", text: `${failedPayments} failed payment${failedPayments === 1 ? "" : "s"} this month`, tone: "bad" } : null,
+    failedPayments && can("payments") ? { href: "/admin/payments/checks", text: `${failedPayments} failed payment${failedPayments === 1 ? "" : "s"} this month — see why`, tone: "bad" } : null,
     overdue && canContent ? { href: "/admin/content?fresh=over", text: `${overdue} page${overdue === 1 ? "" : "s"} overdue for re-review`, tone: "warn" } : null,
     closedOpenRounds && can(contentArea("FUNDING_PROGRAMME")) ? { href: "/admin/content?type=FUNDING_PROGRAMME", text: `${closedOpenRounds} funding round${closedOpenRounds === 1 ? "" : "s"} past closing but still open`, tone: "bad" } : null,
     stalePrices && can("prices") ? { href: "/admin/prices", text: `${stalePrices} market price${stalePrices === 1 ? "" : "s"} older than 30 days`, tone: "warn" } : null,

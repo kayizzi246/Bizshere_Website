@@ -43,9 +43,16 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
           <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Payments</h1>
           <p className="text-sm text-ink-muted">Membership payments made on the website, newest first.</p>
         </div>
-        <a href={exportHref} className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-line bg-surface px-4 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">
-          <Icon name="download" className="h-4 w-4" />Download CSV
-        </a>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* The connection to Pesapal, checked from the server (17 Nov 2026). Marked when payments
+              are failing, because that is the only time anyone thinks to look for it. */}
+          <Link href="/admin/payments/checks" className={`inline-flex h-10 items-center gap-2 rounded-[10px] border px-3.5 text-[12.5px] font-semibold ${failed ? "border-bad-fg/40 bg-bad-bg text-bad-fg" : "border-line bg-surface text-ink hover:border-brand hover:text-brand"}`}>
+            <Icon name="flag" className="h-4 w-4" />{failed ? "Why payments are failing" : "Check the payment connection"}
+          </Link>
+          <a href={exportHref} className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-line bg-surface px-3.5 text-[12.5px] font-semibold text-ink hover:border-brand hover:text-brand">
+            <Icon name="download" className="h-4 w-4" />Download CSV
+          </a>
+        </div>
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">

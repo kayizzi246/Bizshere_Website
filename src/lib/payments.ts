@@ -176,3 +176,122 @@ export async function cancelOrder(trackingId: string): Promise<boolean> {
     return false;
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────────────────────────────────
+   Checking the connection from inside the admin (17 Nov 2026).
+
+   When a payment fails on the live site, the reason is in the server's console, where the person
+   running the site cannot see it. These checks run the same calls the checkout does and say, in
+   plain words, which step failed and what to change. Secrets are never returned — a key is shown
+   only as its first four characters and its length, enough to tell two keys apart.
+   ──────────────────────────────────────────────────────────────────────────────────────────────── */
+
+export type PaymentCheck = { name: string; state: "ok" | "bad" | "warn"; detail: string; fix?: string };
+
+const masked = (name: string) => {
+  const v = setting(name);
+  return v ? `${v.slice(0, 4)}…${v.length} characters` : "";
+};
+
+export async function pesapalChecks(): Promise<PaymentCheck[]> {
+  const checks: PaymentCheck[] = [];
+  const url = site.url;
+  const live = !sandbox();
+
+  // 1. The website's own address. Everything else is built from it: the page Pesapal sends the
+  //    payer back to, and the address Pesapal calls to say the money arrived. A default of
+  //    localhost means NEXTAUTH_URL was never set on the server, and nothing can work.
+  const localhost = /localhost|127\.0\.0\.1/.test(url);
+  checks.push({
+    name: "This website's address",
+    state: localhost ? "bad" : url.startsWith("https://") ? "ok" : "warn",
+    detail: url,
+    fix: localhost
+      ? "Set NEXTAUTH_URL to the live address (e.g. https://bizsphere-ug.com) in the server's environment variables and redeploy. Pesapal sends the payer back to this address and calls it to confirm payment, so while it says localhost no payment can finish."
+      : url.startsWith("https://") ? undefined : "Pesapal requires https. Put the site behind a certificate and set NEXTAUTH_URL to the https address.",
+  });
+
+  // 2. The keys, and which Pesapal they belong to. Sandbox keys work only on the demo server and
+  //    live keys only on the real one, which is the most common reason for "invalid consumer key".
+  const hasKeys = pesapalConfigured();
+  checks.push({
+    name: "Pesapal keys",
+    state: hasKeys ? "ok" : "bad",
+    detail: hasKeys ? `Key ${masked("PESAPAL_CONSUMER_KEY")}, secret ${masked("PESAPAL_CONSUMER_SECRET")}` : "Not set",
+    fix: hasKeys ? undefined : "Put PESAPAL_CONSUMER_KEY and PESAPAL_CONSUMER_SECRET from your Pesapal account into the server's environment variables and redeploy.",
+  });
+  checks.push({
+    name: "Which Pesapal",
+    state: live ? "ok" : "warn",
+    detail: live ? "Live — real money (pay.pesapal.com)" : "Sandbox — test money only (cybqa.pesapal.com)",
+    fix: live ? undefined : "PESAPAL_ENV is set to sandbox, so nothing here takes real money. Remove PESAPAL_ENV from the server's environment variables and use your live keys.",
+  });
+  if (process.env.PAYMENT_SIMULATE === "true") {
+    checks.push({
+      name: "Pretend payments",
+      state: "bad",
+      detail: "PAYMENT_SIMULATE is on: memberships are granted without anyone paying",
+      fix: "Remove PAYMENT_SIMULATE from the live server's environment variables and redeploy. It is for demonstrations only.",
+    });
+  }
+
+  if (!hasKeys) return checks;
+
+  // 3. The call the checkout makes first. If this fails, nothing downstream is worth testing.
+  let signedIn = false;
+  try {
+    await authToken();
+    signedIn = true;
+    checks.push({ name: "Signing in to Pesapal", state: "ok", detail: `Accepted by the ${live ? "live" : "sandbox"} server` });
+  } catch (e) {
+    checks.push({
+      name: "Signing in to Pesapal",
+      state: "bad",
+      detail: (e as Error).message,
+      fix: `Pesapal refused these keys on the ${live ? "live" : "sandbox"} server. Sandbox keys work only on the demo server and live keys only on the real one — check you copied the ${live ? "live" : "sandbox"} pair, with no spaces or quotes around them.`,
+    });
+  }
+
+  // 4. The IPN: the address Pesapal calls when money arrives. Without it a payment can go through
+  //    on the phone and never reach the site, which looks exactly like a failure to the payer.
+  if (signedIn) {
+    const want = `${url}/api/payments/webhook`;
+    try {
+      const list = await call<{ url: string; ipn_id: string }[]>("/api/URLSetup/GetIpnList", { method: "GET" });
+      const found = Array.isArray(list) ? list.find((i) => i.url === want) : undefined;
+      const fixed = setting("PESAPAL_IPN_ID");
+      checks.push({
+        name: "Payment notice address",
+        state: found ? (fixed && fixed !== found.ipn_id ? "warn" : "ok") : "warn",
+        detail: found
+          ? `Registered: ${want}${fixed ? (fixed === found.ipn_id ? " (and PESAPAL_IPN_ID matches)" : ` — but PESAPAL_IPN_ID is set to a different one (${fixed})`) : ""}`
+          : `Not registered yet for ${want}. ${Array.isArray(list) && list.length ? `This account has ${list.length} other registration${list.length === 1 ? "" : "s"}.` : "This account has none."}`,
+        fix: found
+          ? (fixed && fixed !== found.ipn_id ? `Set PESAPAL_IPN_ID to ${found.ipn_id}, or remove it and let the site find its own.` : undefined)
+          : "The site registers this by itself the first time someone pays, so this is usually fine. If payments are taken but never confirmed, run `npm run pesapal:ipn` on the server and put the id it prints into PESAPAL_IPN_ID.",
+      });
+    } catch (e) {
+      checks.push({ name: "Payment notice address", state: "bad", detail: (e as Error).message });
+    }
+  }
+
+  // 5. Can Pesapal actually reach that address? Asked from this server, which is not where Pesapal
+  //    asks from, so a failure here is a hint and not a verdict — say so rather than overstate it.
+  try {
+    const res = await fetch(`${url}/api/payments/webhook`, { method: "GET", cache: "no-store", signal: AbortSignal.timeout(10_000) });
+    checks.push({
+      name: "Is that address answering?",
+      state: "ok",
+      detail: `Yes — it replied ${res.status}${res.status === 400 ? " (the right answer to an empty request)" : ""}`,
+    });
+  } catch (e) {
+    checks.push({
+      name: "Is that address answering?",
+      state: "warn",
+      detail: `No reply: ${(e as Error).message}`,
+      fix: "The server could not reach its own public address. That is normal on some hosts and does not prove Pesapal cannot reach it — open the address in a browser to be sure. If the browser cannot reach it either, payments will be taken and never confirmed.",
+    });
+  }
+
+  return checks;
+}
