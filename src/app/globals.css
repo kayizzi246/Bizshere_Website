@@ -442,11 +442,11 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 }
 
 /* The header (SiteHeader) is one floating rounded bar. --hh is its full height, gap included:
-   8px gap + 48px bar on phones, 12px + 56px from laptop width. A dark hero marked .under-header runs
+   8px gap + 56px bar on phones, 12px + 56px from laptop width. A dark hero marked .under-header runs
    up behind it to the top of the screen (the transparent top border shows the hero's own background).
    These must stay equal to the header's own padding + height in SiteHeader.tsx: if --hh is short, a
    strip of page background shows above the hero; if it is long, the hero is pulled under the top edge. */
-:root { --hh: 56px; }
+:root { --hh: 64px; } /* 8 + 56: the phone bar grew to 56px on 17 Nov 2026 so the logo could */
 @media (min-width: 1024px) { :root { --hh: 68px; } }
 /* background-origin: border-box, so a background (a gradient especially) is drawn once from the very top
    through the strip behind the header; from the padding box it would repeat there and show a seam. */

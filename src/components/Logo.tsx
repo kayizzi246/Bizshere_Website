@@ -10,10 +10,10 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
     return (
       <Link href={href} aria-label="BizSphere-Ug home" className="shrink-0">
         {/* data-nofit: the logo is a transparent cut-out, so it must not get ImageFit's grey plate (client, 14 Nov 2026) */}
-        {/* 42/50px (17 Nov 2026). It was 48/56 — the full height of the header bar, so it met both
-            edges — then 32/36 and 36/42, which still read small. This is as large as the mark goes
-            while keeping a little air top and bottom inside the 48/56px bar. */}
-        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[42px] w-auto lg:h-[50px]" />
+        {/* 48/50px (17 Nov 2026). 42px still read small on a phone, and it could not grow inside a
+            48px bar — so the phone bar went to 56px (SiteHeader, --hh) and the logo with it. Both
+            sizes now leave 3-4px of air top and bottom inside the 56px bar. */}
+        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[48px] w-auto lg:h-[50px]" />
       </Link>
     );
   }
