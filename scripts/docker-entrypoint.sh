@@ -61,12 +61,21 @@ do
 done
 echo "  database is up."
 
-echo "→ Applying database migrations (prisma migrate deploy)…"
-npx prisma migrate deploy
+# Schema changes run as the database OWNER; the site itself runs as a role that can only read and
+# write rows (prisma/sql/harden.sql). Set MIGRATION_DATABASE_URL to the owner's connection string
+# to get that separation. Without it both use DATABASE_URL, exactly as before.
+MIGRATE_URL=${MIGRATION_DATABASE_URL:-$DATABASE_URL}
+if [ -n "${MIGRATION_DATABASE_URL:-}" ]; then
+  echo "  (schema changes use MIGRATION_DATABASE_URL; the site runs as the restricted role)"
+fi
 
-# Database-level checks and indexes (safe to run again on every start).
+echo "→ Applying database migrations (prisma migrate deploy)…"
+DATABASE_URL="$MIGRATE_URL" npx prisma migrate deploy
+
+# Database-level checks and indexes (safe to run again on every start). DDL, so it is the owner's
+# job too.
 echo "→ Applying database constraints…"
-npx prisma db execute --file prisma/sql/constraints.sql --schema prisma/schema.prisma || echo "  (constraints step skipped)"
+DATABASE_URL="$MIGRATE_URL" npx prisma db execute --file prisma/sql/constraints.sql --schema prisma/schema.prisma || echo "  (constraints step skipped)"
 
 echo "→ Starting Next.js…"
 exec npm run start

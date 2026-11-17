@@ -16,6 +16,15 @@ Read them in this order. Each document says who it is for.
 | 09 | [SMS, payments and logins](09-sms-payments-and-logins.md) | Whoever sets up the site | EgoSMS, Resend email, Pesapal payments (sandbox and live), every sign-in method, renewal reminders, go-live checklist |
 | 10 | [Security](10-security.md) | Owner, developer, hosting | Bot and scanner blocking, rate limits, staff SMS codes, Vercel Firewall settings, secrets, what to do in an incident |
 
+## Running it on your own server
+
+| Document | For | Covers |
+| --- | --- | --- |
+| [Deploying to Coolify](deploy-coolify.md) | Whoever sets up the site | Building from the Dockerfile, environment variables, persistent storage for uploads |
+| [Moving the database onto the VPS](move-database-to-vps.md) | Owner, developer | Leaving a managed database for Postgres beside the app: what to do about the old data, step by step, and what to verify |
+| [Keeping the server safe, and the data recoverable](security-and-backups.md) | Owner, developer | What to do before entering real data, backups that are actually tested, locking the database down, SSH, patching, secrets |
+| [The old Prisma Postgres database](restore-old-data.md) | Owner | What happened to it and what can still be done |
+
 ## Source documents
 
 Kept unchanged in [`source/`](source/):
