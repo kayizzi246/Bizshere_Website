@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "primeicons/primeicons.css";
 import "../styles/primereact-theme.css";
 import "./globals.css";
@@ -9,8 +9,22 @@ import { site } from "@/config/site";
 
 // One font on the whole site (client, 13 Nov 2026, after an example site): Inter for headings and body text alike.
 // Headings in Bold (700) with tight letter spacing, the big homepage headline in ExtraBold (800), body text in
-// Regular to Semibold. Self-hosted by next/font: no request to Google, no layout shift on load.
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-inter", display: "swap" });
+// Regular to Semibold.
+//
+// The file is kept in the repo and loaded with next/font/local (17 Nov 2026). It used to come from
+// next/font/google, which downloads the font from Google *during the build*: that fetch has no way out of
+// the Coolify build container, so every deploy died in layout.tsx with "An error occurred in next/font —
+// Cannot read properties of null (reading '1')" (the loader regex-matching an answer it never got). The
+// file is the same one Google serves — Inter v20, latin subset, variable 400-800 — so nothing about the
+// type changes; the build simply no longer needs the network.
+const inter = localFont({
+  src: "../fonts/inter-latin-var.woff2",
+  weight: "400 800", // one variable file covers the whole range
+  style: "normal",
+  variable: "--font-inter",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
 export const viewport: Viewport = { themeColor: "#0d1117" };

@@ -13,3 +13,5 @@ coverage
 .idea
 README.md
 docs
+backups
+.pgdata
