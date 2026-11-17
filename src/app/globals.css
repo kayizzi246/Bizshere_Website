@@ -277,7 +277,16 @@ select {
    bottom, so white type always sits on the dark blue. */
 .hero-premium, .hero-glow {
   position: relative; background-color: #061529; background-repeat: no-repeat; background-origin: border-box;
+  /* A scrim over the search box, the twelve chips and the two buttons (17 Nov 2026: "this area has to
+     be dark so that they show well"). The chips are translucent white, so once the blue was taken up
+     to the logo colour they had nothing to stand against. It is a variable because the controls sit in
+     a different place on a phone: from xl the hero is two columns and they are bottom left, below that
+     the hero is one column and they run the full width, lower down. The media query is at the end of
+     this rule. It is the first background layer, because the first layer paints on top, and it fades
+     out before the headline and the right-hand card so only the controls get the darker ground. */
+  --hero-scrim: radial-gradient(76% 62% at 28% 90%, rgba(4, 18, 40, 0.62) 0%, rgba(4, 18, 40, 0.34) 44%, transparent 74%);
   background-image:
+    var(--hero-scrim),
     /* light blue, left edge */
     radial-gradient(58% 86% at 0% 52%, rgba(93, 190, 255, 0.50) 0%, rgba(38, 124, 214, 0.26) 38%, rgba(12, 58, 120, 0.10) 62%, transparent 78%),
     /* light blue, top right */
@@ -291,6 +300,11 @@ select {
        every stop after it, so it clears the 4.5:1 minimum — but only just, which is why the blue
        does not get any lighter than the logo. */
     linear-gradient(118deg, #0072CE 0%, #0068BE 22%, #005CA8 42%, #073C6E 68%, #061529 100%);
+}
+/* Below xl the hero is a single column: the controls are no longer in the bottom-left corner but
+   across the whole width, so the scrim is wider, centred, and sits higher. */
+@media (max-width: 1279px) {
+  .hero-premium { --hero-scrim: radial-gradient(130% 56% at 50% 84%, rgba(4, 18, 40, 0.66) 0%, rgba(4, 18, 40, 0.40) 46%, transparent 78%); }
 }
 /* .hero-glow: the same blue, quieter (client, 17 Nov 2026: "on the footer and these other pages
    reduce it"). The homepage hero is a full screen of colour and can carry the strong version; the
