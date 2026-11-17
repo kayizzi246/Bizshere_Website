@@ -40,17 +40,17 @@ export default async function HomePage() {
       {/* Laptops and up (1280px+): the hero is 740px tall (16 Nov 2026; 790 before, then 660 and 700), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(100vh,740px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(84vh,600px)] xl:flex-col xl:justify-center">
         {/* A quiet drift of specks over the gradient (16 Nov 2026). Faint on purpose: texture behind the
             words, not the moving network of lights that was taken off on 12 Nov. Still with reduced motion. */}
         <ParticleField />
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
-        <div className="container-site relative pt-1.5 sm:pt-[40px]">
+        <div className="container-site relative pt-1.5 sm:pt-[26px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-8 pb-10 pt-4 sm:pb-12 sm:pt-6 xl:pb-9 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-7 pb-8 pt-3 sm:pb-9 sm:pt-4 xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
