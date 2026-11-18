@@ -35,7 +35,8 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
   onSort: (v: T) => void;
   /** Above the bar (recently viewed) */
   top?: React.ReactNode;
-  aside: React.ReactNode;
+  /** The side column. Left out (18 Nov 2026, client: simpler pages) the list runs full width. */
+  aside?: React.ReactNode;
   pager: React.ReactNode;
   listTop: React.RefObject<HTMLElement>;
   /** The list, or the empty message */
@@ -59,7 +60,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
 
         <FilterBar cats={cats} category={category} onCategory={onCategory} sort={sort} sorts={sorts} onSort={onSort} />
 
-        <section ref={listTop} aria-labelledby="listings" className={`grid scroll-mt-40 grid-cols-[minmax(0,1fr)] gap-4 ${grid ? "" : "lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start"}`}>
+        <section ref={listTop} aria-labelledby="listings" className={`grid scroll-mt-40 grid-cols-[minmax(0,1fr)] gap-4 ${grid || !aside ? "" : "lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start"}`}>
           <div className="flex min-w-0 flex-col gap-2.5">
             {children}
             {pager}

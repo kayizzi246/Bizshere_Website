@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollEffects } from "@/components/ScrollEffects";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { NavProgress } from "@/components/NavProgress";
-import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -48,7 +47,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SmoothScroll />
         <main className="flex-1">{children}</main>
         <SiteFooter />
-        <ServiceRail services={SERVICES} />
         <WhatsAppButton />
         <CookieNotice />
         <InstallPrompt />

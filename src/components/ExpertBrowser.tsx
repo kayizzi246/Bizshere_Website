@@ -7,7 +7,7 @@ import { searchTerms } from "@/lib/search-terms";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
-import { BoardAside, BoardEmpty, DirectoryBoard, gridList } from "./DirectoryBoard";
+import { BoardEmpty, DirectoryBoard, gridList } from "./DirectoryBoard";
 
 /** One expert as the browser needs it: public fields only (email and phone stay on the member profile). */
 export type BrowseExpert = {
@@ -89,8 +89,6 @@ export function ExpertBrowser({ experts, intro, initial }: {
         hint={hint} label="Search experts" popular={[]} cats={[]} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order} compact />
       <DirectoryBoard crumb="Business Experts" heading={heading} count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only="/experts" />}
-        aside={<BoardAside path="/experts" locked={false} tabs={[["/experts/join", "Become an Expert"], ["/business-ideas", "Business Ideas"]]}
-          help={{ title: "Can't find who you need?", text: "Tell our team what you need help with and we'll find the right person." }} helpLink={["/contact", "Tell our team"]} />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={experts.length > 0} onClear={clear} /> : (

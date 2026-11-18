@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { type CardIdea } from "./IdeaParts";
 import { compactRange } from "@/lib/format";
-import { BoardAside, BoardEmpty, DirectoryBoard, GridFrame, gridChip, gridList, softButton, solidButton } from "./DirectoryBoard";
+import { BoardEmpty, DirectoryBoard, GridFrame, gridChip, gridList, softButton, solidButton } from "./DirectoryBoard";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
@@ -100,8 +100,6 @@ export function IdeaBrowser({ ideas, intro, initial }: {
       <DirectoryBoard crumb="Business Ideas" count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         heading={q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Businesses you can start"}
         top={<RecentStrip only="/business-ideas" />}
-        aside={<BoardAside path="/business-ideas" locked={false} tabs={[["/machines", "Business machines"], ["/funding", "Funding Sources"]]}
-          help={{ title: "Not sure where to start?", text: "A business expert can help you pick an idea and plan your budget." }} />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {/* A photo grid beside the side column, four a row from 1280px (client, 13 Nov 2026) */}
