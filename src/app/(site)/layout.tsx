@@ -48,7 +48,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SmoothScroll />
         <main className="flex-1">{children}</main>
         <SiteFooter />
-        <QuickLinks services={SERVICES} />
         <ServiceRail services={SERVICES} />
         <WhatsAppButton />
         <CookieNotice />

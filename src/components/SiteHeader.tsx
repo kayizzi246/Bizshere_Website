@@ -6,23 +6,15 @@ import { Icon } from "./Icon";
 import { MobileMenu } from "./MobileMenu";
 import { WishlistLink } from "./Wishlist";
 
-// Header links after Home, each with a hover card. The names are long, so Business Experts waits for
-// wide screens (1536px+); every directory is also on the homepage and in the phone menu.
-const NAV = ["/business-ideas", "/funding", "/prices", "/forum", "/experts"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
-const WIDE_ONLY = "/experts";
+// Four plain links, and nothing opens on hover (client, 18 Nov 2026: "make the all site very
+// simple"). There were six menus, each dropping a card, plus a floating "All services" button that
+// listed the twelve directories again. The logo goes home, the footer carries every directory, and
+// the homepage opens with all twelve, so nothing here is the only way to reach anything.
+const NAV = ["/business-ideas", "/suppliers", "/funding", "/prices"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
 const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3 xl:text-[13px]";
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
-
-/** The chevron on links that open a card, so it reads as "there is more under this". */
-function Chevron() {
-  return (
-    <svg aria-hidden viewBox="0 0 12 12" className="h-3 w-3 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-y-px group-focus-within:translate-y-px">
-      <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 /**
  * Floating header: a short white bar with softly rounded corners (not a full pill) that sits just
@@ -48,17 +40,10 @@ export async function SiteHeader() {
             keyboard focus) on one shows a small card with what it is. */}
         <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
           <ul className="flex items-center gap-0.5">
-            <li><Link href="/" className={link}>Home</Link></li>
             {NAV.map((n) => (
-              <li key={n.href} className={`group relative ${n.href === WIDE_ONLY ? "hidden 2xl:block" : ""}`}>
-                <Link href={n.href} className={`${link} inline-flex items-center gap-1`}>{n.title}<Chevron /></Link>
-                <HoverCard href={n.href} icon={n.icon} title={n.title} text={n.text} />
-              </li>
+              <li key={n.href}><Link href={n.href} className={link}>{n.title}</Link></li>
             ))}
-            <li className="group relative">
-              <Link href="/membership" className={`${link} inline-flex items-center gap-1`}>Pricing<Chevron /></Link>
-              <HoverCard href="/membership" icon="wallet" title="Pricing" text="Previews for everyone. Members get everything, by the day, week, month or year." />
-            </li>
+            <li><Link href="/membership" className={link}>Pricing</Link></li>
             {staff ? <li><Link href="/admin" className={link}>Admin</Link></li> : null}
           </ul>
         </nav>
@@ -121,17 +106,3 @@ function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | n
 }
 
 /** The small card under a header link: icon, one line about the page and "Open". No JavaScript needed. */
-function HoverCard({ href, icon, title, text }: { href: string; icon: string; title: string; text: string }) {
-  return (
-    <div className="invisible absolute left-1/2 top-full z-10 w-72 -translate-x-1/2 pt-3 opacity-0 transition duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-      <div className="flex gap-3 rounded-2xl border border-line bg-white p-4 shadow-[0_12px_32px_rgba(7,26,51,0.12)]">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={icon} className="h-[18px] w-[18px]" /></span>
-        <span className="flex min-w-0 flex-col gap-1">
-          <span className="font-display text-[14px] font-bold text-heading">{title}</span>
-          <span className="text-[13px] leading-snug text-ink-muted">{text}</span>
-          <Link href={href} tabIndex={-1} className="mt-1 text-[13px] font-semibold text-brand hover:text-brand-dark">Open →</Link>
-        </span>
-      </div>
-    </div>
-  );
-}
