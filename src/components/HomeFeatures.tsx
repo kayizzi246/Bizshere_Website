@@ -219,9 +219,13 @@ export async function HomeFeatures() {
         <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {NEEDS.map(([say, href, colour]) => (
             <li key={href}>
-              <Link href={href} className="card-premium group flex min-h-[72px] items-center gap-3.5 p-3.5 pr-4 text-ink hover:text-ink">
-                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
-                <span className="flex-1 font-display text-[14.5px] font-semibold leading-snug">{say}</span>
+              {/* One line, never two (client, 18 Nov 2026): "I need money for my business" is the
+                  longest of the six and used to wrap, which made that card taller than the rest. The
+                  icon and the gaps give back the room it needs, and truncate is the safety net — a
+                  longer line added later ends in an ellipsis rather than breaking the row. */}
+              <Link href={href} className="card-premium group flex min-h-[64px] items-center gap-3 p-3 pr-3.5 text-ink hover:text-ink">
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-[18px] w-[18px]" /></span>
+                <span className="min-w-0 flex-1 truncate font-display text-[13.5px] font-semibold leading-snug sm:text-[14px]">{say}</span>
                 <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
               </Link>
             </li>

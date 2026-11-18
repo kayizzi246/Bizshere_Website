@@ -19,7 +19,7 @@ import { site } from "@/config/site";
 // type changes; the build simply no longer needs the network.
 const inter = localFont({
   src: "../fonts/inter-latin-var.woff2",
-  weight: "400 800", // one variable file covers the whole range
+  weight: "400 900", // one variable file covers the whole range (Black, 900, is the hero headline)
   style: "normal",
   variable: "--font-inter",
   display: "swap",
