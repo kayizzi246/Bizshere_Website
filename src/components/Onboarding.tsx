@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Download, Gift, Landmark, LockKeyhole, Phone, ShieldCheck, Wallet, X } from "lucide-react";
-import { accessState, applyPromo, cancelPayment, checkPayment, freePassState, startFreePass, startMembership } from "@/app/actions/onboarding";
+import { ArrowLeft, Check, Download, Landmark, LockKeyhole, Phone, ShieldCheck, Wallet, X } from "lucide-react";
+import { accessState, applyPromo, cancelPayment, checkPayment, startMembership } from "@/app/actions/onboarding";
 import type { PromoOffer } from "@/lib/promos";
 import { PhoneSignIn } from "./PhoneSignIn";
 import { Celebration } from "./Celebration";
@@ -28,7 +28,8 @@ import { OPEN_PATHS } from "@/config/directories";
  * Links marked `data-pay` (Subscribe, Get full access) open the pop-up straight away on any page,
  * at the plan step, or at sign-in first for visitors without an account. `data-renew` does the same
  * for members renewing early. `data-next` is where to go afterwards, `data-period` (DAILY, WEEKLY,
- * MONTHLY, YEARLY) the plan picked to start with. Their href (?onboard=pay or ?onboard=renew, &period=…)
+ * MONTHLY, YEARLY) the plan picked to start with, and `data-code` a discount code to fill in and
+ * check for them (the homepage's offer band), so an offer is one tap rather than something to copy. Their href (?onboard=pay or ?onboard=renew, &period=…)
  * does the same on a full page load, e.g. from a renewal reminder SMS.
  *
  * The pop-up only closes with its × button or Escape, never by tapping outside it.
@@ -67,13 +68,16 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
   const [renew, setRenew] = useState(false);
   // A plan was already picked before the pop-up opened: step 2 then shows just that plan (client, 12 Nov 2026)
   const [picked, setPicked] = useState(false);
+  // A discount code the link carried (data-code), filled in and checked for them on the pay step.
+  const [code, setCode] = useState<string | null>(null);
   const [celebrate, setCelebrate] = useState<{ until: string | null; renewed: boolean } | null>(null);
 
-  const openAt = useCallback((target: string, p: Period, renewing: boolean, chosen = false) => {
+  const openAt = useCallback((target: string, p: Period, renewing: boolean, chosen = false, offerCode: string | null = null) => {
     setNext(target);
     setPeriod(p);
     setRenew(renewing);
     setPicked(chosen);
+    setCode(offerCode);
     setStep(signedIn ? "pay" : "account");
     setOpen(true);
   }, [signedIn]);
@@ -94,7 +98,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     if (a.hasAttribute("data-open")) return;
     if (paths && a.hasAttribute("data-pay")) {
       e.preventDefault();
-      openAt(target ?? "/business-ideas", asPeriod(a.dataset.period), false, Boolean(a.dataset.period));
+      openAt(target ?? "/business-ideas", asPeriod(a.dataset.period), false, Boolean(a.dataset.period), a.dataset.code ?? null);
       return;
     }
     if (paths) {
@@ -146,7 +150,7 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
     <div onClickCapture={onClickCapture}>
       {children}
       {open ? (
-        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} picked={picked} googleEnabled={googleEnabled} plan={plan} help={help}
+        <OnboardingModal step={step} setStep={setStep} next={next} renew={renew} initialPeriod={period} picked={picked} offerCode={code} googleEnabled={googleEnabled} plan={plan} help={help}
           onPaid={paid} onClose={() => setOpen(false)} />
       ) : null}
       {celebrate ? (
@@ -159,9 +163,10 @@ export function OnboardingGate({ children, signedIn, isMember, googleEnabled, pl
   );
 }
 
-function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, googleEnabled, plan, help, onPaid, onClose }: {
+function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, offerCode, googleEnabled, plan, help, onPaid, onClose }: {
   step: Step;
   picked: boolean;
+  offerCode: string | null;
   setStep: (s: Step) => void;
   next: string;
   renew: boolean;
@@ -225,7 +230,7 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, go
               <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : (
-            <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} picked={picked} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
+            <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} picked={picked} offerCode={offerCode} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
           )}
         </div>
 
@@ -298,9 +303,10 @@ const OPTIONS: Record<Period, { title: string; per: string; note: string }> = {
  * open we check every few seconds whether the payment went through (Pesapal confirms it to the
  * server), and the return page inside the iframe tells us the moment it's done.
  */
-function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout, onPaid }: {
+function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending, onCheckout, onPaid }: {
   plan: Plan;
   picked: boolean;
+  offerCode: string | null;
   help?: Help;
   renew: boolean;
   initialPeriod: Period;
@@ -326,41 +332,33 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
   const [attemptFailed, setAttemptFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   // A discount code (src/lib/promos.ts): hidden behind a link, so it never distracts from paying.
-  const [codeOpen, setCodeOpen] = useState(false);
-  const [code, setCode] = useState("");
+  const [codeOpen, setCodeOpen] = useState(Boolean(offerCode));
+  const [code, setCode] = useState(offerCode ?? "");
   const [codeBusy, setCodeBusy] = useState(false);
   const [codeError, setCodeError] = useState<string | null>(null);
   const [offer, setOffer] = useState<PromoOffer | null>(null);
-  // The free day, for someone who is not ready to pay (src/lib/free-pass.ts). Once per person.
-  const [pass, setPass] = useState<{ hours: number } | null>(null);
-  const [passBusy, setPassBusy] = useState(false);
   const amount = plan.amounts[period];
   // A code is tied to the length it was checked against: changing the plan drops it.
   const total = offer && amount !== null ? offer.total : amount;
   const price = total !== null ? fmt(total, plan.currency) : null;
   const saving = yearlySaving(plan.amounts);
 
-  useEffect(() => {
-    if (renew) return; // the free day is for people who have never paid
-    freePassState().then((s) => { if (s.available) setPass({ hours: s.hours }); }).catch(() => {});
-  }, [renew]);
-
-  async function checkCode() {
+  const applyCode = useCallback(async (typed: string, forPeriod: Period) => {
     setCodeBusy(true);
     setCodeError(null);
-    const res = await applyPromo({ code, period }).catch(() => ({ ok: false, message: "We couldn't check that code. Please try again." }) as const);
+    const res = await applyPromo({ code: typed, period: forPeriod }).catch(() => ({ ok: false, message: "We couldn't check that code. Please try again." }) as const);
     setCodeBusy(false);
     if (res.ok) { setOffer(res.offer); setCodeError(null); } else { setOffer(null); setCodeError(res.message); }
-  }
+  }, []);
 
-  async function takePass() {
-    setPassBusy(true);
-    setError(null);
-    const res = await startFreePass().catch(() => ({ ok: false, message: "We couldn't start your free day. Please try again." }) as const);
-    setPassBusy(false);
-    if (res.ok) onPaid();
-    else { setPass(null); setError(res.message); }
-  }
+  // Came in from the homepage's offer: the code is already in the box, so take it off their hands
+  // and show the lower price before they are asked to pay for anything.
+  useEffect(() => {
+    if (offerCode) void applyCode(offerCode, period);
+    // Only when the pop-up opens with an offer: a change of plan is handled where the plan changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offerCode]);
+
 
   const done = useRef(onPaid);
   done.current = onPaid;
@@ -539,12 +537,12 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
           <div className="flex gap-2">
             <label className="min-w-0 flex-1">
               <span className="sr-only">Discount code</span>
-              <input value={code} onChange={(e) => { setCode(e.target.value); setOffer(null); setCodeError(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void checkCode(); } }}
+              <input value={code} onChange={(e) => { setCode(e.target.value); setOffer(null); setCodeError(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void applyCode(code, period); } }}
                 placeholder="Discount code" autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={32}
                 /* 16px on phones so iPhone Safari doesn't zoom the pop-up in when the keyboard opens */
                 className="input h-11 w-full text-[16px] uppercase sm:text-sm" />
             </label>
-            <button type="button" onClick={() => void checkCode()} disabled={codeBusy || !code.trim()} className="btn-outline h-11 shrink-0 px-4 text-[13px]">{codeBusy ? "Checking…" : "Apply"}</button>
+            <button type="button" onClick={() => void applyCode(code, period)} disabled={codeBusy || !code.trim()} className="btn-outline h-11 shrink-0 px-4 text-[13px]">{codeBusy ? "Checking…" : "Apply"}</button>
           </div>
           {offer ? (
             <p role="status" className="flex flex-wrap items-center gap-x-2 text-[13px] font-semibold text-brand-dark">
@@ -572,15 +570,6 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
       <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Pay ${price}` : "Continue"}</button>
       <p className="-mt-2 text-center text-[12px] text-ink-muted">Next: choose MoMo, Airtel Money or card, then approve on your phone.</p>
 
-      {/* Not ready to pay: one free day, once per person. Someone who has seen the real budgets and
-          contacts knows what the membership is worth, and the pass ends by itself. */}
-      {pass ? (
-        <div className="flex flex-col items-center gap-1.5 border-t border-line pt-4">
-          <button type="button" onClick={() => void takePass()} disabled={passBusy} className="btn-outline min-h-[46px] w-full text-[14px] font-bold">
-            <Gift aria-hidden className="h-4 w-4" />{passBusy ? "Opening your free day…" : `Or open everything free for ${pass.hours} hours`}</button>
-          <p className="text-center text-[12px] text-ink-muted">No payment, nothing to cancel. One free day per person.</p>
-        </div>
-      ) : null}
       <div className="flex flex-col items-center gap-2">
         <span className="flex flex-wrap justify-center gap-1.5">
           {[["MTN MoMo", "bg-[#FFCB05] text-ink"], ["Airtel Money", "bg-[#E40000] text-white"], ["Visa · Mastercard", "bg-heading text-white"]].map(([label, tone]) => (

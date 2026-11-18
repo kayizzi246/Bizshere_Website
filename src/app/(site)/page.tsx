@@ -8,6 +8,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
+import { CallBack, OfferBand, TrustBand } from "@/components/HomeSelling";
 import { ParticleField } from "@/components/ui/particle-field";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -57,13 +58,11 @@ export default async function HomePage() {
             <span aria-hidden className="pointer-events-none absolute left-1/2 top-[-130px] -z-10 h-[300px] w-[620px] max-w-[160vw] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_100%_at_50%_0%,rgba(0,170,255,0.42)_0%,rgba(0,105,255,0.20)_45%,rgba(0,48,130,0.06)_75%,transparent_100%)] blur-[18px] [mask-image:linear-gradient(to_bottom,transparent_0%,#000_35%,#000_70%,transparent_100%)] sm:left-[300px] sm:top-[-140px] sm:h-[340px]" />
 
             {/* The client's message, word for word: "B2B Information Portal", B2B in orange */}
-            {/* One line on every screen: the text is about 13.5× the font size wide, so phones scale with the
-                screen (6.2vw: 20px on a 320px phone, 30px at most) and wider screens step up to 40px and 48px. */}
-            {/* One line, ending in an orange full stop. Bigger again on 17 Nov 2026 (client), about a
-                third up from the 14 Nov sizes. The ceiling is the one line: the words run about 13.5x
-                the font size wide, so 6.4vw is as large as a 320px phone takes without wrapping, and
-                each step up stays inside its own breakpoint with room to spare. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(20px,6.4vw,32px)] text-white sm:text-[38px] lg:text-[42px] xl:text-[46px] 2xl:text-[52px]">
+            {/* One line on every screen, ending in an orange full stop. Smaller again on 18 Nov 2026
+                (client): about a fifth down from the 17 Nov sizes, which had gone up by a third.
+                The one line is the ceiling either way — the words run about 13.5× the font size
+                wide — and every size here is below it, so nothing can wrap. */}
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(17px,5.2vw,26px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[37px] 2xl:text-[42px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
@@ -161,8 +160,19 @@ export default async function HomePage() {
 
       </section>
 
+      {/* ── A discount the team is running, when there is one: one tap, with the code already
+             filled in for them (src/components/HomeSelling.tsx). Nothing shows when there isn't. ── */}
+      <OfferBand />
+
+      {/* ── How much is in here, and how fresh it is: real counts, no prices or contacts ── */}
+      <TrustBand />
+
       {/* ── What the platform offers, a different block for each part ── */}
       <HomeFeatures />
+
+      {/* ── For the many people who would rather talk than type card details: their number goes
+             to Admin > Leads and the team rings back ── */}
+      <CallBack />
 
     </div>
   );

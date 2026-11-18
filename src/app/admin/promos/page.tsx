@@ -3,28 +3,27 @@ import { prisma } from "@/lib/prisma";
 import { date, money } from "@/lib/format";
 import { PERIOD_INFO, PLAN_PERIODS } from "@/lib/billing";
 import { NUMBER_SETTINGS, getSettings, type NumberSetting } from "@/lib/settings";
-import { createPromo, deletePromo, saveOfferSettings, togglePromo } from "./actions";
+import { createPromo, deletePromo, saveOfferSettings, togglePromo, toggleOnSite } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Offers and codes" };
 
 /**
  * Everything that brings a payment in without changing the price list: discount codes typed in the
- * payment pop-up, the free pass, and the free days an invite gives.
+ * payment pop-up, and the free days an invite gives.
  *
  * Each code shows what it has actually brought in (uses and money off), so the team can tell an
  * advert that worked from one that didn't.
  */
 export default async function AdminPromosPage({ searchParams }: { searchParams: { error?: string; added?: string; saved?: string; deleted?: string } }) {
   await requireArea("promos");
-  const [codes, settings, plan, trials, invites] = await Promise.all([
+  const [codes, settings, plan, invites] = await Promise.all([
     prisma.promoCode.findMany({
       orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
       include: { _count: { select: { redemptions: true } }, redemptions: { select: { amountOff: true } } },
     }),
     getSettings(),
     prisma.membershipPlan.findUnique({ where: { code: "member" }, select: { currency: true } }),
-    prisma.user.count({ where: { trialUsedAt: { not: null } } }),
     prisma.referral.aggregate({ _count: { _all: true }, where: {} }),
   ]);
   const paidInvites = await prisma.referral.count({ where: { rewardedAt: { not: null } } });
@@ -48,9 +47,8 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
       {searchParams.error ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
 
       {/* What the free pass and invites have done so far */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="grid grid-cols-3 gap-3">
         {[
-          ["Free days taken", String(trials)],
           ["People invited", String(invites._count._all)],
           ["Invites that paid", String(paidInvites)],
           ["Codes live", String(codes.filter((c) => state(c)[1] === "Live").length)],
@@ -65,11 +63,11 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
       {/* The three numbers behind the free pass, invites and price alerts */}
       <section className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5">
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-lg font-extrabold text-heading">Free pass, invites and price alerts</h2>
-          <p className="text-sm text-ink-muted">These take effect straight away. Set a length to 0 to switch that offer off.</p>
+          <h2 className="text-lg font-extrabold text-heading">Invites and price alerts</h2>
+          <p className="text-sm text-ink-muted">These take effect straight away. Set the free days to 0 to switch invites off.</p>
         </div>
         <form action={saveOfferSettings} className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             {(Object.keys(NUMBER_SETTINGS) as NumberSetting[]).map((key) => (
               <label key={key} className="label min-w-0">{NUMBER_SETTINGS[key].label}
                 <input name={key} inputMode="numeric" defaultValue={String(settings[key])} aria-label={NUMBER_SETTINGS[key].label} className="input w-full min-w-0" />
@@ -115,6 +113,13 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
             <label className="label min-w-0 sm:col-span-2">What it is for (your note)
               <input name="note" maxLength={200} placeholder="Radio advert, December" className="input w-full min-w-0" />
             </label>
+            <label className="label min-w-0 sm:col-span-2 lg:col-span-3">Homepage headline (optional)
+              <input name="headline" maxLength={120} placeholder="Launch offer: 20% off any membership this week" className="input w-full min-w-0" />
+              <span className="text-xs font-normal text-ink-muted">Shown on the homepage band when this code is on the site. Left empty, it writes itself from the discount.</span>
+            </label>
+            <label className="flex items-center gap-2 self-end pb-2 text-sm font-medium text-heading lg:col-span-1">
+              <input type="checkbox" name="showOnSite" className="h-4 w-4" />Show it on the homepage
+            </label>
           </div>
           <fieldset className="flex flex-col gap-2">
             <legend className="label mb-1">Which lengths it works on</legend>
@@ -155,11 +160,16 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
                     {c.expiresAt ? ` · ends ${date(c.expiresAt)}` : ""}
                     {c.note ? ` · ${c.note}` : ""}
                   </span>
+                  {c.showOnSite ? <span className="text-xs font-semibold text-accent-dark">On the homepage: “{c.headline?.trim() || `${c.kind === "PERCENT" ? `${Number(c.value)}% off` : `${money(c.value, currency)} off`} your first membership`}”</span> : null}
                 </span>
                 <span className="flex shrink-0 gap-2">
                   <form action={togglePromo}>
                     <input type="hidden" name="id" value={c.id} />
                     <button className="btn-outline min-h-[44px] px-3">{c.isActive ? "Turn off" : "Turn on"}</button>
+                  </form>
+                  <form action={toggleOnSite}>
+                    <input type="hidden" name="id" value={c.id} />
+                    <button className="btn-outline min-h-[44px] px-3">{c.showOnSite ? "Take off homepage" : "Put on homepage"}</button>
                   </form>
                   {c._count.redemptions === 0 ? (
                     <form action={deletePromo}>

@@ -221,7 +221,7 @@ BizSphere-Ug`) : false,
       const sub = a.subscription;
       const userId = sub.userId!;
       if (done.has(userId)) continue; // one reminder per person per run, about their latest attempt
-      // They have access now (paid another way, or took the free day): nothing to chase.
+      // They have access now (paid another way, or given time by hand): nothing to chase.
       if ((sub.status === "ACTIVE" || sub.status === "TRIAL") && (!sub.currentPeriodEnd || sub.currentPeriodEnd > now)) continue;
       const paid = await prisma.payment.findFirst({ where: { subscriptionId: sub.id, status: "SUCCEEDED" }, select: { id: true } });
       if (paid) continue;

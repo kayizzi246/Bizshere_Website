@@ -116,13 +116,13 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
 }
 
 /**
- * Gives someone full access for `days` without a payment: the free 24-hour pass
- * (src/lib/free-pass.ts) and the free days both sides get for an invite (src/lib/referrals.ts).
+ * Gives someone full access for `days` without a payment: the free days both sides get for an
+ * invite (src/lib/referrals.ts), and time the team gives by hand.
  *
  * The days are added to the end of what they already have, so a member who is given days keeps
  * every day they paid for. Someone with access that has no end date (staff accounts, access given
- * by hand) is left alone and null comes back. `status` is TRIAL for the free pass, so the admin
- * and the renewal reminders can tell a trial from a paid membership.
+ * by hand) is left alone and null comes back. `status` may be TRIAL for time that was not paid
+ * for, so the admin and the renewal reminders can tell it from a paid membership.
  */
 export async function grantDays(userId: string, days: number, opts: { status?: "ACTIVE" | "TRIAL"; reason: string }): Promise<Date | null> {
   if (!Number.isFinite(days) || days <= 0) return null;
@@ -135,7 +135,7 @@ export async function grantDays(userId: string, days: number, opts: { status?: "
   const live = sub?.currentPeriodEnd && sub.currentPeriodEnd > now && (sub.status === "ACTIVE" || sub.status === "TRIAL");
   const from = live ? sub!.currentPeriodEnd! : now;
   const end = new Date(from.getTime() + days * 86_400_000);
-  // A trial on top of a paid membership stays ACTIVE: it is still a paid membership, just longer.
+  // Days added to a paid membership keep it ACTIVE: it is still a paid membership, just longer.
   const status = live && sub!.status === "ACTIVE" ? "ACTIVE" : opts.status ?? "ACTIVE";
   if (sub) await prisma.subscription.update({ where: { id: sub.id }, data: { status, currentPeriodEnd: end, cancelledAt: null, remindersSent: [] } });
   else await prisma.subscription.create({ data: { userId, planId: plan.id, status, period: "DAILY", currentPeriodEnd: end } });

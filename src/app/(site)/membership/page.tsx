@@ -7,7 +7,6 @@ import { date, money } from "@/lib/format";
 import { pesapalSandbox } from "@/lib/payments";
 import { getContact, whatsappHref } from "@/lib/site-contact";
 import { LeadForm } from "@/components/LeadForm";
-import { passState } from "@/lib/free-pass";
 import { referralDays } from "@/lib/referrals";
 
 export const dynamic = "force-dynamic";
@@ -52,14 +51,13 @@ const FAQ: [string, string][] = [
 
 export default async function MembershipPage() {
   const viewer = await getViewer();
-  const [memberPlan, contact, sub, pass, inviteDays] = await Promise.all([
+  const [memberPlan, contact, sub, inviteDays] = await Promise.all([
     prisma.membershipPlan.findUnique({ where: { code: "member" } }),
     getContact(),
     viewer.userId && !viewer.isStaff
       ? prisma.subscription.findFirst({ where: { userId: viewer.userId, status: "ACTIVE", plan: { code: "member" } }, orderBy: { currentPeriodEnd: { sort: "desc", nulls: "first" } } })
       : null,
-    // The free day and the invite reward, both switched on and off in Admin > Offers and codes.
-    passState(viewer.userId, viewer.isMember),
+    // The invite reward, switched on and off in Admin > Offers and codes.
     referralDays(),
   ]);
   const invite = { days: inviteDays };
@@ -144,18 +142,10 @@ export default async function MembershipPage() {
           })}
         </section>
 
-        {/* Three ways in that cost nothing to say here and bring payments in (18 Nov 2026): the free
-            day for someone not ready to pay, the invite reward, and a discount code if they have one.
-            The free day is only offered to people who could take it (one per person, ever). */}
-        {!viewer.isMember && !viewer.isStaff && (pass.available || pass.reason === "signed-out" || invite.days) ? (
-          <section aria-label="Other ways to start" className="-mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3">
-            {pass.available || pass.reason === "signed-out" ? (
-              <Link href="/membership?onboard=pay&next=%2Fbusiness-ideas" data-pay="" data-next="/business-ideas"
-                className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4 text-ink hover:border-brand hover:text-ink">
-                <span className="flex items-center gap-2 font-display text-[15px] font-bold text-heading"><Gift aria-hidden className="h-4 w-4 text-accent-dark" />Not ready to pay?</span>
-                <span className="text-[13px] text-ink-muted">Open everything free for {pass.hours} hours, once. No card, nothing to cancel.</span>
-              </Link>
-            ) : null}
+        {/* Two ways in that cost nothing to say here and bring payments in (18 Nov 2026): the
+            invite reward, and a discount code for anyone who has one. */}
+        {!viewer.isMember && !viewer.isStaff ? (
+          <section aria-label="Other ways to start" className="-mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
             {invite.days ? (
               <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
                 <span className="flex items-center gap-2 font-display text-[15px] font-bold text-heading"><Users aria-hidden className="h-4 w-4 text-brand" />Invite a friend</span>

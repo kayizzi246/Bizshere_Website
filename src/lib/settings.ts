@@ -1,7 +1,7 @@
 /**
  * Numbers the team can change without a deploy (SiteSetting rows, edited in Admin > Settings):
- * how long the free pass lasts, how many free days an invite gives, how big a price move is worth
- * a text. Each has a default here, so a missing row never breaks a page.
+ * how many free days an invite gives, and how big a price move is worth a text. Each has a default
+ * here, so a missing row never breaks a page.
  *
  * Contact details have their own file (src/lib/site-contact.ts) and sessions their own keys
  * (src/lib/sessions.ts); this is only for these plain numbers.
@@ -10,7 +10,6 @@ import { prisma } from "./prisma";
 
 /** Every number the team may change, with its default and what it means. */
 export const NUMBER_SETTINGS = {
-  "freePass.hours": { label: "Free pass length (hours)", help: "How long the free pass opens everything. 0 turns the free pass off.", min: 0, max: 168, fallback: 24 },
   "referral.days": { label: "Free days for an invite", help: "Days given to both the inviter and the person they invited, when that person first pays. 0 turns invites off.", min: 0, max: 90, fallback: 7 },
   "priceWatch.move": { label: "Price move worth a text (%)", help: "A watched product's price must move at least this much before a member is texted.", min: 1, max: 50, fallback: 5 },
 } as const;

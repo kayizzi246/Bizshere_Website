@@ -30,7 +30,6 @@ function onboarding(cancelled, settled) {
     '@/lib/payments': { cancelOrder: async () => cancelled },
     '@/lib/membership': { settlePayment: async () => settled.shift() ?? 'PENDING' },
     '@/lib/promos': { checkPromo: async () => ({ ok: false, message: 'no' }) },
-    '@/lib/free-pass': { passState: async () => ({ available: false, hours: 24, reason: 'off' }), takeFreePass: async () => ({ ok: false, message: 'off' }) },
   });
   return { actions, updates };
 }
@@ -256,21 +255,6 @@ for (const [label, sub, expected] of [
   });
 }
 
-// One free pass per person, ever: the row that claims it only matches a person who has never had one.
-for (const [label, claimed, expected] of [['first time', 1, true], ['second time', 0, false]]) {
-  test('free pass: ' + label, async () => {
-    const pass = load('src/lib/free-pass.ts', {
-      './prisma': { prisma: {
-        user: { findUnique: async () => ({ trialUsedAt: null }), updateMany: async () => ({ count: claimed }) },
-      } },
-      './membership': { grantDays: async () => new Date('2027-01-02T00:00:00Z'), notifyMember: async () => {} },
-      './settings': { getSetting: async () => 24 },
-    });
-    const res = await pass.takeFreePass('u1', false);
-    assert.equal(res.ok, expected);
-    if (!expected) assert.match(res.message, /already had your free day/);
-  });
-}
 
 test('content decimal accepts formatted price', () => {
   const { parseField } = load('src/lib/field-parse.ts', {});

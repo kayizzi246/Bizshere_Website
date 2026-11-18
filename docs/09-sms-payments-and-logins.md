@@ -15,7 +15,7 @@ All settings go in `.env` locally, or in the host's environment variables online
 4. [Payments (Pesapal)](#4-payments-pesapal)
 5. [Logins](#5-logins)
 6. [Renewal reminders (daily job)](#6-renewal-reminders-daily-job)
-7. [Free pass, invites, codes and price alerts](#7-free-pass-invites-codes-and-price-alerts)
+7. [Invites, codes and price alerts](#7-invites-codes-and-price-alerts)
 8. [Going live checklist](#8-going-live-checklist)
 9. [Troubleshooting](#9-troubleshooting)
 
@@ -268,21 +268,10 @@ npm run jobs -- renewals      # only the renewal reminders
 
 ---
 
-## 7. Free pass, invites, codes and price alerts
+## 7. Invites, codes and price alerts
 
-Four things that bring payments in. All of them are switched on and off, and tuned, in
+Three things that bring payments in. All of them are switched on and off, and tuned, in
 **Admin → Offers and codes** (`/admin/promos`); nothing here needs a deploy to change.
-
-### The free 24-hour pass
-
-Someone who has signed in with their phone number can open everything once, for a day, without
-paying. The button sits in the payment pop-up under the plans, and the pricing page points to it.
-
-- One pass per person, ever (`users.trialUsedAt`). It is an ordinary subscription with status
-  `TRIAL`, so it ends by itself and shows in the admin like any other membership.
-- A pass on top of a paid membership is never given; days are always added to the end, never
-  replacing paid time.
-- Set **Free pass length** to `0` to switch it off. Code: `src/lib/free-pass.ts`.
 
 ### Invites ("bring a friend")
 

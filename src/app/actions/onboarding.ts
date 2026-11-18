@@ -12,7 +12,6 @@ import { allow, LIMITS } from "@/lib/rate-limit";
 import { cancelOrder, pesapalConfigured, startCheckout } from "@/lib/payments";
 import { PERIOD_WORD, settlePayment, type Settled } from "@/lib/membership";
 import { checkPromo, type PromoOffer } from "@/lib/promos";
-import { passState, takeFreePass, type PassResult } from "@/lib/free-pass";
 
 /**
  * Server side of phone sign-in and the onboarding pop-up (src/components/Onboarding.tsx):
@@ -59,21 +58,7 @@ export async function applyPromo(input: { code: string; period: BillingPeriod })
   return checkPromo({ code: String(input.code ?? ""), userId: viewer.userId, period, amount, currency: plan.currency });
 }
 
-/** Whether the free day can be taken, for the pop-up and the paywall card. */
-export async function freePassState() {
-  const viewer = await getViewer();
-  return passState(viewer.userId, viewer.isMember);
-}
 
-/** Takes the free day. One per person, ever (src/lib/free-pass.ts). */
-export async function startFreePass(): Promise<PassResult> {
-  const viewer = await getViewer();
-  if (!viewer.userId) return { ok: false, message: "Please sign in first." };
-  if (!(await allow(`trial:user:${viewer.userId}`, ...LIMITS.checkoutPerUser))) {
-    return { ok: false, message: "Too many tries. Please wait a few minutes." };
-  }
-  return takeFreePass(viewer.userId, viewer.isMember);
-}
 
 const checkoutInput = z.object({ period: z.enum(PLAN_PERIODS), code: z.string().max(32).optional() });
 

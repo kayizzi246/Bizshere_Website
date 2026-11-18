@@ -295,7 +295,8 @@ model User {
   digestSentAt  DateTime?
   /// Last saved-search alert texted: at most one a day (src/lib/jobs.ts savedSearchAlerts).
   alertSmsAt    DateTime?
-  /// When this person took their free 24-hour pass (src/lib/free-pass.ts). Set once: one pass per person, ever.
+  /// Was the free 24-hour pass, taken out on 18 Nov 2026. Kept because the live database already
+  /// has it; nothing reads it now. Free time is given through invites (src/lib/referrals.ts).
   trialUsedAt   DateTime?
   /// Their own invite code, e.g. "AMOS7K4": bizsphere.ug/?ref=AMOS7K4 (src/lib/referrals.ts). Made on first use.
   referralCode  String?   @unique
@@ -1817,6 +1818,11 @@ model PromoCode {
   startsAt       DateTime?
   expiresAt      DateTime?
   isActive       Boolean         @default(true)
+  /// Shown on the homepage as a live offer, with the code filled in for them. One code at a time:
+  /// the newest one wins (src/lib/promos.ts publicOffer).
+  showOnSite     Boolean         @default(false)
+  /// The line the homepage shows, e.g. "Launch offer: 20% off any membership this week".
+  headline       String?
   /// Why it exists ("Radio advert, December"), for the team only.
   note           String?
   createdAt      DateTime        @default(now())

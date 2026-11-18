@@ -49,10 +49,7 @@ export function Gate({
             {title ? <span className="text-[17px] font-bold">{title}</span> : null}
             {text ? <span className="text-sm text-ink-muted">{text}</span> : null}
             <Link {...open} className="btn-primary">{button}</Link>
-            {/* Careful wording: the free day is one per person, ever, and whether this person still
-                has theirs is only known once they have signed in (the pop-up checks and shows the
-                button). So this hints at it rather than promising it. */}
-            <span className="text-[12px] text-ink-muted">Pay with MoMo, Airtel Money or card — or try a free day if you haven&apos;t used yours.</span>
+            <span className="text-[12px] text-ink-muted">Pay with MoMo, Airtel Money or card. It opens straight away.</span>
           </div>
         )}
       </div>
