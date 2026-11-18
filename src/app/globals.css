@@ -298,13 +298,16 @@ select {
    (background-origin: border-box), so it runs through the strip behind the floating header
    (.under-header) in one piece, with no seam.
 
-   Light blue into dark blue, and nothing moving (client, 14 Nov 2026: "remove the animated glowing and
-   add colors of light blue and dark blue"). The breathing glow and the shine layers are gone, so a hero
-   now costs nothing to paint and holds still behind the words. The light blue is kept to the left edge
-   and the top right, where there is no body text, and the panel darkens towards the middle and the
-   bottom, so white type always sits on the dark blue. */
+   A luminous royal blue (client, 18 Nov 2026, after a site they liked): the midnight navy is gone and
+   the hero is now one saturated blue lit by two broad, very soft blooms, like studio lights through
+   fog — one at the left, one high on the right, both away from the headline. It still darkens towards
+   the bottom right, where the controls and the card sit.
+
+   White type stays safe because the brightest stop is #2A62F2 (4.7:1 against white) and the blooms are
+   never stronger than 22% white; everything behind body text is #1E50E8 or deeper, which is 6.3:1.
+   Nothing moves and nothing is animated, as before. */
 .hero-premium, .hero-glow {
-  position: relative; background-color: #03101F; background-repeat: no-repeat; background-origin: border-box;
+  position: relative; background-color: #0C2152; background-repeat: no-repeat; background-origin: border-box;
   /* A scrim over the search box, the twelve chips and the two buttons (17 Nov 2026: "this area has to
      be dark so that they show well"). The chips are translucent white, so once the blue was taken up
      to the logo colour they had nothing to stand against. It is a variable because the controls sit in
@@ -312,22 +315,20 @@ select {
      the hero is one column and they run the full width, lower down. The media query is at the end of
      this rule. It is the first background layer, because the first layer paints on top, and it fades
      out before the headline and the right-hand card so only the controls get the darker ground. */
-  --hero-scrim: radial-gradient(76% 62% at 28% 90%, rgba(4, 18, 40, 0.62) 0%, rgba(4, 18, 40, 0.34) 44%, transparent 74%);
+  --hero-scrim: radial-gradient(76% 62% at 28% 90%, rgba(6, 22, 62, 0.52) 0%, rgba(6, 22, 62, 0.28) 44%, transparent 74%);
   background-image:
     var(--hero-scrim),
-    /* light blue, left edge */
-    radial-gradient(58% 86% at 0% 52%, rgba(93, 190, 255, 0.50) 0%, rgba(38, 124, 214, 0.26) 38%, rgba(12, 58, 120, 0.10) 62%, transparent 78%),
-    /* light blue, top right */
-    radial-gradient(46% 68% at 100% 22%, rgba(74, 170, 255, 0.34) 0%, rgba(24, 96, 184, 0.14) 42%, transparent 74%),
-    /* The body: the logo's own blue, #0072CE (17 Nov 2026: "lets use this blue"). Read straight
-       out of public/brand/logo-full.png, where it is far and away the most common colour, so the
-       hero and the mark in the header are the same blue rather than two that nearly match. It
-       replaces the royal #1151CF tried earlier the same day.
-       The right-hand end stays dark on purpose: the "How Bizsphere-Ug works" card sits there and
-       needs a quiet background. White text measures 4.89:1 on the logo blue itself and more on
-       every stop after it, so it clears the 4.5:1 minimum — but only just, which is why the blue
-       does not get any lighter than the logo. */
-    linear-gradient(118deg, #0A4E8C 0%, #083C6C 20%, #06294C 44%, #051C34 70%, #03101F 100%);
+    /* the bloom at the left: white light diffused through the blue, wide and very soft */
+    radial-gradient(54% 74% at 8% 68%, rgba(255, 255, 255, 0.17) 0%, rgba(173, 206, 255, 0.10) 42%, rgba(90, 150, 255, 0.04) 64%, transparent 80%),
+    /* the second bloom, high on the right, where the card sits: quieter, so the card stays readable */
+    radial-gradient(46% 66% at 92% 26%, rgba(255, 255, 255, 0.16) 0%, rgba(160, 200, 255, 0.09) 44%, transparent 74%),
+    /* a thread of light along the very top edge, under the floating header */
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 12%, transparent 26%),
+    /* The body: royal blue, open at the top left and deepening across and down, so the two blooms
+       have somewhere to fall and the bottom right — the controls and the card — stays quiet. The
+       logo blue (#0072CE) it replaces was a cyan-leaning blue that could not carry this much light
+       without going pale. */
+    linear-gradient(118deg, #2457E4 0%, #1B47D2 30%, #173DB4 58%, #102B7C 82%, #0B1E4C 100%);
 }
 /* Below xl the hero is a single column: the controls are no longer in the bottom-left corner but
    across the whole width, so the scrim is wider, centred, and sits higher. */
@@ -343,9 +344,9 @@ select {
    page, and by the footer. */
 .hero-glow {
   background-image:
-    radial-gradient(58% 86% at 0% 52%, rgba(93, 190, 255, 0.34) 0%, rgba(38, 124, 214, 0.18) 38%, rgba(12, 58, 120, 0.08) 62%, transparent 78%),
-    radial-gradient(46% 68% at 100% 22%, rgba(74, 170, 255, 0.22) 0%, rgba(24, 96, 184, 0.10) 42%, transparent 74%),
-    linear-gradient(118deg, #0068BE 0%, #0A4E8C 22%, #09355F 46%, #08203F 70%, #061529 100%);
+    radial-gradient(54% 80% at 8% 54%, rgba(255, 255, 255, 0.15) 0%, rgba(173, 206, 255, 0.08) 42%, transparent 74%),
+    radial-gradient(46% 66% at 94% 24%, rgba(255, 255, 255, 0.10) 0%, rgba(160, 200, 255, 0.06) 46%, transparent 76%),
+    linear-gradient(118deg, #2457DE 0%, #1B46C4 24%, #163A9E 48%, #112C72 72%, #0B1E46 100%);
 }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
