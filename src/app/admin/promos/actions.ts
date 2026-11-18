@@ -29,8 +29,6 @@ const codeSchema = z
     startsAt: day("start"),
     expiresAt: day("end"),
     note: z.preprocess((v) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 200) : undefined), z.string().optional()),
-    showOnSite: z.boolean(),
-    headline: z.preprocess((v) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 120) : undefined), z.string().optional()),
   })
   .refine((d) => d.kind !== "PERCENT" || d.value <= 100, { message: "A percentage can't be more than 100", path: ["value"] })
   .refine((d) => !d.startsAt || !d.expiresAt || d.startsAt <= d.expiresAt, { message: "The end date can't be before the start date", path: ["expiresAt"] });
@@ -42,7 +40,6 @@ export async function createPromo(form: FormData) {
   const parsed = codeSchema.safeParse({
     ...Object.fromEntries(form),
     periods: PLAN_PERIODS.filter((p) => form.get(`period-${p}`) === "on"),
-    showOnSite: form.get("showOnSite") === "on",
   });
   if (!parsed.success) fail(Object.values(parsed.error.flatten().fieldErrors).flat()[0] ?? "Check the code and try again");
   const d = parsed.data!;
@@ -52,7 +49,6 @@ export async function createPromo(form: FormData) {
     data: {
       code: d.code, kind: d.kind, value: d.value, periods: d.periods,
       maxRedemptions: d.maxRedemptions ?? null, startsAt: d.startsAt ?? null, expiresAt: d.expiresAt ?? null, note: d.note ?? null,
-      showOnSite: d.showOnSite, headline: d.headline ?? null,
     },
   });
   await audit(staff.id, "promo.created", "promo_code", created.id, { code: d.code, kind: d.kind, value: d.value });
@@ -88,21 +84,6 @@ export async function deletePromo(form: FormData) {
   redirect("/admin/promos?deleted=1");
 }
 
-/**
- * Puts one code's offer on the homepage, or takes it off. Only one band is ever shown (the newest
- * code with this on), so turning it on for a second code quietly replaces the first.
- */
-export async function toggleOnSite(form: FormData) {
-  const staff = await requireArea("promos");
-  const id = String(form.get("id") ?? "");
-  const promo = await prisma.promoCode.findUnique({ where: { id }, select: { showOnSite: true, code: true } });
-  if (!promo) fail("That code no longer exists.");
-  await prisma.promoCode.update({ where: { id }, data: { showOnSite: !promo!.showOnSite } });
-  await audit(staff.id, promo!.showOnSite ? "promo.hidden_on_site" : "promo.shown_on_site", "promo_code", id, { code: promo!.code });
-  revalidatePath("/admin/promos");
-  revalidatePath("/");
-  redirect("/admin/promos?saved=1");
-}
 
 /** The free days an invite gives, and how big a price move is worth a text. */
 export async function saveOfferSettings(form: FormData) {

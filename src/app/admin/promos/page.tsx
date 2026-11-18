@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { date, money } from "@/lib/format";
 import { PERIOD_INFO, PLAN_PERIODS } from "@/lib/billing";
 import { NUMBER_SETTINGS, getSettings, type NumberSetting } from "@/lib/settings";
-import { createPromo, deletePromo, saveOfferSettings, togglePromo, toggleOnSite } from "./actions";
+import { createPromo, deletePromo, saveOfferSettings, togglePromo } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Offers and codes" };
@@ -113,13 +113,6 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
             <label className="label min-w-0 sm:col-span-2">What it is for (your note)
               <input name="note" maxLength={200} placeholder="Radio advert, December" className="input w-full min-w-0" />
             </label>
-            <label className="label min-w-0 sm:col-span-2 lg:col-span-3">Homepage headline (optional)
-              <input name="headline" maxLength={120} placeholder="Launch offer: 20% off any membership this week" className="input w-full min-w-0" />
-              <span className="text-xs font-normal text-ink-muted">Shown on the homepage band when this code is on the site. Left empty, it writes itself from the discount.</span>
-            </label>
-            <label className="flex items-center gap-2 self-end pb-2 text-sm font-medium text-heading lg:col-span-1">
-              <input type="checkbox" name="showOnSite" className="h-4 w-4" />Show it on the homepage
-            </label>
           </div>
           <fieldset className="flex flex-col gap-2">
             <legend className="label mb-1">Which lengths it works on</legend>
@@ -160,16 +153,11 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
                     {c.expiresAt ? ` · ends ${date(c.expiresAt)}` : ""}
                     {c.note ? ` · ${c.note}` : ""}
                   </span>
-                  {c.showOnSite ? <span className="text-xs font-semibold text-accent-dark">On the homepage: “{c.headline?.trim() || `${c.kind === "PERCENT" ? `${Number(c.value)}% off` : `${money(c.value, currency)} off`} your first membership`}”</span> : null}
                 </span>
                 <span className="flex shrink-0 gap-2">
                   <form action={togglePromo}>
                     <input type="hidden" name="id" value={c.id} />
                     <button className="btn-outline min-h-[44px] px-3">{c.isActive ? "Turn off" : "Turn on"}</button>
-                  </form>
-                  <form action={toggleOnSite}>
-                    <input type="hidden" name="id" value={c.id} />
-                    <button className="btn-outline min-h-[44px] px-3">{c.showOnSite ? "Take off homepage" : "Put on homepage"}</button>
                   </form>
                   {c._count.redemptions === 0 ? (
                     <form action={deletePromo}>

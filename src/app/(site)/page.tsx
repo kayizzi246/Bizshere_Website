@@ -8,7 +8,6 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
-import { CallBack, OfferBand, TrustBand } from "@/components/HomeSelling";
 import { ParticleField } from "@/components/ui/particle-field";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -160,19 +159,10 @@ export default async function HomePage() {
 
       </section>
 
-      {/* ── A discount the team is running, when there is one: one tap, with the code already
-             filled in for them (src/components/HomeSelling.tsx). Nothing shows when there isn't. ── */}
-      <OfferBand />
-
-      {/* ── How much is in here, and how fresh it is: real counts, no prices or contacts ── */}
-      <TrustBand />
 
       {/* ── What the platform offers, a different block for each part ── */}
       <HomeFeatures />
 
-      {/* ── For the many people who would rather talk than type card details: their number goes
-             to Admin > Leads and the team rings back ── */}
-      <CallBack />
 
     </div>
   );

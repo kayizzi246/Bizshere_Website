@@ -71,35 +71,6 @@ export async function checkPromo(input: { code: string; userId: string; period: 
   };
 }
 
-/**
- * The offer to show on the homepage: the newest code the team ticked "show on the site" that is
- * live today and has uses left. Nothing is shown when there is none, so the band simply isn't there.
- *
- * It is cached for a minute: every visitor's homepage asks for it, and an offer that appears a
- * minute late costs nothing.
- */
-export type PublicOffer = { code: string; headline: string; label: string };
-
-export async function publicOffer(): Promise<PublicOffer | null> {
-  const now = new Date();
-  const codes = await prisma.promoCode
-    .findMany({
-      where: {
-        showOnSite: true, isActive: true,
-        OR: [{ startsAt: null }, { startsAt: { lte: now } }],
-        AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }],
-      },
-      include: { _count: { select: { redemptions: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    })
-    .catch(() => []);
-  const live = codes.find((c) => c.maxRedemptions === null || c._count.redemptions < c.maxRedemptions);
-  if (!live) return null;
-  const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" }, select: { currency: true } }).catch(() => null);
-  const label = describe(live, plan?.currency ?? "UGX");
-  return { code: live.code, headline: live.headline?.trim() || `${label} your first membership`, label };
-}
 
 /**
  * Records the use of a code, now that the payment has gone through. Called once per payment from

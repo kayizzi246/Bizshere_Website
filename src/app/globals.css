@@ -97,17 +97,9 @@
   /* GitHub (Primer) components: small radius, thin borders, flat fills, green primary, gray default button */
   .card { @apply rounded-md border border-line bg-surface; }
   .btn { @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition-[color,background-color,border-color] duration-150 ease-out; }
-  /* The buttons gained a little depth on 18 Nov 2026 (client: premium): a hairline of light along
-     the top edge and a shadow in the button's own colour, so it sits on the page rather than being
-     painted on it. The fills and their contrast are unchanged. */
-  .btn-primary {
-    @apply btn border border-[rgba(27,31,36,0.15)] bg-accent text-ink hover:bg-accent-dark hover:text-white;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 2px rgba(16, 24, 40, 0.08), 0 6px 16px -8px rgba(179, 95, 12, 0.5);
-  }
-  .btn-outline {
-    @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  }
+  /* Flat fills, no shadows (client, 18 Nov 2026). */
+  .btn-primary { @apply btn border border-[rgba(27,31,36,0.15)] bg-accent text-ink hover:bg-accent-dark hover:text-white; }
+  .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
   .btn-danger { @apply btn border border-[rgba(27,31,36,0.15)] bg-white text-bad-fg hover:bg-bad-fg hover:text-white; }
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
   .input { @apply min-h-[40px] rounded-md border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/40; }
@@ -115,32 +107,26 @@
 
   /* ── The premium surface (client, 18 Nov 2026: "I really want premium designs") ──────────────
      What makes a page read as expensive is not more colour but more care: a hairline edge rather
-     than a grey rule, a shadow you feel rather than see, and one clear step of depth when something
-     answers the pointer. .card-premium is that one surface, used for every card that sits on a
-     white or near-white band, so the whole page shares a single idea of what a card is.
+     than a grey rule, generous radius, and one clear step when something answers the pointer.
+     .card-premium is that one surface, used for every card that sits on a white or near-white band,
+     so the whole page shares a single idea of what a card is.
 
-     The shadow is two layers on purpose: a 1px contact shadow that keeps the edge crisp on white,
-     and a wide, very soft drop that gives the card its weight. Hover deepens the drop and lifts the
-     card 2px — the smallest movement that still feels like an answer. */
+     No shadows (client, 18 Nov 2026): the edge and a 2px lift carry it. Anything added here must
+     stay flat — a drop shadow on one card would make every other card look unfinished. */
   .card-premium {
     @apply rounded-2xl border bg-surface;
-    border-color: rgba(27, 31, 36, 0.09);
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px -14px rgba(16, 24, 40, 0.16);
-    transition: box-shadow 220ms var(--ease-out), border-color 220ms var(--ease-out), transform 220ms var(--ease-out);
+    border-color: rgba(27, 31, 36, 0.11);
+    transition: border-color 220ms var(--ease-out), transform 220ms var(--ease-out);
   }
   /* Only cards that lead somewhere lift: a card that cannot be opened must not pretend it can. */
   a.card-premium:hover, .card-premium-lift:hover {
-    border-color: rgba(27, 31, 36, 0.16);
-    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.05), 0 18px 40px -18px rgba(16, 24, 40, 0.24);
+    border-color: rgba(27, 31, 36, 0.24);
     transform: translateY(-2px);
   }
   @media (prefers-reduced-motion: reduce) {
     a.card-premium:hover, .card-premium-lift:hover { transform: none; }
   }
-  .theme-dark .card-premium {
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -14px rgba(0, 0, 0, 0.6);
-  }
+  .theme-dark .card-premium { border-color: rgba(255, 255, 255, 0.1); }
 
   /* Figures line up in columns: prices, totals and counts all use the same width per digit, so a
      table of money reads as a table rather than as ragged text. */

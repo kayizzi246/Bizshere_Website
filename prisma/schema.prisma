@@ -1818,10 +1818,9 @@ model PromoCode {
   startsAt       DateTime?
   expiresAt      DateTime?
   isActive       Boolean         @default(true)
-  /// Shown on the homepage as a live offer, with the code filled in for them. One code at a time:
-  /// the newest one wins (src/lib/promos.ts publicOffer).
+  /// Was a live offer band on the homepage, taken out on 18 Nov 2026 (client). Kept because the
+  /// live database already has these columns; nothing reads them now.
   showOnSite     Boolean         @default(false)
-  /// The line the homepage shows, e.g. "Launch offer: 20% off any membership this week".
   headline       String?
   /// Why it exists ("Radio advert, December"), for the team only.
   note           String?
