@@ -97,12 +97,54 @@
   /* GitHub (Primer) components: small radius, thin borders, flat fills, green primary, gray default button */
   .card { @apply rounded-md border border-line bg-surface; }
   .btn { @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition-[color,background-color,border-color] duration-150 ease-out; }
-  .btn-primary { @apply btn border border-[rgba(27,31,36,0.15)] bg-accent text-ink hover:bg-accent-dark hover:text-white; }
-  .btn-outline { @apply btn border border-line bg-page text-ink hover:border-brand hover:text-brand; }
+  /* The buttons gained a little depth on 18 Nov 2026 (client: premium): a hairline of light along
+     the top edge and a shadow in the button's own colour, so it sits on the page rather than being
+     painted on it. The fills and their contrast are unchanged. */
+  .btn-primary {
+    @apply btn border border-[rgba(27,31,36,0.15)] bg-accent text-ink hover:bg-accent-dark hover:text-white;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 2px rgba(16, 24, 40, 0.08), 0 6px 16px -8px rgba(179, 95, 12, 0.5);
+  }
+  .btn-outline {
+    @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  }
   .btn-danger { @apply btn border border-[rgba(27,31,36,0.15)] bg-white text-bad-fg hover:bg-bad-fg hover:text-white; }
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
   .input { @apply min-h-[40px] rounded-md border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/40; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
+
+  /* ── The premium surface (client, 18 Nov 2026: "I really want premium designs") ──────────────
+     What makes a page read as expensive is not more colour but more care: a hairline edge rather
+     than a grey rule, a shadow you feel rather than see, and one clear step of depth when something
+     answers the pointer. .card-premium is that one surface, used for every card that sits on a
+     white or near-white band, so the whole page shares a single idea of what a card is.
+
+     The shadow is two layers on purpose: a 1px contact shadow that keeps the edge crisp on white,
+     and a wide, very soft drop that gives the card its weight. Hover deepens the drop and lifts the
+     card 2px — the smallest movement that still feels like an answer. */
+  .card-premium {
+    @apply rounded-2xl border bg-surface;
+    border-color: rgba(27, 31, 36, 0.09);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px -14px rgba(16, 24, 40, 0.16);
+    transition: box-shadow 220ms var(--ease-out), border-color 220ms var(--ease-out), transform 220ms var(--ease-out);
+  }
+  /* Only cards that lead somewhere lift: a card that cannot be opened must not pretend it can. */
+  a.card-premium:hover, .card-premium-lift:hover {
+    border-color: rgba(27, 31, 36, 0.16);
+    box-shadow: 0 2px 4px rgba(16, 24, 40, 0.05), 0 18px 40px -18px rgba(16, 24, 40, 0.24);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a.card-premium:hover, .card-premium-lift:hover { transform: none; }
+  }
+  .theme-dark .card-premium {
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Figures line up in columns: prices, totals and counts all use the same width per digit, so a
+     table of money reads as a table rather than as ragged text. */
+  .nums { font-variant-numeric: tabular-nums; }
   /* Type scale, all Inter (client, 13 Nov 2026): hero 800 and very tight · page and section titles 700 · card titles 600–700 */
   .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }
   /* Smaller titles on every page (client, 13 Nov 2026): page 24→32 (was 28→42), section 20→24 (was 24→30), block 17→19 (was 20→24) */
@@ -322,8 +364,9 @@ select {
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */
 .speckle { background-color: #F3F2EE; } /* the specks are only on the homepage hero now (client, 12 Nov 2026) */
-/* The light blue of "What do you need today?" */
-.speckle-blue { background-color: #EAF4FB; }
+/* "What do you need today?" was a light blue (#EAF4FB) until 18 Nov 2026 (client): white, like the
+   page itself, so the cards on it carry the section instead of a band of colour. */
+.speckle-blue { background-color: #FFFFFF; }
 /* The same flecks, light, over the dark homepage hero (client, 12 Nov 2026) */
 .speckle-dark { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23FFFFFF' opacity='0.14'%3E%3Ccircle cx='156.0' cy='217.1' r='0.71'/%3E%3Cpath d='M25.0 54.8l4.7 3.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M78.6 192.6l-1.3 3.4' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='202.3' cy='228.7' r='0.86'/%3E%3Cpath d='M71.5 108.8l-1.1 4.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M61.7 195.0l-2.0 1.6' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='9.3' cy='75.7' r='0.81'/%3E%3Cpath d='M129.8 142.7l-3.5 3.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M89.1 201.0l2.1 0.4' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='97.8' cy='207.9' r='0.56'/%3E%3Cpath d='M187.3 152.9l2.4 5.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M183.9 189.2l-2.6 4.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='72.8' cy='212.7' r='1.04'/%3E%3Cpath d='M195.9 153.4l-3.0 3.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M66.8 49.2l3.5 2.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='90.8' cy='121.8' r='1.12'/%3E%3Cpath d='M98.5 42.7l-3.4 4.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M223.0 8.4l4.7 3.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='85.7' cy='198.3' r='0.74'/%3E%3Cpath d='M15.8 110.4l-1.5 6.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M8.7 18.6l-3.5 0.3' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='116.1' cy='162.8' r='0.98'/%3E%3Cpath d='M113.1 24.1l0.7 4.9' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M238.1 22.9l-4.7 4.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='151.7' cy='20.7' r='1.10'/%3E%3Cpath d='M146.6 135.4l0.8 5.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M169.6 141.9l-4.7 1.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='19.7' cy='88.1' r='0.96'/%3E%3Cpath d='M130.4 67.4l1.2 3.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M172.9 60.8l2.1 0.7' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='232.2' cy='219.1' r='1.09'/%3E%3Cpath d='M203.1 100.9l2.2 3.1' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M235.4 16.0l5.8 0.2' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='92.0' cy='152.3' r='1.15'/%3E%3Cpath d='M174.2 80.9l-0.1 2.7' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M69.0 21.4l-2.6 0.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='39.9' cy='17.3' r='0.92'/%3E%3Cpath d='M191.1 163.9l1.9 5.6' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M96.6 215.7l-1.7 3.5' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='81.0' cy='41.5' r='1.08'/%3E%3Cpath d='M125.8 43.8l-3.6 1.5' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M198.9 168.5l-0.5 6.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='51.8' cy='176.7' r='0.99'/%3E%3Cpath d='M81.1 19.2l0.3 5.8' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M61.2 27.1l-1.3 2.0' stroke='%23FFFFFF' stroke-width='0.8' stroke-linecap='round'/%3E%3Ccircle cx='46.1' cy='125.9' r='1.04'/%3E%3C/g%3E%3C/svg%3E"); background-size: 240px 240px; }
 /* The hero photo collage (HeroCollage): each column holds its photos twice and moves up by half its height,

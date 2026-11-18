@@ -101,12 +101,12 @@ const BAND = { need: "speckle speckle-blue", all: "speckle" } as const; // "Ever
  * the site that solves it. [what they say, where it goes, that service's colour]
  */
 const NEEDS: [string, string, string][] = [
-  ["I want to start a business", "/business-ideas", S.ideas.solid],
-  ["I need money for my business", "/funding", S.funding.solid],
-  ["I am looking for a supplier", "/suppliers", S.suppliers.solid],
-  ["I need a machine", "/machines", S.machines.solid],
-  ["I need advice from an expert", "/experts", S.experts.solid],
-  ["I want today's market prices", "/prices", S.prices.solid],
+  ["I want to start a business", "/business-ideas", "bg-[#E6F1EC] text-[#0F5B3E]"],
+  ["I need money for my business", "/funding", "bg-accent-tint text-accent-dark"],
+  ["I am looking for a supplier", "/suppliers", "bg-brand-tint text-brand-dark"],
+  ["I need a machine", "/machines", "bg-[#E4EBF7] text-navy"],
+  ["I need advice from an expert", "/experts", "bg-[#EFE7F5] text-[#4A1D6B]"],
+  ["I want today's market prices", "/prices", S.prices.soft],
 ];
 
 /** Good morning / afternoon / evening by the clock in Uganda, where the visitors are. */
@@ -207,7 +207,7 @@ export async function HomeFeatures() {
       <div className={BAND.need}>
       <div className="container-site flex flex-col items-center gap-5 py-6 sm:gap-6 sm:py-8">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
-          <span className="rounded-full bg-white px-3 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
+          <span className="rounded-full border border-line bg-surface px-3.5 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
           {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
               businesses banner: the word the line turns on in the logo orange, closing on an orange
               mark — here the question mark, since this one asks rather than promises. */}
@@ -219,9 +219,9 @@ export async function HomeFeatures() {
         <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {NEEDS.map(([say, href, colour]) => (
             <li key={href}>
-              <Link href={href} className="group flex min-h-[68px] items-center gap-3 bg-white p-3 pr-4 text-ink transition-colors hover:bg-brand-tint hover:text-ink active:bg-brand-tint/70">
-                <span className={`flex h-11 w-11 shrink-0 items-center justify-center transition-transform duration-150 group-hover:scale-105 motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
-                <span className="flex-1 font-display text-[14px] leading-snug">{say}</span>
+              <Link href={href} className="card-premium group flex min-h-[72px] items-center gap-3.5 p-3.5 pr-4 text-ink hover:text-ink">
+                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-5 w-5" /></span>
+                <span className="flex-1 font-display text-[14.5px] font-semibold leading-snug">{say}</span>
                 <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
               </Link>
             </li>

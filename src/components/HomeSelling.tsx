@@ -32,7 +32,7 @@ export async function OfferBand() {
         data-pay=""
         data-next="/business-ideas"
         data-code={offer.code}
-        className="group flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-accent/40 bg-accent-tint px-4 py-3 text-ink hover:border-accent hover:text-ink sm:px-5"
+        className="card-premium group flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-accent/35 bg-accent-tint px-4 py-3.5 text-ink hover:text-ink sm:px-5"
       >
         <span className="flex min-w-0 items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-ink"><BadgePercent aria-hidden className="h-[18px] w-[18px]" /></span>
@@ -78,10 +78,10 @@ export async function TrustBand() {
       <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
         {cells.map((c) => (
           <li key={c.href}>
-            <Link href={c.href} className="flex h-full items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3.5 text-ink hover:border-brand hover:text-ink">
+            <Link href={c.href} className="card-premium flex h-full items-center gap-3 px-4 py-4 text-ink hover:text-ink">
               <c.icon aria-hidden className="h-5 w-5 shrink-0 text-brand" />
               <span className="flex min-w-0 flex-col">
-                <span className="font-display text-[20px] font-extrabold leading-none text-heading">{c.n}</span>
+                <span className="nums font-display text-[22px] font-extrabold leading-none tracking-[-0.02em] text-heading">{c.n}</span>
                 <span className="text-[12.5px] leading-snug text-ink-muted">{c.label}</span>
               </span>
             </Link>
