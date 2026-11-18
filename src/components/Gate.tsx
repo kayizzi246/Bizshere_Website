@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { LockKeyhole } from "lucide-react";
 
 /**
- * "Show more" lock card plus the subscribe popup.
+ * The "Show more" lock that sits where member-only rows would be.
  *
- * The blurred rows behind it are FAKE filler passed in as `teaser` (e.g. "UGX 0,000,000"),
- * never the real data. Real member-only data is not sent for visitors at all.
+ * One tap, not two (18 Nov 2026): the button is a `data-pay` link, so the site-wide pop-up
+ * (src/components/Onboarding.tsx, mounted in the (site) layout) opens straight at the plans — or at
+ * the phone sign-in first for a visitor — and comes back to this page afterwards. It used to open a
+ * card that said the same things again and had its own "See membership plans" button; everything
+ * that card listed is in the pop-up itself.
+ *
+ * The blurred rows behind it are FAKE filler passed in as `teaser` (e.g. "UGX 0,000,000"), never the
+ * real data. Real member-only data is not sent to a visitor's browser at all.
  */
 export function Gate({
   title,
@@ -15,80 +22,40 @@ export function Gate({
   button = "Show more",
   teaser,
   compact = false,
-  modalTitle = "Subscribe to see everything",
 }: {
   title?: string;
   text?: string;
   button?: string;
   teaser?: React.ReactNode;
   compact?: boolean;
+  /** No longer used: the pop-up writes its own heading. Kept so older pages still compile. */
   modalTitle?: string;
 }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <div className="relative">
-        {teaser ? <div aria-hidden className="blurred">{teaser}</div> : null}
-        <div className={`${teaser ? "absolute inset-0" : ""} flex items-center justify-center bg-white/40 py-4`}>
-          {compact ? (
-            <button type="button" onClick={() => setOpen(true)} className="btn border border-brand bg-white text-brand">
-              <Lock /> {button}
-            </button>
-          ) : (
-            <div className="flex max-w-sm flex-col items-center gap-2.5 rounded-2xl border border-line bg-white px-6 py-5 text-center">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand"><Lock /></span>
-              {title ? <span className="text-[17px] font-bold">{title}</span> : null}
-              {text ? <span className="text-sm text-ink-muted">{text}</span> : null}
-              <button type="button" onClick={() => setOpen(true)} className="btn-primary">{button}</button>
-            </div>
-          )}
-        </div>
-      </div>
-      {open ? <SubscribeModal title={modalTitle} onClose={() => setOpen(false)} /> : null}
-    </>
-  );
-}
+  const path = usePathname();
+  // data-pay + data-next: open the plans in place, then return to this page.
+  const open = { href: `/membership?onboard=pay&next=${encodeURIComponent(path || "/")}`, "data-pay": "", "data-next": path || "/" };
 
-export function SubscribeModal({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/60 px-4 pt-24">
-      <div className="w-full max-w-[540px] overflow-hidden rounded-[20px] bg-white">
-        <div className="flex items-center justify-between bg-ink px-7 py-5">
-          <span className="flex items-center gap-2.5 text-sm font-bold text-brand-mint"><Lock /> Members only</span>
-          <button type="button" onClick={onClose} aria-label="Close" className="h-10 w-10 rounded-lg text-xl text-white">×</button>
-        </div>
-        <div className="flex flex-col gap-4 p-7">
-          <h2 id="gate-title" className="text-[26px] font-extrabold tracking-tight">{title}</h2>
-          <ul className="flex flex-col gap-2.5 text-[15px]">
-            {["Full business plans and startup budgets", "Supplier and expert contact details", "Full funding terms with deadline alerts", "Price history, templates and downloads"].map((t) => (
-              <li key={t} className="flex gap-2.5"><Check /> {t}</li>
-            ))}
-          </ul>
-          {/* data-pay: the site-wide OnboardingGate opens the plans and payment right here, on top of this page */}
-          <Link href="/membership?onboard=pay" data-pay="" data-next={typeof window === "undefined" ? undefined : window.location.pathname} onClick={onClose} className="btn-primary min-h-[52px] text-base">See membership plans</Link>
-          <div className="flex flex-wrap justify-between gap-2 text-sm">
-            <span className="text-ink-muted">Pay with mobile money or card</span>
-            <Link href="/login" className="font-bold">Already subscribed? Get your access back</Link>
+    <div className="relative">
+      {teaser ? <div aria-hidden className="blurred">{teaser}</div> : null}
+      <div className={`${teaser ? "absolute inset-0" : ""} flex items-center justify-center bg-white/40 py-4`}>
+        {compact ? (
+          <Link {...open} className="btn border border-brand bg-white text-brand hover:bg-brand hover:text-white">
+            <LockKeyhole aria-hidden className="h-4 w-4" /> {button}
+          </Link>
+        ) : (
+          <div className="flex max-w-sm flex-col items-center gap-2.5 rounded-2xl border border-line bg-white px-6 py-5 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand"><LockKeyhole aria-hidden className="h-[18px] w-[18px]" /></span>
+            {title ? <span className="text-[17px] font-bold">{title}</span> : null}
+            {text ? <span className="text-sm text-ink-muted">{text}</span> : null}
+            <Link {...open} className="btn-primary">{button}</Link>
+            {/* Careful wording: the free day is one per person, ever, and whether this person still
+                has theirs is only known once they have signed in (the pop-up checks and shows the
+                button). So this hints at it rather than promising it. */}
+            <span className="text-[12px] text-ink-muted">Pay with MoMo, Airtel Money or card — or try a free day if you haven&apos;t used yours.</span>
           </div>
-        </div>
+        )}
       </div>
     </div>
-  );
-}
-
-function Lock() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="5" y="11" width="14" height="10" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-
-export function Check() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
-      <path d="M5 12l4 4 10-10" />
-    </svg>
   );
 }

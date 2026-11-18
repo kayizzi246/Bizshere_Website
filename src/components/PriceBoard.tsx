@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, LockKeyhole, MapPin, X } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Bell, BellRing, CalendarDays, LockKeyhole, MapPin, X } from "lucide-react";
+import { toggleProductWatch } from "@/app/actions/member";
 
 /** One price cell: the price as text, or `locked` (member detail: a market beyond the visitor's free preview). */
 export type BoardPrice = { value: string | null; locked: boolean };
@@ -31,8 +32,38 @@ const GRID = "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4";
  * the supplier, everyone else to the same pop-up. The row's own link lies behind it, so the two
  * are not nested.
  */
-export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Record<string, MarketPrice[]> | null }) {
+export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; details: Record<string, MarketPrice[]> | null; watched?: string[] }) {
   const [open, setOpen] = useState<BoardRow | null>(null);
+  // Which products this member is watching. Kept here so a bell answers at once, before the server
+  // has replied, and so the row and the pop-up always show the same thing.
+  const [watching, setWatching] = useState<Set<string>>(() => new Set(watched ?? []));
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function toggle(productId: string) {
+    const was = watching.has(productId);
+    setBusy(productId);
+    setWatching((s) => { const next = new Set(s); if (was) next.delete(productId); else next.add(productId); return next; });
+    const res = await toggleProductWatch(productId).catch(() => null);
+    setBusy(null);
+    // Refused or failed: put the bell back the way it was.
+    if (!res || "signIn" in res || res.watching === was) {
+      setWatching((s) => { const next = new Set(s); if (was) next.add(productId); else next.delete(productId); return next; });
+    }
+  }
+
+  /** The bell that turns price alerts on for one product. Members only: the price itself is. */
+  const bell = (r: BoardRow, size: "row" | "panel") => {
+    const on = watching.has(r.id);
+    const Glyph = on ? BellRing : Bell;
+    return (
+      <button type="button" onClick={() => void toggle(r.id)} disabled={busy === r.id} aria-pressed={on}
+        title={on ? "We text you when this price moves" : "Get a text when this price moves"}
+        aria-label={on ? `Stop alerts for ${r.name}` : `Alert me when the price of ${r.name} moves`}
+        className={`relative z-10 inline-flex shrink-0 items-center justify-center rounded-full transition-colors ${size === "row" ? "h-8 w-8" : "h-9 w-9"} ${on ? "bg-accent/20 text-accent hover:bg-accent/30" : "text-white/40 hover:bg-white/10 hover:text-white"}`}>
+        <Glyph aria-hidden className={size === "row" ? "h-4 w-4" : "h-[18px] w-[18px]"} />
+      </button>
+    );
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -73,13 +104,16 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
           )}
         </span>
       </span>
-      {/* Price: the price, then the change and the date under it */}
-      <span className="flex flex-col items-end gap-0.5 text-right">
-        {cell(r.price, r.unit)}
-        <span className="flex items-center gap-2">
-          {change(r.change)}
-          {r.updated ? <span className="hidden text-[11px] text-white/45 sm:inline">{r.updated}</span> : null}
+      {/* Price: the price, then the change and the date under it. Members also get the alert bell. */}
+      <span className="flex items-center gap-1.5">
+        <span className="flex flex-col items-end gap-0.5 text-right">
+          {cell(r.price, r.unit)}
+          <span className="flex items-center gap-2">
+            {change(r.change)}
+            {r.updated ? <span className="hidden text-[11px] text-white/45 sm:inline">{r.updated}</span> : null}
+          </span>
         </span>
+        {details ? bell(r, "row") : null}
       </span>
     </>
   );
@@ -113,8 +147,9 @@ export function PriceBoard({ rows, details }: { rows: BoardRow[]; details: Recor
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold ${open.tone}`}>{open.initial}</span>
               <span className="flex min-w-0 flex-1 flex-col">
                 <span id="price-title" className="truncate font-display text-lg font-bold">{open.name}</span>
-                <span className="text-[12px] text-white/50">{open.sub}</span>
+                <span className="text-[12px] text-white/50">{watching.has(open.id) ? "We text you when this price moves" : open.sub}</span>
               </span>
+              {bell(open, "panel")}
               <button type="button" onClick={() => setOpen(null)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"><X className="h-4 w-4" /></button>
             </div>
             <ul className="flex flex-col gap-1 overflow-y-auto p-2">

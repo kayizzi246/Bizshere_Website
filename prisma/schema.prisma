@@ -275,28 +275,32 @@ enum EnquiryStatus {
 // ─────────────────────────────────────────────────────────────
 
 model User {
-  id           String    @id @default(cuid())
-  name         String
+  id            String    @id @default(cuid())
+  name          String
   // People sign up with an email, a phone number or Google, so either may be empty.
-  email        String?   @unique
-  phone        String?   @unique // international format, e.g. +256700123456
-  passwordHash String?
+  email         String?   @unique
+  phone         String?   @unique // international format, e.g. +256700123456
+  passwordHash  String?
   /// Sellers sign in with a 4-digit PIN (stored in passwordHash). True after the team sends one by SMS: the seller must choose their own before using the portal.
   pinMustChange Boolean   @default(false)
   /// Personal sign-in address for sellers and experts: the site address followed by this, e.g. bizsphere.ug/kampala-bakers. Set by the team when it registers the login.
-  username     String?   @unique
-  role         Role      @default(USER)
+  username      String?   @unique
+  role          Role      @default(USER)
   /// Sub-admins (role EDITOR): the admin areas they may open (src/lib/admin-areas.ts). Super admins (ADMIN) open everything.
-  adminAreas   String[]  @default([])
-  isSuspended  Boolean   @default(false)
-  lastActiveAt DateTime?
+  adminAreas    String[]  @default([])
+  isSuspended   Boolean   @default(false)
+  lastActiveAt  DateTime?
   /// Weekly "what's new" SMS (src/lib/jobs.ts weeklyDigest): only for people who turned it on at /account.
-  digestSms    Boolean   @default(false)
-  digestSentAt DateTime?
+  digestSms     Boolean   @default(false)
+  digestSentAt  DateTime?
   /// Last saved-search alert texted: at most one a day (src/lib/jobs.ts savedSearchAlerts).
-  alertSmsAt   DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  alertSmsAt    DateTime?
+  /// When this person took their free 24-hour pass (src/lib/free-pass.ts). Set once: one pass per person, ever.
+  trialUsedAt   DateTime?
+  /// Their own invite code, e.g. "AMOS7K4": bizsphere.ug/?ref=AMOS7K4 (src/lib/referrals.ts). Made on first use.
+  referralCode  String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   orgMemberships     OrganizationMember[]
   subscriptions      Subscription[]
@@ -329,6 +333,10 @@ model User {
   forumTopics        ForumTopic[]
   forumPosts         ForumPost[]          @relation("ForumPostAuthor")
   forumPostsHidden   ForumPost[]          @relation("ForumPostHiddenBy")
+  priceWatches       PriceWatch[]
+  promoRedemptions   PromoRedemption[]
+  invitesSent        Referral[]           @relation("ReferralInviter")
+  inviteAccepted     Referral?            @relation("ReferralInvitee")
 
   @@map("users")
 }
@@ -741,9 +749,9 @@ model BusinessIdea {
   // client business idea template (Oct 2026): size, starting capital, profit potential, time to set up.
   // Capital is the editor's headline range, shown publicly; the costed budget stays in BudgetScenario.
   businessSize           String? // SMALL, MEDIUM, LARGE
-  capitalMin             Decimal? @db.Decimal(16, 2)
-  capitalMax             Decimal? @db.Decimal(16, 2)
-  currency               String   @default("UGX")
+  capitalMin             Decimal?         @db.Decimal(16, 2)
+  capitalMax             Decimal?         @db.Decimal(16, 2)
+  currency               String           @default("UGX")
   capitalNotes           String?
   locationNotes          String?
   profitPotential        String? // LOW, MEDIUM, HIGH
@@ -934,13 +942,13 @@ model Supplier {
   pictureUrl         String?
   pictureCredit      String?
 
-  contentItem  ContentItem              @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
-  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  offers       SupplierOffer[]
-  listings     SupplierProductListing[]
-  priceProducts Product[]
+  contentItem      ContentItem              @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  organization     Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  offers           SupplierOffer[]
+  listings         SupplierProductListing[]
+  priceProducts    Product[]
   /// Machines that name this supplier as their provider (Admin > Machines > Provider).
-  providedMachines Machine[] @relation("MachineProvider")
+  providedMachines Machine[]                @relation("MachineProvider")
 
   @@map("suppliers")
 }
@@ -996,23 +1004,24 @@ model Product {
   observations PriceObservation[]
   listings     SupplierProductListing[]
   recipeLines  RecipeIngredient[]
+  watches      PriceWatch[]
 
   @@unique([name, variety, grade])
   @@map("products")
 }
 
 model SupplierProductListing {
-  id                   String    @id @default(cuid())
+  id                   String            @id @default(cuid())
   supplierId           String
   productId            String?
   productName          String
   specifications       String?
   unit                 String?
-  minimumOrderQuantity Decimal?  @db.Decimal(14, 3)
+  minimumOrderQuantity Decimal?          @db.Decimal(14, 3)
   availability         String?
-  priceMin             Decimal?  @db.Decimal(16, 2)
-  priceMax             Decimal?  @db.Decimal(16, 2)
-  currency             String    @default("UGX")
+  priceMin             Decimal?          @db.Decimal(16, 2)
+  priceMax             Decimal?          @db.Decimal(16, 2)
+  currency             String            @default("UGX")
   quotedAt             DateTime?
   validUntil           DateTime?
   /// Product catalog (supplier page grid): photo, and whether it shows on the site. Suppliers add these in /supplier.
@@ -1293,15 +1302,15 @@ model Consultant {
 /// Selected projects, case studies and client references (only where the
 /// client has permitted publication).
 model ConsultantProject {
-  id                   String  @id @default(cuid())
+  id                   String            @id @default(cuid())
   consultantId         String
   title                String
   clientName           String?
   year                 Int?
   summary              String?
   outcome              String?
-  isCaseStudy          Boolean @default(false)
-  publicationPermitted Boolean @default(false)
+  isCaseStudy          Boolean           @default(false)
+  publicationPermitted Boolean           @default(false)
   referenceContact     String? // member-only; never shown unless publicationPermitted
   /// Work the expert uploads in their portal: a photo, a file (PDF or document) and a link.
   imageUrl             String?
@@ -1709,23 +1718,23 @@ model NewsOrganization {
 // ─────────────────────────────────────────────────────────────
 
 model MembershipPlan {
-  id           String       @id @default(cuid())
-  code         String       @unique // free, member, business_basic, business_featured...
-  name         String
-  audience     PlanAudience
-  priceDaily   Decimal?     @db.Decimal(14, 2) // a day pass; NULL until the client confirms prices
-  priceWeekly  Decimal?     @db.Decimal(14, 2) // a week pass
-  priceMonthly Decimal?     @db.Decimal(14, 2) // NULL until the client confirms prices
-  priceYearly  Decimal?     @db.Decimal(14, 2)
+  id              String       @id @default(cuid())
+  code            String       @unique // free, member, business_basic, business_featured...
+  name            String
+  audience        PlanAudience
+  priceDaily      Decimal?     @db.Decimal(14, 2) // a day pass; NULL until the client confirms prices
+  priceWeekly     Decimal?     @db.Decimal(14, 2) // a week pass
+  priceMonthly    Decimal?     @db.Decimal(14, 2) // NULL until the client confirms prices
+  priceYearly     Decimal?     @db.Decimal(14, 2)
   /// Supplier and expert listings are sold for 6 months, 1, 2 or 3 years (priceYearly is the 1-year price).
-  priceHalfYearly Decimal?  @db.Decimal(14, 2)
-  priceTwoYears   Decimal?  @db.Decimal(14, 2)
-  priceThreeYears Decimal?  @db.Decimal(14, 2)
-  currency     String       @default("UGX")
+  priceHalfYearly Decimal?     @db.Decimal(14, 2)
+  priceTwoYears   Decimal?     @db.Decimal(14, 2)
+  priceThreeYears Decimal?     @db.Decimal(14, 2)
+  currency        String       @default("UGX")
   /// e.g. { "fullDetail": true, "contacts": true, "downloads": true, "alerts": true, "maxListings": 10 }
-  entitlements Json
-  isActive     Boolean      @default(true)
-  sortOrder    Int          @default(0)
+  entitlements    Json
+  isActive        Boolean      @default(true)
+  sortOrder       Int          @default(0)
 
   subscriptions Subscription[]
 
@@ -1757,25 +1766,124 @@ model Subscription {
 }
 
 model Payment {
-  id             String        @id @default(cuid())
+  id             String         @id @default(cuid())
   subscriptionId String
-  amount         Decimal       @db.Decimal(14, 2)
-  currency       String        @default("UGX")
+  amount         Decimal        @db.Decimal(14, 2)
+  currency       String         @default("UGX")
   method         PaymentMethod
   /// What this payment buys. Set on new payments; older ones use the subscription's period.
   period         BillingPeriod?
   /// Pesapal: the order_tracking_id, needed to check or cancel the order
   providerRef    String?
-  status         PaymentStatus @default(PENDING)
+  status         PaymentStatus  @default(PENDING)
   /// Pesapal's reason for a failed attempt (e.g. "Insufficient funds"), shown in Admin > Payments
   failureReason  String?
+  /// Taken off the plan's price by a promo code (src/lib/promos.ts). `amount` is what was really charged.
+  discount       Decimal?       @db.Decimal(14, 2)
+  /// The code used, kept so Admin > Promo codes can show what each code brought in.
+  promoCodeId    String?
+  /// When we texted "you didn't finish paying" for this attempt (src/lib/jobs.ts checkoutRecovery). Sent once.
+  recoverySentAt DateTime?
   paidAt         DateTime?
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime       @default(now())
 
-  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscription Subscription     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  promoCode    PromoCode?       @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  redemption   PromoRedemption?
 
   @@index([providerRef])
+  @@index([status, createdAt])
   @@map("payments")
+}
+
+enum PromoKind {
+  PERCENT // value = per cent off, 1-100
+  AMOUNT // value = money off, in the plan's currency
+}
+
+/// A discount code typed in the payment pop-up (Admin > Promo codes). Never changes what a
+/// membership opens, only its price for this one payment.
+model PromoCode {
+  id             String          @id @default(cuid())
+  /// Typed by the member, matched without case ("LAUNCH20"). Stored upper case.
+  code           String          @unique
+  kind           PromoKind
+  /// Per cent (PERCENT) or money off (AMOUNT), in the plan's currency.
+  value          Decimal         @db.Decimal(14, 2)
+  /// Which lengths it works on. Empty: all of them.
+  periods        BillingPeriod[]
+  /// How many times it may be used in all. NULL: no limit. One use per person either way.
+  maxRedemptions Int?
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean         @default(true)
+  /// Why it exists ("Radio advert, December"), for the team only.
+  note           String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  redemptions PromoRedemption[]
+  payments    Payment[]
+
+  @@map("promo_codes")
+}
+
+/// One use of a code by one person. The row is written when the payment succeeds, so an
+/// abandoned attempt never uses up a code.
+model PromoRedemption {
+  id          String   @id @default(cuid())
+  promoCodeId String
+  userId      String
+  paymentId   String   @unique
+  /// What came off the price, in the payment's currency.
+  amountOff   Decimal  @db.Decimal(14, 2)
+  createdAt   DateTime @default(now())
+
+  promoCode PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment   Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@unique([promoCodeId, userId])
+  @@map("promo_redemptions")
+}
+
+/// An invite: who invited whom, and whether both sides have had their free days
+/// (src/lib/referrals.ts). One row per invited person, ever.
+model Referral {
+  id         String    @id @default(cuid())
+  inviterId  String
+  inviteeId  String    @unique
+  /// Free days each side was given when the invited person first paid. 0 until then.
+  rewardDays Int       @default(0)
+  rewardedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  inviter User @relation("ReferralInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee User @relation("ReferralInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  @@index([inviterId])
+  @@map("referrals")
+}
+
+/// A product a member watches: they are texted when its wholesale price moves by
+/// PRICE_WATCH_MOVE or more, and when a new supplier lists it (src/lib/jobs.ts priceAlerts).
+model PriceWatch {
+  id             String    @id @default(cuid())
+  userId         String
+  productId      String
+  /// The average wholesale price when we last looked, so a move can be worked out.
+  lastPrice      Decimal?  @db.Decimal(14, 2)
+  /// How many suppliers listed it when we last looked.
+  lastSuppliers  Int       @default(0)
+  lastNotifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("price_watches")
 }
 
 model SavedItem {
@@ -2113,8 +2221,8 @@ model RateLimit {
 
 /// A business tip. Its title, category and details are on the ContentItem (title, primaryCategoryId, overview).
 model BusinessTip {
-  id            String @id @default(cuid())
-  contentItemId String @unique
+  id            String  @id @default(cuid())
+  contentItemId String  @unique
   /// A YouTube link: played on the tip page, its thumbnail is the card picture (client, Nov 2026)
   videoUrl      String?
   /// A photo for the card and the top of the tip, when there is no video

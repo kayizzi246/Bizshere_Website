@@ -41,8 +41,24 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(login);
     }
   }
+
+  // 3. An invite link (bizsphere.ug/?ref=AMOS7K4): remember the code for 30 days, so whoever
+  //    invited them still gets their free days if the person signs up a few days later
+  //    (src/lib/referrals.ts). The code is only remembered here; nothing is given away for a click.
+  const ref = req.nextUrl.searchParams.get("ref");
+  if (ref) {
+    const code = ref.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 16);
+    if (code && req.cookies.get(REF_COOKIE)?.value !== code) {
+      const res = NextResponse.next();
+      res.cookies.set(REF_COOKIE, code, { maxAge: 30 * 86_400, httpOnly: true, sameSite: "lax", path: "/", secure: req.nextUrl.protocol === "https:" });
+      return res;
+    }
+  }
   return NextResponse.next();
 }
+
+/** Must match REF_COOKIE in src/lib/referrals.ts (that file can't be imported at the edge). */
+const REF_COOKIE = "bz_ref";
 
 // Everything except Next.js's own static files and the site's public images, which need no checks.
 export const config = { matcher: ["/((?!_next/static|_next/image|brand/|ideas/|machines/|illustrations/|samples/|uploads/|icon.png|favicon.ico).*)"] };

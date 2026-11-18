@@ -34,7 +34,10 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   // The code being checked. Phones that fill the code in from the SMS can fire twice: the first check signs
   // in and uses the code up, and a second one used to show "wrong code" (Nov 2026). One check per code.
   const checking = useRef<string | null>(null);
-  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[15px]";
+  // 16px on phones (18 Nov 2026): iPhone Safari zooms the whole page in when a field whose text is
+  // under 16px takes the keyboard, which threw the payment pop-up off the screen mid-sign-in. From
+  // sm (a real keyboard, no zooming) the designed 15px comes back.
+  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[16px] sm:text-[15px]";
 
   useEffect(() => { if (phone) codeInput.current?.focus(); }, [phone]);
   useEffect(() => {

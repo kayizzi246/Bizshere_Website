@@ -6,6 +6,7 @@ import { getViewer, FREE_PREVIEW } from "@/lib/access";
 import { date, isOlderThan, money, moneyRange } from "@/lib/format";
 import { GlassSelect } from "@/components/GlassSelect";
 import { PriceBoard, type BoardPrice, type BoardRow, type MarketPrice } from "@/components/PriceBoard";
+import { watchedProductIds } from "@/lib/watches";
 import type { PriceType } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -37,13 +38,15 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
   const q = (searchParams.q ?? "").trim().slice(0, 80);
   const sort: Sort = SORTS.some(([k]) => k === searchParams.sort) ? (searchParams.sort as Sort) : "name";
 
-  const [products, observations] = await Promise.all([
+  const [products, observations, watching] = await Promise.all([
     prisma.product.findMany({ orderBy: { name: "asc" }, include: { supplier: { select: { contentItem: { select: { slug: true, publicationStatus: true } } } } } }),
     prisma.priceObservation.findMany({
       where: { status: "PUBLISHED" },
       include: { market: { include: { location: { include: { parent: true } } } } },
       orderBy: { observedAt: "desc" },
     }),
+    // The products this member has a bell on (src/lib/watches.ts). Empty for everyone else.
+    viewer.isMember ? watchedProductIds(viewer.userId) : new Set<string>(),
   ]);
   type Obs = (typeof observations)[number];
 
@@ -202,12 +205,12 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
 
         <section aria-label="Prices" className="border-t border-white/10 pt-3">
           {boardRows.length ? (
-            <PriceBoard rows={boardRows} details={details} />
+            <PriceBoard rows={boardRows} details={details} watched={[...watching]} />
           ) : (
             <p className="px-3 py-10 text-center text-sm text-white/60">{q ? "No products match this search." : market ? "No prices from this market yet." : "No prices yet."}</p>
           )}
         </section>
-        <p className="text-[11px] text-white/40">{market ? "Latest price at this market." : "Average of the latest price in each market."} Price is wholesale where there is one, otherwise retail, then farm-gate; the change is since the previous price.{viewer.isMember ? "" : " Members see every market."}</p>
+        <p className="text-[11px] text-white/40">{market ? "Latest price at this market." : "Average of the latest price in each market."} Price is wholesale where there is one, otherwise retail, then farm-gate; the change is since the previous price.{viewer.isMember ? " Tap a bell to be texted when a price moves or a new supplier lists the product." : " Members see every market."}</p>
       </div>
     </div>
   );

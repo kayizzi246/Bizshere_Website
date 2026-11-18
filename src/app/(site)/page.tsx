@@ -68,9 +68,12 @@ export default async function HomePage() {
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
 
-            <p data-size="" className="mb-4 max-w-2xl text-[13px] leading-[1.6] text-white/90 sm:text-[14px]">
-              Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources, Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
-              <span className=" text-white">Start exploring now.</span>
+            {/* One short line instead of the nine-item list that was here (18 Nov 2026): the list
+                repeated the directory tiles immediately under it, and nobody reads a label twice.
+                What a visitor needs to know is what the site answers for them. */}
+            <p data-size="" className="mb-4 max-w-2xl text-[14px] leading-[1.6] text-white/90 sm:text-[15px]">
+              What a business costs to start in Uganda, who sells the machines, and where the money is.{" "}
+              <span className="text-white">Every price dated and sourced.</span>
             </p>
 
             <HomeSearch />
@@ -92,24 +95,27 @@ export default async function HomePage() {
             </ul>
 
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              {/* Get started: down to the next section, "Everything a business needs" (#features), for everyone (client, 9 Nov 2026) */}
+              {/* 18 Nov 2026: "Get started" used to scroll down to #features, which is more reading
+                  before anything is done. It now opens Business Ideas, where a visitor picks an
+                  idea and the machines, suppliers and funding for it follow. To put the scroll back,
+                  make this an <a href="#features"> again. */}
               {/* Solid and outlined, bold, small corners (client, 12 Nov 2026, after an example they sent) */}
               {/* Animated (16 Nov 2026): a band of light sweeps across the solid button on hover, both
                   rise a little, and a press settles them back down so a tap is felt on a phone. The
                   sweep is a ::before inside overflow-hidden, so it costs one transform and no repaint.
                   All of it is dropped under prefers-reduced-motion. */}
-              <a href="#features" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">
+              <Link href="/business-ideas" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">
                 {/* The label keeps a solid fill so it stays readable while the ring behind it changes
                     colour. Dark text on the deep blue of that gradient would not pass contrast. */}
                 <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[4px] bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors group-hover:bg-[#FFA54A] before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] group-hover:before:left-[150%] motion-reduce:before:hidden">
-                  <span className="relative">Get started</span>
+                  <span className="relative">Start with a business idea</span>
                 </span>
-              </a>
+              </Link>
               {/* The same moving ring, over the hero rather than a fill, so the pair read as one set.
                   Its label takes the gradient through the text instead, which is safe here because
                   the text sits on the dark hero rather than on the gradient itself. */}
               <Link href="/prices" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
-                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Check today&apos;s prices</span>
+                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Today&apos;s market prices</span>
               </Link>
             </div>
           </div>

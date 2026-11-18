@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { contentTypeLabel, itemHref } from "@/lib/format";
 import { allow, clientIp, LIMITS } from "@/lib/rate-limit";
+import { toggleWatch } from "@/lib/watches";
 
 /** Actions for signed-in users: saved items, collections, saved searches, alerts, corrections. */
 
@@ -193,4 +194,29 @@ export async function setAutoRenew(form: FormData) {
   const user = await requireUser("/account#membership");
   await prisma.subscription.updateMany({ where: { userId: user.id, plan: { code: "member" } }, data: { autoRenew: form.get("on") === "true" } });
   revalidatePath("/account");
+}
+
+/**
+ * The "Watch" star on a product at /prices (src/components/PriceBoard.tsx): members are texted
+ * when that product's price moves or a new supplier lists it (src/lib/jobs.ts priceAlerts).
+ * Watching is for members, because the price itself is; a visitor is asked to sign in.
+ */
+export async function toggleProductWatch(productId: string): Promise<{ watching: boolean } | { signIn: true }> {
+  const session = await getSession();
+  if (!session?.user?.id) return { signIn: true };
+  const id = z.string().min(1).max(64).parse(productId);
+  if (!(await prisma.product.findUnique({ where: { id }, select: { id: true } }))) return { watching: false };
+  const res = await toggleWatch(session.user.id, id);
+  revalidatePath("/account");
+  revalidatePath("/prices");
+  return res;
+}
+
+/** "Stop alerts" at /account: takes the bell off one product. */
+export async function stopWatchingProduct(form: FormData) {
+  const user = await requireUser();
+  const productId = String(form.get("productId") ?? "");
+  await prisma.priceWatch.deleteMany({ where: { userId: user.id, productId } });
+  revalidatePath("/account");
+  revalidatePath("/prices");
 }

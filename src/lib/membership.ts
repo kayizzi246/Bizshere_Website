@@ -16,6 +16,7 @@ import { sendEmail } from "./email";
 import { site } from "@/config/site";
 import { date, money } from "./format";
 import { forgetMemo } from "./memo";
+import { redeem } from "./promos";
 
 export type Settled = "SUCCEEDED" | "PENDING" | "FAILED" | "CANCELLED" | "REFUNDED";
 
@@ -102,8 +103,45 @@ export async function settlePayment(where: { paymentId: string } | { trackingId:
       text: `Thank you! We received ${money(payment.amount, payment.currency)} for your BizSphere-Ug ${PERIOD_WORD[period]}. Full access until ${date(end)}.`,
       link: "/account#membership",
     }).catch(() => {});
+    // The discount code is used up now, not when the pop-up opened, and whoever invited them gets
+    // their free days. Neither may undo a payment that has already gone through, so both are caught.
+    await redeem(payment, sub.userId).catch((e: Error) => console.error(`promo: ${payment.id}: ${e.message}`));
+    // Loaded here rather than at the top: src/lib/referrals.ts needs grantDays from this file, and
+    // two files that import each other at load time can leave one of them half-built.
+    await import("./referrals")
+      .then((m) => m.rewardInvite(sub.userId!))
+      .catch((e: Error) => console.error(`invite reward: ${sub.userId}: ${e.message}`));
   }
   return "SUCCEEDED";
+}
+
+/**
+ * Gives someone full access for `days` without a payment: the free 24-hour pass
+ * (src/lib/free-pass.ts) and the free days both sides get for an invite (src/lib/referrals.ts).
+ *
+ * The days are added to the end of what they already have, so a member who is given days keeps
+ * every day they paid for. Someone with access that has no end date (staff accounts, access given
+ * by hand) is left alone and null comes back. `status` is TRIAL for the free pass, so the admin
+ * and the renewal reminders can tell a trial from a paid membership.
+ */
+export async function grantDays(userId: string, days: number, opts: { status?: "ACTIVE" | "TRIAL"; reason: string }): Promise<Date | null> {
+  if (!Number.isFinite(days) || days <= 0) return null;
+  const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" }, select: { id: true } });
+  if (!plan) return null;
+  const now = new Date();
+  const sub = await prisma.subscription.findFirst({ where: { userId, planId: plan.id }, orderBy: { startedAt: "desc" } });
+  // Access with no end date: nothing to add to, and we must not replace it with an end date.
+  if (sub && sub.currentPeriodEnd === null && (sub.status === "ACTIVE" || sub.status === "TRIAL")) return null;
+  const live = sub?.currentPeriodEnd && sub.currentPeriodEnd > now && (sub.status === "ACTIVE" || sub.status === "TRIAL");
+  const from = live ? sub!.currentPeriodEnd! : now;
+  const end = new Date(from.getTime() + days * 86_400_000);
+  // A trial on top of a paid membership stays ACTIVE: it is still a paid membership, just longer.
+  const status = live && sub!.status === "ACTIVE" ? "ACTIVE" : opts.status ?? "ACTIVE";
+  if (sub) await prisma.subscription.update({ where: { id: sub.id }, data: { status, currentPeriodEnd: end, cancelledAt: null, remindersSent: [] } });
+  else await prisma.subscription.create({ data: { userId, planId: plan.id, status, period: "DAILY", currentPeriodEnd: end } });
+  forgetMemo(`member:${userId}`);
+  await audit(userId, "membership.granted", "subscription", sub?.id, { days, reason: opts.reason, until: end.toISOString() });
+  return end;
 }
 
 /**

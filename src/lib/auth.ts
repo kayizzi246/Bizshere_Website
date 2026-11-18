@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -11,6 +12,7 @@ import { audit } from "./audit";
 import { isTestPhone, phoneKey, sendCode, verifyCode } from "./phone-codes";
 import { allow, ipFrom, LIMITS } from "./rate-limit";
 import { sessionsValidAfter, userSessionsValidAfter } from "./sessions";
+import { claimInvite, refFromCookies } from "./referrals";
 
 /** Same rule as src/lib/pin-accounts.ts (not imported: that module sends SMS and is not needed here). */
 const USERNAME = /^[a-z0-9](?:[a-z0-9-]{1,38})[a-z0-9]$/;
@@ -137,6 +139,9 @@ export const authOptions: NextAuthOptions = {
         if (!user) {
           user = await prisma.user.create({ data: { name: phone, phone, role: "USER" } });
           await audit(user.id, "user.signed_up", "user", user.id, { via: "phone" });
+          // Came through an invite link: remember who invited them (the free days follow their
+          // first payment, see src/lib/referrals.ts). A failure here may never stop a sign-up.
+          await claimInvite(user.id, refFromCookies(headerOf(req)("cookie"))).catch(() => {});
         }
         if (user.isSuspended) throw new Error("suspended");
         // Staff sign in with their password and then a code (the sign-in above): a code alone must not open the admin.
@@ -165,6 +170,9 @@ export const authOptions: NextAuthOptions = {
       if (existing) return !existing.isSuspended;
       const created = await prisma.user.create({ data: { name: user.name || email.split("@")[0], email, role: "USER" } });
       await audit(created.id, "user.signed_up", "user", created.id, { via: "google" });
+      // The invite cookie, as above. NextAuth's callbacks run inside the request, so the cookies
+      // are there to read; a host where they aren't simply means no invite is recorded.
+      await claimInvite(created.id, refFromCookies(cookies().toString())).catch(() => {});
       return true;
     },
     async jwt({ token, user, account }) {

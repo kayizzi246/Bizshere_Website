@@ -15,6 +15,7 @@ export const AREAS: Area[] = [
   { key: "payments", label: "Payments and revenue", group: "Money", help: "Payments, refunds, revenue and the export" },
   { key: "leads", label: "Leads", group: "Money", help: "People who asked to be called back from the Contact page" },
   { key: "plans", label: "Subscription prices", group: "Money", help: "What suppliers, experts and members pay" },
+  { key: "promos", label: "Offers and codes", group: "Money", help: "Discount codes, the free pass and invite rewards" },
   { key: "review", label: "Review queue", group: "Checking", help: "New businesses, offers and prices sent in" },
   { key: "corrections", label: "Reported mistakes", group: "Checking", help: "Mistakes readers report" },
   ...ADMIN_DIRECTORIES.map((d) => ({ key: contentArea(d.type), label: d.label, group: "Directories" })),

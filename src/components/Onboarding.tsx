@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, Download, Landmark, LockKeyhole, Phone, ShieldCheck, Wallet, X } from "lucide-react";
-import { accessState, cancelPayment, checkPayment, startMembership } from "@/app/actions/onboarding";
+import { ArrowLeft, Check, Download, Gift, Landmark, LockKeyhole, Phone, ShieldCheck, Wallet, X } from "lucide-react";
+import { accessState, applyPromo, cancelPayment, checkPayment, freePassState, startFreePass, startMembership } from "@/app/actions/onboarding";
+import type { PromoOffer } from "@/lib/promos";
 import { PhoneSignIn } from "./PhoneSignIn";
 import { Celebration } from "./Celebration";
 import { PLAN_PERIODS, yearlySaving } from "@/lib/billing";
@@ -324,9 +325,42 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
   const [slow, setSlow] = useState(false);
   const [attemptFailed, setAttemptFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  // A discount code (src/lib/promos.ts): hidden behind a link, so it never distracts from paying.
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [offer, setOffer] = useState<PromoOffer | null>(null);
+  // The free day, for someone who is not ready to pay (src/lib/free-pass.ts). Once per person.
+  const [pass, setPass] = useState<{ hours: number } | null>(null);
+  const [passBusy, setPassBusy] = useState(false);
   const amount = plan.amounts[period];
-  const price = amount !== null ? fmt(amount, plan.currency) : null;
+  // A code is tied to the length it was checked against: changing the plan drops it.
+  const total = offer && amount !== null ? offer.total : amount;
+  const price = total !== null ? fmt(total, plan.currency) : null;
   const saving = yearlySaving(plan.amounts);
+
+  useEffect(() => {
+    if (renew) return; // the free day is for people who have never paid
+    freePassState().then((s) => { if (s.available) setPass({ hours: s.hours }); }).catch(() => {});
+  }, [renew]);
+
+  async function checkCode() {
+    setCodeBusy(true);
+    setCodeError(null);
+    const res = await applyPromo({ code, period }).catch(() => ({ ok: false, message: "We couldn't check that code. Please try again." }) as const);
+    setCodeBusy(false);
+    if (res.ok) { setOffer(res.offer); setCodeError(null); } else { setOffer(null); setCodeError(res.message); }
+  }
+
+  async function takePass() {
+    setPassBusy(true);
+    setError(null);
+    const res = await startFreePass().catch(() => ({ ok: false, message: "We couldn't start your free day. Please try again." }) as const);
+    setPassBusy(false);
+    if (res.ok) onPaid();
+    else { setPass(null); setError(res.message); }
+  }
 
   const done = useRef(onPaid);
   done.current = onPaid;
@@ -370,7 +404,7 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const res = await startMembership({ period }).catch(() => ({ status: "error", message: "Something went wrong. Please try again." }) as const);
+    const res = await startMembership({ period, code: offer?.code }).catch(() => ({ status: "error", message: "Something went wrong. Please try again." }) as const);
     setBusy(false);
     if (res.status === "active") onPaid();
     else if (res.status === "checkout") {
@@ -450,7 +484,8 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
             const mine = renew && p === currentPeriod;
             return (
               <label key={p} className={`relative flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3.5 transition ${on ? "border-brand bg-brand-tint/50 ring-2 ring-brand" : "border-line hover:border-line-strong"}`}>
-                <input type="radio" name="period" value={p} checked={on} onChange={() => setPeriod(p)} className="sr-only" />
+                {/* A code is checked against one length and price, so picking another length drops it. */}
+                <input type="radio" name="period" value={p} checked={on} onChange={() => { setPeriod(p); setOffer(null); setCodeError(null); }} className="sr-only" />
                 <span aria-hidden className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${on ? "border-brand bg-brand text-white" : "border-line-strong"}`}>{on ? <Check className="h-3 w-3" strokeWidth={3} /> : null}</span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-heading">
@@ -472,6 +507,34 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
         <p className="rounded-xl border border-line bg-page p-4 text-[13px] text-ink-muted">Membership prices are being confirmed. Please check back soon.</p>
       )}
 
+      {/* A discount code, out of the way behind one link: most people have none, and a field they
+          can't fill in only makes paying look harder than it is. */}
+      {available.length && !codeOpen && !offer ? (
+        <button type="button" onClick={() => setCodeOpen(true)} className="-my-1 self-start text-[13px] font-semibold text-brand underline-offset-2 hover:underline">Have a discount code?</button>
+      ) : null}
+      {available.length && (codeOpen || offer) ? (
+        <div className="flex flex-col gap-1.5">
+          <div className="flex gap-2">
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">Discount code</span>
+              <input value={code} onChange={(e) => { setCode(e.target.value); setOffer(null); setCodeError(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void checkCode(); } }}
+                placeholder="Discount code" autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={32}
+                /* 16px on phones so iPhone Safari doesn't zoom the pop-up in when the keyboard opens */
+                className="input h-11 w-full text-[16px] uppercase sm:text-sm" />
+            </label>
+            <button type="button" onClick={() => void checkCode()} disabled={codeBusy || !code.trim()} className="btn-outline h-11 shrink-0 px-4 text-[13px]">{codeBusy ? "Checking…" : "Apply"}</button>
+          </div>
+          {offer ? (
+            <p role="status" className="flex flex-wrap items-center gap-x-2 text-[13px] font-semibold text-brand-dark">
+              <Check aria-hidden className="h-4 w-4" strokeWidth={3} />{offer.code} · {offer.label}
+              <span className="font-normal text-ink-muted">was <s>{fmt(amount!, plan.currency)}</s>, now {fmt(offer.total, plan.currency)}</span>
+            </p>
+          ) : codeError ? (
+            <p role="alert" className="text-[13px] font-medium text-bad-fg">{codeError}</p>
+          ) : null}
+        </div>
+      ) : null}
+
       {error ? (
         <div role="alert" className="flex flex-col gap-1.5 rounded-lg bg-warn-bg px-3 py-2.5 text-[13px] font-medium text-warn-fg">
           <p>{error}</p>
@@ -486,6 +549,16 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
 
       <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Pay ${price}` : "Continue"}</button>
       <p className="-mt-2 text-center text-[12px] text-ink-muted">Next: choose MoMo, Airtel Money or card, then approve on your phone.</p>
+
+      {/* Not ready to pay: one free day, once per person. Someone who has seen the real budgets and
+          contacts knows what the membership is worth, and the pass ends by itself. */}
+      {pass ? (
+        <div className="flex flex-col items-center gap-1.5 border-t border-line pt-4">
+          <button type="button" onClick={() => void takePass()} disabled={passBusy} className="btn-outline min-h-[46px] w-full text-[14px] font-bold">
+            <Gift aria-hidden className="h-4 w-4" />{passBusy ? "Opening your free day…" : `Or open everything free for ${pass.hours} hours`}</button>
+          <p className="text-center text-[12px] text-ink-muted">No payment, nothing to cancel. One free day per person.</p>
+        </div>
+      ) : null}
       <div className="flex flex-col items-center gap-2">
         <span className="flex flex-wrap justify-center gap-1.5">
           {[["MTN MoMo", "bg-[#FFCB05] text-ink"], ["Airtel Money", "bg-[#E40000] text-white"], ["Visa · Mastercard", "bg-heading text-white"]].map(([label, tone]) => (

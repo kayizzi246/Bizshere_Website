@@ -11,6 +11,8 @@ import { phoneKey, sendCode, type SendResult } from "@/lib/phone-codes";
 import { allow, LIMITS } from "@/lib/rate-limit";
 import { cancelOrder, pesapalConfigured, startCheckout } from "@/lib/payments";
 import { PERIOD_WORD, settlePayment, type Settled } from "@/lib/membership";
+import { checkPromo, type PromoOffer } from "@/lib/promos";
+import { passState, takeFreePass, type PassResult } from "@/lib/free-pass";
 
 /**
  * Server side of phone sign-in and the onboarding pop-up (src/components/Onboarding.tsx):
@@ -38,7 +40,42 @@ export async function accessState() {
 /** Simulated payments for demos. Never set PAYMENT_SIMULATE on the live server. */
 const simulate = () => process.env.PAYMENT_SIMULATE === "true";
 
-const checkoutInput = z.object({ period: z.enum(PLAN_PERIODS) });
+/**
+ * Checks a discount code as it is typed in the pop-up, so the person sees the new price before
+ * paying. The code is checked again when the payment starts: this answer only fills in the screen.
+ */
+export async function applyPromo(input: { code: string; period: BillingPeriod }): Promise<{ ok: true; offer: PromoOffer } | { ok: false; message: string }> {
+  const viewer = await getViewer();
+  if (!viewer.userId) return { ok: false, message: "Please sign in first." };
+  const period = PLAN_PERIODS.includes(input.period as (typeof PLAN_PERIODS)[number]) ? input.period : null;
+  if (!period) return { ok: false, message: "Choose a plan first." };
+  // Someone guessing codes is slowed down the same way payment attempts are.
+  if (!(await allow(`promo:user:${viewer.userId}`, ...LIMITS.checkoutPerUser))) {
+    return { ok: false, message: "Too many tries. Please wait a few minutes." };
+  }
+  const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
+  const amount = plan ? Number(plan[PRICE_FIELD[period]] ?? 0) : 0;
+  if (!plan || amount <= 0) return { ok: false, message: "This plan has no price yet." };
+  return checkPromo({ code: String(input.code ?? ""), userId: viewer.userId, period, amount, currency: plan.currency });
+}
+
+/** Whether the free day can be taken, for the pop-up and the paywall card. */
+export async function freePassState() {
+  const viewer = await getViewer();
+  return passState(viewer.userId, viewer.isMember);
+}
+
+/** Takes the free day. One per person, ever (src/lib/free-pass.ts). */
+export async function startFreePass(): Promise<PassResult> {
+  const viewer = await getViewer();
+  if (!viewer.userId) return { ok: false, message: "Please sign in first." };
+  if (!(await allow(`trial:user:${viewer.userId}`, ...LIMITS.checkoutPerUser))) {
+    return { ok: false, message: "Too many tries. Please wait a few minutes." };
+  }
+  return takeFreePass(viewer.userId, viewer.isMember);
+}
+
+const checkoutInput = z.object({ period: z.enum(PLAN_PERIODS), code: z.string().max(32).optional() });
 
 export type CheckoutOutcome =
   | { status: "active" }
@@ -49,7 +86,7 @@ export type CheckoutOutcome =
  * Starts (or renews) a membership. Access is granted only when Pesapal confirms the payment
  * (settlePayment in src/lib/membership.ts), or immediately in simulation mode.
  */
-export async function startMembership(input: { period: BillingPeriod }): Promise<CheckoutOutcome> {
+export async function startMembership(input: { period: BillingPeriod; code?: string }): Promise<CheckoutOutcome> {
   const session = await getSession();
   if (!session?.user?.id) return { status: "error", message: "Please sign in first." };
   const parsed = checkoutInput.safeParse(input);
@@ -58,12 +95,20 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
 
   const plan = await prisma.membershipPlan.findUnique({ where: { code: "member" } });
   if (!plan) return { status: "error", message: "Membership is not available yet." };
-  const price = plan[PRICE_FIELD[period]];
-  if ((price === null || Number(price) <= 0) && !simulate()) {
+  const listPrice = plan[PRICE_FIELD[period]];
+  if ((listPrice === null || Number(listPrice) <= 0) && !simulate()) {
     return { status: "error", message: "Membership prices haven't been set yet. Please check back soon." };
   }
 
   const userId = session.user.id;
+  // A discount code is checked again here, however it was typed, because the price the browser
+  // sends is never trusted: what Pesapal is asked for is worked out on the server.
+  const promo = parsed.data.code?.trim()
+    ? await checkPromo({ code: parsed.data.code, userId, period, amount: Number(listPrice ?? 0), currency: plan.currency })
+    : null;
+  if (promo && !promo.ok) return { status: "error", message: promo.message };
+  const offer = promo?.ok ? promo.offer : null;
+  const price = offer ? offer.total : listPrice;
   if (!(await allow(`checkout:user:${userId}`, ...LIMITS.checkoutPerUser))) {
     return { status: "error", message: "Too many payment attempts. Please wait a few minutes and try again." };
   }
@@ -80,7 +125,10 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
   for (const p of open) await dropPayment(p.id, p.providerRef);
 
   const payment = await prisma.payment.create({
-    data: { subscriptionId: sub.id, amount: price ?? 0, currency: plan.currency, method: "PESAPAL", period },
+    data: {
+      subscriptionId: sub.id, amount: price ?? 0, currency: plan.currency, method: "PESAPAL", period,
+      discount: offer?.off ?? null, promoCodeId: offer?.id ?? null,
+    },
   });
 
   if (simulate()) {
@@ -102,7 +150,7 @@ export async function startMembership(input: { period: BillingPeriod }): Promise
       paymentId: payment.id,
       amount: Number(price),
       currency: "UGX",
-      description: `BizSphere-Ug ${plan.name} ${PERIOD_WORD[period]}`,
+      description: `BizSphere-Ug ${plan.name} ${PERIOD_WORD[period]}${offer ? ` (${offer.code})` : ""}`,
       phone: phoneKey(user?.phone ?? "") ?? undefined,
       email: user?.email ?? undefined,
       name: user?.name ?? undefined,

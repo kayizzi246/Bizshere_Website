@@ -2,10 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
-import { contentTypeLabel, date, itemHref } from "@/lib/format";
+import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
 import { MembershipPanel } from "@/components/MembershipPanel";
 import { GlassSelect } from "@/components/GlassSelect";
-import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, setDigest, setSearchAlert, toggleSave } from "@/app/actions/member";
+import { CopyLink } from "@/components/CopyLink";
+import { inviteSummary } from "@/lib/referrals";
+import { watchList } from "@/lib/watches";
+import { addToCollection, createCollection, deleteCollection, deleteSavedSearch, markAlertsRead, removeFromCollection, setDigest, setSearchAlert, stopWatchingProduct, toggleSave } from "@/app/actions/member";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My account" };
@@ -15,7 +18,7 @@ export default async function AccountPage() {
   if (!viewer.userId) redirect("/login?callbackUrl=/account");
   const userId = viewer.userId;
 
-  const [user, saved, collections, searches, alerts, calculations, supplierOf, payments] = await Promise.all([
+  const [user, saved, collections, searches, alerts, calculations, supplierOf, payments, invite, watches] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { subscriptions: { where: { plan: { code: "member" } }, orderBy: { startedAt: "desc" }, take: 1 } } }),
     prisma.savedItem.findMany({ where: { userId }, include: { contentItem: true }, orderBy: { createdAt: "desc" } }),
     prisma.collection.findMany({ where: { userId }, include: { items: { include: { contentItem: true } } }, orderBy: { createdAt: "asc" } }),
@@ -25,6 +28,9 @@ export default async function AccountPage() {
     // Linked to a supplier by the team: show the way into the supplier portal.
     prisma.supplier.findFirst({ where: { organization: { members: { some: { userId } } } }, select: { contentItem: { select: { title: true } } } }),
     prisma.payment.findMany({ where: { subscription: { userId } }, orderBy: { createdAt: "desc" }, take: 10 }),
+    // Their invite link and how it is doing (src/lib/referrals.ts), and the prices they watch.
+    inviteSummary(userId),
+    viewer.isMember ? watchList(userId) : [],
   ]);
   const sub = user.subscriptions[0] ?? null;
   const unread = alerts.filter((a) => !a.readAt).length;
@@ -59,6 +65,71 @@ export default async function AccountPage() {
           </div>
         ))}
       </section>
+
+      {/* Invites (src/lib/referrals.ts): the free days land only after the invited person pays, so
+          this is the one place on the site that may promise them. */}
+      {invite.code && invite.days ? (
+        <section id="invite" className="card flex scroll-mt-28 flex-col gap-3 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <h2 className="text-lg font-extrabold">Invite a friend, both get {invite.days} free days</h2>
+              <p className="text-sm text-ink-muted">
+                Send your link. When someone who joins through it pays for their first membership, {invite.days} days are added to your membership and {invite.days} to theirs. There is no limit.
+              </p>
+            </div>
+            <span className="flex gap-4 text-center">
+              <span className="flex flex-col"><strong className="text-xl font-extrabold">{invite.joined}</strong><span className="text-xs text-ink-muted">joined</span></span>
+              <span className="flex flex-col"><strong className="text-xl font-extrabold">{invite.paid}</strong><span className="text-xs text-ink-muted">paid</span></span>
+              <span className="flex flex-col"><strong className="text-xl font-extrabold">{invite.daysEarned}</strong><span className="text-xs text-ink-muted">days earned</span></span>
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyLink url={invite.link!} />
+            <a href={`https://wa.me/?text=${encodeURIComponent(`I use BizSphere-Ug for business prices, suppliers and funding in Uganda. Join through my link and we both get ${invite.days} free days: ${invite.link}`)}`}
+              target="_blank" rel="noopener noreferrer" className="btn-primary min-h-[44px] px-4">Share on WhatsApp</a>
+          </div>
+          {invite.people.length ? (
+            <ul className="flex flex-col gap-1 border-t border-line pt-3 text-sm">
+              {invite.people.map((p, i) => (
+                <li key={`${p.name}-${i}`} className="flex justify-between gap-3">
+                  <span className="truncate">{p.name}</span>
+                  <span className={p.paid ? "font-semibold text-brand" : "text-ink-muted"}>{p.paid ? `paid · +${invite.days} days` : "joined, not paid yet"}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
+
+      {/* Prices this member watches (src/lib/watches.ts): the bell on /prices */}
+      {viewer.isMember ? (
+        <section id="watching" className="card flex scroll-mt-28 flex-col gap-3 p-6">
+          <h2 className="text-lg font-extrabold">Prices you watch ({watches.length})</h2>
+          {watches.length === 0 ? (
+            <p className="text-sm text-ink-muted">Tap the bell beside any product on <Link href="/prices" className="font-bold">Markets and Prices</Link> and we text you when its price moves or a new supplier starts selling it.</p>
+          ) : (
+            <>
+              {watches.map((w) => (
+                <div key={w.productId} className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+                  <span className="flex flex-col">
+                    <Link href={`/prices?q=${encodeURIComponent(w.name.split(",")[0])}`} className="font-bold">{w.name}</Link>
+                    <span className="text-xs text-ink-muted">
+                      {w.price === null ? "No price yet" : `${money(w.price, w.currency)}${w.unit ? ` per ${w.unit}` : ""}`}
+                      {w.change !== null && Math.abs(w.change) >= 0.1 ? ` · ${w.change > 0 ? "up" : "down"} ${Math.abs(w.change).toFixed(1)}% since we last looked` : ""}
+                      {w.suppliers ? ` · ${w.suppliers} ${w.suppliers === 1 ? "supplier" : "suppliers"}` : ""}
+                    </span>
+                  </span>
+                  <form action={stopWatchingProduct}>
+                    <input type="hidden" name="productId" value={w.productId} />
+                    <button className="btn-outline min-h-[44px] px-3">Stop alerts</button>
+                  </form>
+                </div>
+              ))}
+              <p className="text-xs text-ink-muted">A price must move at least a few per cent before we text, and never more than one text a day per product.</p>
+            </>
+          )}
+        </section>
+      ) : null}
 
       {/* The weekly "what's new" text (src/lib/jobs.ts weeklyDigest): only for those who turn it on */}
       <section id="weekly" className="card flex scroll-mt-28 flex-wrap items-center justify-between gap-4 p-6">

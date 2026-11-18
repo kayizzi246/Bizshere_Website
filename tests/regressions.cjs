@@ -29,6 +29,8 @@ function onboarding(cancelled, settled) {
     '@/lib/phone-codes': {}, '@/lib/rate-limit': {},
     '@/lib/payments': { cancelOrder: async () => cancelled },
     '@/lib/membership': { settlePayment: async () => settled.shift() ?? 'PENDING' },
+    '@/lib/promos': { checkPromo: async () => ({ ok: false, message: 'no' }) },
+    '@/lib/free-pass': { passState: async () => ({ available: false, hours: 24, reason: 'off' }), takeFreePass: async () => ({ ok: false, message: 'off' }) },
   });
   return { actions, updates };
 }
@@ -161,7 +163,7 @@ for (const [label, amount, currency, expected] of [
     let applied = false;
     const tx = { payment: { updateMany: async () => { applied = true; return { count: 1 }; } }, subscription: { update: async () => ({}) } };
     const membership = load('src/lib/membership.ts', {
-      './memo': { forgetMemo: () => {} },
+      './memo': { forgetMemo: () => {} }, './promos': { redeem: async () => {} },
       './prisma': { prisma: {
         payment: { findFirst: async () => ({ id: 'p1', status: 'PENDING', providerRef: 'tracking1', amount: 1000, currency: 'UGX', period: 'MONTHLY', subscription: { id: 's1', userId: null, status: 'PAST_DUE' } }) },
         $transaction: async fn => fn(tx),
@@ -198,6 +200,78 @@ for (const raw of ['Infinity', '1e9999', '   ', ',', '0xff']) {
     assert.ok(errors.price);
   });
 }
+// A discount code may lower a price but never below what Pesapal can collect, and never below zero.
+for (const [label, kind, value, amount, expected] of [
+  ['per cent off', 'PERCENT', 20, 100000, 20000],
+  ['money off', 'AMOUNT', 5000, 100000, 5000],
+  ['more than the price', 'AMOUNT', 200000, 100000, 99500],
+  ['the whole price as a percentage', 'PERCENT', 100, 100000, 99500],
+  ['a price already at the floor', 'AMOUNT', 1000, 500, 0],
+]) {
+  test('promo code: ' + label, () => {
+    const { discountOf, MIN_CHARGE } = load('src/lib/promos.ts', { './prisma': {}, './format': {}, '@prisma/client': {} });
+    const off = discountOf({ kind, value }, amount);
+    assert.equal(off, expected);
+    assert.ok(off >= 0);
+    assert.ok(amount - off >= MIN_CHARGE || off === 0);
+  });
+}
+
+// Free days (the free pass, invite rewards) are added to the end of what someone already has, so a
+// member never loses time they paid for; access with no end date is left alone.
+for (const [label, sub, expected] of [
+  ['no membership yet', null, 'created'],
+  ['membership still running', { id: 's1', status: 'ACTIVE', currentPeriodEnd: new Date('2027-01-10T00:00:00Z') }, '2027-01-11T00:00:00.000Z'],
+  ['membership that ended', { id: 's1', status: 'EXPIRED', currentPeriodEnd: new Date('2020-01-01T00:00:00Z') }, 'from now'],
+  ['access with no end date', { id: 's1', status: 'ACTIVE', currentPeriodEnd: null }, 'left alone'],
+]) {
+  test('granted days: ' + label, async () => {
+    let created = null;
+    let updated = null;
+    const membership = load('src/lib/membership.ts', {
+      './memo': { forgetMemo: () => {} }, './promos': { redeem: async () => {} },
+      './prisma': { prisma: {
+        membershipPlan: { findUnique: async () => ({ id: 'plan1' }) },
+        subscription: { findFirst: async () => sub, update: async q => { updated = q; return {}; }, create: async q => { created = q; return {}; } },
+      }, transaction: async fn => fn({}) },
+      './payments': {}, './billing': { periodEnd: () => new Date() }, './audit': { audit: async () => {} },
+      './sms': {}, './email': {}, '@/config/site': {}, './format': {},
+    });
+    const end = await membership.grantDays('u1', 1, { reason: 'test' });
+    if (expected === 'left alone') {
+      assert.equal(end, null);
+      assert.equal(updated, null);
+      assert.equal(created, null);
+    } else if (expected === 'created') {
+      assert.ok(end instanceof Date);
+      assert.equal(created.data.userId, 'u1');
+    } else if (expected === 'from now') {
+      // Not restarted from the old end date: the day runs from today.
+      assert.ok(end.getTime() > Date.now() + 23 * 3600_000);
+      assert.equal(updated.data.status, 'ACTIVE');
+    } else {
+      assert.equal(end.toISOString(), expected);
+      assert.equal(updated.data.status, 'ACTIVE');
+    }
+  });
+}
+
+// One free pass per person, ever: the row that claims it only matches a person who has never had one.
+for (const [label, claimed, expected] of [['first time', 1, true], ['second time', 0, false]]) {
+  test('free pass: ' + label, async () => {
+    const pass = load('src/lib/free-pass.ts', {
+      './prisma': { prisma: {
+        user: { findUnique: async () => ({ trialUsedAt: null }), updateMany: async () => ({ count: claimed }) },
+      } },
+      './membership': { grantDays: async () => new Date('2027-01-02T00:00:00Z'), notifyMember: async () => {} },
+      './settings': { getSetting: async () => 24 },
+    });
+    const res = await pass.takeFreePass('u1', false);
+    assert.equal(res.ok, expected);
+    if (!expected) assert.match(res.message, /already had your free day/);
+  });
+}
+
 test('content decimal accepts formatted price', () => {
   const { parseField } = load('src/lib/field-parse.ts', {});
   const errors = {};
@@ -210,7 +284,7 @@ test('texted membership link avoids the word account', async () => {
   const texts = [];
   const emails = [];
   const membership = load('src/lib/membership.ts', {
-      './memo': { forgetMemo: () => {} },
+      './memo': { forgetMemo: () => {} }, './promos': { redeem: async () => {} },
     './prisma': { prisma: {
       user: { findUnique: async () => ({ phone: '+256700000000', email: 'a@example.invalid', name: 'A' }) },
       alert: { create: async () => ({}) },
@@ -259,7 +333,7 @@ for (const [label, status, expected] of [['new listing', 'PENDING', 'waits'], ['
   test('listing paid: ' + label + ' ' + expected, async () => {
     const calls = [];
     const membership = load('src/lib/membership.ts', {
-      './memo': { forgetMemo: () => {} },
+      './memo': { forgetMemo: () => {} }, './promos': { redeem: async () => {} },
       './prisma': { prisma: {
         organization: { findUnique: async () => ({ status, supplier: { contentItemId: 'c1' }, consultants: [] }), update: q => { calls.push(['org', q.data.status]); return q; } },
         contentItem: { update: q => { calls.push(['item', q.data.publicationStatus]); return q; }, updateMany: async q => { calls.push(['draft', q.where.publicationStatus, q.data.publicationStatus]); return { count: 1 }; } },

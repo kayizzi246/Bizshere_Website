@@ -49,6 +49,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { section: "Money" },
     { href: "/admin/payments", label: "Payments", badge: pendingPayments, icon: "wallet", area: "payments" },
     { href: "/admin/plans", label: "Subscription prices", icon: "prices", area: "plans" },
+    { href: "/admin/promos", label: "Offers and codes", icon: "megaphone", area: "promos" },
     { section: "Website content" },
     { href: "/admin/content", label: "All content", icon: "files" },
     { group: "Directories", icon: "idea", items: ADMIN_DIRECTORIES.filter((d) => user.can(contentArea(d.type))).map((d) => ({ href: `/admin/content?type=${d.type}`, label: d.label, icon: iconOf(d.type) })) },

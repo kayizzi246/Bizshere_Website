@@ -15,8 +15,9 @@ All settings go in `.env` locally, or in the host's environment variables online
 4. [Payments (Pesapal)](#4-payments-pesapal)
 5. [Logins](#5-logins)
 6. [Renewal reminders (daily job)](#6-renewal-reminders-daily-job)
-7. [Going live checklist](#7-going-live-checklist)
-8. [Troubleshooting](#8-troubleshooting)
+7. [Free pass, invites, codes and price alerts](#7-free-pass-invites-codes-and-price-alerts)
+8. [Going live checklist](#8-going-live-checklist)
+9. [Troubleshooting](#9-troubleshooting)
 
 ---
 
@@ -267,7 +268,73 @@ npm run jobs -- renewals      # only the renewal reminders
 
 ---
 
-## 7. Going live checklist
+## 7. Free pass, invites, codes and price alerts
+
+Four things that bring payments in. All of them are switched on and off, and tuned, in
+**Admin → Offers and codes** (`/admin/promos`); nothing here needs a deploy to change.
+
+### The free 24-hour pass
+
+Someone who has signed in with their phone number can open everything once, for a day, without
+paying. The button sits in the payment pop-up under the plans, and the pricing page points to it.
+
+- One pass per person, ever (`users.trialUsedAt`). It is an ordinary subscription with status
+  `TRIAL`, so it ends by itself and shows in the admin like any other membership.
+- A pass on top of a paid membership is never given; days are always added to the end, never
+  replacing paid time.
+- Set **Free pass length** to `0` to switch it off. Code: `src/lib/free-pass.ts`.
+
+### Invites ("bring a friend")
+
+Every member has an invite link, `bizsphere.ug/?ref=CODE`, on **My account → Invite a friend**.
+
+1. The link sets a cookie for 30 days (`src/middleware.ts`). Nothing is given away for a click.
+2. When that person signs up, who invited them is recorded.
+3. **When they pay for their first membership**, both sides get the same number of free days added
+   to the end of their membership, and both are texted.
+
+So free days only ever follow real money, once per invited person. Set **Free days for an invite**
+to `0` to switch invites off. Code: `src/lib/referrals.ts`.
+
+### Discount codes
+
+Created in Admin → Offers and codes: per cent off or money off, limited to certain lengths, to a
+number of uses in all, and to a date range. Members type the code in the payment pop-up and see the
+new price before paying.
+
+- A code only changes the price of **one payment**. It never changes what a membership opens or how
+  long it lasts.
+- One use per person, and the code is only used up when the payment goes through, so an abandoned
+  pop-up leaves a limited code free for someone else.
+- The code is checked again on the server when the payment starts, so a price cannot be changed in
+  the browser. A code can never bring a payment below UGX 500.
+- Each code's row shows its uses and how much was given away. A code that has been used can be
+  turned off but not deleted, so the payment records keep their discount. Code: `src/lib/promos.ts`.
+
+### Unfinished payments, win-backs and price alerts
+
+| Job | When | What it does |
+|---|---|---|
+| `checkoutRecovery` | every hour, `/api/cron/hourly` | Someone started a payment 1–48 hours ago and it never went through: one SMS and email with a link straight back to the same plan. One per person per week, never to someone who has access by now. |
+| `winBack` | daily, `/api/cron/alerts` | A membership that ended about a week ago: one last message naming what is locked and the cheapest way back. Once per membership. |
+| `priceAlerts` | daily, `/api/cron/alerts` | Members who put a bell on a product at **Markets and Prices** are texted when its wholesale price moves by **Price move worth a text** per cent or more, or when a new supplier lists it. At most one text a day per product, and only to current members. |
+
+Nothing is texted outside 07:00–21:00 Kampala time.
+
+**Online (Vercel):** `vercel.json` schedules `/api/cron/hourly` every hour, alongside the daily
+routes. The same `CRON_SECRET` protects all three.
+
+**Other hosts, or by hand:**
+
+```bash
+npm run jobs -- checkoutRecovery   # chase unfinished payments
+npm run jobs -- winBack            # former members
+npm run jobs -- priceAlerts        # watched prices
+```
+
+---
+
+## 8. Going live checklist
 
 - [ ] `NEXTAUTH_URL` is the public https address; `NEXTAUTH_SECRET` is long and random
 - [ ] `EGOSMS_USERNAME` / `EGOSMS_PASSWORD` set, account has credit, `npm run sms:test` works
@@ -282,7 +349,7 @@ npm run jobs -- renewals      # only the renewal reminders
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Problem | Likely cause | Fix |
 |---|---|---|
