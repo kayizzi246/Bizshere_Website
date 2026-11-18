@@ -63,10 +63,13 @@
   }
 
   /* Inter everywhere (client, 13 Nov 2026): headings in Bold (700) and tight, like the client's example site. */
+  /* The hero's type, on every heading (client, 18 Nov 2026: "use the same fonts of the hero
+     section throughout the all site"). The homepage headline is Inter Black at -0.02em, and that
+     is now what a heading is anywhere on the site. */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-extrabold;
+    @apply font-display font-black;
     line-height: 1.2;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
   }
 
   a {
@@ -132,11 +135,11 @@
      table of money reads as a table rather than as ragged text. */
   .nums { font-variant-numeric: tabular-nums; }
   /* Type scale, all Inter (client, 13 Nov 2026): hero 800 and very tight · page and section titles 700 · card titles 600–700 */
-  .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; }
+  .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
   /* Smaller titles on every page (client, 13 Nov 2026): page 24→32 (was 28→42), section 20→24 (was 24→30), block 17→19 (was 20→24) */
-  .text-page-title { @apply font-display text-[24px] font-bold leading-[1.15] tracking-[-0.025em] sm:text-[28px] lg:text-[32px]; }
-  .text-section-title { @apply font-display text-[20px] font-bold leading-[1.2] tracking-[-0.025em] sm:text-[22px] lg:text-[24px]; }
-  .text-block-title { @apply font-display text-[17px] font-bold leading-[1.25] tracking-[-0.02em] sm:text-[19px]; }
+  .text-page-title { @apply font-display text-[24px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[28px] lg:text-[32px]; }
+  .text-section-title { @apply font-display text-[20px] font-black leading-[1.2] tracking-[-0.02em] sm:text-[22px] lg:text-[24px]; }
+  .text-block-title { @apply font-display text-[17px] font-black leading-[1.25] tracking-[-0.02em] sm:text-[19px]; }
   /* UI titles that aren't headings (card titles, menu items) */
   .title { @apply font-display font-bold tracking-tight; }
   .badge { @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
@@ -580,10 +583,11 @@ main h1.text-hero:not([data-home]) { font-size: 25px !important; line-height: 1.
 @media (min-width: 640px) { main h1.text-hero:not([data-home]) { font-size: 31px !important; } }
 @media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 36px !important; } }
 /* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
-/* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example): Inter ExtraBold (800), tight.
-   !important so a heading's own weight class (font-bold, font-semibold…) can't make it lighter. */
+/* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example), and since
+   18 Nov 2026 the same as the hero: Inter Black (900) at -0.02em. !important so a heading's own
+   weight class (font-bold, font-semibold…) can't make it lighter. */
 h1, h2, h3, h4, h5, h6, .text-hero, .text-page-title, .text-section-title, .text-block-title {
-  font-family: var(--font-inter), system-ui, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.025em;
+  font-family: var(--font-inter), system-ui, sans-serif !important; font-weight: 900 !important; letter-spacing: -0.02em;
   /* Tight line-height on every heading, like the reference hero (client, 14 Nov 2026). */
   line-height: 1.06 !important;
 }
@@ -751,8 +755,11 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
    weight 800 and line-height 1.06 with !important of its own; without this the card titles cannot be
    made lighter at all. It changes the weight, spacing and leading only — the size rules still apply. */
 .card-title {
-  font-weight: 600 !important;
-  letter-spacing: -0.004em !important;
+  /* Was Semibold at near-normal tracking (17 Nov 2026, after a trading-site card). It now follows
+     the hero like every other heading (client, 18 Nov 2026); only the roomier line height is kept,
+     because these titles run to two lines inside a panel. */
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
   line-height: 1.24 !important;
 }
 
