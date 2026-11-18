@@ -8,7 +8,6 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
-import { ParticleField } from "@/components/ui/particle-field";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -41,9 +40,8 @@ export default async function HomePage() {
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
       <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(92vh,700px)] xl:flex-col xl:justify-center">
-        {/* A quiet drift of specks over the gradient (16 Nov 2026). Faint on purpose: texture behind the
-            words, not the moving network of lights that was taken off on 12 Nov. Still with reduced motion. */}
-        <ParticleField />
+        {/* The drifting specks were taken off on 18 Nov 2026 (client), as the moving network of lights
+            was before them. The hero is the colour and the words now, and nothing else. */}
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
