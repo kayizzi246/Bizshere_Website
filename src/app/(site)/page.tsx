@@ -59,7 +59,7 @@ export default async function HomePage() {
                 (client): about a fifth down from the 17 Nov sizes, which had gone up by a third.
                 The one line is the ceiling either way — the words run about 13.5× the font size
                 wide — and every size here is below it, so nothing can wrap. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(17px,5.2vw,26px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[37px] 2xl:text-[42px]">
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(18px,5.9vw,28px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[37px] 2xl:text-[42px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
