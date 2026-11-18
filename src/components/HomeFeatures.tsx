@@ -145,7 +145,6 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
     <li data-reveal="" className={`rise-soft group/panel relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 transition-transform duration-200 hover:-translate-y-1 motion-reduce:hover:translate-y-0 sm:p-6 ${PANEL_H} ${tint}`}>
       <div className={`flex items-start justify-between gap-4 ${words}`}>
         <div className="flex min-w-0 flex-col items-start gap-2">
-          <Label href={href} pill={onColour} />
           <h3 className="card-title font-display text-[22px] leading-[1.2] sm:text-[24px] lg:text-[26px]">{title}</h3>
           <p data-size="" className="max-w-lg text-[13px] leading-relaxed opacity-90">{text}</p>
         </div>
@@ -258,8 +257,7 @@ export async function HomeFeatures() {
       <div className="container-site pb-3 pt-5 sm:pt-6">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
-          <Label href="/business-ideas" pill={S.ideas.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business plans with the real costs</h3>
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business ideas</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
@@ -288,8 +286,7 @@ export async function HomeFeatures() {
       <div className="container-site">
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] panel-drop panel-drop-left isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <Label href="/machines" pill={S.machines.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">The right machine for the job</h3>
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business machines</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
@@ -328,7 +325,7 @@ export async function HomeFeatures() {
         ) : null}
       </div>
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
-          <Panel href="/funding" title="Every funding source in one list" action="See funding sources" tint="skin-funding" words="text-ink" onColour={S.funding.onColour}
+          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-ink" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
             <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] gap-px bg-line">
               {funding.map((f, n) => {
@@ -351,7 +348,7 @@ export async function HomeFeatures() {
             </ul>
           </Panel>
 
-          <Panel href="/suppliers" title="A directory of checked suppliers" action="See all suppliers" tint="skin-suppliers" words="text-white" onColour={S.suppliers.onColour}
+          <Panel href="/suppliers" title="Suppliers" action="See all suppliers" tint="skin-suppliers" words="text-white" onColour={S.suppliers.onColour}
             text="Checked suppliers in Uganda and abroad.">
             {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
                 fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
@@ -386,7 +383,7 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Advice from people who know</h3>
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Find an expert</h3>
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
