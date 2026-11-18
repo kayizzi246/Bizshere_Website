@@ -381,6 +381,28 @@ function PayStep({ plan, help, renew, initialPeriod, picked, pending, onCheckout
     return false;
   }, [onCheckout, pending]);
 
+  /**
+   * While Pesapal's payment page is open, the page cannot be zoomed in (18 Nov 2026).
+   *
+   * iPhone Safari zooms the whole screen in when a field whose text is under 16px takes the
+   * keyboard, and that happened as soon as someone typed their phone number for MoMo: the pop-up
+   * jumped out of the screen mid-payment. The fields belong to Pesapal's page inside the iframe, so
+   * their size is not ours to change; what we can do is take the zoom away while it is open.
+   * `maximum-scale=1` stops the automatic zoom, and iOS still allows pinch-zoom by hand, so nothing
+   * is taken from anyone who needs to make the page bigger. The old setting is put back the moment
+   * the payment page closes, so the rest of the site zooms as before.
+   */
+  useEffect(() => {
+    if (!order) return;
+    const meta = document.querySelector('meta[name="viewport"]');
+    const was = meta?.getAttribute("content") ?? null;
+    if (meta && was !== null) {
+      const without = was.replace(/\s*,?\s*(maximum-scale|user-scalable)=[^,]*/g, "").replace(/^\s*,\s*/, "");
+      meta.setAttribute("content", `${without}, maximum-scale=1`);
+    }
+    return () => { if (meta && was !== null) meta.setAttribute("content", was); };
+  }, [order]);
+
   // Check every 4 seconds for up to 10 minutes, and at once when the return page says it's done.
   useEffect(() => {
     if (!order) return;
