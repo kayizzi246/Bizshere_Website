@@ -116,6 +116,20 @@ export async function registerIpn(url = `${site.url}/api/payments/webhook`) {
   return { ipnId: res.ipn_id, url, existing: false };
 }
 
+/**
+ * Pesapal rejects a billing name that holds anything but letters, digits, dashes,
+ * underscores, dots, colons and @ — so accents are flattened ("Désiré" -> "Desire"),
+ * spaces and anything else left become dashes, and an empty result becomes "Customer".
+ */
+function billingName(value: string, fallback = "") {
+  const clean = value
+    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .replace(/[^A-Za-z0-9_.:@-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 50);
+  return clean || fallback;
+}
+
 /** Submits the order and returns Pesapal's payment page (shown in the pop-up's iframe). */
 export async function startCheckout(req: CheckoutRequest): Promise<CheckoutResult> {
   const [first, ...rest] = (req.name ?? "").trim().split(/\s+/);
@@ -131,8 +145,8 @@ export async function startCheckout(req: CheckoutRequest): Promise<CheckoutResul
         email_address: req.email ?? "",
         phone_number: req.phone ? req.phone.replace(/^\+256/, "0") : "",
         country_code: "UG",
-        first_name: first ?? "",
-        last_name: rest.join(" "),
+        first_name: billingName(first, "Customer"),
+        last_name: billingName(rest.join(" ")),
       },
     },
   });
