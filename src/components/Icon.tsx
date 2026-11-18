@@ -1,7 +1,7 @@
 import {
   ArrowRight, Bell, BookOpen, Calculator, CalendarDays, Check, ChefHat, Download, Factory, Landmark, Lightbulb, Link2,
   Mail, MapPin, Menu, Newspaper, Phone, PlayCircle, Search, ShieldCheck, Store, TrendingUp, UserRound, Warehouse, type LucideIcon,
-  ExternalLink, Files, Flag, Inbox, LayoutDashboard, Megaphone, MessagesSquare, Plus, Rocket, Sparkles, Users, Wallet, X,
+  ExternalLink, Files, Flag, Inbox, LayoutDashboard, Megaphone, MessagesSquare, Plus, Rocket, Sparkles, TrendingDown, Users, Wallet, X,
 } from "lucide-react";
 
 /** Site icons by name, drawn with Lucide. Pages refer to icons by these names only. */
@@ -42,6 +42,9 @@ const ICONS: Record<string, LucideIcon> = {
   external: ExternalLink,
   opportunity: Rocket,
   wallet: Wallet,
+  // The two arrows on the dashboard's figures: up on a rise, down on a fall.
+  "trending-up": TrendingUp,
+  "trending-down": TrendingDown,
   close: X,
 };
 

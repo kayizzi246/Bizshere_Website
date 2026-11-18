@@ -303,11 +303,12 @@ select {
    fog — one at the left, one high on the right, both away from the headline. It still darkens towards
    the bottom right, where the controls and the card sit.
 
-   White type stays safe because the brightest stop is #2A62F2 (4.7:1 against white) and the blooms are
-   never stronger than 22% white; everything behind body text is #1E50E8 or deeper, which is 6.3:1.
-   Nothing moves and nothing is animated, as before. */
+   The blue is #0550AE, the one on the admin's own side menu (client, 18 Nov 2026), opened up to
+   #0A6BDC where the light falls and taken down to #02213F in the far corner. White type is
+   comfortable on all of it: 5.2:1 at the lightest stop and 7.6:1 on #0550AE itself, against the
+   4.5:1 minimum. Nothing moves and nothing is animated, as before. */
 .hero-premium, .hero-glow {
-  position: relative; background-color: #0C2152; background-repeat: no-repeat; background-origin: border-box;
+  position: relative; background-color: #02213F; background-repeat: no-repeat; background-origin: border-box;
   /* A scrim over the search box, the twelve chips and the two buttons (17 Nov 2026: "this area has to
      be dark so that they show well"). The chips are translucent white, so once the blue was taken up
      to the logo colour they had nothing to stand against. It is a variable because the controls sit in
@@ -324,11 +325,9 @@ select {
     radial-gradient(46% 66% at 92% 26%, rgba(255, 255, 255, 0.16) 0%, rgba(160, 200, 255, 0.09) 44%, transparent 74%),
     /* a thread of light along the very top edge, under the floating header */
     linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 12%, transparent 26%),
-    /* The body: royal blue, open at the top left and deepening across and down, so the two blooms
-       have somewhere to fall and the bottom right — the controls and the card — stays quiet. The
-       logo blue (#0072CE) it replaces was a cyan-leaning blue that could not carry this much light
-       without going pale. */
-    linear-gradient(118deg, #2457E4 0%, #1B47D2 30%, #173DB4 58%, #102B7C 82%, #0B1E4C 100%);
+    /* The body: the admin's blue, open at the top left where the light falls and deepening across
+       and down, so the bottom right — the controls and the card — stays quiet. */
+    linear-gradient(118deg, #0A6BDC 0%, #0550AE 30%, #054491 58%, #03305F 82%, #02213F 100%);
 }
 /* Below xl the hero is a single column: the controls are no longer in the bottom-left corner but
    across the whole width, so the scrim is wider, centred, and sits higher. */
@@ -346,7 +345,7 @@ select {
   background-image:
     radial-gradient(54% 80% at 8% 54%, rgba(255, 255, 255, 0.15) 0%, rgba(173, 206, 255, 0.08) 42%, transparent 74%),
     radial-gradient(46% 66% at 94% 24%, rgba(255, 255, 255, 0.10) 0%, rgba(160, 200, 255, 0.06) 46%, transparent 76%),
-    linear-gradient(118deg, #2457DE 0%, #1B46C4 24%, #163A9E 48%, #112C72 72%, #0B1E46 100%);
+    linear-gradient(118deg, #0862CD 0%, #0550AE 24%, #04438C 48%, #032E5C 72%, #021C36 100%);
 }
 /* "Help for every working day" and "For businesses" (client, 12 Nov 2026, after a SaaS site they liked): a warm
    off-white with faint scattered flecks, like paper. One 240px tile, repeated; made by a script, fixed in place. */

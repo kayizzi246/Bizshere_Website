@@ -8,6 +8,7 @@ import { DIRECTORIES as SITE_DIRECTORIES } from "@/config/directories";
 import { customerOf, listPayments, METHOD_LABEL, STATUS_LABEL } from "@/lib/admin-payments";
 import { Icon } from "@/components/Icon";
 import { waitingPartners } from "@/lib/partners";
+import { AreaChart, type Point } from "@/components/AreaChart";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin dashboard" };
@@ -61,9 +62,12 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const canContent = myTypes.length > 0;
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const threeDaysAgo = new Date(now.getTime() - 3 * 86_400_000);
+  const thirtyDaysAgo = new Date(now.getTime() - 29 * 86_400_000);
+  thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType, newPartners, waitingProducts, newLeads] = await Promise.all([
+  const [pending, oldPending, overdue, members, revenue, payments, closedOpenRounds, stalePrices, expiringQuotes, failedPayments, pendingPayments, corrections, byType, newPartners, waitingProducts, newLeads, lastMonthRevenue, newMembers, lastMonthMembers, paidDays] = await Promise.all([
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.submission.count({ where: { status: "PENDING", createdAt: { lt: threeDaysAgo } } }),
     prisma.contentItem.count({ where: { publicationStatus: "PUBLISHED", nextReviewDueAt: { lt: now } } }),
@@ -80,6 +84,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     waitingPartners(),
     prisma.supplierProductListing.count({ where: { status: "IN_REVIEW" } }),
     prisma.lead.count({ where: { status: "NEW" } }).catch(() => 0),
+    // The same days last month, up to today's date, so "up or down" compares like with like
+    // rather than a full month against a few days of this one.
+    prisma.payment.aggregate({ _sum: { amount: true }, _count: true, where: { status: "SUCCEEDED", paidAt: { gte: lastMonthStart, lt: new Date(lastMonthStart.getFullYear(), lastMonthStart.getMonth(), now.getDate()) } } }),
+    prisma.subscription.count({ where: { startedAt: { gte: monthStart }, userId: { not: null }, plan: { audience: "MEMBER", code: { not: "free" } } } }),
+    prisma.subscription.count({ where: { startedAt: { gte: lastMonthStart, lt: monthStart }, userId: { not: null }, plan: { audience: "MEMBER", code: { not: "free" } } } }),
+    // Every payment taken in the last 30 days, for the chart. Only the amount and the day are read.
+    prisma.payment.findMany({ where: { status: "SUCCEEDED", paidAt: { gte: thirtyDaysAgo } }, select: { amount: true, paidAt: true } }),
   ]);
   const countOf = (type: string, status?: string) => byType.filter((r) => r.contentType === type && (!status || r.publicationStatus === status)).reduce((n, r) => n + r._count._all, 0);
   const iconOf = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.icon ?? (type === "INVESTMENT_OPPORTUNITY" ? "opportunity" : "link");
@@ -102,14 +113,36 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const guides = GUIDES.filter((g) => (g.area === "__super" ? user.superAdmin : can(g.area)));
   // Where each directory is on the public website
   const siteHref = (type: string) => SITE_DIRECTORIES.find((d) => d.type === type)?.href ?? (type === "INVESTMENT_OPPORTUNITY" ? "/opportunities" : "/");
+  /** Up or down against the same days last month, as a whole percentage. Null when there is nothing to compare with. */
+  const trendOf = (nowValue: number, before: number) => (before > 0 ? Math.round(((nowValue - before) / before) * 100) : null);
+  const revenueTrend = trendOf(Number(revenue._sum.amount ?? 0), Number(lastMonthRevenue._sum.amount ?? 0));
+  const membersTrend = trendOf(newMembers, lastMonthMembers);
+
+  // One point per day for the last 30 days, including the days nothing came in: a gap in the line
+  // would read as "we did not look", not as "nobody paid".
+  const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+  const takings = new Map<string, number>();
+  for (const p of paidDays) if (p.paidAt) takings.set(dayKey(p.paidAt), (takings.get(dayKey(p.paidAt)) ?? 0) + Number(p.amount));
+  const chart: Point[] = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(thirtyDaysAgo.getTime() + i * 86_400_000);
+    return { label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }), value: takings.get(dayKey(d)) ?? 0 };
+  });
+  const chartTotal = chart.reduce((n, p) => n + p.value, 0);
+
   const kpis = [
-    can("payments") ? <Kpi key="revenue" icon="wallet" href="/admin/payments" label="Revenue this month" value={money(revenue._sum.amount ?? 0)} sub={`${revenue._count} payment${revenue._count === 1 ? "" : "s"}`} /> : null,
-    can("users") ? <Kpi key="members" icon="users" href="/admin/users?tab=member" label="Paying members" value={members} sub="Active memberships" /> : null,
-    can("review") ? <Kpi key="review" icon="inbox" href="/admin/review" label="Waiting for review" value={pending} sub={oldPending ? `${oldPending} older than 3 days` : "Submissions"} warn={oldPending > 0} /> : null,
-    canContent ? <Kpi key="due" icon="calendar" href="/admin/content?fresh=over" label="Need re-review" value={overdue} sub="Published pages" warn={overdue > 0} /> : null,
+    can("payments") ? <Kpi key="revenue" href="/admin/payments" label="Revenue this month" value={money(revenue._sum.amount ?? 0)} trend={revenueTrend}
+      foot={revenueTrend === null ? "First month with payments" : revenueTrend >= 0 ? "Up on the same days last month" : "Down on the same days last month"}
+      sub={`${revenue._count} payment${revenue._count === 1 ? "" : "s"} so far`} /> : null,
+    can("users") ? <Kpi key="members" href="/admin/users?tab=member" label="Paying members" value={members} trend={membersTrend}
+      foot={`${newMembers} joined this month`} sub="Memberships running today" /> : null,
+    can("review") ? <Kpi key="review" href="/admin/review" label="Waiting for review" value={pending}
+      foot={oldPending ? `${oldPending} older than 3 days` : pending ? "All seen in the last 3 days" : "Nothing waiting"} sub="Sent in by businesses" warn={oldPending > 0} /> : null,
+    canContent ? <Kpi key="due" href="/admin/content?fresh=over" label="Need re-review" value={overdue}
+      foot={overdue ? "Past their review date" : "Every page is in date"} sub="Published pages" warn={overdue > 0} /> : null,
   ].filter(Boolean);
 
   const BTN: Record<string, string> = { info: "bg-brand text-white", warn: "bg-accent text-ink", bad: "bg-bad-fg text-white" };
+
   const stepNo = "flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-[11.5px] font-bold";
 
   return (
@@ -186,7 +219,23 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
       {/* ── 3. The numbers, and the money coming in ── */}
       {kpis.length || can("payments") ? <Panel step="3" title="How the site is doing" note="Tap a number to see what is behind it.">
-        {kpis.length ? <section className="grid grid-cols-2 gap-2 xl:grid-cols-4">{kpis}</section> : null}
+        {kpis.length ? <section className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">{kpis}</section> : null}
+        {can("payments") ? (
+          <section className="flex flex-col gap-2 rounded-lg border border-line bg-page p-3">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div className="flex flex-col">
+                <h3 className="font-bold text-heading">Money received</h3>
+                <p className="text-[12px] text-ink-muted">The last 30 days, day by day. Only payments that went through.</p>
+              </div>
+              <span className="nums font-display text-[18px] font-bold tracking-tight text-heading">{money(chartTotal)}</span>
+            </div>
+            {chartTotal > 0 ? (
+              <AreaChart points={chart} format={(n) => money(Math.round(n))} />
+            ) : (
+              <p className="rounded-lg bg-surface p-6 text-center text-[12.5px] text-ink-muted">No payments in the last 30 days yet. The chart fills in as members pay.</p>
+            )}
+          </section>
+        ) : null}
         {can("payments") ? (
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-heading">Latest payments</h3><Link href="/admin/payments" className="text-[12px] font-semibold">View all →</Link></div>
@@ -271,15 +320,36 @@ function Panel({ title, note, step, fold = false, children }: { title: string; n
   );
 }
 
-function Kpi({ href, label, value, sub, warn = false, icon }: { href: string; label: string; value: number | string; sub: string; warn?: boolean; icon: string }) {
+/**
+ * One figure, in the form of shadcn's dashboard-01 section cards (client, 18 Nov 2026): the name of
+ * the figure in small muted type, the figure itself large and in lining numerals, a trend badge in
+ * the top corner, and a footer that says what the trend means and what the figure counts.
+ *
+ * `trend` is a whole percentage against the same days last month, or null when there is nothing to
+ * compare with — in which case no badge is drawn rather than a made-up zero.
+ */
+function Kpi({ href, label, value, sub, foot, trend = null, warn = false }: {
+  href: string; label: string; value: number | string; sub: string; foot: string; trend?: number | null; warn?: boolean;
+}) {
+  const up = (trend ?? 0) >= 0;
   return (
-    <Link href={href} className="group flex min-w-0 flex-col gap-1.5 rounded-lg border border-line bg-page p-3 text-ink transition-colors hover:border-brand hover:text-ink">
-      <span className="flex items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-[11.5px] text-ink-muted">{label}</span>
-        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-3.5 w-3.5" /></span>
+    <Link href={href}
+      className="group flex min-w-0 flex-col gap-3 rounded-xl border border-line bg-gradient-to-t from-brand-tint/40 to-surface p-3.5 text-ink transition-colors hover:border-brand hover:text-ink">
+      <span className="flex items-start justify-between gap-2">
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="truncate text-[11.5px] text-ink-muted">{label}</span>
+          <span className="nums truncate font-display text-[22px] font-bold leading-none tracking-tight text-heading sm:text-[24px]">{value}</span>
+        </span>
+        {trend !== null ? (
+          <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${up ? "border-line text-ink" : "border-bad-fg/30 text-bad-fg"}`}>
+            <Icon name={up ? "trending-up" : "trending-down"} className="h-3 w-3" />{up ? "+" : ""}{trend}%
+          </span>
+        ) : null}
       </span>
-      <span className="truncate font-display text-[19px] font-bold leading-none tracking-tight text-heading sm:text-[21px]">{value}</span>
-      <span className={`truncate text-[11px] ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
+      <span className="flex flex-col gap-0.5">
+        <span className={`truncate text-[12px] font-semibold ${warn ? "text-warn-fg" : "text-heading"}`}>{foot}</span>
+        <span className="truncate text-[11px] text-ink-muted">{sub}</span>
+      </span>
     </Link>
   );
 }
