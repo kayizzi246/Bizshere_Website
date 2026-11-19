@@ -26,7 +26,7 @@ export async function uploadFile(original: File, kind: UploadKind): Promise<stri
     if (!res.ok) throw new Error(json.error ?? "Upload failed");
     return json.url;
   }
-  throw new Error("Uploads are not set up yet. In Vercel, open Storage → Create → Blob and connect it to this project.");
+  throw new Error("Uploads are not set up on this server. Set UPLOAD_DIR to a writable folder, or connect Vercel Blob.");
 }
 
 /**

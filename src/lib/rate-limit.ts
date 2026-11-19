@@ -62,4 +62,10 @@ export const LIMITS = {
   forumTopicPerUser: [5, 3600],
   /** Remarks under tips one person can add in 10 minutes. */
   tipRemarkPerUser: [10, 600],
+  /**
+   * Files one person can upload an hour. Each may be up to 50 MB and storage is paid for by the
+   * gigabyte, so without a ceiling one account could fill the store on its own. Well above what
+   * a seller photographing a whole catalog in one sitting needs.
+   */
+  uploadPerUser: [120, 3600],
 } as const satisfies Record<string, readonly [number, number]>;

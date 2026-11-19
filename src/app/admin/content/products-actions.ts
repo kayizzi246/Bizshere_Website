@@ -9,6 +9,7 @@ import { SITE_DATA } from "@/lib/cached";
 import { parentIds } from "@/lib/child-data";
 import { looseNumber, parseField } from "@/lib/field-parse";
 import { MAX_PRODUCTS, PRODUCT_STATUSES, type ProductDraft } from "@/lib/product-import";
+import { discardFiles, filesDropped, filesOf } from "@/lib/file-cleanup";
 import { loadProducts } from "./products-data";
 
 type Result = { ok: true; products: ProductDraft[]; summary: string } | { ok: false; message: string; errors: Record<string, string> };
@@ -63,10 +64,15 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
   const current = new Map((await prisma.supplierProductListing.findMany({ where: { supplierId: supplier.id } })).map((r) => [r.id, r]));
   const same = (a: unknown, b: unknown) => String(a ?? "") === String(b ?? "");
   let added = 0, changed = 0, removed = 0;
+  // Photos that this save leaves with nothing pointing at them; removed from storage once it commits.
+  const orphaned: (string | null | undefined)[] = [];
 
   await transaction(async (tx) => {
     const gone = input.removed.filter((id) => current.has(id));
-    if (gone.length) removed = (await tx.supplierProductListing.deleteMany({ where: { id: { in: gone }, supplierId: supplier.id } })).count;
+    if (gone.length) {
+      removed = (await tx.supplierProductListing.deleteMany({ where: { id: { in: gone }, supplierId: supplier.id } })).count;
+      for (const id of gone) orphaned.push(...filesOf(current.get(id)));
+    }
     const fresh = data.filter((d) => !d.id || !current.has(d.id));
     if (fresh.length) {
       added = (await tx.supplierProductListing.createMany({
@@ -83,9 +89,11 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
         where: { id: was.id, supplierId: supplier.id },
         data: { ...d.row, ...(priceChanged ? { quotedAt: d.row.priceMin || d.row.priceMax ? now : null } : {}) },
       });
+      orphaned.push(...filesDropped(filesOf(was), [d.row.imageUrl, ...d.row.moreImages]));
       changed++;
     }
   }, { timeout: 60000 });
+  discardFiles(...orphaned);
 
   await audit(editor.id, "products.saved", "supplier", supplier.id, { added, changed, removed });
   revalidatePath(`/admin/content/${input.contentItemId}`);

@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth";
 import { phoneKey } from "@/lib/phone-codes";
 import { requireArea } from "@/lib/access";
 import { ensureUsername, personalUrl, sendPin } from "@/lib/pin-accounts";
+import { discardFiles, filesDropped, filesOf } from "@/lib/file-cleanup";
 
 /**
  * Supplier portal (/supplier) and the admin's supplier logins (/admin/supplier-logins).
@@ -102,8 +103,11 @@ export async function saveProduct(form: FormData) {
   const id = String(form.get("id") ?? "");
   if (id) {
     // Only a product of this supplier.
+    const before = await prisma.supplierProductListing.findFirst({ where: { id, supplierId: supplier.id }, select: { imageUrl: true, moreImages: true } });
     const done = await prisma.supplierProductListing.updateMany({ where: { id, supplierId: supplier.id }, data: { ...data, status: "IN_REVIEW" } }); // a change goes back to the team
     if (!done.count) redirect("/supplier?error=access");
+    // Photos this edit swapped out are left with nothing pointing at them.
+    discardFiles(...filesDropped(filesOf(before), [main, ...extra]));
   } else {
     await prisma.supplierProductListing.create({ data: { ...data, supplierId: supplier.id, status: "IN_REVIEW" } }); // shows once the team approves it
   }
@@ -113,7 +117,11 @@ export async function saveProduct(form: FormData) {
 
 export async function deleteProduct(form: FormData) {
   const supplier = await ownSupplier(String(form.get("supplierId")));
-  await prisma.supplierProductListing.deleteMany({ where: { id: String(form.get("id")), supplierId: supplier.id } });
+  const id = String(form.get("id"));
+  // The photos are read before the row goes, so they can be removed from storage as well.
+  const gone = await prisma.supplierProductListing.findFirst({ where: { id, supplierId: supplier.id }, select: { imageUrl: true, moreImages: true } });
+  const removed = await prisma.supplierProductListing.deleteMany({ where: { id, supplierId: supplier.id } });
+  if (removed.count) discardFiles(...filesOf(gone));
   refresh(supplier.contentItem.slug);
   redirect("/supplier?saved=deleted");
 }

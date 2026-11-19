@@ -1,40 +1,61 @@
 import { randomBytes } from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { NextResponse, type NextRequest } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FILE_TYPES, MAX_CLOUD_BYTES, MAX_LOCAL_BYTES } from "@/lib/uploads";
+import { allow, LIMITS } from "@/lib/rate-limit";
+import { writeStoredFile } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Admin uploads (images and PDFs/documents) for the content forms, and suppliers' product photos.
  *
- * With BLOB_READ_WRITE_TOKEN set (Vercel → Storage → Blob), the browser uploads straight to
- * Vercel Blob: this route only hands out a short-lived upload token, after checking that the
- * person is staff, and the file never passes through the server (no 4.5 MB request limit).
- * Without it, in local development only, files are saved to public/uploads/.
+ * Two ways, chosen by whether BLOB_READ_WRITE_TOKEN is set:
+ *
+ *   Vercel Blob (BLOB_READ_WRITE_TOKEN set): the browser uploads straight to Blob storage and
+ *   this route only hands out a short-lived token, so the file never passes through the server
+ *   and the 4.5 MB request limit does not apply.
+ *
+ *   This server's own disk (no token): the file is posted here and saved under UPLOAD_DIR, which
+ *   on Coolify, Railway or a VPS is a persistent volume. It is served back by
+ *   /api/uploads/[...path]. Not public/uploads: public/ is inside the image, so a deploy would
+ *   take every uploaded file with it.
  */
 const cloud = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 // Staff; sellers adding photos to their own catalog in /supplier (members of a supplier organisation);
 // and experts adding photos and files of their work in /expert (owners of an expert profile).
-const isStaff = async () => {
+const isStaff = async (): Promise<string | null> => {
   const s = await getSession();
-  if (!s?.user) return false;
-  if (["EDITOR", "ADMIN"].includes(s.user.role)) return true;
+  if (!s?.user) return null;
+  if (["EDITOR", "ADMIN"].includes(s.user.role)) return s.user.id;
   const [seller, expert] = await Promise.all([
     prisma.organizationMember.findFirst({ where: { userId: s.user.id, organization: { supplier: { isNot: null } } }, select: { userId: true } }),
     prisma.consultant.findUnique({ where: { ownerId: s.user.id }, select: { id: true } }),
   ]);
-  return Boolean(seller || expert);
+  return seller || expert ? s.user.id : null;
+};
+
+/**
+ * May this person upload one more file now? Staff and sellers are trusted, but each account is
+ * held to a ceiling an hour: a 50 MB cap per file is no protection on its own when nothing
+ * limits how many files an account may send.
+ */
+const mayUpload = async () => {
+  const userId = await isStaff();
+  if (!userId) return { ok: false as const, error: "Not allowed", status: 403 };
+  const [max, window] = LIMITS.uploadPerUser;
+  if (!(await allow(`upload:user:${userId}`, max, window))) {
+    return { ok: false as const, error: "That is a lot of files at once. Please wait a few minutes and carry on.", status: 429 };
+  }
+  return { ok: true as const, userId };
 };
 
 /** Which way the upload button should send the file. */
 export async function GET() {
   if (!(await isStaff())) return NextResponse.json({ error: "Not allowed" }, { status: 403 });
-  const mode = cloud() ? "cloud" : process.env.NODE_ENV !== "production" ? "local" : "off";
+  const mode = cloud() ? "cloud" : "local";
   return NextResponse.json({ mode });
 }
 
@@ -48,7 +69,8 @@ export async function POST(req: NextRequest) {
         request: req,
         onBeforeGenerateToken: async () => {
           // Called by our own upload button, with the editor's session cookie.
-          if (!(await isStaff())) throw new Error("Not allowed");
+          const may = await mayUpload();
+          if (!may.ok) throw new Error(may.error);
           return { allowedContentTypes: FILE_TYPES, maximumSizeInBytes: MAX_CLOUD_BYTES, addRandomSuffix: true };
         },
         // Called by Vercel when the upload finishes; the URL is saved when the editor saves the form.
@@ -60,11 +82,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Local development fallback ──
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Uploads need Vercel Blob. In Vercel, open Storage → Create → Blob and connect it to this project." }, { status: 501 });
-  }
-  if (!(await isStaff())) return NextResponse.json({ error: "Not allowed" }, { status: 403 });
+  // ── This server's own disk (UPLOAD_DIR) ──
+  const may = await mayUpload();
+  if (!may.ok) return NextResponse.json({ error: may.error }, { status: may.status });
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "No file" }, { status: 400 });
@@ -72,9 +92,11 @@ export async function POST(req: NextRequest) {
   if (file.size > MAX_LOCAL_BYTES) return NextResponse.json({ error: "File is larger than 20 MB." }, { status: 413 });
 
   const safe = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-").replace(/^-+|-+$/g, "").slice(-60) || "file";
+  // A random name, so no two uploads collide and a stored address never changes meaning.
   const name = `${randomBytes(6).toString("hex")}-${safe}`;
-  const dir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
-  return NextResponse.json({ url: `/uploads/${name}` });
+  try {
+    return NextResponse.json({ url: await writeStoredFile(name, Buffer.from(await file.arrayBuffer())) });
+  } catch {
+    return NextResponse.json({ error: "The file could not be saved. Check that UPLOAD_DIR points at a writable volume." }, { status: 500 });
+  }
 }

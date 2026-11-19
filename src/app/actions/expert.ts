@@ -9,6 +9,7 @@ import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { phoneKey } from "@/lib/phone-codes";
 import { ensureUsername, personalUrl, sendPin } from "@/lib/pin-accounts";
+import { discardFiles, filesDropped, filesOf } from "@/lib/file-cleanup";
 
 /**
  * Expert portal (/expert) and the admin's expert logins (/admin/expert-logins) and expert work
@@ -107,8 +108,11 @@ export async function saveWork(form: FormData) {
   const data = { ...rest, imageUrl: imageUrl || null, fileUrl: fileUrl || null, linkUrl: linkUrl || null, status: "IN_REVIEW" as const, publicationPermitted: false };
   const id = field(form, "id");
   if (id) {
+    const before = await prisma.consultantProject.findFirst({ where: { id, consultantId: expert.id }, select: { imageUrl: true, fileUrl: true } });
     const done = await prisma.consultantProject.updateMany({ where: { id, consultantId: expert.id }, data });
     if (!done.count) redirect("/expert?error=access");
+    // The picture or file this edit replaced is left with nothing pointing at it.
+    discardFiles(...filesDropped(filesOf(before), [data.imageUrl, data.fileUrl]));
   } else {
     await prisma.consultantProject.create({ data: { ...data, consultantId: expert.id } });
   }
@@ -119,7 +123,11 @@ export async function saveWork(form: FormData) {
 
 export async function deleteWork(form: FormData) {
   const { expert } = await ownExpert();
-  await prisma.consultantProject.deleteMany({ where: { id: field(form, "id"), consultantId: expert.id } });
+  const id = field(form, "id");
+  // The picture and file are read before the row goes, so they can be removed from storage too.
+  const gone = await prisma.consultantProject.findFirst({ where: { id, consultantId: expert.id }, select: { imageUrl: true, fileUrl: true } });
+  const removed = await prisma.consultantProject.deleteMany({ where: { id, consultantId: expert.id } });
+  if (removed.count) discardFiles(...filesOf(gone));
   refresh(expert.contentItem.slug);
   redirect("/expert?saved=work-deleted");
 }

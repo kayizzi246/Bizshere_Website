@@ -394,3 +394,37 @@ test('product import reads CSV files people already have', () => {
   assert.equal(none.products.length, 0);
   assert.match(none.error, /product name column/i);
 });
+
+// Uploads on a server with its own disk (Coolify, Railway, a VPS): files must be saved on the
+// persistent volume, served back from it, and never reachable outside it.
+test('uploaded files are kept on the volume, served back, and cannot escape it', async () => {
+  const os = require('node:os');
+  const dir = fs.mkdtempSync(require('node:path').join(os.tmpdir(), 'uploads-'));
+  process.env.UPLOAD_DIR = dir;
+  const storage = load('src/lib/storage.ts', {});
+
+  // A saved file comes back under /api/uploads/ and reads back byte for byte.
+  const url = await storage.writeStoredFile('abc123-photo.jpg', Buffer.from('PHOTO'));
+  assert.equal(url, '/api/uploads/abc123-photo.jpg');
+  assert.equal(storage.storedKey(url), 'abc123-photo.jpg');
+  assert.equal((await storage.readStoredFile('abc123-photo.jpg')).toString(), 'PHOTO');
+
+  // It is listed, so the nightly sweep can see whether anything still points at it.
+  const listed = await storage.listStoredFiles(); // (an array from the sandbox realm, so checked field by field)
+  assert.equal(listed.length, 1);
+  assert.equal(listed[0].key, 'abc123-photo.jpg');
+  assert.equal(listed[0].size, 5);
+
+  // Nothing outside UPLOAD_DIR can be read, however the key is written.
+  for (const escape of ['../secret.env', '../../etc/passwd', 'a/../../secret.env']) {
+    assert.throws(() => storage.resolveStoredPath(escape), /Invalid file key/, escape);
+  }
+
+  // A deleted file is gone, and deleting it twice is not an error.
+  await storage.deleteStoredFile('abc123-photo.jpg');
+  await storage.deleteStoredFile('abc123-photo.jpg');
+  await assert.rejects(storage.readStoredFile('abc123-photo.jpg'));
+
+  delete process.env.UPLOAD_DIR;
+  fs.rmSync(dir, { recursive: true, force: true });
+});

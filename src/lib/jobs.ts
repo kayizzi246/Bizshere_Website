@@ -20,6 +20,7 @@ import { PERIOD_INFO } from "./billing";
 import { money } from "./format";
 import { getSetting } from "./settings";
 import { snapshot } from "./watches";
+import { sweepOrphanFiles } from "./file-cleanup";
 
 // Set at the start of every run, so a long-lived server never uses a stale date.
 let now = new Date();
@@ -345,6 +346,18 @@ BizSphere-Ug`) : false,
       }
     }
     return `price alerts: ${updated} watches checked, ${perPerson.size} people with news, ${texts} texts`;
+  },
+
+  /**
+   * Files in the blob store that no row points at any more: uploads picked and then abandoned
+   * without saving the form, and photos and documents of records deleted through a cascade.
+   * Without this they stay in storage, and are paid for, for good. Anything uploaded in the
+   * last two days is left alone: it may be sitting in a form nobody has saved yet.
+   */
+  async files() {
+    const r = await sweepOrphanFiles(prisma);
+    if (r.skipped) return `files: skipped (${r.skipped})`;
+    return `files: ${r.checked} in storage, ${r.deleted} unused removed (${(r.bytes / 1048576).toFixed(1)} MB freed)`;
   },
 
   /** Rate-limit counters whose window has passed (src/lib/rate-limit.ts), and sign-in codes past their expiry. */

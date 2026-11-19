@@ -13,7 +13,9 @@ coverage/
 .DS_Store
 next-env.d.ts
 *.tsbuildinfo
-uploads/
+# Only the upload folder at the root (UPLOAD_DIR default), not every folder named uploads:
+# src/app/api/uploads/ is code and must be committed.
+/uploads/
 .pgdata/
 .next-verify/
 .next-ci/
