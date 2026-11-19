@@ -10,8 +10,9 @@ import { updateLead } from "./actions";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leads" };
 
-const TABS: [LeadStatus | "", string][] = [["NEW", "New"], ["CONTACTED", "Contacted"], ["CLOSED", "Closed"], ["", "All"]];
-const BADGE: Record<LeadStatus, string> = { NEW: "badge-warn", CONTACTED: "badge-info", CLOSED: "badge-muted" };
+// "All" means everything a person should look at, so it leaves out spam, which has its own tab.
+const TABS: [LeadStatus | "", string][] = [["NEW", "New"], ["CONTACTED", "Contacted"], ["CLOSED", "Closed"], ["", "All"], ["SPAM", "Spam"]];
+const BADGE: Record<LeadStatus, string> = { NEW: "badge-warn", CONTACTED: "badge-info", CLOSED: "badge-muted", SPAM: "badge-muted" };
 const WANT: Record<string, string> = { membership: "bg-accent-tint text-accent-dark", supplier_listing: "bg-brand-tint text-brand-dark", expert_listing: "bg-[#EFE6F7] text-[#4A1D6B]", question: "bg-page text-ink-soft" };
 
 /**
@@ -22,10 +23,10 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: {
   await requireArea("leads");
   const status = (TABS.some(([s]) => s === searchParams.status) ? searchParams.status : "NEW") as LeadStatus | "";
   const [leads, counts] = await Promise.all([
-    prisma.lead.findMany({ where: status ? { status } : {}, orderBy: { createdAt: "desc" }, take: 200 }),
+    prisma.lead.findMany({ where: status ? { status } : { status: { not: "SPAM" } }, orderBy: { createdAt: "desc" }, take: 200 }),
     prisma.lead.groupBy({ by: ["status"], _count: { _all: true } }),
   ]);
-  const count = (s: LeadStatus | "") => (s ? counts.find((c) => c.status === s)?._count._all ?? 0 : counts.reduce((n, c) => n + c._count._all, 0));
+  const count = (s: LeadStatus | "") => (s ? counts.find((c) => c.status === s)?._count._all ?? 0 : counts.reduce((n, c) => n + (c.status === "SPAM" ? 0 : c._count._all), 0));
   const back = `/admin/leads?status=${status}`;
   const when = (d: Date) => d.toLocaleString("en-GB", { timeZone: "Africa/Kampala", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
@@ -44,8 +45,8 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: {
 
       {leads.length === 0 ? (
         <div className="card flex flex-col items-center gap-2 p-10 text-center">
-          <p className="text-sm font-semibold text-heading">{status === "NEW" ? "No new leads waiting." : "Nothing here."}</p>
-          <p className="text-[13px] text-ink-muted">Leads arrive from the Contact page and the &quot;Call me back&quot; form under the pricing.</p>
+          <p className="text-sm font-semibold text-heading">{status === "NEW" ? "No new leads waiting." : status === "SPAM" ? "No spam caught." : "Nothing here."}</p>
+          <p className="text-[13px] text-ink-muted">{status === "SPAM" ? "Messages that looked like someone selling search listings. They are kept here and nobody is texted about them." : "Leads arrive from the Contact page and the ‘Call me back’ form under the pricing."}</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-3">

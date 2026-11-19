@@ -2208,6 +2208,8 @@ enum LeadStatus {
   NEW
   CONTACTED
   CLOSED
+  /// Scored as spam on arrival (src/lib/lead-spam.ts): kept, but the team is not texted about it.
+  SPAM
 }
 
 /// Request counters for rate limits (src/lib/rate-limit.ts): one row per key (e.g. "sms:ip:1.2.3.4") and time window.

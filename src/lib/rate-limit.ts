@@ -54,6 +54,13 @@ export const LIMITS = {
   accountPerUser: [10, 900],
   /** Payment orders one person can start (each one is a Pesapal order). */
   checkoutPerUser: [10, 600],
+  /**
+   * Every contact-form message that texts the team, from everywhere together. Each one costs
+   * SMS credit and rings a phone, so this is the ceiling on what the form can spend in an hour
+   * however many addresses the messages come from. Over it, leads are still kept; only the
+   * texts stop.
+   */
+  leadAll: [40, 3600],
   /** Correction reports from one IP address. */
   correctionsPerIp: [5, 3600],
   /** Chat messages one person can send a minute. */

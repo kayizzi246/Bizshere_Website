@@ -428,3 +428,35 @@ test('uploaded files are kept on the volume, served back, and cannot escape it',
   delete process.env.UPLOAD_DIR;
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+// Contact-form spam: robots written for contact forms fill the visible boxes properly and leave
+// the honeypot alone, so they reach the team's phone. The real one that got through on 18 Nov
+// 2026 must be caught, and ordinary Ugandan enquiries must not be.
+test('contact-form spam is caught and real enquiries are not', () => {
+  const { scoreLead, SPAM_SCORE } = load('src/lib/lead-spam.ts', {});
+  const spam = (lead) => scoreLead(lead).spam;
+
+  // The message in the screenshot, as it arrived.
+  assert.equal(spam({
+    name: 'Yukiko Womble', phone: '5807983925', email: 'domains@search-pearlsofttesting.site',
+    message: "Hi\n\nAdd pearlsofttesting.site in Google's Search Index so it can appear in online search results!\n\nAdd pearlsofttesting.site here: indexregister.pro",
+  }), true);
+
+  // Other shapes of the same trade.
+  assert.equal(spam({ name: 'Mike', phone: '+1 202 555 0147', email: 'seo@rankfast.online',
+    message: 'We can rank your website #1 on Google. Visit rankfast.online for backlinks and link building.' }), true);
+
+  // Real enquiries, including ones that mention a website or come from abroad.
+  const real = [
+    { name: 'Nakato Grace', phone: '0772 123 456', email: '', interest: 'membership',
+      message: 'I want to start a bakery in Mukono. How much is membership and what do I get?' },
+    { name: 'Opio James', phone: '+256 701 987 654', email: 'opio@gmail.com',
+      message: 'Do you have maize milling machines? Our catalogue is at opiomills.com, please call me.' },
+    { name: 'Sarah Kyomuhendo', phone: '0392 000 111', email: 'sarah@kyomuhendo.co.ug',
+      message: 'Please list my business as a supplier of printed labels and plastic bottles.' },
+  ];
+  for (const lead of real) assert.equal(spam({ ...lead, email: lead.email ?? '' }), false, lead.name);
+
+  // One link on its own is never enough to silence a lead.
+  assert.ok(scoreLead({ name: 'A', phone: '0772123456', email: '', message: 'See mysite.com' }).score < SPAM_SCORE);
+});
