@@ -58,8 +58,9 @@ export default async function HomePage() {
             {/* One line on every screen, ending in an orange full stop. Smaller again on 18 Nov 2026
                 (client): about a fifth down from the 17 Nov sizes, which had gone up by a third.
                 The one line is the ceiling either way — the words run about 13.5× the font size
-                wide — and every size here is below it, so nothing can wrap. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(18px,5.9vw,28px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[37px] 2xl:text-[42px]">
+                wide — and every size here is below it, so nothing can wrap.
+                23 Nov 2026 (client): bigger again, about a quarter up at every width. */}
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(20px,6.6vw,32px)] text-white sm:text-[36px] lg:text-[42px] xl:text-[46px] 2xl:text-[52px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
