@@ -39,7 +39,7 @@ export default async function HomePage() {
       {/* Laptops and up (1280px+): the hero is 740px tall (16 Nov 2026; 790 before, then 660 and 700), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(92vh,700px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(92vh,700px)] xl:flex-col xl:justify-center">
         {/* The drifting specks were taken off on 18 Nov 2026 (client), as the moving network of lights
             was before them. The hero is the colour and the words now, and nothing else. */}
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
@@ -68,8 +68,10 @@ export default async function HomePage() {
                 repeated the directory tiles immediately under it, and nobody reads a label twice.
                 What a visitor needs to know is what the site answers for them. */}
             <p data-size="" className="mb-4 max-w-2xl text-[14px] leading-[1.6] text-white/90 sm:text-[15px]">
-              What a business costs to start in Uganda, who sells the machines, and where the money is.{" "}
-              <span className="text-white">Every price dated and sourced.</span>
+              {/* The client's words, 23 Nov 2026 */}
+              Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources,
+              Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
+              <span className="font-bold text-white">Start exploring now.</span>
             </p>
 
             <HomeSearch />

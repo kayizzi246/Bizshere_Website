@@ -339,6 +339,23 @@ select {
 @media (max-width: 1279px) {
   .hero-premium { --hero-scrim: radial-gradient(130% 56% at 50% 84%, rgba(4, 18, 40, 0.66) 0%, rgba(4, 18, 40, 0.40) 46%, transparent 78%); }
 }
+/* The homepage hero only (client, 23 Nov 2026, after a fintech site they sent): a vivid electric
+   royal blue (#0B4BF0) with a gradient, brighter at the top left and deepening to the bottom right.
+   White type measures about 6.4:1 on the middle of it. The other places that use .hero-premium
+   (partner dashboard, quick links) keep the older blue. */
+.hero-premium.hero-home {
+  background-color: #0838C4;
+  --hero-scrim: radial-gradient(76% 62% at 28% 90%, rgba(4, 24, 110, 0.38) 0%, rgba(4, 24, 110, 0.18) 44%, transparent 74%);
+  background-image:
+    var(--hero-scrim),
+    radial-gradient(54% 74% at 8% 72%, rgba(120, 170, 255, 0.16) 0%, rgba(90, 140, 255, 0.07) 44%, transparent 78%),
+    radial-gradient(46% 66% at 92% 24%, rgba(130, 180, 255, 0.14) 0%, rgba(100, 150, 255, 0.06) 46%, transparent 76%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 12%, transparent 26%),
+    linear-gradient(118deg, #1A5BFF 0%, #0F50F5 28%, #0B4BF0 50%, #0A42D8 76%, #0835B8 100%);
+}
+@media (max-width: 1279px) {
+  .hero-premium.hero-home { --hero-scrim: radial-gradient(130% 56% at 50% 84%, rgba(4, 22, 100, 0.42) 0%, rgba(4, 22, 100, 0.22) 46%, transparent 78%); }
+}
 /* .hero-glow: the same blue, quieter (client, 17 Nov 2026: "on the footer and these other pages
    reduce it"). The homepage hero is a full screen of colour and can carry the strong version; the
    band at the top of a section page is a strip a few hundred pixels tall, and the same intensity
