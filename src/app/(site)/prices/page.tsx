@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpDown, Search, Store } from "lucide-react";
+import { ArrowUpDown, LayoutGrid, Search, Store } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -33,13 +33,13 @@ const TONES = ["bg-[#F7931A]", "bg-[#627EEA]", "bg-[#26A17B]", "bg-[#F3BA2F]", "
 const SORTS = [["name", "A to Z"], ["price-high", "Highest price"], ["price-low", "Lowest price"], ["rising", "Biggest rise"], ["falling", "Biggest fall"], ["recent", "Recently updated"]] as const;
 type Sort = (typeof SORTS)[number][0];
 
-export default async function PricesPage({ searchParams }: { searchParams: { q?: string; market?: string; sort?: string } }) {
+export default async function PricesPage({ searchParams }: { searchParams: { q?: string; market?: string; sort?: string; category?: string } }) {
   const viewer = await getViewer();
   const q = (searchParams.q ?? "").trim().slice(0, 80);
   const sort: Sort = SORTS.some(([k]) => k === searchParams.sort) ? (searchParams.sort as Sort) : "name";
 
   const [products, observations, watching] = await Promise.all([
-    prisma.product.findMany({ orderBy: { name: "asc" }, include: { supplier: { select: { contentItem: { select: { slug: true, publicationStatus: true } } } } } }),
+    prisma.product.findMany({ orderBy: { name: "asc" }, include: { category: { select: { id: true, name: true } }, supplier: { select: { contentItem: { select: { slug: true, publicationStatus: true } } } } } }),
     prisma.priceObservation.findMany({
       where: { status: "PUBLISHED" },
       include: { market: { include: { location: { include: { parent: true } } } } },
@@ -61,10 +61,18 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
   const market = marketList.has(searchParams.market ?? "") ? searchParams.market! : "";
   const marketLabel = market ? marketList.get(market)!.label : null;
 
-  // Search: every word must appear in the product name, local names, variety or grade.
+  // Product categories (Grocery, Produce, Textiles…) that have at least one product, for the filter.
+  const categoryList = new Map<string, string>();
+  for (const p of products) if (p.category) categoryList.set(p.category.id, p.category.name);
+  const categories = [...categoryList].sort((a, b) => a[1].localeCompare(b[1]));
+  const category = categoryList.has(searchParams.category ?? "") ? searchParams.category! : "";
+  const categoryLabel = category ? categoryList.get(category)! : null;
+
+  // Search: every word must appear in the product name, local names, category, variety or grade.
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   const shownProducts = products.filter((p) =>
-    words.every((w) => [p.name, p.variety, p.grade, ...p.localNames].filter(Boolean).join(" ").toLowerCase().includes(w))
+    words.every((w) => [p.name, p.category?.name, p.variety, p.grade, ...p.localNames].filter(Boolean).join(" ").toLowerCase().includes(w))
+    && (!category || p.categoryId === category)
     && (!market || marketList.get(market)!.products.has(p.id)));
 
   // Per product, per price type, per market: the latest observation and the one before it (same
@@ -119,10 +127,11 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
   // Products with a price (or a locked one) first, then the ones without any yet.
   const rows = [...board].sort((a, b) => (a.any ? 0 : 1) - (b.any ? 0 : 1) || bySort[sort](a, b));
 
-  // Links keep the search and sort.
-  const href = (m: string) => {
+  // Links keep the search, category and sort.
+  const href = (m: string, c = category) => {
     const p = new URLSearchParams();
     if (m) p.set("market", m);
+    if (c) p.set("category", c);
     if (q) p.set("q", q);
     if (sort !== "name") p.set("sort", sort);
     const s = p.toString();
@@ -142,7 +151,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     name: r.name,
     initial: r.p.name.charAt(0),
     tone: TONES[[...r.p.name].reduce((s, c) => s + c.charCodeAt(0), 0) % TONES.length],
-    sub: `${r.p.standardUnit ? `per ${r.p.standardUnit}` : "price"}${r.headType ? ` · ${TYPE_LABEL[r.headType]}` : ""}${marketLabel ? ` · ${marketLabel}` : r.marketCount ? ` · ${r.marketCount} ${r.marketCount === 1 ? "market" : "markets"}` : ""}`,
+    sub: `${r.p.category && !category ? `${r.p.category.name} · ` : ""}${r.p.standardUnit ? `per ${r.p.standardUnit}` : "price"}${r.headType ? ` · ${TYPE_LABEL[r.headType]}` : ""}${marketLabel ? ` · ${marketLabel}` : r.marketCount ? ` · ${r.marketCount} ${r.marketCount === 1 ? "market" : "markets"}` : ""}`,
     // Member detail, so visitors get no address. With no supplier chosen, members search the suppliers for the product.
     supplier: { href: !viewer.isMember ? null : r.p.supplier?.contentItem.publicationStatus === "PUBLISHED" ? `/suppliers/${r.p.supplier.contentItem.slug}` : `/suppliers?q=${encodeURIComponent(r.p.name)}` },
     price: r.head ? priceCell(r.head) : { value: null, locked: false },
@@ -171,28 +180,42 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
           <p className="text-[14px] text-white/55">Latest dated wholesale, retail and farm-gate prices from markets across Uganda. Pick a market to see its products, or tap a product to see every market.</p>
         </div>
 
-        {/* Advanced search: product words, market and sort in one bar (a plain GET form) */}
-        <form action="/prices" role="search" className="grid grid-cols-2 gap-1 rounded-2xl bg-white/[0.06] p-1.5 sm:flex sm:items-center">
-          <label className="relative col-span-2 min-w-0 sm:flex-1">
+        {/* Advanced search: product words, category, market and sort in one bar (a plain GET form) */}
+        <form action="/prices" role="search" className="grid grid-cols-2 gap-1 rounded-2xl bg-white/[0.06] p-1.5 lg:flex lg:items-center">
+          <label className="relative col-span-2 min-w-0 lg:flex-1">
             <span className="sr-only">Search products</span>
             <Search aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
             <input name="q" type="search" defaultValue={q} placeholder="Search products, e.g. maize, matooke, sugar" className="h-11 w-full rounded-xl bg-transparent pl-10 pr-3 text-[15px] text-white outline-none placeholder:text-white/40" />
           </label>
-          <div className="rounded-xl bg-white/[0.06] sm:w-60 sm:rounded-none sm:border-l sm:border-white/10 sm:bg-transparent">
+          <div className="col-span-2 rounded-xl bg-white/[0.06] lg:w-52 lg:rounded-none lg:border-l lg:border-white/10 lg:bg-transparent">
+            <GlassSelect dark name="category" label="Category" defaultValue={category} className={select} icon={<LayoutGrid className="h-4 w-4 text-accent" />}
+              options={[{ value: "", label: "All categories" }, ...categories.map(([id, name]) => ({ value: id, label: name }))]} />
+          </div>
+          <div className="rounded-xl bg-white/[0.06] lg:w-60 lg:rounded-none lg:border-l lg:border-white/10 lg:bg-transparent">
             <GlassSelect dark name="market" label="Market" defaultValue={market} className={select} icon={<Store className="h-4 w-4 text-accent" />}
               options={[{ value: "", label: "All markets" }, ...markets.map(([id, m]) => ({ value: id, label: m.label }))]} />
           </div>
-          <div className="rounded-xl bg-white/[0.06] sm:w-48 sm:rounded-none sm:border-l sm:border-white/10 sm:bg-transparent">
+          <div className="rounded-xl bg-white/[0.06] lg:w-48 lg:rounded-none lg:border-l lg:border-white/10 lg:bg-transparent">
             <GlassSelect dark name="sort" label="Sort by" defaultValue={sort} className={select} icon={<ArrowUpDown className="h-4 w-4 text-accent" />} panelClassName="right-0 left-auto"
               options={SORTS.map(([k, l]) => ({ value: k, label: l }))} />
           </div>
-          <button className="col-span-2 h-11 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white sm:ml-1">Search</button>
+          <button className="col-span-2 h-11 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white lg:ml-1">Search</button>
         </form>
-        {q || marketLabel ? (
+        {q || marketLabel || categoryLabel ? (
           <p className="-mt-1 flex flex-wrap items-center gap-2 text-[13px] text-white/60">
-            Showing {rows.length} {rows.length === 1 ? "product" : "products"}{q ? <> for <strong className="text-white">“{q}”</strong></> : null}{marketLabel ? <> at <strong className="text-white">{marketLabel}</strong></> : null}.
+            Showing {rows.length} {rows.length === 1 ? "product" : "products"}{categoryLabel ? <> in <strong className="text-white">{categoryLabel}</strong></> : null}{q ? <> for <strong className="text-white">“{q}”</strong></> : null}{marketLabel ? <> at <strong className="text-white">{marketLabel}</strong></> : null}.
             <Link href="/prices" className="font-semibold text-accent hover:text-white">Clear</Link>
           </p>
+        ) : null}
+
+        {/* Categories: tap one to see only those products */}
+        {categories.length ? (
+          <nav aria-label="Product categories" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Link href={href(market, "")} scroll={false} aria-current={!category ? "page" : undefined} className={tab(!category)}>All categories</Link>
+            {categories.map(([id, name]) => (
+              <Link key={id} href={href(market, id)} scroll={false} aria-current={id === category ? "page" : undefined} className={tab(id === category)}>{name}</Link>
+            ))}
+          </nav>
         ) : null}
 
         {/* Markets: tap one to see what it sells and at what price */}
@@ -207,7 +230,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
           {boardRows.length ? (
             <PriceBoard rows={boardRows} details={details} watched={[...watching]} />
           ) : (
-            <p className="px-3 py-10 text-center text-sm text-white/60">{q ? "No products match this search." : market ? "No prices from this market yet." : "No prices yet."}</p>
+            <p className="px-3 py-10 text-center text-sm text-white/60">{q || category ? "No products match this search." : market ? "No prices from this market yet." : "No prices yet."}</p>
           )}
         </section>
         <p className="text-[11px] text-white/40">{market ? "Latest price at this market." : "Average of the latest price in each market."} Price is wholesale where there is one, otherwise retail, then farm-gate; the change is since the previous price.{viewer.isMember ? " Tap a bell to be texted when a price moves or a new supplier lists the product." : " Members see every market."}</p>
