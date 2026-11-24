@@ -109,7 +109,7 @@
   .btn-outline { @apply btn border border-line bg-surface text-ink hover:border-brand hover:text-brand; }
   .btn-danger { @apply btn border border-[rgba(27,31,36,0.15)] bg-white text-bad-fg hover:bg-bad-fg hover:text-white; }
   .label { @apply flex flex-col gap-1.5 text-sm font-semibold text-ink-soft; }
-  .input { @apply min-h-[40px] rounded-md border border-line bg-surface px-3 text-sm font-normal text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/40; }
+  .input { @apply min-h-[44px] rounded-xl border border-line bg-surface px-3.5 text-sm font-normal text-ink outline-none transition-[border-color,background-color,box-shadow] duration-200 hover:border-brand/50 focus:border-brand focus:ring-4 focus:ring-brand/15; }
   .eyebrow { @apply font-display text-xs font-bold uppercase tracking-wider text-accent-dark; }
 
   /* ── The premium surface (client, 18 Nov 2026: "I really want premium designs") ──────────────
@@ -700,8 +700,9 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
     /* the body: the same royal blue as the hero (17 Nov 2026), deep at the far edge and opening up
        into it towards the light, so the panels and the hero read as one palette. */
     linear-gradient(100deg, #082344 0%, #0A4E8C 48%, #0072CE 100%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* No border or inner line (24 Nov 2026): the gradient started over again under the 1px border, so its dark
+     end showed as a black line down the light side, and its light end as a bright line down the dark side. */
+  background-repeat: no-repeat; background-origin: border-box;
 }
 /* .panel-drop-left: the same card with the light mirrored, entering from the left behind the words.
    For a card whose right-hand side is already carrying something — the Machines panel's photo tray —
@@ -747,7 +748,7 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 
 /* ── The grain and the big soft discs (client, 17 Nov 2026, after two trading-site cards they liked) ──
    Every lit panel — the dark .panel-drop ones and the four colour panels — gets the same two things over
-   its colour: two large, very faint discs, and a fine grain. Together they stop a big flat area from
+   its colour: two large, very faint discs that fade out with no rim (24 Nov 2026), and a fine grain. Together they stop a big flat area from
    looking like a plain fill, which is what gives those cards their texture.
    It sits on ::before at z-index -1: the panels are all `relative isolate`, so the layer paints above
    the panel's own background and below everything in the panel. Nothing here takes the pointer.
@@ -757,8 +758,8 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background-image:
     /* the two discs, as on the reference: one low left, one through the middle */
-    radial-gradient(circle 150px at 10% 82%, rgba(255, 255, 255, 0.07) 0 94%, transparent 100%),
-    radial-gradient(circle 190px at 58% 44%, rgba(255, 255, 255, 0.05) 0 94%, transparent 100%),
+    radial-gradient(circle 170px at 10% 82%, rgba(255, 255, 255, 0.07) 0, rgba(255, 255, 255, 0.05) 45%, transparent 100%),
+    radial-gradient(circle 220px at 58% 44%, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.035) 45%, transparent 100%),
     /* the grain: one 180px tile of fractal noise, repeated */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.14'/%3E%3C/svg%3E");
   background-repeat: no-repeat, no-repeat, repeat;
@@ -823,5 +824,7 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 }
 /* Inputs and selects come down with everything else, but keep 16px on phones: below that iOS zooms
    the page in the moment the field is tapped, and leaves it zoomed. */
+/* The admin keeps its compact fields. */
+#admin-shell .input { min-height: 40px; border-radius: 6px; padding-left: 12px; padding-right: 12px; }
 #admin-shell :is(input, select, textarea) { font-size: 13px; }
 @media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }

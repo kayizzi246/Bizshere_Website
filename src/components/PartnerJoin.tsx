@@ -7,20 +7,21 @@ import { PARTNER_PERIODS, PERIOD_INFO, PRICE_FIELD } from "@/lib/billing";
 import { money } from "@/lib/format";
 import { PARTNER_INFO, partnerAccess, partnerOf, partnerPlan, type PartnerKind } from "@/lib/partners";
 import { registerPartner } from "@/app/actions/partners";
+import { JoinField, JoinPin, JoinTags } from "./JoinFields";
 import { PartnerPay } from "./PartnerPay";
 import { PhoneAuthCard } from "./PhoneAuthCard";
 import { SplitShell } from "./SplitShell";
 
-const WORDS: Record<PartnerKind, { title: string; panel: [string, string]; intro: string; gets: string[]; name: string; what: string; whatHint: string }> = {
+const WORDS: Record<PartnerKind, { title: string; panel: [string, string]; intro: string; gets: string[]; name: string; what: string; whatHint: string; suggest: string[] }> = {
   supplier: {
     title: "Become a Supplier", panel: ["Get your business in front of", "buyers"], intro: "Get your business in front of buyers across Uganda.",
     gets: ["Your own page with your photo", "Add your products and prices", "Your own dashboard to keep it up to date"],
-    name: "Business name", what: "What do you sell?", whatHint: "Separate items with commas, e.g. flour, ovens, packaging",
+    name: "Business name", what: "What do you sell?", whatHint: "Press Enter or type a comma after each item.", suggest: ["Flour", "Ovens", "Packaging", "Farm inputs", "Spare parts"],
   },
   expert: {
     title: "Become an Expert", panel: ["Get found by the businesses that", "need you"], intro: "Get found by businesses that need your help.",
     gets: ["Your own profile page", "List your services and prices", "Show the jobs you've done"],
-    name: "Your full name", what: "What do you help with?", whatHint: "Separate areas with commas, e.g. tax, accounting, export",
+    name: "Your full name", what: "What do you help with?", whatHint: "Press Enter or type a comma after each area.", suggest: ["Tax", "Accounting", "Export", "Farming", "Business plans"],
   },
 };
 
@@ -108,27 +109,22 @@ export async function PartnerJoin({ kind, error }: { kind: PartnerKind; error?: 
       {step === 1 ? <PhoneAuthCard plain title="Confirm your phone" googleEnabled={false} redirectTo={info.join} /> : null}
 
       {step === 2 ? (
-        <form action={registerPartner} className="flex flex-col gap-3">
+        <form action={registerPartner} className="flex flex-col gap-4">
           <input type="hidden" name="kind" value={kind} />
           {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[14px] font-semibold text-bad-fg">{ERRORS[error] ?? ERRORS.details}</p> : null}
-          <label className="label">{w.name}<input name="name" required minLength={2} maxLength={120} className="input" /></label>
+          <JoinField name="name" label={w.name} icon={kind === "expert" ? "expert" : "store"} required minLength={2} maxLength={120} autoComplete={kind === "expert" ? "name" : "organization"} />
           {kind === "expert" ? (
-            <div className="grid grid-cols-2 gap-3">
-              <label className="label">Business name<input name="business" maxLength={160} className="input" /></label>
-              <label className="label">Your title<input name="title" maxLength={120} placeholder="e.g. Tax consultant" className="input" /></label>
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-3">
+              <JoinField name="business" label="Business name" icon="store" maxLength={160} autoComplete="organization" />
+              <JoinField name="title" label="Your title" icon="tip" maxLength={120} placeholder="e.g. Accountant" autoComplete="organization-title" />
             </div>
           ) : null}
-          <div className="grid grid-cols-2 gap-3">
-            <label className="label">Country<input name="country" required minLength={2} maxLength={60} defaultValue="Uganda" className="input" /></label>
-            <label className="label">Town or district<input name="place" maxLength={80} className="input" /></label>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-3">
+            <JoinField name="country" label="Country" icon="flag" required minLength={2} maxLength={60} defaultValue="Uganda" autoComplete="country-name" />
+            <JoinField name="place" label="Town or district" icon="pin" maxLength={80} placeholder="e.g. Kampala" autoComplete="address-level2" />
           </div>
-          <label className="label">{w.what}<textarea name="what" required minLength={2} maxLength={600} rows={2} className="input py-2.5" /><span className="text-xs font-normal text-ink-muted">{w.whatHint}</span></label>
-          {!user?.passwordHash ? (
-            <div className="grid grid-cols-2 gap-3">
-              <label className="label">Choose a 4-digit PIN<input name="pin" type="password" inputMode="numeric" pattern="\d{4}" maxLength={4} required autoComplete="new-password" className="input" /></label>
-              <label className="label">PIN again<input name="pinAgain" type="password" inputMode="numeric" pattern="\d{4}" maxLength={4} required autoComplete="new-password" className="input" /></label>
-            </div>
-          ) : null}
+          <JoinTags name="what" label={w.what} hint={w.whatHint} suggestions={w.suggest} />
+          {!user?.passwordHash ? <JoinPin /> : null}
           <button className="btn-primary min-h-[48px] w-full rounded-xl text-[15px] font-bold">Continue to payment</button>
           <p className="text-center text-xs text-ink-muted">By continuing you agree to our <Link href="/terms">terms</Link> and <Link href="/privacy">privacy policy</Link>.</p>
         </form>

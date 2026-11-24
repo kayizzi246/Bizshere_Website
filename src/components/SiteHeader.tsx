@@ -112,18 +112,14 @@ export async function SiteHeader() {
   );
 }
 
-/** The one call to action: start free or finish subscribing. */
-function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null; isMember: boolean }; mobile?: boolean }) {
+/** The one call to action, for visitors only: "Get full access" for people signed in was taken off on 24 Nov 2026 (client). */
+function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null }; mobile?: boolean }) {
+  if (viewer.userId) return null;
   const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-9 text-[12px]";
-  if (viewer.isMember) return null; // members have nothing to sign up for: their badge is in the footer
-  const [href, label] = viewer.userId ? ["/membership?onboard=pay&next=%2Fbusiness-ideas", "Get full access"] : ["/signup", "Get started"];
   return (
     // Deep blue rather than the mid blue, so the one button carries the most weight in the bar.
-    // Signed in: straight to the payment pop-up (data-pay), wherever they are.
-    <Link href={href} data-pay={viewer.userId ? "" : undefined} data-next="/business-ideas" className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-deep px-4 font-semibold text-white transition-colors hover:bg-navy hover:text-white ${size}`}>
-      {label}
+    <Link href="/signup" className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-deep px-4 font-semibold text-white transition-colors hover:bg-navy hover:text-white ${size}`}>
+      Get started
     </Link>
   );
 }
-
-/** The small card under a header link: icon, one line about the page and "Open". No JavaScript needed. */

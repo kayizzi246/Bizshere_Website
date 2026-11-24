@@ -153,6 +153,33 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
+// [icon, where, size, colour, turn]: kept to the sides and edges, away from the heading and the cards.
+const NEED_ICONS: [string, string, string, string, string][] = [
+  ["idea", "left-[4%] top-[14%]", "h-8 w-8", "text-[#0F5B3E]", "-rotate-12"],
+  ["funding", "left-[13%] top-[40%] max-2xl:hidden", "h-7 w-7", "text-accent", "rotate-6"],
+  ["supplier", "left-[5%] top-[66%] max-xl:hidden", "h-9 w-9", "text-brand", "-rotate-6"],
+  ["wallet", "left-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-[#6D28D9]", "rotate-12"],
+  ["calendar", "left-[20%] top-[12%] max-md:hidden", "h-6 w-6", "text-brand", "rotate-6"],
+  ["store", "left-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-accent", "-rotate-12"],
+  ["machine", "right-[5%] top-[13%]", "h-8 w-8", "text-brand", "rotate-12"],
+  ["expert", "right-[14%] top-[38%] max-2xl:hidden", "h-7 w-7", "text-[#6D28D9]", "-rotate-6"],
+  ["prices", "right-[5%] top-[66%] max-xl:hidden", "h-9 w-9", "text-[#CF222E]", "rotate-6"],
+  ["guide", "right-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-[#0F5B3E]", "-rotate-12"],
+  ["tool", "right-[20%] top-[11%] max-md:hidden", "h-6 w-6", "text-accent", "-rotate-6"],
+  ["news", "right-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-[#0F5B3E]", "rotate-12"],
+];
+
+/** Small, faint icons scattered behind "What do you need today?" (client, 24 Nov 2026). Decoration only. */
+function NeedIcons() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      {NEED_ICONS.map(([icon, where, size, colour, turn]) => (
+        <span key={icon} className={`absolute opacity-[0.22] ${where} ${colour} ${turn}`}><Icon name={icon} className={size} strokeWidth={1.5} /></span>
+      ))}
+    </div>
+  );
+}
+
 export async function HomeFeatures() {
   const [{ ideas, funding, suppliers, machines, experts }, viewer] = await Promise.all([records(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
@@ -163,7 +190,8 @@ export async function HomeFeatures() {
   return (
     <section id="features" className="overflow-x-clip">
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
-      <div className={BAND.need}>
+      <div className={`relative isolate overflow-hidden ${BAND.need}`}>
+      <NeedIcons />
       <div className="container-site flex flex-col items-center gap-6 py-9 sm:gap-7 sm:py-12">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full border border-line bg-surface px-3.5 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
@@ -254,13 +282,13 @@ export async function HomeFeatures() {
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
         {machines.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-xl border border-white/10 bg-white/[0.07] p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.07] p-3">
             {machines.map((m, n) => {
               const x = m.machine;
               const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
               const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
               return (
-                <Link key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(m)} className="group flex items-center gap-3 rounded-lg bg-white/[0.07] p-2.5 text-white transition-colors hover:bg-white/[0.16] hover:text-white sm:gap-4">
+                <Link key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(m)} className="group flex items-center gap-3 rounded-lg bg-white/[0.07] p-2 text-white transition-colors hover:bg-white/[0.16] hover:text-white sm:gap-4">
                   <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-page sm:h-14 sm:w-14">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
