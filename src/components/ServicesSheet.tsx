@@ -5,14 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, LayoutGrid, Search, X } from "lucide-react";
 import { Icon } from "./Icon";
-import { hideQuickLinks, type Service } from "./QuickLinks";
-
-// The services in the order someone uses them. Anything not named here goes under "More".
-const GROUPS: [string, string[]][] = [
-  ["Start a business", ["/business-ideas", "/machines", "/suppliers", "/funding"]],
-  ["Get help", ["/experts", "/guides", "/tools", "/forum"]],
-  ["Stay informed", ["/prices", "/news", "/tips", "/websites"]],
-];
+import { hideQuickLinks, isHere, serviceGroups, type Service } from "./QuickLinks";
 
 const CLOSE_MS = 280;
 
@@ -82,12 +75,7 @@ export function ServicesSheet({ services }: { services: Service[] }) {
 
   if (hideQuickLinks(path)) return null;
 
-  const named = new Set(GROUPS.flatMap(([, hrefs]) => hrefs));
-  const all: [string, Service[]][] = [
-    ...GROUPS.map(([title, hrefs]): [string, Service[]] => [title, hrefs.flatMap((h) => services.filter((s) => s.href === h))]),
-    ["More", services.filter((s) => !named.has(s.href))],
-  ];
-  const groups = all.filter(([, list]) => list.length);
+  const groups = serviceGroups(services);
 
   const onDown = (e: React.PointerEvent) => {
     if ((e.target as Element).closest("a, button")) return;
@@ -110,7 +98,7 @@ export function ServicesSheet({ services }: { services: Service[] }) {
   return (
     <div className="lg:hidden">
       <button ref={opener} type="button" data-quick-services="" data-chrome="" onClick={() => setMounted(true)} aria-haspopup="dialog" aria-expanded={mounted}
-        className={`fixed left-4 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-5 text-[14px] font-semibold text-white ring-1 ring-white/20 transition-[bottom,transform] duration-200 active:scale-95 ${raised ? "bottom-[92px]" : "bottom-5"}`}>
+        className={`fixed left-4 z-[44] inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-5 text-[14px] font-semibold text-white ring-1 ring-white/20 transition-[bottom,transform] duration-200 active:scale-95 ${raised ? "bottom-[92px]" : "bottom-5"}`}>
         <LayoutGrid aria-hidden className="h-[18px] w-[18px] text-accent" strokeWidth={2.2} />Services
       </button>
 
@@ -138,7 +126,7 @@ export function ServicesSheet({ services }: { services: Service[] }) {
                   <p data-size="" className="px-1 text-[13px] font-semibold text-[#5B6472]">{title}</p>
                   <ul className="overflow-hidden rounded-2xl bg-white">
                     {list.map((s, n) => {
-                      const here = path === s.href || path.startsWith(`${s.href}/`);
+                      const here = isHere(path, s.href);
                       return (
                         <li key={s.href}>
                           <Link href={s.href} onClick={close} aria-current={here ? "page" : undefined} className="flex items-center gap-3.5 pl-3.5 text-heading hover:text-heading active:bg-[#F2F4F7]">

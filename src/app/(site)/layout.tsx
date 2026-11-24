@@ -7,7 +7,7 @@ import { NavProgress } from "@/components/NavProgress";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { ServiceRail } from "@/components/QuickLinks";
+import { ServicesMenu } from "@/components/ServicesMenu";
 import { ServicesSheet } from "@/components/ServicesSheet";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { getContact } from "@/lib/site-contact";
@@ -51,7 +51,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SiteFooter />
         {/* All services, bottom left on every screen (client, 24 Nov 2026; taken off on 18 Nov) */}
         <ServicesSheet services={SERVICES} />
-        <ServiceRail services={SERVICES} />
+        <ServicesMenu services={SERVICES} />
         <WhatsAppButton />
         <CookieNotice />
         <InstallPrompt />
