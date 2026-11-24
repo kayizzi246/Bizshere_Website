@@ -87,7 +87,7 @@ export default async function HomePage() {
                   {/* Answers the pointer (16 Nov 2026): the tile rises a hair, its edge takes the logo
                       orange and the icon grows a little. Movement, not shadow. Pressing it settles the
                       tile back down, so a tap is felt on a phone where there is no hover. */}
-                  <Link href={d.href} className="group flex h-full min-h-[56px] w-full items-center gap-2.5 rounded-xl border border-solid border-white/35 bg-white/[0.10] px-3.5 py-3 text-[14px] leading-tight text-white transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:bg-white/10 hover:text-white active:translate-y-0 active:bg-white/[0.14] motion-reduce:hover:translate-y-0 sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[44px] sm:gap-2 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[15px] lg:min-h-[48px] lg:gap-2.5 lg:px-4 lg:py-2.5 lg:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[56px] w-full items-center gap-2.5 rounded-xl bg-white/[0.10] raised px-3.5 py-3 text-[14px] leading-tight text-white transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:bg-white/10 hover:text-white active:translate-y-0 active:bg-white/[0.14] motion-reduce:hover:translate-y-0 sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[44px] sm:gap-2 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[15px] lg:min-h-[48px] lg:gap-2.5 lg:px-4 lg:py-2.5 lg:text-[15px]">
                     <Icon name={d.icon} className="h-5 w-5 shrink-0 text-accent transition-transform duration-150 group-hover:scale-110 motion-reduce:group-hover:scale-100 sm:h-[18px] sm:w-[18px] lg:h-5 lg:w-5" />
                     {d.title}
                   </Link>
@@ -112,7 +112,7 @@ export default async function HomePage() {
             ) : !yt.video || (!yt.video.live && prices.rows.length) ? (
               <HeroShowcase prices={prices.rows} updated={prices.updated} rows={rows} />
             ) : (
-            <div className="w-full rounded-2xl border border-white/15 bg-white/[0.06] p-5">
+            <div className="w-full rounded-2xl bg-white/[0.06] raised p-5">
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -125,7 +125,7 @@ export default async function HomePage() {
                   <span className="text-[12px] text-white/60">From idea to action in four steps.</span>
                 </span>
                 {yt.channelId ? (
-                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 text-[13px] text-white hover:border-accent hover:bg-accent hover:text-ink">
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/10 raised px-3 py-1.5 text-[13px] text-white hover:border-accent hover:bg-accent hover:text-ink">
                     <Icon name="video" className="h-4 w-4" />{yt.video ? "Subscribe" : "Watch on YouTube"}
                   </a>
                 ) : null}

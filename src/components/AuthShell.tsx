@@ -42,7 +42,7 @@ export function AuthShell({ title, text, children }: { title: string; text: stri
                 ))}
               </ul>
             ) : null}
-            <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[14px] font-semibold text-white ring-1 ring-white/20 hover:bg-white/20 hover:text-white">
+            <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-white/10 raised px-4 py-2 text-[14px] font-semibold text-white hover:bg-white/20 hover:text-white">
               <MessageSquare aria-hidden className="h-4 w-4" />Send us a message
             </Link>
             {/* Uganda flag stripes */}

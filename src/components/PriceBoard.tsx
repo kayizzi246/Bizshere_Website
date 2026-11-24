@@ -118,7 +118,7 @@ export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; detai
     </>
   );
 
-  const rowCls = `relative w-full rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-left text-white transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
+  const rowCls = `relative w-full rounded-xl bg-white/[0.04] raised px-3 py-2 text-left text-white transition-colors hover:bg-white/[0.06] hover:text-white sm:px-4 ${GRID}`;
 
   return (
     <>

@@ -18,7 +18,7 @@ export function DashHero({ kind, name, sub, photo, Fallback, viewHref, signOut, 
       <div className="container-site flex flex-col gap-6 pad-hero">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 sm:h-20 sm:w-20">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/10 sm:h-20 sm:w-20">
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or entered address */}
               {photo ? <img src={photo} alt="" className="h-full w-full object-cover" /> : <Fallback aria-hidden className="h-7 w-7 text-white/70" />}
             </span>
@@ -35,7 +35,7 @@ export function DashHero({ kind, name, sub, photo, Fallback, viewHref, signOut, 
         </div>
         <ul className="grid grid-cols-3 gap-2 sm:gap-3">
           {stats.map(({ label, value, Icon, tone }) => (
-            <li key={label} className="flex flex-col gap-1.5 rounded-2xl border border-white/15 bg-white/[0.07] p-3 backdrop-blur-sm sm:flex-row sm:items-center sm:gap-4 sm:p-4">
+            <li key={label} className="flex flex-col gap-1.5 rounded-2xl bg-white/[0.07] raised p-3 backdrop-blur-sm sm:flex-row sm:items-center sm:gap-4 sm:p-4">
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${tone}`}><Icon aria-hidden className="h-4 w-4 sm:h-5 sm:w-5" /></span>
               <span className="flex min-w-0 flex-col">
                 <span className="font-display text-[24px] font-extrabold leading-none text-white sm:text-[28px]">{value}</span>

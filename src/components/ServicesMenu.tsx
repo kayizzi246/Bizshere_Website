@@ -75,7 +75,7 @@ export function ServicesMenu({ services }: { services: Service[] }) {
       </div>
 
       <button ref={button} type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="services-menu"
-        className="inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-4 text-[14px] font-semibold text-white ring-1 ring-white/20 transition-[background-color,transform] duration-150 hover:bg-[#12306A] active:scale-95">
+        className="inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-4 text-[14px] font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-[#12306A] active:scale-95">
         <LayoutGrid aria-hidden className="h-[18px] w-[18px] text-accent" strokeWidth={2.2} />Services
         <ChevronUp aria-hidden className={`h-4 w-4 opacity-70 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>

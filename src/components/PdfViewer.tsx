@@ -139,7 +139,7 @@ function PdfOverlay({ file, download, title, onClose }: { file: string; download
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"><FileText aria-hidden className="h-5 w-5" /></span>
       <p className="text-sm text-white/85">This document can&apos;t be shown here on this device. Open it in a new tab, or download it.</p>
       <span className="flex flex-wrap justify-center gap-2">
-        <a href={file} target="_blank" rel="noopener" className={`${bar} border border-white/30 px-4 text-white hover:bg-white/10 hover:text-white`}><ExternalLink aria-hidden className="h-4 w-4" />Open in a new tab</a>
+        <a href={file} target="_blank" rel="noopener" className={`${bar} bg-white/10 raised px-4 text-white hover:bg-white/20 hover:text-white`}><ExternalLink aria-hidden className="h-4 w-4" />Open in a new tab</a>
         <a href={download} className={`${bar} bg-accent px-4 text-ink hover:bg-white hover:text-ink`}><FileDown aria-hidden className="h-4 w-4" />Download</a>
       </span>
     </div>
@@ -211,7 +211,7 @@ export function PdfReader({ file, download, title, what = "document" }: { file: 
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"><FileText aria-hidden className="h-5 w-5" /></span>
       <p className="text-sm text-white/85">This {what} can&apos;t be shown on this device. Open it in a new tab, or download it.</p>
       <span className="flex flex-wrap justify-center gap-2">
-        <a href={file} target="_blank" rel="noopener" className={`${bar} border border-white/30 text-white hover:bg-white/10 hover:text-white`}><ExternalLink aria-hidden className="h-4 w-4" />Open in a new tab</a>
+        <a href={file} target="_blank" rel="noopener" className={`${bar} bg-white/10 raised text-white hover:bg-white/20 hover:text-white`}><ExternalLink aria-hidden className="h-4 w-4" />Open in a new tab</a>
         <a href={download} className={`${bar} bg-accent text-ink hover:bg-white hover:text-ink`}><FileDown aria-hidden className="h-4 w-4" />Download</a>
       </span>
     </div>

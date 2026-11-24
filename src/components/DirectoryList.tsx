@@ -103,7 +103,7 @@ export function ListingHeader({ title, intro, tabs, active, overlap = false }: {
       <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-12 ${overlap ? "pb-20 sm:pb-24" : "pb-9 sm:pb-12"}`}>
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
-            <div className="inline-flex gap-0.5 rounded-full border border-white/15 bg-white/[0.06] p-1">
+            <div className="inline-flex gap-0.5 rounded-full bg-white/[0.06] raised p-1">
               {tabs.map(([href, label]) => (
                 <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{label}</Link>
               ))}

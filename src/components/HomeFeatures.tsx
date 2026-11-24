@@ -296,7 +296,7 @@ export async function HomeFeatures() {
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
-          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl border border-white/15 bg-white/10 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
+          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/10 raised p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
                 <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-lg bg-white p-2.5 text-ink transition-transform duration-200 hover:text-ink motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
@@ -325,7 +325,7 @@ export async function HomeFeatures() {
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
         {machines.length ? (
-          <div className="relative flex flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.07] p-3">
+          <div className="relative flex flex-col gap-2 rounded-xl bg-white/[0.07] raised p-3">
             {machines.map((m, n) => {
               const x = m.machine;
               const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
@@ -425,7 +425,7 @@ export async function HomeFeatures() {
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
         {experts.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-xl border border-white/10 bg-white/[0.08] p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/[0.08] raised p-3 sm:p-4">
             {experts.map((e, n) => {
               const c = e.consultant;
               const name = clean(c?.fullName || e.title);

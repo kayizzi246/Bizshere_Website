@@ -98,7 +98,7 @@ export function ServicesSheet({ services }: { services: Service[] }) {
   return (
     <div className="lg:hidden">
       <button ref={opener} type="button" data-quick-services="" data-chrome="" onClick={() => setMounted(true)} aria-haspopup="dialog" aria-expanded={mounted}
-        className={`fixed left-4 z-[44] inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-5 text-[14px] font-semibold text-white ring-1 ring-white/20 transition-[bottom,transform] duration-200 active:scale-95 ${raised ? "bottom-[92px]" : "bottom-5"}`}>
+        className={`fixed left-4 z-[44] inline-flex h-12 items-center gap-2 rounded-full bg-[#0B1F44] pl-4 pr-5 text-[14px] font-semibold text-white transition-[bottom,transform] duration-200 active:scale-95 ${raised ? "bottom-[92px]" : "bottom-5"}`}>
         <LayoutGrid aria-hidden className="h-[18px] w-[18px] text-accent" strokeWidth={2.2} />Services
       </button>
 

@@ -19,7 +19,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   const [feature, ...rest] = photos;
   const f = KIND[feature.kind];
   return (
-    <div aria-label="Latest on BizSphere-Ug" className="collage relative flex h-[470px] flex-col gap-3 rounded-2xl border border-white/5 bg-transparent p-4 text-white">
+    <div aria-label="Latest on BizSphere-Ug" className="collage relative flex h-[470px] flex-col gap-3 rounded-2xl bg-[#081A3C]/45 p-4 text-white">
       <BorderSnake />
       <div className="flex items-center justify-between gap-3 px-1">
         <span className="flex flex-col leading-tight">
@@ -47,7 +47,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
             const k = KIND[p.kind];
             return (
               <li key={`${p.href}-${i}`} aria-hidden={i >= rest.length ? true : undefined}
-                className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-2">
+                className="flex items-center gap-3 rounded-xl bg-white/[0.04] raised p-2">
                 <span className="collage-thumb relative h-[52px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-white">
                   {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                   <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />

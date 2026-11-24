@@ -69,7 +69,7 @@ export async function SiteFooter() {
             ) : null}
             <ul aria-label="Ways to pay" className="flex flex-wrap gap-1.5">
               {["MTN MoMo", "Airtel Money", "Visa / Mastercard"].map((m) => (
-                <li key={m} className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white/75 ring-1 ring-white/15">{m}</li>
+                <li key={m} className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white/75 bg-white/10">{m}</li>
               ))}
             </ul>
           </div>

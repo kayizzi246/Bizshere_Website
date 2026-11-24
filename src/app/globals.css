@@ -637,6 +637,18 @@ button, button.font-display, .btn, .btn-primary, .btn-outline { font-family: var
 main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }
 
 
+/* Raised tiles on the dark blue (client, 24 Nov 2026, in place of the see-through outlines): lit from above by a soft
+   fill and set off the blue by a deep, blurred shadow, never a line. Links lift a little when pointed at. Not caught by
+   the no-shadows rule below, which only switches off the shadow-* classes. */
+.raised {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0) 75%);
+  box-shadow: 0 1px 2px rgb(2 10 30 / 0.22), 0 10px 22px -12px rgb(2 10 30 / 0.6);
+  transition: background-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out), transform 200ms var(--ease-out);
+}
+:is(a, button).raised:hover, :is(a, button).raised:focus-visible { box-shadow: 0 1px 2px rgb(2 10 30 / 0.25), 0 16px 28px -14px rgb(2 10 30 / 0.75); transform: translateY(-1px); }
+:is(a, button).raised:active { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { :is(a, button).raised:hover { transform: none; } }
+
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */
 main :is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }

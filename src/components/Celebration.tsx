@@ -60,7 +60,7 @@ export function Celebration({ until, renewed, onContinue }: { until: string | nu
         </p>
         <ul className="celebrate-rise mt-6 grid w-full grid-cols-2 gap-2 text-left">
           {UNLOCKED.map((u) => (
-            <li key={u.text} className="flex items-center gap-2 rounded-xl bg-white/[0.08] px-3 py-2.5 text-[13px] text-white/85 ring-1 ring-white/10">
+            <li key={u.text} className="flex items-center gap-2 rounded-xl bg-white/[0.08] raised px-3 py-2.5 text-[13px] text-white/85">
               <u.icon aria-hidden className="h-4 w-4 shrink-0 text-accent" /> {u.text}
             </li>
           ))}

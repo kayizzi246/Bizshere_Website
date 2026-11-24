@@ -17,7 +17,7 @@ const TONES = ["bg-[#2E6BFF]/25 text-[#A9C3FF]", "bg-accent/20 text-accent", "bg
 export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[]; updated: string | null; rows: ShowcaseRow[] }) {
   const list = (copy: boolean) => rows.map((r, i) => (
     <li key={`${r.href}${copy ? "-copy" : ""}`} aria-hidden={copy || undefined}>
-      <Link href={r.href} tabIndex={copy ? -1 : undefined} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-2 text-white transition-colors hover:border-accent/60 hover:bg-white/[0.12] hover:text-white">
+      <Link href={r.href} tabIndex={copy ? -1 : undefined} className="flex items-center gap-3 rounded-xl bg-white/[0.06] raised p-2 text-white transition-colors hover:border-accent/60 hover:bg-white/[0.12] hover:text-white">
         <span className={`flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg ${TONES[i % TONES.length]}`}><Icon name={r.icon} className="h-5 w-5" /></span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-tight">
           <span className="truncate font-display text-[12.5px] font-bold">{r.title}</span>
@@ -29,10 +29,10 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
   ));
 
   return (
-    <div role="region" aria-label="Latest on BizSphere-Ug" className="relative flex h-[470px] flex-col gap-3 rounded-2xl border border-white/10 bg-[#081A3C]/45 p-4 text-white">
+    <div role="region" aria-label="Latest on BizSphere-Ug" className="relative flex h-[470px] flex-col gap-3 rounded-2xl bg-[#081A3C]/45 p-4 text-white">
       <BorderSnake />
       {prices.length ? (
-        <div className="shrink-0 rounded-xl border border-white/10 bg-[#081A3C]/80 p-4">
+        <div className="shrink-0 rounded-xl bg-[#081A3C]/80 raised p-4">
           <div className="flex items-start justify-between gap-3 pb-2">
             <span className="flex flex-col leading-tight">
               <span className="font-display text-[14px] font-extrabold">Market prices</span>
@@ -59,7 +59,7 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
           </ul>
         </div>
       ) : (
-        <div className="shrink-0 rounded-xl border border-white/10 bg-[#081A3C]/80 p-4">
+        <div className="shrink-0 rounded-xl bg-[#081A3C]/80 raised p-4">
           <p data-size="" className="pb-3 font-display text-[14px] font-extrabold">From idea to business</p>
           <ol className="grid grid-cols-4 gap-2 text-center text-[11px]">
             {([["/business-ideas", "idea", "Idea"], ["/machines", "machine", "Machine"], ["/suppliers", "supplier", "Supplier"], ["/funding", "funding", "Funding"]] as const).map(([href, icon, text], i) => (

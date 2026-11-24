@@ -77,7 +77,7 @@ export async function PartnerJoin({ kind, error }: { kind: PartnerKind; error?: 
         {options.length ? (
           <ul className="grid grid-cols-2 gap-2">
             {options.map((o) => (
-              <li key={o.period} className="flex flex-col gap-0.5 rounded-2xl bg-white/10 p-3 ring-1 ring-white/15">
+              <li key={o.period} className="flex flex-col gap-0.5 rounded-2xl bg-white/10 raised p-3">
                 <span className="text-[13px] font-semibold text-white/75">{o.label}</span>
                 <span className="font-display text-[17px] font-extrabold tabular-nums">{o.price}</span>
               </li>

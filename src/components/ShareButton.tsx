@@ -23,7 +23,7 @@ export function ShareButton({ title, path, compact = false , small = false }: { 
   };
   if (compact) {
     return (
-      <button type="button" onClick={share} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/80 hover:border-white hover:text-white">
+      <button type="button" onClick={share} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80 hover:border-white hover:text-white">
         {done ? <Check aria-hidden className="h-3.5 w-3.5" /> : <Share2 aria-hidden className="h-3.5 w-3.5" />}{done ? "Link copied" : "Share"}
       </button>
     );

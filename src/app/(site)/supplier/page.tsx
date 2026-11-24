@@ -96,7 +96,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
         return (
           <div key={s.id}>
             <DashHero kind="Supplier dashboard" name={name} sub={s.country} photo={s.pictureUrl} Fallback={Package} viewHref={`/suppliers/${s.contentItem.slug}`}
-              signOut={<span className="w-32"><SignOutButton to="/supplier" className="border border-white/25 bg-white/10 text-white hover:bg-white/20" /></span>}
+              signOut={<span className="w-32"><SignOutButton to="/supplier" className="bg-white/10 raised text-white hover:bg-white/20" /></span>}
               stats={[
                 { label: "Products on your page", value: count("PUBLISHED"), Icon: CheckCircle2, tone: "bg-[#1F7A4D] text-white" },
                 { label: "Waiting for our check", value: count("IN_REVIEW"), Icon: Clock, tone: "bg-accent text-ink" },

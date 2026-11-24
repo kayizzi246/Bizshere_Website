@@ -49,7 +49,7 @@ export function PanelWords({ lead, accent, text, chips }: { lead: string; accent
       <p className="max-w-md text-[16px] leading-relaxed text-white/75">{text}</p>
       {chips ? (
         <ul className="flex max-w-md flex-wrap gap-2">
-          {chips.map((c) => <li key={c} className="rounded-full bg-white/10 px-3 py-1.5 text-[13px] font-semibold text-white/90 ring-1 ring-white/15">{c}</li>)}
+          {chips.map((c) => <li key={c} className="rounded-full bg-white/10 px-3 py-1.5 text-[13px] font-semibold text-white/90">{c}</li>)}
         </ul>
       ) : null}
     </>

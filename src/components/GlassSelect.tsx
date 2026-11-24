@@ -77,14 +77,14 @@ export function GlassSelect({ options, value, defaultValue, onChange, name, labe
   };
 
   const tone = dark
-    ? "border-white/15 bg-[#15171c] text-white shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
+    ? "border-transparent bg-[#15171c] text-white shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
     : "border-line bg-white text-heading shadow-[0_18px_50px_rgba(7,26,51,0.18)]";
 
   return (
     <div ref={root} className="relative min-w-0" onKeyDown={onKey}>
       {name ? <input ref={hidden} type="hidden" name={name} value={current} data-glass-select="" /> : null}
       <button type="button" onClick={() => (open ? setOpen(false) : show())} aria-haspopup="listbox" aria-expanded={open} aria-controls={listId} aria-label={`${label}: ${selected?.label ?? ""}`}
-        className={`flex w-full min-w-0 items-center gap-2 text-left outline-none ${className || `h-11 rounded-xl border px-3 text-[14px] font-medium ${dark ? "border-white/15 bg-white/[0.06] text-white" : "border-line bg-white text-heading hover:border-brand"}`}`}>
+        className={`flex w-full min-w-0 items-center gap-2 text-left outline-none ${className || `h-11 rounded-xl border px-3 text-[14px] font-medium ${dark ? "border-transparent bg-white/[0.06] raised text-white" : "border-line bg-white text-heading hover:border-brand"}`}`}>
         {icon ? <span aria-hidden className="shrink-0">{icon}</span> : null}
         <span className="min-w-0 flex-1 truncate">{selected?.label}</span>
         <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />

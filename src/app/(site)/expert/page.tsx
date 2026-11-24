@@ -90,7 +90,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
   return (
     <div className="bg-[#F1F4F8]">
       <DashHero kind="Expert dashboard" name={expert.fullName} sub={expert.professionalTitle} photo={expert.photoUrl} Fallback={UserRound} viewHref={`/experts/${expert.contentItem.slug}`}
-        signOut={<span className="w-32"><SignOutButton to="/expert" className="border border-white/25 bg-white/10 text-white hover:bg-white/20" /></span>}
+        signOut={<span className="w-32"><SignOutButton to="/expert" className="bg-white/10 raised text-white hover:bg-white/20" /></span>}
         stats={[
           { label: "Jobs on your page", value: count("PUBLISHED"), Icon: CheckCircle2, tone: "bg-[#1F7A4D] text-white" },
           { label: "Waiting for our check", value: count("IN_REVIEW"), Icon: Clock, tone: "bg-accent text-ink" },

@@ -43,7 +43,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
       <div className={"hero-rise container-site pad-hero flex flex-col items-center gap-3 text-center"}>
         {tabs ? (
           <nav aria-label="Sections" className="max-w-full overflow-x-auto [scrollbar-width:none]">
-            <div className="inline-flex gap-0.5 rounded-full border border-white/15 bg-white/[0.06] p-1">
+            <div className="inline-flex gap-0.5 rounded-full bg-white/[0.06] raised p-1">
               {tabs.map(([href, text]) => (
                 <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{text}</Link>
               ))}
@@ -98,7 +98,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
             <div className="-mr-4 flex min-w-0 gap-1.5 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mr-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pr-0">
               {popular.map((e) => (
                 <button key={e} type="button" onClick={() => { onSearch(e); onSubmit(); }}
-                  className="max-w-[11rem] shrink-0 truncate whitespace-nowrap rounded-full border border-dotted border-white/40 bg-white/[0.05] px-2.5 py-1 text-[12px] text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white sm:max-w-[14rem] sm:py-0.5 sm:text-[13px]">{e}</button>
+                  className="max-w-[11rem] shrink-0 truncate whitespace-nowrap rounded-full bg-white/[0.08] raised px-2.5 py-1 text-[12px] text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white sm:max-w-[14rem] sm:py-0.5 sm:text-[13px]">{e}</button>
               ))}
             </div>
           </div>

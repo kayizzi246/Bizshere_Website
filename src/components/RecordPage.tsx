@@ -318,7 +318,7 @@ export async function RecordPage({
 
           <div className={`grid grid-cols-[minmax(0,1fr)] gap-5 lg:items-center lg:gap-12 ${picture ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]"}`}>
             <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/[0.08] raised py-1 pl-1.5 pr-3 text-xs font-semibold text-white/90">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-ink"><Icon name={icon} className="h-3 w-3" /></span>
                 {eyebrow}
               </span>
@@ -343,7 +343,7 @@ export async function RecordPage({
               <figure className="order-first flex flex-col gap-2 lg:order-none">
                 {/* External image URLs entered by editors; no Next image domain list to maintain. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={picture} alt={title} className="aspect-[16/10] w-full rounded-2xl border border-white/10 bg-white/5 object-cover sm:aspect-[4/3] sm:rounded-3xl" />
+                <img src={picture} alt={title} className="aspect-[16/10] w-full rounded-2xl bg-white/5 object-cover sm:aspect-[4/3] sm:rounded-3xl" />
                 {pictureCredit ? <figcaption className="text-xs text-white/50">{pictureCredit}</figcaption> : null}
               </figure>
             ) : shownRows.length ? <Facts rows={shownRows} unlock={unlock} /> : null}

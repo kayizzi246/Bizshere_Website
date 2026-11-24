@@ -125,7 +125,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         </header>
 
         <div className="bg-page">
-          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pad-body lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pb-12 pt-4 sm:pb-14 sm:pt-5 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-4">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
               <ProfileCard label="Business expert profile" photo={c.photoUrl} name={business ?? name} sub={business ? name : null} rows={profile} />
