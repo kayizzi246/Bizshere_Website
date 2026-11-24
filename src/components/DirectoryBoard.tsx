@@ -280,9 +280,9 @@ function RowTile({ text, icon }: { text?: string; icon?: string }) {
  * Sector, Amount, Deadline, Stage, For); the others use what the directory sends (photo, source and price,
  * country, what they sell, one-line detail). Member detail is never sent: a lock says so instead.
  */
-export function ListingRow({ i, icon, variant }: { i: BrowseListing; icon: string; variant: string }) {
+export function ListingRow({ i, n = 0, icon, variant }: { i: BrowseListing; /** Its place in the list */ n?: number; icon: string; variant: string }) {
   const title = clean(i.title);
-  if (i.cells && variant === "funding") return <FundRow i={i} />;
+  if (i.cells && variant === "funding") return <FundRow i={i} n={n} />;
   if (i.cells) return <CellsRow i={i} />;
   const about = i.description || i.summary;
   const photo = i.picture !== null || variant === "suppliers" || (i.source !== undefined || i.locked);
@@ -313,21 +313,21 @@ export function ListingRow({ i, icon, variant }: { i: BrowseListing; icon: strin
   );
 }
 
-// Each fund type's colour: the left edge, the type tag and the name. [edge, tag fill, tag tint and text, name]
-const FUND_TONE: Record<string, { edge: string; fill: string; soft: string; name: string }> = {
-  Loan: { edge: "border-l-[#1D4ED8]", fill: "border-[#1D4ED8] bg-[#1D4ED8]", soft: "border-[#1D4ED8] bg-[#EEF4FF] text-[#1D4ED8]", name: "text-[#1D4ED8]" },
-  Grant: { edge: "border-l-[#0F766E]", fill: "border-[#0F766E] bg-[#0F766E]", soft: "border-[#0F766E] bg-[#E9F7F5] text-[#0F766E]", name: "text-[#0F766E]" },
-  Equity: { edge: "border-l-[#7C3AED]", fill: "border-[#7C3AED] bg-[#7C3AED]", soft: "border-[#7C3AED] bg-[#F4EEFF] text-[#6D28D9]", name: "text-[#6D28D9]" },
-  Guarantee: { edge: "border-l-[#B45309]", fill: "border-[#B45309] bg-[#B45309]", soft: "border-[#B45309] bg-[#FFF5E6] text-[#B45309]", name: "text-[#B45309]" },
-  Other: { edge: "border-l-[#475569]", fill: "border-[#475569] bg-[#475569]", soft: "border-[#475569] bg-[#F1F5F9] text-[#475569]", name: "text-[#334155]" },
-};
+// The funding cards take these in turn down the list, so no two neighbours match (client, 24 Nov 2026; by fund type before).
+const FUND_TONES: { edge: string; fill: string; soft: string; name: string }[] = [
+  { edge: "border-l-[#1D4ED8]", fill: "border-[#1D4ED8] bg-[#1D4ED8]", soft: "border-[#1D4ED8] bg-[#EEF4FF] text-[#1D4ED8]", name: "text-[#1D4ED8]" },
+  { edge: "border-l-[#0F766E]", fill: "border-[#0F766E] bg-[#0F766E]", soft: "border-[#0F766E] bg-[#E9F7F5] text-[#0F766E]", name: "text-[#0F766E]" },
+  { edge: "border-l-[#7C3AED]", fill: "border-[#7C3AED] bg-[#7C3AED]", soft: "border-[#7C3AED] bg-[#F4EEFF] text-[#6D28D9]", name: "text-[#6D28D9]" },
+  { edge: "border-l-[#B45309]", fill: "border-[#B45309] bg-[#B45309]", soft: "border-[#B45309] bg-[#FFF5E6] text-[#B45309]", name: "text-[#B45309]" },
+  { edge: "border-l-[#BE185D]", fill: "border-[#BE185D] bg-[#BE185D]", soft: "border-[#BE185D] bg-[#FDEEF5] text-[#BE185D]", name: "text-[#BE185D]" },
+];
 
 /**
- * One fund (client, 24 Nov 2026, after a tenders page they sent): a colour edge by fund type, a two-part tag, the
+ * One fund (client, 24 Nov 2026, after a tenders page they sent): a colour edge, a two-part fund type tag, the
  * country and round at the top right, the name and the funder, and a strip along the bottom: for visitors what they
  * get by joining, for members the amount and Apply.
  */
-function FundRow({ i }: { i: BrowseListing }) {
+function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const cell = (label: string) => i.cells?.find((c) => c.label === label);
   const type = cell("Type")?.value ?? "Other";
   const by = cell("By")?.value;
@@ -336,7 +336,7 @@ function FundRow({ i }: { i: BrowseListing }) {
   const amount = cell("Amount");
   const status = cell("Status")?.value;
   const title = clean(i.title);
-  const t = FUND_TONE[type] ?? FUND_TONE.Other;
+  const t = FUND_TONES[n % FUND_TONES.length];
   const part = "inline-flex items-center px-2.5 py-1";
   const button = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-5 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFA64D] hover:text-ink";
   return (

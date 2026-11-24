@@ -26,6 +26,17 @@ const inter = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+// Headings only (client, 24 Nov 2026, after a wordmark they sent): Inter Tight, the tight Helvetica-like cut of
+// Inter. Kept in the repo like Inter, under the SIL Open Font License (src/fonts/inter-tight-LICENSE.txt).
+const interTight = localFont({
+  src: "../fonts/inter-tight-latin-var.woff2",
+  weight: "100 900",
+  style: "normal",
+  variable: "--font-heading",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
 export const viewport: Viewport = { themeColor: "#0d1117" };
 
@@ -45,7 +56,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${interTight.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
         <ImageFit />

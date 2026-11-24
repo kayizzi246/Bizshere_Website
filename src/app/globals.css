@@ -614,17 +614,14 @@ main h1.text-hero:not([data-home]) { font-size: 25px !important; line-height: 1.
 @media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 36px !important; } }
 /* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
 /* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example), and since
-   24 Nov 2026 Inter Semibold (600) at -0.02em, after a pricing page the client sent (Black, 900, before). !important so a heading's own
+   24 Nov 2026 Inter Tight Semibold (600), -0.03em on titles and -0.02em on sub-headings, after a wordmark the client sent. !important so a heading's own
    weight class (font-bold, font-semibold…) can't make it lighter. */
 h1, h2, h3, h4, h5, h6, .text-hero, .text-page-title, .text-section-title, .text-block-title {
-  font-family: var(--font-inter), system-ui, sans-serif !important; font-weight: 600 !important; letter-spacing: -0.02em;
+  font-family: var(--font-heading), var(--font-inter), system-ui, sans-serif !important; font-weight: 600 !important; letter-spacing: -0.02em !important;
   /* Tight line-height on every heading, like the reference hero (client, 14 Nov 2026). */
-  line-height: 1.06 !important;
+  line-height: 1.1 !important;
 }
-/* Page and section titles in ExtraBold (client, 24 Nov 2026). The homepage headline (.hero-title) and titles marked
-   data-soft (the pricing cards) stay Semibold. Not the admin's. */
-main :is(h1, h2, .text-section-title):not(.hero-title, [data-soft]) { font-weight: 800 !important; }
-#admin-shell :is(h1, h2) { font-weight: 600 !important; }
+h1, h2, .text-hero, .text-page-title, .text-section-title { letter-spacing: -0.03em !important; }
 /* JPG photos always have a background, so they fill their frame from the first paint, before ImageFit runs */
 main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }
 
@@ -785,7 +782,6 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 /* ── .card-title: the title inside a panel card (client, 17 Nov 2026, after a trading-site card) ──
    The reference title is lighter and airier than this site's headings: Semibold rather than ExtraBold,
    letter spacing close to normal rather than tight, and the two lines set apart rather than packed.
-   Still Inter — the site runs on one font (13 Nov 2026) and nothing new is loaded for this.
    !important, and placed after the global heading rule, because that rule forces every h1-h6 to
    weight 800 and line-height 1.06 with !important of its own; without this the card titles cannot be
    made lighter at all. It changes the weight, spacing and leading only — the size rules still apply. */

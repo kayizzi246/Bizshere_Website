@@ -108,7 +108,7 @@ export default async function MembershipPage() {
             return (
               <div key={p} className={`flex flex-col rounded-lg border bg-[#F0EFEA] p-6 ${featured ? "order-first border-[#C9C7BD] md:order-none" : "border-[#E2E0D8]"}`}>
                 <div className="flex min-h-[26px] flex-wrap items-center gap-2">
-                  <h2 data-soft="" className="text-[18px] text-heading">{c.title}</h2>
+                  <h2 className="text-[18px] text-heading">{c.title}</h2>
                   {featured ? <span className="rounded-full bg-[#1F7A4D] px-2.5 py-0.5 text-[12px] font-medium text-white">Recommended</span> : null}
                   {p === "YEARLY" && saving ? <span className="rounded-full bg-accent-tint px-2.5 py-0.5 text-[12px] font-medium text-accent-dark">Save {saving}%</span> : null}
                 </div>

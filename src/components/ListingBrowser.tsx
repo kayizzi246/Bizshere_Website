@@ -179,8 +179,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
           </ul>
         ) : (
-          <ul className="flex flex-col gap-3 sm:gap-4">
-            {shown.map((i) => <li key={i.id} id={i.slug}><ListingRow i={i} icon={icon} variant={variant} /></li>)}
+          <ul className={`flex flex-col gap-3 sm:gap-4 ${variant === "funding" ? "mx-auto w-full max-w-[920px]" : ""}`}>
+            {shown.map((i, n) => <li key={i.id} id={i.slug}><ListingRow i={i} n={n} icon={icon} variant={variant} /></li>)}
           </ul>
         )}
       </DirectoryBoard>
