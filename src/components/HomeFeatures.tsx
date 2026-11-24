@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Percent, Ship, Sprout, Store, TrendingUp, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Moon, Percent, Ship, Sprout, Store, Sun, Sunrise, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { directory } from "@/config/directories";
@@ -99,8 +99,19 @@ const NEEDS: [string, string, string][] = [
 function greeting(name: string | null) {
   const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Africa/Kampala" }).format(new Date()));
   const part = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const first = name?.trim().split(/s+/)[0];
-  return first ? `${part}, ${first}` : part;
+  const first = name?.trim().split(" ")[0];
+  return { part, first, Glyph: hour < 12 ? Sunrise : hour < 17 ? Sun : Moon };
+}
+
+/** The greeting as a pill (client, 24 Nov 2026): an orange disc with a sunrise, sun or moon, and the person's name in bold. */
+function Greeting({ name }: { name: string | null }) {
+  const { part, first, Glyph } = greeting(name);
+  return (
+    <span className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-accent/30 bg-gradient-to-r from-accent-tint to-brand-tint py-1.5 pl-1.5 pr-4 text-[14px] text-ink-soft">
+      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Glyph className="h-[18px] w-[18px]" strokeWidth={2.25} /></span>
+      <span className="min-w-0 truncate">{part}{first ? <>, <strong className="font-bold text-heading">{first}</strong></> : null}</span>
+    </span>
+  );
 }
 
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
@@ -194,7 +205,7 @@ export async function HomeFeatures() {
       <NeedIcons />
       <div className="container-site flex flex-col items-center gap-6 py-9 sm:gap-7 sm:py-12">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
-          <span className="rounded-full border border-line bg-surface px-3.5 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
+          <Greeting name={viewer.name} />
           {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
               businesses banner: the word the line turns on in the logo orange, closing on an orange
               mark — here the question mark, since this one asks rather than promises. */}

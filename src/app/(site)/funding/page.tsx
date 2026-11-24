@@ -10,6 +10,14 @@ export const metadata = directoryMetadata("/funding");
 
 const fundType = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
+/** Open now, Opening soon or Closed for now, as on the fund's own page; null when no round has been added. Never the dates. */
+function roundStatus(rounds: { status: string; isRolling: boolean; closesAt: Date | null }[]) {
+  const now = new Date();
+  if (rounds.some((r) => r.status === "OPEN" && (r.isRolling || !r.closesAt || r.closesAt >= now))) return "Open now";
+  if (rounds.some((r) => r.status === "UPCOMING")) return "Opening soon";
+  return rounds.length ? "Closed for now" : null;
+}
+
 /**
  * Funding Sources as a job-board style list (client, 13 Nov 2026; was the template table): one card per fund
  * with its provider, fund type, country, purpose and funding range (DirectoryBoard). The range is member detail: visitors who haven't paid see a lock
@@ -21,7 +29,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const viewer = await getViewer();
   const programmes = (ids: string[]) => prisma.fundingProgramme.findMany({
     where: { contentItemId: { in: ids } },
-    include: { contentItem: { select: { accessLevel: true } }, provider: { include: { organization: true } } },
+    include: { contentItem: { select: { accessLevel: true } }, provider: { include: { organization: true } }, rounds: { select: { status: true, isRolling: true, closesAt: true } } },
   });
 
   async function cells(ids: string[]) {
@@ -36,6 +44,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
         { label: "Type", value: fundType(p.fundingType) },
         { label: "Where", value: p.provider.country },
         { label: "For", value: p.purpose },
+        { label: "Status", value: roundStatus(p.rounds) },
         { label: "Amount", value: locked ? null : range, locked },
       ]];
     }));

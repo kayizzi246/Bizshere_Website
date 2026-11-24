@@ -37,19 +37,19 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 740px tall (16 Nov 2026; 790 before, then 660 and 700), or
+      {/* Laptops and up (1280px+): the hero is 760px tall (24 Nov 2026; 790, 660, 740 and 700 before), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(92vh,700px)] xl:flex-col xl:justify-center">
+      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(98vh,760px)] xl:flex-col">
         {/* The drifting specks were taken off on 18 Nov 2026 (client), as the moving network of lights
             was before them. The hero is the colour and the words now, and nothing else. */}
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
-        {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
-        <div className="container-site relative pt-3 sm:pt-[26px]">
+        {/* Hangs straight off the menu bar, no space between (client, 24 Nov 2026). Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
+        <div className="container-site relative">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-7 pb-8 pt-3 sm:pb-9 sm:pt-4 xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-7 pb-8 pt-5 sm:pb-9 sm:pt-7 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
