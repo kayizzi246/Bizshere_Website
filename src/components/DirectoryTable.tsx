@@ -9,9 +9,10 @@ export type TableRow = { id: string; slug: string; href: string; name: string; p
  * columns. The whole row opens the page. Phones: each row is a card with the same details by name, as six columns
  * don't fit.
  */
-export function DirectoryTable({ nameHeading, headings, rows, from = 1 }: { nameHeading: string; headings: string[]; rows: TableRow[]; /** S/N of the first row */ from?: number }) {
+export function DirectoryTable({ nameHeading, headings, rows, from = 1, action = "Contact" }: { /** The button on each row, opening the full page */ action?: string; nameHeading: string; headings: string[]; rows: TableRow[]; /** S/N of the first row */ from?: number }) {
   const th = "px-4 py-3 text-left text-[12px] font-semibold text-white";
   const td = "px-4 py-3.5 align-middle text-[13px] text-ink-soft";
+  const button = "inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-accent text-[13px] font-semibold text-ink transition-colors hover:bg-[#FFA64D] hover:text-ink";
   return (
     <>
       <div className="mx-auto hidden w-full max-w-[1040px] overflow-x-auto rounded-2xl border border-line bg-white md:block">
@@ -19,6 +20,7 @@ export function DirectoryTable({ nameHeading, headings, rows, from = 1 }: { name
           <thead className="bg-brand-deep"><tr>
             <th scope="col" className={`${th} w-14`}>S/N</th><th scope="col" className={th}>{nameHeading}</th>
             {headings.map((h) => <th key={h} scope="col" className={th}>{h}</th>)}
+            <th scope="col" className={th}><span className="sr-only">{action}</span></th>
           </tr></thead>
           <tbody>
             {rows.map((r, n) => (
@@ -32,6 +34,7 @@ export function DirectoryTable({ nameHeading, headings, rows, from = 1 }: { name
                   </span>
                 </td>
                 {headings.map((h, i) => <td key={h} className={`${td} ${i === 0 ? "font-medium text-heading" : ""}`}>{r.cells[i] || "—"}</td>)}
+                <td className={`${td} text-right`}><Link href={r.href} aria-label={`${action} ${r.name}`} className={`${button} relative z-10 h-9 px-4`}>{action}</Link></td>
               </tr>
             ))}
           </tbody>
@@ -52,6 +55,7 @@ export function DirectoryTable({ nameHeading, headings, rows, from = 1 }: { name
             <dl className="grid grid-cols-[96px_minmax(0,1fr)] gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[13px]">
               {headings.map((h, i) => r.cells[i] && r.cells[i] !== r.sub ? <Fragment key={h}><dt className="text-ink-muted">{h}</dt><dd className="text-heading">{r.cells[i]}</dd></Fragment> : null)}
             </dl>
+            <Link href={r.href} aria-label={`${action} ${r.name}`} className={`${button} relative z-10 h-11 w-full`}>{action}</Link>
           </li>
         ))}
       </ol>

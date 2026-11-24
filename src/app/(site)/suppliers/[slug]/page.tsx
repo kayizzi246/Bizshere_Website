@@ -9,7 +9,8 @@ import { popupPlan } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
 import { phoneNumbers } from "@/lib/expert-names";
 import { moneyRange } from "@/lib/format";
-import { ContactButtons } from "@/components/ContactButtons";
+import { ProfileCard, type ProfileRow } from "@/components/ProfileCard";
+import { ContactButtons, whatsappNumber } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
 import { FieldSections, visibleGroups } from "@/components/FieldSections";
 import { MemberValue } from "@/components/MemberValue";
@@ -54,7 +55,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
 
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
   const name = item.title.replace(/^Sample:\s*/i, "");
-  const logo = s.organization.logoUrl ?? s.pictureUrl;
+  // Their logo or photo; with neither, the newest product that has a picture (client, 24 Nov 2026).
+  const logo = s.organization.logoUrl || s.pictureUrl || s.listings.find((l) => l.imageUrl)?.imageUrl || null;
   const place = s.organization.locations[0];
   const address = [place?.physicalAddress, place?.town].filter(Boolean).join(", ");
   const catalogue = item.media[0];
@@ -82,22 +84,22 @@ export default async function SupplierPage({ params }: { params: { slug: string 
     return list.length ? list.map((p, n) => <span key={p}>{n ? ", " : ""}<a href={`tel:${p.replace(/[^+0-9]/g, "")}`} className="text-brand hover:text-brand-dark">{p}</a></span>) : value;
   };
   const web = s.website ? (/^https?:\/\//i.test(s.website) ? s.website : `https://${s.website}`) : null;
-  const profile: [string, React.ReactNode][] = [
+  const profile: ProfileRow[] = [
     ["Contact person", s.contactPerson],
     ["Address", address],
     ["Phone", numbers(s.phone, "ph")],
-    ["WhatsApp", numbers(s.whatsapp, "wa")],
+    ["WhatsApp", s.whatsapp ? (gated ? lock("wa") : <a href={`https://wa.me/${whatsappNumber(s.whatsapp)}`} target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-dark">{s.whatsapp}</a>) : null],
     ["Country", s.country],
     ["Email", s.email ? (gated ? lock("em") : <a href={`mailto:${s.email}`} className="break-all text-brand hover:text-brand-dark">{s.email}</a>) : null],
     ["Website", web ? <a href={web} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{web.replace(/^https?:\/\//i, "").replace(/\/$/, "")}</a> : null],
     ["Category", item.primaryCategory?.name],
     ["Business type", kind],
-    ["What they sell", s.items.join(", ")],
     ["Catalogue", catalogue ? (catalogueLocked ? lock("ca")
       : cataloguePdf
         ? <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1"><PdfOpenButton file={`/api/files/${catalogue.id}?inline=1`} download={`/api/files/${catalogue.id}`} title={`${item.title}: catalogue`} className="font-semibold text-brand hover:text-brand-dark">Read here</PdfOpenButton><a href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a></span>
         : <a href={`/api/files/${catalogue.id}`} className="font-semibold text-brand hover:text-brand-dark">Download</a>) : null],
   ];
+  profile.push({ label: "What they sell", tags: s.items });
   const th = "px-4 py-2.5 text-left text-[12px] font-semibold text-white";
   const td = "px-4 py-3 align-top text-[14px] text-ink-soft";
 
@@ -131,23 +133,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
             {/* ── The shop ── */}
             <div className="flex min-w-0 flex-col gap-6">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
-              <section aria-label="Supplier profile" className="grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-white md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-                <div className="flex flex-col items-center justify-center gap-4 border-b border-line bg-page p-6 text-center md:border-b-0 md:border-r">
-                  {logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address
-                    <img src={logo} alt={name} data-nofit="" className="max-h-[260px] w-full max-w-[260px] rounded-xl object-contain" />
-                  ) : <span aria-hidden className="flex h-32 w-32 items-center justify-center rounded-2xl bg-brand-tint font-display text-[40px] font-extrabold text-brand">{name.charAt(0)}</span>}
-                  <span className="font-display text-[18px] font-extrabold leading-snug text-heading">{name}</span>
-                </div>
-                <dl className="divide-y divide-line">
-                  {profile.map(([k, v]) => (
-                    <div key={k} className="grid grid-cols-[108px_minmax(0,1fr)] gap-3 px-4 py-2.5 text-[14px] sm:grid-cols-[130px_minmax(0,1fr)] sm:px-5">
-                      <dt className="text-ink-muted">{k}</dt>
-                      <dd className="min-w-0 break-words font-medium text-heading">{v || <span className="font-normal text-ink-muted">—</span>}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
+              <ProfileCard label="Supplier profile" photo={logo} name={name} sub={item.primaryCategory?.name} rows={profile} />
 
               {/* ── Products ── */}
               <section id="products" className="scroll-mt-28 overflow-hidden rounded-2xl border border-line bg-white">

@@ -9,6 +9,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { popupPlan } from "@/lib/billing";
 import { expertNames, phoneNumbers } from "@/lib/expert-names";
 import { date, moneyRange } from "@/lib/format";
+import { ProfileCard, type ProfileRow } from "@/components/ProfileCard";
 import { ContactButtons } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
 import { MemberValue } from "@/components/MemberValue";
@@ -77,7 +78,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
   const lock = (key: string) => <Link key={key} href={path} data-onboard="" className="inline-flex items-center gap-1.5 text-brand hover:text-brand-dark"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Members only</Link>;
   const phones = phoneNumbers(c.phone);
   const site = c.website ? (/^https?:\/\//i.test(c.website) ? c.website : `https://${c.website}`) : null;
-  const profile: [string, React.ReactNode][] = [
+  const profile: ProfileRow[] = [
     ["Address", c.address],
     ["Phone", c.phone ? (gated ? lock("ph") : phones.length ? phones.map((p, n) => <span key={p}>{n ? ", " : ""}<a href={`tel:${p.replace(/[^+0-9]/g, "")}`} className="text-brand hover:text-brand-dark">{p}</a></span>) : c.phone) : null],
     ["Country", c.country],
@@ -85,13 +86,13 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
     ["District", c.district],
     ["Website", site ? <a href={site} target="_blank" rel="noopener noreferrer" className="break-all text-brand hover:text-brand-dark">{site.replace(/^https?:\/\//i, "").replace(/\/$/, "")}</a> : null],
     ["Category", item.primaryCategory?.name],
-    ["Specialty", c.specialties.join(", ")],
     ["Profile", c.profileUrl ? (gated ? lock("pr")
       // A PDF profile is read on the site first (/experts/[slug]/file); other files are downloaded
       : isPdf(c.profileUrl)
         ? <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1"><PdfOpenButton file={`${path}/file`} download={`${path}/file?download=1`} title={`${name}: profile`} className="font-semibold text-brand hover:text-brand-dark">Read here</PdfOpenButton><a href={`${path}/file?download=1`} className="font-semibold text-brand hover:text-brand-dark">Download</a></span>
         : <a href={c.profileUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand hover:text-brand-dark">Download</a>) : null],
   ];
+  profile.push({ label: "Specialty", tags: c.specialties });
   const th = "px-4 py-2.5 text-left text-[12px] font-semibold text-white";
   const td = "px-4 py-3 align-top text-[14px] text-ink-soft";
   const card = "flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:p-5";
@@ -127,26 +128,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
           <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pad-body lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-4">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
-              <section aria-label="Business expert profile" className="grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-white md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-                <div className="flex flex-col items-center justify-center gap-4 border-b border-line bg-page p-6 text-center md:border-b-0 md:border-r">
-                  {c.photoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
-                    <img src={c.photoUrl} alt={name} data-nofit="" className="max-h-[260px] w-full max-w-[260px] rounded-xl object-contain" />
-                  ) : <span aria-hidden className="flex h-32 w-32 items-center justify-center rounded-2xl bg-accent font-display text-[40px] font-extrabold text-ink">{name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
-                  <span className="flex flex-col gap-0.5">
-                    <span className="font-display text-[18px] font-extrabold leading-snug text-heading">{business ?? name}</span>
-                    {business ? <span className="text-[14px] text-ink-soft">{name}</span> : null}
-                  </span>
-                </div>
-                <dl className="divide-y divide-line">
-                  {profile.map(([k, v]) => (
-                    <div key={k} className="grid grid-cols-[96px_minmax(0,1fr)] gap-3 px-4 py-2.5 text-[14px] sm:grid-cols-[120px_minmax(0,1fr)] sm:px-5">
-                      <dt className="text-ink-muted">{k}</dt>
-                      <dd className="min-w-0 break-words font-medium text-heading">{v || <span className="font-normal text-ink-muted">—</span>}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
+              <ProfileCard label="Business expert profile" photo={c.photoUrl} name={business ?? name} sub={business ? name : null} rows={profile} />
 
               {/* ── Services ── */}
               <section id="services" className="scroll-mt-28 overflow-hidden rounded-2xl border border-line bg-white">

@@ -3,7 +3,7 @@ import { phoneNumbers } from "@/lib/expert-names";
 import { LockKeyhole, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
 
 /** A phone number as WhatsApp wants it: digits with the country code. Local numbers are Ugandan. */
-const whatsappNumber = (phone: string) => {
+export const whatsappNumber = (phone: string) => {
   const digits = phone.replace(/\D/g, "").replace(/^00/, "");
   return digits.startsWith("0") ? `256${digits.slice(1)}` : digits;
 };
