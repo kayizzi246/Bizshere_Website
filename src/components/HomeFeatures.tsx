@@ -156,6 +156,38 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
   );
 }
 
+// Every cell the same, with its lines drawn by the cells themselves, so an empty place never shows as grey.
+const CELL = "min-h-0 -ml-px -mt-px border-l border-t border-line bg-white";
+
+// [href, icon, title, text]: what fills the places left while there are only a few suppliers or funds, so the panel is
+// always the same shape (client, 24 Nov 2026).
+const SUPPLIER_FILLERS: [string, string, string, string][] = [
+  ["/suppliers/join", "plus", "Your business here", "Become a supplier"],
+  ["/machines", "machine", "Business machines", "Equipment and where to buy"],
+  ["/prices", "prices", "Market prices", "What goods cost today"],
+  ["/contact", "phone", "Need a supplier?", "Tell us what you need"],
+];
+const FUND_FILLERS: [string, string, string, string][] = [
+  ["/opportunities", "opportunity", "Investment opportunities", "Projects seeking investors"],
+  ["/experts", "expert", "Help applying", "Find an expert to guide you"],
+  ["/contact", "phone", "Know a fund?", "Tell us about it"],
+];
+
+function Fillers({ list, count, tone }: { list: [string, string, string, string][]; count: number; tone: string }) {
+  return list.slice(0, Math.max(0, count)).map(([href, icon, title, text]) => (
+    <li key={href} data-reveal="" className={CELL}>
+      <Link href={href} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-page hover:text-heading">
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${tone}`}><Icon name={icon} className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate font-display text-[13px] font-bold leading-snug">{title}</span>
+          <span className="truncate text-[11px] text-ink-muted">{text}</span>
+        </span>
+        <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5" />
+      </Link>
+    </li>
+  ));
+}
+
 const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, string][]; mark: string; tint: string; start?: boolean }) => (
   <ul className={`flex flex-wrap gap-2 ${start ? "justify-start" : "justify-center"}`}>
     {points.map(([Glyph, label]) => (
@@ -329,12 +361,12 @@ export async function HomeFeatures() {
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
           <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-ink" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
-            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] gap-px bg-line">
+            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] overflow-hidden">
               {funding.map((f, n) => {
                 const org = f.fundingProgramme?.provider.organization;
                 const type = f.fundingProgramme?.fundingType;
                 return (
-                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className="bg-white">
+                  <li key={f.slug} data-reveal="" style={{ "--d": `${n * 70}ms` } as React.CSSProperties} className={CELL}>
                     <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#FFF6EC] hover:text-heading">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
@@ -347,6 +379,7 @@ export async function HomeFeatures() {
                   </li>
                 );
               })}
+              <Fillers list={FUND_FILLERS} count={3 - funding.length} tone="bg-accent-tint text-accent-dark" />
             </ul>
           </Panel>
 
@@ -354,13 +387,13 @@ export async function HomeFeatures() {
             text="Checked suppliers in Uganda and abroad.">
             {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
                 fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
-            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] gap-px bg-line sm:grid-cols-2">
+            <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] overflow-hidden sm:grid-cols-2">
               {suppliers.slice(0, 4).map((x, n) => {
                 const picture = x.supplier?.listings[0]?.imageUrl || x.supplier?.pictureUrl;
                 const name = clean(x.title);
                 const sells = x.supplier?.items.slice(0, 2).join(", ");
                 return (
-                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className="min-h-0 bg-white">
+                  <li key={x.slug} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties} className={CELL}>
                     <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#EEF6FC] hover:text-heading">
                       <span className={`relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
@@ -375,6 +408,7 @@ export async function HomeFeatures() {
                   </li>
                 );
               })}
+              <Fillers list={SUPPLIER_FILLERS} count={4 - suppliers.length} tone="bg-brand-tint text-brand" />
             </ul>
           </Panel>
         </ul>

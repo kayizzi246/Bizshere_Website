@@ -9,6 +9,7 @@ import { cachedMemberPlan } from "@/lib/cached";
 import { popupPlan } from "@/lib/billing";
 import { expertNames, phoneNumbers } from "@/lib/expert-names";
 import { date, moneyRange } from "@/lib/format";
+import { ProfileTitle } from "@/components/ProfileTitle";
 import { ProfileCard, type ProfileRow } from "@/components/ProfileCard";
 import { ContactButtons } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
@@ -111,7 +112,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
                 <div className="flex min-w-0 flex-col gap-1.5">
-                  <h1 className="text-hero text-[28px] leading-[1.1] sm:text-[40px]">{name}</h1>
+                  <ProfileTitle name={name} />
                   {role ? <p data-size="" className="text-[14px] font-medium text-white/85">{role}</p> : null}
                   {item.lastReviewedAt ? <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-heading"><BadgeCheck aria-hidden className="h-3.5 w-3.5 text-brand" />Checked by our team, {date(item.lastReviewedAt)}</span> : null}
                 </div>

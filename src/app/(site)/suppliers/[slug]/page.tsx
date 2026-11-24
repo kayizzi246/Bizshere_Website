@@ -9,6 +9,7 @@ import { popupPlan } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
 import { phoneNumbers } from "@/lib/expert-names";
 import { moneyRange } from "@/lib/format";
+import { ProfileTitle } from "@/components/ProfileTitle";
 import { ProfileCard, type ProfileRow } from "@/components/ProfileCard";
 import { ContactButtons, whatsappNumber } from "@/components/ContactButtons";
 import { trackView } from "@/components/DetailParts";
@@ -116,7 +117,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
                 <div className="flex min-w-0 flex-col gap-2">
-                  <h1 className="text-hero text-[26px] leading-[1.1] sm:text-[36px]">{name}</h1>
+                  <ProfileTitle name={name} />
                   {[item.primaryCategory?.name, kind, s.country].some(Boolean) ? <p className="text-[15px] text-white/80">{[item.primaryCategory?.name, kind, s.country].filter(Boolean).join(" · ")}</p> : null}
                 </div>
               </div>

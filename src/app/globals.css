@@ -804,6 +804,8 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
    — the one place that rule is deliberately overridden. The font is loaded as a 400-900 variable
    file (src/app/layout.tsx); asking for a weight the loader does not declare only clamps it.
    Size is set on the element itself. */
+/* The name on a supplier's or expert's page (ProfileTitle) */
+h1.profile-title { font-family: var(--font-inter), system-ui, sans-serif !important; font-weight: 900 !important; letter-spacing: -0.035em !important; }
 .hero-title {
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
