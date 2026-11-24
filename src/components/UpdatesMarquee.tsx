@@ -8,7 +8,7 @@ type Update = { id: string; message: string; href: string | null; /** A small la
  * Pure CSS: the list is rendered twice and slid left by half its width, so it loops
  * without a jump. Pauses on hover or keyboard focus; with reduced motion it stops
  * and becomes a row you can scroll by hand.
- * `dark` is the homepage hero version (redesigned 24 Nov 2026): a navy bar that fades out into the hero at both ends;
+ * `dark` is the homepage hero version (redesigned 24 Nov 2026): no background of its own, so it blends into the hero, and it fades out at both ends;
  * each item is its own rounded chip with an orange tag for its kind. No heading.
  */
 export function UpdatesMarquee({ updates, live = null, dark = false }: { updates: Update[]; live?: { title: string | null } | null; dark?: boolean }) {
@@ -65,10 +65,10 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
     </div>
   );
 
-  // Hero: a full-width navy bar, no heading; items glide in and out through short fades at both ends.
+  // Hero: the full width, no background or heading; items glide in and out through short fades at both ends.
   if (dark) {
     return (
-      <div role="region" aria-label="Latest updates" className="marquee marquee-fade flex h-11 w-full items-center overflow-hidden bg-[#071A36] sm:h-[52px]">
+      <div role="region" aria-label="Latest updates" className="marquee marquee-fade flex h-11 w-full items-center overflow-hidden sm:h-[52px]">
         {track}
       </div>
     );

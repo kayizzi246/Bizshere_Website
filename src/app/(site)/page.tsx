@@ -96,14 +96,10 @@ export default async function HomePage() {
             </ul>
 
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-              {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day. The moving
-                  ring is dropped under prefers-reduced-motion. */}
-              <Link href="/suppliers/join" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
-                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Join our suppliers</span>
-              </Link>
-              <Link href="/experts/join" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
-                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Join our experts</span>
-              </Link>
+              {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day.
+                  Orange and white, as in the menu bar, instead of navy with a moving ring (client, 24 Nov 2026). */}
+              <Link href="/suppliers/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 font-display text-[14px] font-extrabold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-accent text-ink hover:bg-[#FFA64D] hover:text-ink">Join our suppliers</Link>
+              <Link href="/experts/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 font-display text-[14px] font-extrabold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-white text-brand-deep hover:bg-brand-tint hover:text-brand-deep">Join our experts</Link>
             </div>
           </div>
 

@@ -39,6 +39,9 @@ const config: Config = {
         bad: { bg: v("bad-bg"), fg: v("bad-fg") },
         info: { bg: v("info-bg"), fg: v("info-fg") },
       },
+      // Lighter type on the whole site (client, 24 Nov 2026, after a pricing page they sent): nothing is heavier
+      // than Semibold. Inter is a variable file, so 550 is a real weight between Medium and Semibold.
+      fontWeight: { medium: "500", semibold: "550", bold: "600", extrabold: "600", black: "600" },
       fontFamily: {
         // One font on the whole site (client, 13 Nov 2026): Inter. "display" and "hero" stay as names for headings.
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
