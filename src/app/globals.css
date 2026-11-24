@@ -562,8 +562,9 @@ body:has([data-list-bar]) [data-quick-services] { bottom: 92px; }
 @media (prefers-reduced-motion: reduce) { .wa-ring, .wa-mark { animation: none; } .wa-ring { display: none; } }
 @media (max-width: 1023px) {
   body:has(:is([data-sticky-bar], [data-list-bar])) [data-whatsapp] { bottom: 92px; }
-  body:has([data-quick-services]) [data-whatsapp] { bottom: 86px; }
-  body:has([data-quick-services]):has(:is([data-sticky-bar], [data-list-bar])) [data-whatsapp] { bottom: 158px; }
+  /* All services is bottom left on phones: back to top goes above it */
+  body:has([data-quick-services]) [data-top-btn] { bottom: 84px; }
+  body:has([data-quick-services]):has(:is([data-sticky-bar], [data-list-bar])) [data-top-btn] { bottom: 156px; }
 }
 
 /* The header (SiteHeader) is one floating rounded bar. --hh is its full height, gap included:

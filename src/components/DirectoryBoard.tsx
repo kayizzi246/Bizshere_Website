@@ -335,42 +335,48 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const purpose = cell("For")?.value;
   const amount = cell("Amount");
   const status = cell("Status")?.value;
+  const closes = cell("Closes")?.value;
+  const left = cell("Left")?.value;
+  const funder = by && clean(by) !== clean(i.title) ? clean(by) : null;
   const title = clean(i.title);
   const t = FUND_TONES[n % FUND_TONES.length];
-  const part = "inline-flex items-center px-2.5 py-1";
-  const button = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-5 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFA64D] hover:text-ink";
+  const part = "inline-flex items-center px-2 py-0.5";
+  const button = "inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink";
   return (
     <article className={`group overflow-hidden rounded-xl border border-l-4 border-line bg-white transition-colors hover:border-y-ink-muted/40 hover:border-r-ink-muted/40 ${t.edge}`}>
-      <div className="flex flex-col gap-2.5 p-4 sm:px-5">
+      <div className="flex flex-col gap-1.5 px-4 pb-3 pt-3 sm:px-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-between">
             <span className="inline-flex text-[12px] font-semibold">
               <span className={`${part} rounded-l-md border ${t.soft}`}>Fund type</span>
               <span className={`${part} rounded-r-md border text-white ${t.fill}`}>{type}</span>
             </span>
-            <span className="inline-flex max-w-full divide-x divide-line overflow-hidden rounded-md border border-line text-[12px] font-medium text-heading">
+            <span className="flex min-w-0 flex-wrap gap-2">
+            <span className="inline-flex max-w-full divide-x divide-line overflow-hidden rounded-md border border-line text-[12px] font-medium text-heading empty:hidden">
               {where ? <span className={`${part} min-w-0 gap-1.5`}><MapPin aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{where}</span></span> : null}
-              {status ? <span className={`${part} shrink-0 font-semibold ${status === "Open now" ? "bg-[#E3F4EA] text-[#1F7A4D]" : status === "Closed for now" ? "bg-bad-bg text-bad-fg" : "bg-page text-ink-soft"}`}>{status}</span> : null}
+              {status && !closes ? <span className={`${part} shrink-0 font-semibold ${status === "Open now" ? "bg-[#E3F4EA] text-[#1F7A4D]" : status === "Closed for now" ? "bg-bad-bg text-bad-fg" : "bg-page text-ink-soft"}`}>{status}</span> : null}
+            </span>
+            {closes ? <span className="inline-flex divide-x divide-bad-fg/25 overflow-hidden rounded-md border border-bad-fg/25 text-[12px] font-semibold text-heading"><span className={`${part} bg-bad-bg font-medium text-bad-fg`}>Closes</span><span className={part}>{closes}</span><span className={`${part} text-bad-fg`}>{left}</span></span> : null}
             </span>
           </div>
           <span className="flex shrink-0 items-center gap-2">
             <SeenBadge href={i.href} className="bg-brand-tint" />
-            <WishlistHeart id={i.id} className="border border-line" />
+            <WishlistHeart id={i.id} className="!h-7 !w-7 border border-line" />
           </span>
         </div>
-        <Link href={i.href} className={`w-fit text-[16px] font-[900] leading-snug tracking-[-0.015em] hover:underline sm:text-[18px] ${t.name}`}>{title}</Link>
-        {by && clean(by) !== title ? <p data-size="" className="text-[13px] font-semibold text-heading">{clean(by)}</p> : null}
-        {purpose ?? i.summary ? <p data-size="" className="line-clamp-2 max-w-[80ch] text-[13px] leading-relaxed text-ink-soft">{purpose ?? i.summary}</p> : null}
+        <Link href={i.href} className={`w-fit text-[16px] font-[900] leading-snug tracking-[-0.015em] hover:underline sm:text-[17px] ${t.name}`}>{title}</Link>
+        {/* One line under the name: the funder, or what the fund is for when they share a name */}
+        {funder ?? purpose ?? i.summary ? <p data-size="" className="line-clamp-1 text-[13px] font-semibold text-heading">{funder ?? purpose ?? i.summary}</p> : null}
       </div>
-      <div className={`flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-5 ${i.applyLocked ? "bg-[#FFFBEB]" : "bg-page"}`}>
+      <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-line px-4 py-2 sm:px-5 ${i.applyLocked ? "bg-[#FFFBEB]" : "bg-page"}`}>
         {i.applyLocked ? (
           <>
-            <p data-size="" className="flex min-w-0 flex-1 basis-56 items-center gap-2.5 text-[13px] text-ink-soft"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0 text-accent-dark" />Become a member to see the {amount?.locked ? "amount, " : ""}terms and how to apply.</p>
+            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[13px] leading-snug text-ink-soft"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0 text-accent-dark" />Become a member to see the {amount?.locked ? "amount, " : ""}terms and how to apply.</p>
             <Link href={`/membership?onboard=pay&next=${encodeURIComponent(i.href)}`} data-pay="" data-next={i.href} aria-label={`Unlock ${title}`} className={button}>Unlock</Link>
           </>
         ) : (
           <>
-            <p data-size="" className="flex min-w-0 flex-1 basis-56 items-center gap-2.5 text-[13px] text-ink-soft"><Banknote aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />{amount?.value ? <strong className="font-bold text-heading">{amount.value}</strong> : "Amount not added"}</p>
+            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[13px] leading-snug text-ink-soft"><Banknote aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />{amount?.value ? <strong className="font-bold text-heading">{amount.value}</strong> : "Amount not added"}</p>
             {i.apply ? <a href={i.apply} target="_blank" rel="noopener noreferrer" aria-label={`Apply: ${title}`} className={button}>Apply<span aria-hidden>↗</span></a> : <Link href={i.href} aria-label={`View ${title}`} className={button}>View</Link>}
           </>
         )}

@@ -114,7 +114,6 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                 <div className="flex min-w-0 flex-col gap-1.5">
                   <ProfileTitle name={name} />
                   {role ? <p data-size="" className="text-[14px] font-medium text-white/85">{role}</p> : null}
-                  {item.lastReviewedAt ? <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold text-heading"><BadgeCheck aria-hidden className="h-3.5 w-3.5 text-brand" />Checked by our team, {date(item.lastReviewedAt)}</span> : null}
                 </div>
               </div>
               <div className="shrink-0 text-ink sm:w-52">

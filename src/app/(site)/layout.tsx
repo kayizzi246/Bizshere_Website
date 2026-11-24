@@ -7,6 +7,7 @@ import { NavProgress } from "@/components/NavProgress";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { QuickLinks, ServiceRail } from "@/components/QuickLinks";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { getContact } from "@/lib/site-contact";
 import { site } from "@/config/site";
@@ -47,6 +48,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SmoothScroll />
         <main className="flex-1">{children}</main>
         <SiteFooter />
+        {/* All services, bottom left on every screen (client, 24 Nov 2026; taken off on 18 Nov) */}
+        <QuickLinks services={SERVICES} />
+        <ServiceRail services={SERVICES} />
         <WhatsAppButton />
         <CookieNotice />
         <InstallPrompt />

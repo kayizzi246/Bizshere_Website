@@ -97,8 +97,9 @@ export default async function MembershipPage() {
           </div>
         ) : null}
 
-        {/* The plans. Phones: one under the other, the recommended one first. */}
-        <section aria-label="Plans" className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 xl:gap-5">
+        {/* The plans. Phones: a row to swipe sideways, one card at a time with the next one peeking in, the recommended
+            one first (client, 24 Nov 2026). It runs to the screen's edges: -mx-5 undoes the page's own margin. */}
+        <section aria-label="Plans" tabIndex={0} className="-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:scroll-px-8 sm:px-8 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4 xl:gap-5 [&::-webkit-scrollbar]:hidden">
           {PLAN_PERIODS.map((p) => {
             const c = CARDS[p];
             const amount = plan.amounts[p];
@@ -106,7 +107,7 @@ export default async function MembershipPage() {
             const perDay = amount && c.days > 1 ? Math.round(amount / c.days) : null;
             const pill = "mt-6 inline-flex min-h-[46px] w-full items-center justify-center rounded-full border px-5 text-[15px] font-medium transition-colors";
             return (
-              <div key={p} className={`flex flex-col rounded-lg border bg-[#F0EFEA] p-6 ${featured ? "order-first border-[#C9C7BD] md:order-none" : "border-[#E2E0D8]"}`}>
+              <div key={p} className={`flex w-[82%] max-w-[320px] shrink-0 snap-start flex-col rounded-lg border bg-[#F0EFEA] p-6 md:w-auto md:max-w-none ${featured ? "order-first border-[#C9C7BD] md:order-none" : "border-[#E2E0D8]"}`}>
                 <div className="flex min-h-[26px] flex-wrap items-center gap-2">
                   <h2 className="text-[18px] text-heading">{c.title}</h2>
                   {featured ? <span className="rounded-full bg-[#1F7A4D] px-2.5 py-0.5 text-[12px] font-medium text-white">Recommended</span> : null}

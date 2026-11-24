@@ -10,12 +10,24 @@ export const metadata = directoryMetadata("/funding");
 
 const fundType = (t: string) => t.charAt(0) + t.slice(1).toLowerCase();
 
-/** Open now, Opening soon or Closed for now, as on the fund's own page; null when no round has been added. Never the dates. */
+/** Open now, Opening soon or Closed for now, as on the fund's own page; null when no round has been added. */
 function roundStatus(rounds: { status: string; isRolling: boolean; closesAt: Date | null }[]) {
   const now = new Date();
   if (rounds.some((r) => r.status === "OPEN" && (r.isRolling || !r.closesAt || r.closesAt >= now))) return "Open now";
   if (rounds.some((r) => r.status === "UPCOMING")) return "Opening soon";
   return rounds.length ? "Closed for now" : null;
+}
+
+/** When the open round closes ("Tue 24 Nov") and how long is left ("7h 10m left"), as the search page already says. */
+function closing(rounds: { status: string; isRolling: boolean; closesAt: Date | null }[]) {
+  const now = Date.now();
+  const at = rounds.flatMap((r) => (r.status === "OPEN" && !r.isRolling && r.closesAt && r.closesAt.getTime() > now ? [r.closesAt] : [])).sort((a, b) => a.getTime() - b.getTime())[0];
+  if (!at) return [];
+  const mins = Math.floor((at.getTime() - now) / 60000), days = Math.floor(mins / 1440), hours = Math.floor(mins / 60);
+  return [
+    { label: "Closes", value: at.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Africa/Kampala" }).replace(",", "") },
+    { label: "Left", value: days >= 1 ? `${days} ${days === 1 ? "day" : "days"} left` : hours >= 1 ? `${hours}h ${mins % 60}m left` : `${mins}m left` },
+  ];
 }
 
 /**
@@ -45,6 +57,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
         { label: "Where", value: p.provider.country },
         { label: "For", value: p.purpose },
         { label: "Status", value: roundStatus(p.rounds) },
+        ...closing(p.rounds),
         { label: "Amount", value: locked ? null : range, locked },
       ]];
     }));

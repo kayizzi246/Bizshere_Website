@@ -28,7 +28,7 @@ const Grid = ({ className = "h-6 w-6" }: { className?: string }) => (
 );
 
 /**
- * Phones and tablets: a floating "All services" button that opens a panel with every directory.
+ * Phones and tablets: a floating "All services" button, bottom left, that opens a panel with every directory.
  * Sits above the sticky download bar on pages that have one ([data-sticky-bar]).
  */
 export function QuickLinks({ services }: { services: Service[] }) {
@@ -39,7 +39,7 @@ export function QuickLinks({ services }: { services: Service[] }) {
   useEffect(() => {
     setOpen(false);
     // Wait a frame so the new page's sticky bar (if any) is in the DOM.
-    const id = requestAnimationFrame(() => setRaised(Boolean(document.querySelector("[data-sticky-bar]"))));
+    const id = requestAnimationFrame(() => setRaised(Boolean(document.querySelector("[data-sticky-bar], [data-list-bar]"))));
     return () => cancelAnimationFrame(id);
   }, [path]);
 
@@ -51,14 +51,13 @@ export function QuickLinks({ services }: { services: Service[] }) {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
-  // Like the desktop rail: not on single items (it covered their buttons) or account pages; the header
-  // menu lists every directory anyway.
+  // Like the desktop button: everywhere except sign-in, joining, paying and account pages.
   if (hideQuickLinks(path)) return null;
 
   return (
     <div className="lg:hidden">
       <button type="button" data-quick-services="" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
-        data-chrome="" className={`spin-border fixed right-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
+        data-chrome="" className={`spin-border fixed left-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
         {/* Plain orange ring (.spin-border in globals.css) */}
         <span className="hero-premium inline-flex h-[46px] items-center gap-2 rounded-full pl-4 pr-5 font-display text-sm font-bold text-white">
           <Grid className="h-5 w-5 text-white" />
@@ -134,7 +133,7 @@ export function ServiceRail({ services }: { services: Service[] }) {
 
   // Search has its own filter column in that corner.
   if (path.startsWith("/search")) return null;
-  // Out of the way on single items (it covered product photos and forms) and on account pages.
+  // Out of the way on sign-in, joining, paying and account pages.
   if (hideQuickLinks(path)) return null;
 
   return (
@@ -184,7 +183,9 @@ export function ServiceRail({ services }: { services: Service[] }) {
   );
 }
 
-/** Single items (/machines/x, /suppliers/x/products/y) and account pages keep the screen for their content. */
+/** Forms and account pages keep the screen for their content. */
 function hideQuickLinks(path: string) {
-  return path.split("/").filter(Boolean).length >= 2 || ["/supplier", "/account", "/membership"].includes(path);
+  const [first, second] = path.split("/").filter(Boolean);
+  return ["login", "signup", "account", "membership", "supplier", "expert", "payments", "staff"].includes(first)
+    || (["suppliers", "experts"].includes(first) && ["login", "join"].includes(second));
 }
