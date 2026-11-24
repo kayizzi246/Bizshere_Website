@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { LockKeyhole } from "lucide-react";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
@@ -84,7 +85,7 @@ const BOARD: Record<string, { heading: string; note?: string; members?: { title:
  * job-board style list (DirectoryBoard; client, 13 Nov 2026): pinned pill tabs and sort, one row card per listing,
  * a side column. Searching, filtering and sorting happen on the page.
  */
-export function ListingBrowser({ items: all, path, icon, title, intro, unit, tabs, active, variant, initial, typeFilter }: {
+export function ListingBrowser({ items: all, path, icon, title, intro, unit, tabs, active, variant, initial, typeFilter, perPage = PER_PAGE, moreLocked = false }: {
   items: BrowseListing[];
   path: string;
   icon: string;
@@ -98,6 +99,10 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   /** No longer changes the layout; kept so callers needn't change. */
   photos?: boolean;
   initial: { q: string; category: string; sort: string; page: number; type?: string };
+  /** How many show at first, and how many each "Show more" adds. */
+  perPage?: number;
+  /** This viewer isn't a member: only the first lot shows, and "Show more" opens the sign-up and payment pop-up. */
+  moreLocked?: boolean;
   /** A drop-down in the search bar over the "Type" detail of each row (funding: Loan, Grant, Equity…). */
   typeFilter?: { label: string; any: string; options: string[] };
 }) {
@@ -115,11 +120,12 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
     return all.filter((i) => (!category || i.primaryCategory?.id === category) && (!type || i.cells?.some((c) => c.label === "Type" && c.value === type)) && words.every((w) => i.text.includes(w))).sort(SORTERS[sort]);
   }, [all, q, category, type, sort]);
 
-  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
-  const current = Math.min(page, pages);
+  const pages = Math.max(1, Math.ceil(items.length / perPage));
+  // Not a member: always the first lot, whatever ?page= says.
+  const current = moreLocked ? 1 : Math.min(page, pages);
   // Everything up to the current page, so Load more adds to the list instead of replacing it. The
   // page number still rides in the address, so a reload or a shared link reopens the same amount.
-  const shown = items.slice(0, current * PER_PAGE);
+  const shown = items.slice(0, current * perPage);
   const remaining = items.length - shown.length;
   const chosenName = cats.find(([id]) => id === category)?.[1].name;
   const examples = useMemo(() => all.slice(0, 6).map((i) => name(i.title).toLowerCase()), [all]);
@@ -165,7 +171,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
         pager={remaining > 0 ? (
-          <LoadMore remaining={remaining} step={PER_PAGE} unit={unit} onMore={() => setPage(current + 1)} />
+          <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : grid ? (
@@ -173,7 +179,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
           </ul>
         ) : (
-          <ul className="flex flex-col gap-2.5">
+          <ul className="flex flex-col gap-3 sm:gap-4">
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingRow i={i} icon={icon} variant={variant} /></li>)}
           </ul>
         )}
@@ -189,14 +195,19 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
  * known before pressing. A plain button, not an infinite scroll: these pages are read with a
  * purpose, and a list that keeps growing by itself makes the footer impossible to reach.
  */
-function LoadMore({ remaining, step, unit, onMore }: { remaining: number; step: number; unit: readonly [string, string] | string[]; onMore: () => void }) {
+function LoadMore({ remaining, step, unit, lockedAt, onMore }: { lockedAt: string | null; remaining: number; step: number; unit: readonly [string, string] | string[]; onMore: () => void }) {
   const next = Math.min(step, remaining);
+  const look = "inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page";
   return (
     <div className="flex flex-col items-center gap-2 py-2">
-      <button type="button" onClick={onMore}
-        className="inline-flex h-11 items-center justify-center rounded-xl border border-line bg-surface px-6 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page">
-        Show {next} more
-      </button>
+      {lockedAt ? (
+        // data-pay: the site-wide pop-up (Onboarding) opens in place, then comes back here.
+        <a href={`/membership?onboard=pay&next=${encodeURIComponent(lockedAt)}`} data-pay="" data-next={lockedAt} className={look}>
+          <LockKeyhole aria-hidden className="h-4 w-4 text-accent" />Show more
+        </a>
+      ) : (
+        <button type="button" onClick={onMore} className={look}>Show {next} more</button>
+      )}
       <span className="text-[12.5px] text-ink-muted">{remaining} more {remaining === 1 ? unit[0] : unit[1]} to see</span>
     </div>
   );

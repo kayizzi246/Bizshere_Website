@@ -37,9 +37,10 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
 }) {
   const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-heading";
   return (
-    // overflow-x-clip (not overflow-hidden) and z-20: the search bar's dropdowns open below the band, over the cards.
-    <header className="under-header hero-glow relative isolate z-20 overflow-x-clip bg-navy text-white">
-      <div className={`hero-rise container-site flex flex-col items-center gap-3 text-center ${compact ? "py-6 sm:py-7" : "py-7 sm:py-9"}`}>
+    // overflow-x-clip (not overflow-hidden) and z-40: the search bar's dropdowns open below the band, over the cards
+    // and the pinned filter bar (z-30), but under the site header (z-45).
+    <header className="under-header hero-glow relative isolate z-40 overflow-x-clip bg-navy text-white">
+      <div className={"hero-rise container-site pad-hero flex flex-col items-center gap-3 text-center"}>
         {tabs ? (
           <nav aria-label="Sections" className="max-w-full overflow-x-auto [scrollbar-width:none]">
             <div className="inline-flex gap-0.5 rounded-full border border-white/15 bg-white/[0.06] p-1">

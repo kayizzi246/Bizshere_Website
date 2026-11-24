@@ -187,7 +187,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             card with the starting capital and the key facts; one main action (Unlock for visitors, the budget for
             members) with the rest as quiet buttons; what the plan holds as a plain checklist. No gradients, no shadows. ── */}
         <section className="speckle under-header-pad border-b border-line">
-          <div className="container-site flex flex-col gap-4 pb-8 pt-3 sm:pt-5">
+          <div className="container-site pad-hero flex flex-col gap-5">
             <Link href="/business-ideas" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All business ideas
             </Link>
@@ -269,7 +269,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
           </ol>
         </StickyBar>
 
-        <div className="container-site flex flex-col gap-4 py-5 sm:py-6">
+        <div className="container-site pad-body flex flex-col gap-5 sm:gap-6">
           {/* The steps sit on a line down the left from md; each step's number is a circle on it (StepHead) */}
           <div className="relative flex flex-col gap-4 md:pl-[4.5rem]">
           <span aria-hidden className="absolute bottom-8 left-[23px] top-8 hidden w-0.5 bg-line-strong md:block" />

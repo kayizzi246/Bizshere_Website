@@ -133,7 +133,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="under-header-pad bg-page">
-        <div className="container-site flex flex-col gap-6 pb-10 pt-5 sm:pt-7">
+        <div className="container-site flex flex-col gap-7 pad-body">
           {/* ── Heading, like a job page (client example, 13 Nov 2026): where you are, who funds it, the name, the key facts
               with icons, tags; Apply now and Save on the right. Member detail stays locked. ── */}
           <header className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10">

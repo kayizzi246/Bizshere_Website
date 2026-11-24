@@ -22,7 +22,7 @@ export default async function NewsPage({ params }: { params: { slug: string } })
   const media = await loadChildSections("NEWS", { record: n!.id, item: item.id, org: null });
 
   return (
-    <div className="container-site flex flex-col gap-7 py-6">
+    <div className="container-site flex flex-col gap-8 pad-body">
       <Crumbs trail={[["/news", "Business News"]]} title={item.title} />
       <article className="flex flex-col gap-3">
         <span className="eyebrow">{n.articleType.toLowerCase()} · {item.primaryCategory?.name ?? "Business"}</span>

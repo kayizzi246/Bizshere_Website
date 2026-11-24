@@ -12,7 +12,7 @@ export default async function CorrectionsPage({ searchParams }: { searchParams: 
     searchParams.item ? prisma.contentItem.findFirst({ where: { id: searchParams.item, publicationStatus: "PUBLISHED" }, select: { id: true, title: true } }) : null,
   ]);
   return (
-    <div className="container-site flex max-w-3xl flex-col gap-6 py-10">
+    <div className="container-site flex max-w-3xl flex-col gap-6 pad-body">
       <div className="flex flex-col gap-2">
         <h1 className="text-page-title">Report a correction</h1>
         <p className="text-ink-soft">Seen a wrong price, a closed deadline or a broken contact? Tell us. Please include where the correct information comes from.</p>

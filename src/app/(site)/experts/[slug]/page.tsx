@@ -99,7 +99,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         ) : null}
         {/* ── Who they are, and what they do ── */}
         <header className="under-header hero-glow hero-still bg-navy text-white">
-          <div className="container-site flex flex-col gap-3 pb-5 pt-3 sm:pb-6 sm:pt-4">
+          <div className="container-site flex flex-col gap-4 pad-hero">
             <Link href="/experts" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-4 w-4" />All experts</Link>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
@@ -127,7 +127,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         </header>
 
         <div className="bg-page">
-          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-4 py-5 sm:py-7 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pad-body lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-4">
               {proof.length ? (
                 <ul aria-label="At a glance" className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">

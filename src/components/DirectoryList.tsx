@@ -11,7 +11,7 @@ import type { SearchParams } from "@/lib/directory-search";
  * (ListingBrowser): hero with the search box, category chips, sort and a paged grid. Searching and
  * filtering happen on the page itself, so visitors never leave it.
  */
-export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, apply, applyLocked = false, facts, cells, names, typeFilter }: {
+export async function DirectoryList({ path, searchParams, types, title, intro, tabs, active, meta, variant = "cards", images, links, apply, applyLocked = false, facts, cells, names, typeFilter, perPage, moreLocked }: {
   /** This page's address; the address bar keeps the search here. */
   path: string;
   searchParams: SearchParams;
@@ -35,6 +35,9 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   applyLocked?: boolean;
   /** Table columns of its own after the name, per item (funding). Member detail as `locked`, with no value. */
   cells?: (ids: string[]) => Promise<Record<string, NonNullable<BrowseListing["cells"]>>>;
+  /** How many show at first; `moreLocked` (not a member): "Show more" opens the sign-up and payment pop-up. */
+  perPage?: number;
+  moreLocked?: boolean;
   /** A drop-down in the search bar over the "Type" cell (funding). */
   typeFilter?: { label: string; any: string; options: string[] };
   /** Extra per-item details: source and price for machine cards (member detail: `locked` for visitors), country and what they sell for the supplier cards. */
@@ -77,7 +80,7 @@ export async function DirectoryList({ path, searchParams, types, title, intro, t
   return (
     <ListingBrowser
       items={items} path={path} icon={icon} title={title} intro={intro} unit={dir?.unit ?? ["listing", "listings"]}
-      tabs={tabs} active={active} variant={variant} photos={Boolean(pictures)} typeFilter={typeFilter}
+      tabs={tabs} active={active} variant={variant} photos={Boolean(pictures)} typeFilter={typeFilter} perPage={perPage} moreLocked={moreLocked}
       initial={{ q: first(searchParams.q), category: first(searchParams.category), sort: first(searchParams.sort), type: first(searchParams.type), page: Math.max(1, Number.parseInt(first(searchParams.page), 10) || 1) }}
     />
   );

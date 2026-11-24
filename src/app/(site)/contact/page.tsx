@@ -26,7 +26,7 @@ export default async function ContactPage({ searchParams }: { searchParams: { ab
 
   return (
     <div className="under-header-pad bg-page">
-      <div className="container-site flex flex-col gap-8 py-10 sm:py-14">
+      <div className="container-site flex flex-col gap-8 pad-body">
         <div className="flex max-w-2xl flex-col gap-3">
           <h1 className="text-page-title text-heading">Talk to us</h1>
           <p className="text-[16px] leading-relaxed text-ink-soft sm:text-[17px]">Questions about membership, listing your business as a supplier or expert, or something you saw on the site. A person answers, in English or Luganda.</p>

@@ -175,7 +175,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
   return (
     // under-header: the black runs up behind the floating header to the top of the screen.
     <div className="under-header bg-[#0A0B0D] text-white">
-      <div className="container-site flex flex-col gap-4 py-6 sm:py-8">
+      <div className="container-site flex flex-col gap-5 pad-body">
         <div className="flex flex-col gap-1">
           <h1 className="text-hero text-[28px] text-white sm:text-[36px] xl:text-[42px]">Markets and Prices</h1>
           <p className="text-[14px] text-white/55">Latest dated wholesale, retail and farm-gate prices from markets across Uganda. Pick a market to see its products, or tap a product to see every market.</p>

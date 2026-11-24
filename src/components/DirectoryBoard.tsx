@@ -44,15 +44,15 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
 }) {
   return (
     <div className="bg-page">
-      <div className="container-site flex flex-col gap-3.5 py-5 sm:gap-4 sm:py-6">
+      <div className="container-site flex flex-col gap-4 pad-body sm:gap-5">
         {top}
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-[12px] text-ink-muted">
             <Link href="/" className="text-ink-muted hover:text-brand">Home</Link>
             <ChevronRight aria-hidden className="h-3 w-3" />
             <span className="text-ink-soft">{crumb}</span>
           </nav>
-          <h2 id="listings" className="text-[16px] font-bold leading-tight tracking-[-0.02em] text-heading sm:text-[18px]">
+          <h2 id="listings" className="text-[clamp(20px,2.2vw,28px)] font-bold leading-tight tracking-[-0.02em] text-heading">
             {heading} <span className="font-semibold text-ink-muted" aria-live="polite">({count})</span>
           </h2>
           {note ? <p data-size="" className="text-[12px] text-ink-muted">{note}</p> : null}
@@ -61,7 +61,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
         <FilterBar cats={cats} category={category} onCategory={onCategory} sort={sort} sorts={sorts} onSort={onSort} />
 
         <section ref={listTop} aria-labelledby="listings" className={`grid scroll-mt-40 grid-cols-[minmax(0,1fr)] gap-4 ${grid || !aside ? "" : "lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start"}`}>
-          <div className="flex min-w-0 flex-col gap-2.5">
+          <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
             {children}
             {pager}
           </div>
@@ -165,7 +165,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
   thumb: React.ReactNode; meta: React.ReactNode; pills: React.ReactNode; body: React.ReactNode; actions: React.ReactNode;
 }) {
   return (
-    <article className="group relative flex gap-3.5 rounded-2xl border border-line bg-white p-3.5 transition-colors hover:border-ink-muted/50 sm:p-4">
+    <article className="group relative flex gap-4 rounded-2xl border border-line bg-white p-4 transition-colors hover:border-ink-muted/50 sm:p-5">
       {thumb}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
@@ -193,7 +193,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
 }
 
 /** The list as a photo grid beside the side column: two a row on phones, three on tablets, four from 1280px. */
-export const gridList = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-4";
+export const gridList = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4";
 
 /** A grid card (business ideas, machines, suppliers): photo on top with the heart, then category, name, pills, a short
     description and the buttons along the bottom, so the cards in a row line up. */
@@ -219,7 +219,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
           <WishlistHeart id={id} />
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:p-3">
+      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
         <p data-size="" className="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-ink-muted">{meta}</p>
         <Link href={href} className="line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
         {pills ? <ul className="flex flex-wrap gap-1">{pills}</ul> : null}

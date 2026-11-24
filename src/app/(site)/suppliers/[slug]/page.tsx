@@ -91,7 +91,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
         ) : null}
         {/* ── Shop banner ── */}
         <header className="under-header hero-glow bg-navy text-white">
-          <div className="container-site flex flex-col gap-5 pb-8 pt-5 sm:pb-10 sm:pt-7">
+          <div className="container-site flex flex-col gap-5 pad-hero">
             <Link href="/suppliers" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white/75 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All suppliers</Link>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
@@ -118,7 +118,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
         </header>
 
         <div className="bg-page">
-          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-6 py-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-6 pad-body lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             {/* ── The shop ── */}
             <div className="flex min-w-0 flex-col gap-6">
               {about ? (

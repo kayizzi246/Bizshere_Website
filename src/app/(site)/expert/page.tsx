@@ -67,7 +67,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
   const signOut = <span className="w-32"><SignOutButton to="/expert" className="border border-line bg-white text-ink-soft hover:border-brand" /></span>;
   if (!expert) {
     return (
-      <div className="bg-page"><div className="container-site py-8">
+      <div className="bg-page"><div className="container-site pad-body">
         <section className="mx-auto flex max-w-lg flex-col gap-3 rounded-2xl border border-line bg-white p-5">
           <h1 className="font-display text-xl font-extrabold text-heading">This account isn&apos;t registered as an expert</h1>
           <p className="text-sm text-ink-soft">Call us to be listed as a business expert. If you already have an expert sign-in, sign out and sign in with your expert phone and PIN.</p>
@@ -95,7 +95,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
           { label: "Services you offer", value: expert.services.length, Icon: Briefcase, tone: "bg-white/15 text-white" },
         ]} />
 
-      <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-8">
+      <div className="container-site flex flex-col gap-6 pad-body sm:gap-7">
         <DashNotice ok={searchParams.saved ? NOTICE[searchParams.saved] : undefined} bad={searchParams.error ? ERROR[searchParams.error] : undefined} />
         {expert.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[15px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your services and jobs now, and use &quot;See my page&quot; to see how it will look.</p> : null}
         <DashSteps steps={[["Say what you offer", "List your services and what each costs."], ["Show a job you did", "A photo and a few words. We check it first."], ["Clients find you", "They read your page and call or WhatsApp you."]]} />

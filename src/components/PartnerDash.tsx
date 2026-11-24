@@ -15,7 +15,7 @@ export function DashHero({ kind, name, sub, photo, Fallback, viewHref, signOut, 
 }) {
   return (
     <header className="under-header hero-premium text-white">
-      <div className="container-site flex flex-col gap-6 pb-8 pt-6 sm:pb-10 sm:pt-8">
+      <div className="container-site flex flex-col gap-6 pad-hero">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4">
             <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 sm:h-20 sm:w-20">

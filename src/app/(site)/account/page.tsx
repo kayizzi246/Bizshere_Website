@@ -36,7 +36,7 @@ export default async function AccountPage() {
   const unread = alerts.filter((a) => !a.readAt).length;
 
   return (
-    <div className="container-site flex flex-col gap-6 py-10">
+    <div className="container-site pad-body flex flex-col gap-7">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-page-title">My account</h1>

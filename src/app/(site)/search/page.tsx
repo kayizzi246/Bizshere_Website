@@ -105,7 +105,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
       {/* ── Search bar and advanced panel ── */}
       <section className="under-header hero-glow hero-still bg-navy">
-        <div className="container-site flex flex-col gap-4 py-6 lg:py-8">
+        <div className="container-site flex flex-col gap-5 pad-hero">
           <div className="flex flex-col gap-1">
             <h1 className="text-page-title text-white">What are you looking for?</h1>
             <p className="text-[15px] text-white/75">Type a word, like <em>flour</em>, <em>loan</em> or <em>bakery</em>. We look in every part of the website at once.</p>
@@ -200,7 +200,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       </section>
 
       <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
-      <div className="container-site flex flex-col gap-5 py-6 lg:py-8">
+      <div className="container-site flex flex-col gap-6 pad-body">
         {/* ── Nothing typed yet: every section as a tile ── */}
         {starting ? (
           <section className="flex flex-col gap-3">

@@ -73,7 +73,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
 
   if (suppliers.length === 0) {
     return (
-      <div className="bg-page"><div className="container-site py-8">
+      <div className="bg-page"><div className="container-site pad-body">
         <section className="mx-auto flex max-w-lg flex-col gap-3 rounded-2xl border border-line bg-white p-5">
           <h1 className="font-display text-xl font-extrabold text-heading">This account isn&apos;t registered as a seller</h1>
           <Link href="/suppliers/join" className="btn-primary min-h-[42px] w-fit px-4 text-sm">Become a Supplier</Link>
@@ -103,7 +103,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                 { label: "Not approved", value: count("ARCHIVED"), Icon: XCircle, tone: "bg-white/15 text-white" },
               ]} />
 
-            <div className="container-site flex flex-col gap-5 py-5 sm:gap-6 sm:py-8">
+            <div className="container-site flex flex-col gap-6 pad-body sm:gap-7">
               <DashNotice ok={searchParams.saved ? NOTICE[searchParams.saved] : undefined} bad={searchParams.error ? ERROR[searchParams.error] : undefined} />
               {s.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[15px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your products now, and use &quot;See my page&quot; to see how it will look.</p> : null}
               <DashSteps steps={[["Add a product", "Its name, a few photos and the price."], ["We check it", "Our team looks at it, usually the same day."], ["Buyers see it", "It shows on your page and they call you."]]} />

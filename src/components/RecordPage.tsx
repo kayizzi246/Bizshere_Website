@@ -147,7 +147,7 @@ export async function RecordPage({
             the name first, then a short photo; one price card; one main action (Unlock for visitors, Contact for
             members) with the rest quiet; where to buy only when it can be shown. No gradients, no shadows. ── */}
         <section className="speckle under-header-pad border-b border-line">
-          <div className="container-site flex flex-col gap-4 pb-8 pt-3 sm:pt-5">
+          <div className="container-site flex flex-col gap-5 pad-hero">
             <Link href={trail[0]} className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
             </Link>
@@ -239,7 +239,7 @@ export async function RecordPage({
         </StickyBar>
 
         <div className="bg-page">
-          <div className="container-site flex flex-col gap-4 py-4 sm:py-5">
+          <div className="container-site flex flex-col gap-5 pad-body">
             {catalog ? <div id="catalog" className="scroll-mt-36">{catalog}</div> : null}
             {locked ? <MemberValue wide back={back} unlocks={unlocks} plan={planInfo} /> : null}
             {/* Two to a row from laptop width: specifications, description and the child sections */}
@@ -303,7 +303,7 @@ export async function RecordPage({
       {/* ── 1–2. Identity and key facts: a deep deep brand blue band like the homepage hero. Title and
           access on the left; the photo (or, without one, the key facts) on the right. ── */}
       <header className="under-header hero-glow bg-navy text-white">
-        <div className="container-site flex flex-col gap-4 py-4 sm:gap-7 sm:py-8 lg:py-12">
+        <div className="container-site flex flex-col gap-5 pad-body sm:gap-7">
           {/* Phones: one clear way back. Wider screens: the full trail. */}
           <Link href={trail[0]} className="inline-flex min-h-[40px] w-fit items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white sm:hidden">
             <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
@@ -361,9 +361,9 @@ export async function RecordPage({
       </nav>
 
       {/* Full-width block under the tabs (a supplier's product catalog) */}
-      {catalog ? <div className="bg-page"><div id="catalog" className="container-site scroll-mt-36 pt-6 sm:pt-8">{catalog}</div></div> : null}
+      {catalog ? <div className="bg-page"><div id="catalog" className="container-site scroll-mt-36 pt-7 sm:pt-9">{catalog}</div></div> : null}
 
-      <div className="bg-page"><div className="container-site grid grid-cols-[minmax(0,1fr)] gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8 lg:py-10">
+      <div className="bg-page"><div className="container-site grid grid-cols-[minmax(0,1fr)] gap-6 pad-body lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
         <div className="flex min-w-0 flex-col gap-6">
           {/* ── 3. Practical detail ── */}
           {shownTexts.length || children ? (
@@ -471,7 +471,7 @@ export async function RecordPage({
         </aside>
       </div>
         {/* What they looked at before: easy to go back to, and the site feels like theirs */}
-        <div className="container-site pb-10"><RecentStrip exclude={back} title="You looked at these recently" /></div>
+        <div className="container-site pb-12 sm:pb-14"><RecentStrip exclude={back} title="You looked at these recently" /></div>
       </div>
     </OnboardingGate>
   );

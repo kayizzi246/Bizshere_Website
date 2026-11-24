@@ -47,7 +47,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article className="bg-page">
         <header className="under-header-pad bg-brand-dark text-white">
-          <div className="container-site flex flex-col items-center gap-3 py-5 text-center sm:py-6">
+          <div className="container-site flex flex-col items-center gap-3 pad-hero text-center">
             <Link href={overview} className="inline-flex items-center gap-1 text-[13px] font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />{name}</Link>
             <h1 className="text-hero text-[28px] leading-tight sm:text-[36px]">Startup budget</h1>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full bg-white p-1">
@@ -57,7 +57,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
           </div>
         </header>
 
-        <div className="container-site flex flex-col gap-6 py-4 sm:py-5">
+        <div className="container-site flex flex-col gap-6 pad-body">
           <section id="calculator" aria-label="Requirements and cost calculator" className="scroll-mt-24">
             {scenarios.length ? (
               <BudgetCalculator name={name} plans={plans} initial={scenario!.level} gated={gated} unlockHref={path}

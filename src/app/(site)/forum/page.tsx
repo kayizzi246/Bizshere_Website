@@ -52,7 +52,7 @@ export default async function ForumPage({ searchParams }: { searchParams: SP }) 
   return (
     <>
       <header className="under-header hero-glow bg-navy text-white">
-        <div className="container-site flex flex-col gap-5 py-10 sm:py-14">
+        <div className="container-site flex flex-col gap-5 pad-hero">
           <div className="flex max-w-3xl flex-col gap-3">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[13px] font-bold text-ink"><MessagesSquare aria-hidden className="h-4 w-4" />{d.title}</span>
             <h1 className="text-hero text-[28px] sm:text-[36px] xl:text-[42px]">Talk business with others</h1>
@@ -68,7 +68,7 @@ export default async function ForumPage({ searchParams }: { searchParams: SP }) 
         </div>
       </header>
 
-      <div className="container-site flex flex-col gap-5 py-8">
+      <div className="container-site flex flex-col gap-6 pad-body">
         {/* Start a topic */}
         <details id="start" open={Boolean(error)} className="group scroll-mt-28 rounded-2xl border border-line bg-surface [&_summary::-webkit-details-marker]:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:p-5">

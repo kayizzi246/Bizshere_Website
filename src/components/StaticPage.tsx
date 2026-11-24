@@ -1,7 +1,7 @@
 /** Layout for plain information pages (About, Methodology, Terms...). */
 export function StaticPage({ title, intro, children, draft = false }: { title: string; intro?: string; children: React.ReactNode; draft?: boolean }) {
   return (
-    <div className="container-site flex max-w-3xl flex-col gap-6 py-10">
+    <div className="container-site flex max-w-3xl flex-col gap-6 pad-body">
       <div className="flex flex-col gap-2">
         <h1 className="text-page-title">{title}</h1>
         {intro ? <p className="text-base leading-relaxed text-ink-soft">{intro}</p> : null}

@@ -164,7 +164,7 @@ export async function HomeFeatures() {
     <section id="features" className="overflow-x-clip">
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
       <div className={BAND.need}>
-      <div className="container-site flex flex-col items-center gap-5 py-6 sm:gap-6 sm:py-8">
+      <div className="container-site flex flex-col items-center gap-6 py-9 sm:gap-7 sm:py-12">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <span className="rounded-full border border-line bg-surface px-3.5 py-1 text-[13px] text-ink-soft">{greeting(viewer.name)}</span>
           {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
@@ -203,7 +203,7 @@ export async function HomeFeatures() {
           Polished on 12 Nov 2026 (client: keep these designs, make them better): an eyebrow and left-aligned
           heading like the other sections, smaller corners, no faint icons behind the words, bolder names. */}
       <div className={`${BAND.all} pb-4 sm:pb-5`}>
-      <div className="container-site flex flex-col gap-2 pt-7 sm:pt-8">
+      <div className="container-site flex flex-col gap-2 pt-9 sm:pt-12">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
         {/* The site's heading treatment (16 Nov 2026). The word is "Everything", not "needs": the promise
             here is that the whole lot is in one place, and "need" is already the orange word in the heading
@@ -217,7 +217,7 @@ export async function HomeFeatures() {
       {/* Business Ideas: a green panel built like Machines and Experts below it, and the same height: the words
           and the button on the left, the three newest plans as white photo cards on the right (rows on phones).
           Client, 11 Nov 2026: every colour box on the homepage has the same height (PANEL_H). */}
-      <div className="container-site pb-3 pt-5 sm:pt-6">
+      <div className="container-site pb-4 pt-6 sm:pt-7">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
           <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business ideas</h3>
@@ -342,7 +342,7 @@ export async function HomeFeatures() {
       </div>
 
       {/* Business Experts: a panel of its own, in plum, with real experts (public details only) */}
-      <div className="container-site pt-3">
+      <div className="container-site pt-4">
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />

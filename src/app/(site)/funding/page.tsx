@@ -52,7 +52,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   }
 
   return (
-    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" cells={cells} typeFilter={{ label: "Fund type", any: "All fund types", options: Object.values(FundingType).map(fundType) }} variant="funding" title={d.title} intro={d.text}
+    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" cells={cells} perPage={5} moreLocked={!viewer.isMember} typeFilter={{ label: "Fund type", any: "All fund types", options: Object.values(FundingType).map(fundType) }} variant="funding" title={d.title} intro={d.text}
       {...(viewer.isMember ? { apply } : { applyLocked: true })} />
   );
 }

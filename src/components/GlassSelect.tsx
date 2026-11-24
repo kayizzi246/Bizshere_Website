@@ -6,7 +6,7 @@ import { Check, ChevronDown } from "lucide-react";
 export type GlassOption = { value: string; label: string };
 
 /**
- * The site's dropdown: a button that opens a frosted-glass list (translucent, blurred backdrop,
+ * The site's dropdown: a button that opens a solid list (see-through until 24 Nov 2026, which was hard to read;
  * a soft drop-in). Replaces <select>, whose list the browser draws and can't be styled.
  *
  * Two ways to use it:
@@ -77,8 +77,8 @@ export function GlassSelect({ options, value, defaultValue, onChange, name, labe
   };
 
   const tone = dark
-    ? "border-white/15 bg-[#15171c]/70 text-white shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
-    : "border-white/60 bg-white/70 text-heading shadow-[0_18px_50px_rgba(7,26,51,0.18)]";
+    ? "border-white/15 bg-[#15171c] text-white shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
+    : "border-line bg-white text-heading shadow-[0_18px_50px_rgba(7,26,51,0.18)]";
 
   return (
     <div ref={root} className="relative min-w-0" onKeyDown={onKey}>
@@ -92,7 +92,7 @@ export function GlassSelect({ options, value, defaultValue, onChange, name, labe
 
       {open ? (
         <ul id={listId} role="listbox" aria-label={label}
-          className={`glass-drop absolute left-0 top-[calc(100%+6px)] z-50 max-h-72 min-w-full overflow-y-auto overscroll-contain rounded-2xl border p-1.5 backdrop-blur-xl backdrop-saturate-150 [scrollbar-width:thin] ${tone} ${panelClassName}`}>
+          className={`glass-drop absolute left-0 top-[calc(100%+6px)] z-50 max-h-72 min-w-full overflow-y-auto overscroll-contain rounded-2xl border p-1.5 [scrollbar-width:thin] ${tone} ${panelClassName}`}>
           {options.map((o, n) => {
             const on = o.value === current;
             return (

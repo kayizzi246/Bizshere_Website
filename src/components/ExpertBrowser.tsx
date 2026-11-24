@@ -125,7 +125,7 @@ function ExpertTile({ e }: { e: BrowseExpert }) {
         {e.online ? <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/90 px-2 py-0.5 text-[11px] font-semibold text-ink-soft"><MonitorSmartphone className="h-3 w-3" />Online</span> : null}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-3">
+      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
         {/* Seller row. The name may run to two lines (client, 17 Nov 2026): it shared one line with the
             category before, so both were cut after a few characters ("Sample T… · Taxation and…"). The
             category now sits under the name instead of beside it, which gives the name the full width

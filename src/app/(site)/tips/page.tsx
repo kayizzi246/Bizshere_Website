@@ -56,7 +56,7 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
     <>
       <ListingHeader title={d.title} intro={d.text} tabs={GUIDE_TABS} active="/tips" />
       <div className="bg-white">
-        <div className="container-site flex flex-col gap-6 py-6 sm:gap-8 sm:py-8">
+        <div className="container-site flex flex-col gap-6 pad-body sm:gap-8">
           {/* Topics as plain tabs, and the search box beside them */}
           <div className="flex flex-col gap-4 border-b border-line lg:flex-row lg:items-end lg:justify-between">
             {topics.length ? (

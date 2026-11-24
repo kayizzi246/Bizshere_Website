@@ -34,7 +34,7 @@ export default async function WhatsNewPage() {
   return (
     <>
       <ListingHeader title="What's new" intro={`Everything added to BizSphere-Ug in the last ${DAYS} days, newest first.`} />
-      <div className="container-site flex flex-col gap-5 py-6 sm:py-8">
+      <div className="container-site flex flex-col gap-6 pad-body">
         {groups.length === 0 ? (
           <div className="card flex flex-col items-center gap-2 p-10 text-center">
             <p className="font-bold text-heading">Nothing new in the last {DAYS} days.</p>

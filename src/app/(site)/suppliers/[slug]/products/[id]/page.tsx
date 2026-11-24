@@ -78,7 +78,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
       {/* The top, like the business idea and machine pages (client, 12 Nov 2026): warm specks, a smaller photo, one card
           with the price and how it is sold, one main action, the seller. No gradients, no shadows. */}
       <section className="speckle under-header-pad">
-        <div className="container-site flex flex-col gap-4 pb-8 pt-3 sm:gap-5 sm:pt-5">
+        <div className="container-site flex flex-col gap-5 pad-hero">
           {/* Where you are */}
           <nav aria-label="You are here" className="flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted">
             <Link href="/suppliers" className="text-ink-muted hover:text-brand">Suppliers</Link><span aria-hidden>/</span>
@@ -164,7 +164,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
       ) : null}
 
       <div className="bg-page">
-        <div className="container-site pb-24 pt-5 sm:py-6 lg:pb-6">
+        <div className="container-site pb-24 pt-7 sm:pb-14 sm:pt-9 lg:pb-16 lg:pt-10">
           {more.length ? (
             <SupplierCatalog items={more} gated={gated} back={back} title={`More from ${supplierName}`} />
           ) : (

@@ -30,7 +30,7 @@ export default async function TopicPage({ params }: { params: { id: string } }) 
     : { text: "Log in as a member to reply.", href: `/login?callbackUrl=${encodeURIComponent(back)}`, action: "Log in" };
 
   return (
-    <div className="container-site flex flex-col gap-3 pb-6 pt-4 sm:pt-6">
+    <div className="container-site flex flex-col gap-3 pad-hero">
       <div className="flex items-start gap-3">
         <Link href="/forum" aria-label="All topics" className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink hover:border-brand hover:text-brand"><ArrowLeft className="h-5 w-5" /></Link>
         <div className="flex min-w-0 flex-col">

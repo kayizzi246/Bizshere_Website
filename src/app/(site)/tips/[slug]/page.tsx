@@ -65,7 +65,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
     <div className="bg-[#F1F4F8]">
       {/* Topic, title, date and reading time, on the site's own dark header */}
       <header className="under-header hero-glow text-white">
-        <div className="container-site flex max-w-3xl flex-col gap-4 pb-10 pt-6 sm:pb-12 sm:pt-8">
+        <div className="container-site flex max-w-3xl flex-col gap-4 pad-hero">
           <Link href="/tips" className="inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-white/80 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All business tips</Link>
           <span className="text-[13px] font-semibold uppercase tracking-[0.1em] text-accent">{item.primaryCategory?.name ?? "Business tip"}</span>
           <h1 className="text-hero text-[30px] leading-[1.15] text-white sm:text-[42px]">{item.title}</h1>
@@ -77,7 +77,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
         </div>
       </header>
 
-      <div className="container-site flex max-w-3xl flex-col gap-8 py-6 sm:py-10">
+      <div className="container-site flex max-w-3xl flex-col gap-8 pad-body">
       <article className="flex flex-col gap-5 rounded-3xl bg-white p-6 sm:p-10">
         <RememberVisit tone="light" item={{ href: path, title: item.title, kind: "Business tip", icon: "tip" }} />
         {video ? (

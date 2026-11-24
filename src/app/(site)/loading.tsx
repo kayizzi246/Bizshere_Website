@@ -7,14 +7,14 @@ export default function SiteLoading() {
   return (
     <div role="status" aria-label="Loading" className="bg-white">
       <div className="border-b border-line">
-        <div className="container-site flex flex-col gap-4 py-8 sm:py-10">
+        <div className="container-site flex flex-col gap-4 pad-hero">
           <div className={`${bar} h-11 w-11 rounded-2xl`} />
           <div className={`${bar} h-9 w-2/3 max-w-md`} />
           <div className={`${bar} h-4 w-full max-w-xl`} />
           <div className={`${bar} h-4 w-4/5 max-w-lg`} />
         </div>
       </div>
-      <div className="container-site flex flex-col gap-6 py-8">
+      <div className="container-site flex flex-col gap-6 pad-body">
         <div className={`${bar} h-14 w-full rounded-2xl`} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (

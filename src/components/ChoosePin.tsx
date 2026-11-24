@@ -5,7 +5,7 @@ export function ChoosePin({ back, error }: { back: "/supplier" | "/expert"; erro
   const pinInput = "input min-h-[46px] w-full text-center text-[18px] tracking-[0.5em]";
   return (
     <div className="bg-page">
-      <div className="container-site py-8 sm:py-12">
+      <div className="container-site pad-body">
         <form action={changeMyPin} className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <input type="hidden" name="back" value={back} />
           <div className="flex flex-col gap-1">

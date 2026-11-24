@@ -94,7 +94,11 @@
 }
 
 @layer components {
-  .container-site { @apply mx-auto w-full max-w-site px-5 lg:px-16; }
+  .container-site { @apply mx-auto w-full max-w-site px-5 sm:px-8 lg:px-16; }
+  /* One rhythm for the space above and below (client, 24 Nov 2026): .pad-body for what a page holds, .pad-hero for
+     the band at its top. More below than above, so the last thing never sits on the footer. */
+  .pad-body { @apply pb-12 pt-7 sm:pb-14 sm:pt-9 lg:pb-16 lg:pt-10; }
+  .pad-hero { @apply pb-9 pt-7 sm:pb-11 sm:pt-9 lg:pb-12 lg:pt-10; }
   /* The homepage is a little wider than the other pages (client, 12 Nov 2026) */
   .home-wide .container-site { max-width: 1440px; } /* 64px on desktop leaves room for the left service rail */
   /* GitHub (Primer) components: small radius, thin borders, flat fills, green primary, gray default button */
