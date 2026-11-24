@@ -7,17 +7,20 @@ import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import { ProductPhotos } from "@/components/ProductPhotos";
 import type { FormOptions } from "./load";
+import { ExpertRows, type ExpertRowsValue } from "./ExpertRows";
 import { NewSupplierProducts } from "./NewSupplierProducts";
 
 type Props = {
   type: ContentType;
   options: FormOptions;
   values?: Record<string, string>;
+  /** An expert's services and jobs. */
+  expert?: ExpertRowsValue;
   multi?: { businessStages: string[]; audiences: string[]; locations: string[]; categories: string[] };
 };
 
 /** One entry form for every directory, driven by src/lib/content-fields.ts. */
-export function ContentForm({ type, options, values = {}, multi }: Props) {
+export function ContentForm({ type, options, values = {}, multi, expert }: Props) {
   const dir = directoryFor(type)!;
   const [state, action] = useFormState<ContentFormState, FormData>(saveContent, {});
   const err = (k: string) => state?.errors?.[k];
@@ -53,6 +56,7 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
     ...(dir.link && !linkAdvanced ? [["s-link", dir.link.label] as [string, string]] : []),
     ...(mainFields.length ? [[slug(MAIN), mainTitle] as [string, string]] : []),
     ...(providerFields.length ? [[slug(PROVIDER), "Provider"] as [string, string]] : []),
+    ...(type === "CONSULTANT" ? [["s-services", "Services"], ["s-jobs", "Jobs done"]] as [string, string][] : []),
     ...(newSupplier ? [["s-products", "Products"] as [string, string]] : []),
     ...(dir.children ?? []).map((c) => [slug(c.label), c.label] as [string, string]),
     ...(extraGroups.length || restOfMain.length ? [["s-more", "More details"] as [string, string]] : []),
@@ -115,6 +119,13 @@ export function ContentForm({ type, options, values = {}, multi }: Props) {
           {err("products") ? <p role="alert" className="text-sm font-semibold text-bad-fg">{err("products")}</p> : null}
           <NewSupplierProducts />
         </Section>
+      ) : null}
+
+      {type === "CONSULTANT" ? (
+        <>
+          {err("expertRows") ? <p role="alert" className="text-sm font-semibold text-bad-fg">{err("expertRows")}</p> : null}
+          <ExpertRows initial={expert ?? { services: [], jobs: [] }} />
+        </>
       ) : null}
 
       {dir.children?.map((c) => (

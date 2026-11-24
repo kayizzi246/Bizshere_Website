@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { readStoredFile, storedKey } from "./storage";
 
 const MAX_BYTES = 30 * 1024 * 1024;
 
@@ -25,7 +26,9 @@ const fetchable = (src: string) => {
 export async function pdfResponse(src: string, req: Request, name: string): Promise<Response> {
   let bytes: Buffer | null = null;
   try {
-    if (src.startsWith("/")) {
+    const key = storedKey(src);
+    if (key) bytes = await readStoredFile(key); // uploaded to this server's own disk
+    else if (src.startsWith("/")) {
       const root = path.join(process.cwd(), "public");
       const file = path.join(root, path.normalize(src).replace(/^([/\\])+/, ""));
       if (file.startsWith(root) && /\.pdf$/i.test(file)) bytes = await readFile(file);

@@ -1,26 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Heart, LockKeyhole, MonitorSmartphone, Star } from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { searchTerms } from "@/lib/search-terms";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
-import { BoardEmpty, DirectoryBoard, gridList } from "./DirectoryBoard";
+import { BoardEmpty, DirectoryBoard } from "./DirectoryBoard";
 
 /** One expert as the browser needs it: public fields only (email and phone stay on the member profile). */
 export type BrowseExpert = {
-  id: string; slug: string; href: string; name: string; about: string | null; place: string | null;
-  category: string | null; specialties: string[]; online: boolean; photo: string | null;
-  /** Contact person shown as the seller, when set. */
-  person: string | null;
-  /** Starting fee for members (e.g. "From UGX 50,000 per hour"); null when unknown. */
-  fee: string | null;
-  /** True when a fee exists but the viewer isn't a member (shown as a lock). */
-  feeLocked: boolean;
-  /** Average review rating (1–5, one decimal) and how many approved reviews, for the Fiverr-style card. */
-  rating: number | null; reviews: number;
+  id: string; slug: string; href: string;
+  /** The expert's own name, and their business. */
+  name: string; business: string | null;
+  country: string | null; category: string | null; specialties: string[]; online: boolean; photo: string | null;
   /** Newest-first position */
   order: number;
   /** Everything the search looks in, lower case: name, business, title, summary, category, town, country, skills, languages */
@@ -37,8 +30,7 @@ type Sort = (typeof SORTS)[number]["value"];
 
 /**
  * Business Experts laid out like Business Ideas (client, 13 Nov 2026): a short hero with the search, then the
- * DirectoryBoard: pinned tabs (specialties, most common first, and "Advises online") with the sort, a photo grid
- * four a row beside the side column. One box searches names, skills, towns and languages with the site's
+ * DirectoryBoard: pinned tabs (categories, and "Advises online") with the sort, and the client's table. One box searches names, skills, towns and languages with the site's
  * forgiving search words; it all happens on the page and the address keeps the choices.
  */
 export function ExpertBrowser({ experts, intro, initial }: {
@@ -52,10 +44,10 @@ export function ExpertBrowser({ experts, intro, initial }: {
   const [page, setPage] = useState(initial.page);
   const listTop = useRef<HTMLElement>(null);
 
-  // Tabs: each specialty with its count (most common first), then "Advises online"
+  // Tabs: each category with its count (most first), then "Advises online"
   const cats = useMemo(() => {
     const m = new Map<string, number>();
-    for (const e of experts) for (const s of e.specialties) m.set(s, (m.get(s) ?? 0) + 1);
+    for (const e of experts) if (e.category) m.set(e.category, (m.get(e.category) ?? 0) + 1);
     const list: [string, { name: string; n: number }][] = [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([s, n]) => [s, { name: s, n }]);
     const online = experts.filter((e) => e.online).length;
     return online ? [...list, [ONLINE, { name: "Advises online", n: online }] as [string, { name: string; n: number }]] : list;
@@ -64,7 +56,7 @@ export function ExpertBrowser({ experts, intro, initial }: {
   const items = useMemo(() => {
     const terms = searchTerms(q);
     return experts
-      .filter((e) => (!category || (category === ONLINE ? e.online : e.specialties.some((s) => s === category))) && terms.every((variants) => variants.some((v) => e.text.includes(v))))
+      .filter((e) => (!category || (category === ONLINE ? e.online : e.category === category || e.specialties.some((s) => s === category))) && terms.every((variants) => variants.some((v) => e.text.includes(v))))
       .sort(sort === "az" ? (a, b) => a.name.localeCompare(b.name) : (a, b) => a.order - b.order);
   }, [experts, q, category, sort]);
 
@@ -92,9 +84,7 @@ export function ExpertBrowser({ experts, intro, initial }: {
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={experts.length > 0} onClear={clear} /> : (
-          <ul className={gridList}>
-            {shown.map((e) => <li key={e.id} id={e.slug}><ExpertTile e={e} /></li>)}
-          </ul>
+          <ExpertTable experts={shown} from={(current - 1) * PER_PAGE + 1} />
         )}
       </DirectoryBoard>
     </>
@@ -102,69 +92,68 @@ export function ExpertBrowser({ experts, intro, initial }: {
 }
 
 /**
- * One expert as a Fiverr-style gig card (client, 14 Nov 2026): a cover photo with a save heart, the
- * seller row (avatar + contact person or business, and their line of work), the gig title (the services
- * or short description), the rating, then the starting fee. The whole card links to the profile.
+ * The client's table (24 Nov 2026): S/N, expert name, business name, country, category, specialty. The whole row opens
+ * the profile. Phones: each expert is a card with the same details by name, as six columns don't fit.
  */
-function ExpertTile({ e }: { e: BrowseExpert }) {
-  const initials = e.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-  const seller = e.person ?? e.name;
-  const line = e.category ?? "Business expert";
-  const gig = (e.specialties.length ? e.specialties.join(", ") : e.about) || `${e.name} — ${line}`;
+function ExpertTable({ experts, from }: { experts: BrowseExpert[]; from: number }) {
+  const th = "px-4 py-3 text-left text-[12px] font-semibold text-white";
+  const td = "px-4 py-3.5 align-middle text-[13px] text-ink-soft";
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-md border border-line bg-surface transition-colors hover:border-brand">
-      {/* Cover photo */}
-      <Link href={e.href} aria-label={e.name} className="relative block aspect-[4/3] overflow-hidden bg-page">
-        {e.photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={e.photo} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center bg-brand-tint text-[34px] font-extrabold tracking-[-0.03em] text-brand/70">{initials}</span>
-        )}
-        <span className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface/90 text-ink-soft" aria-hidden><Heart className="h-4 w-4" /></span>
-        {e.online ? <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-surface/90 px-2 py-0.5 text-[11px] font-semibold text-ink-soft"><MonitorSmartphone className="h-3 w-3" />Online</span> : null}
-      </Link>
-
-      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
-        {/* Seller row. The name may run to two lines (client, 17 Nov 2026): it shared one line with the
-            category before, so both were cut after a few characters ("Sample T… · Taxation and…"). The
-            category now sits under the name instead of beside it, which gives the name the full width
-            twice over; it stays semi-bold (600). Two lines is the ceiling — a longer name still ends in
-            an ellipsis rather than pushing the card out of line with its neighbours. */}
-        <div className="flex items-start gap-2">
-          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-tint text-[10px] font-bold text-brand">
-            {e.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={e.photo} alt="" className="h-full w-full object-cover" />
-            ) : initials}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-heading">{seller}</span>
-            <span className="truncate text-[12px] text-ink-muted">{line}</span>
-          </span>
-        </div>
-
-        {/* Gig title */}
-        <Link href={e.href} className="line-clamp-2 min-h-[2.4em] text-[13px] font-medium leading-snug text-ink hover:text-brand">{gig}</Link>
-
-        {/* Rating */}
-        <div className="flex items-center gap-1 text-[12px]">
-          {e.rating != null ? (
-            <><Star className="h-3.5 w-3.5 fill-[#ffb33e] text-[#ffb33e]" aria-hidden /><span className="font-bold text-heading">{e.rating.toFixed(1)}</span><span className="text-ink-muted">({e.reviews})</span></>
-          ) : <span className="text-ink-muted">New expert</span>}
-          {e.place ? <><span aria-hidden className="text-ink-muted">·</span><span className="truncate text-ink-muted">{e.place}</span></> : null}
-        </div>
-
-        {/* Footer: starting fee */}
-        <div className="mt-auto flex items-center justify-between border-t border-line pt-2">
-          {e.feeLocked ? (
-            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-ink-muted"><LockKeyhole className="h-3.5 w-3.5" />Price for members</span>
-          ) : e.fee ? (
-            <span className="text-[11px] uppercase tracking-wide text-ink-muted">Starting at <strong className="ml-1 text-[14px] normal-case tracking-normal text-heading">{e.fee.replace(/^From\s*/i, "")}</strong></span>
-          ) : <span className="text-[12px] text-ink-muted">Contact for a quote</span>}
-          <Link href={e.href} aria-label={`View ${e.name}`} className="text-[12px] font-semibold text-brand hover:text-brand-dark">View →</Link>
-        </div>
+    <>
+      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-white md:block">
+        <table className="w-full border-collapse">
+          <thead className="bg-brand-deep"><tr>
+            <th scope="col" className={`${th} w-14`}>S/N</th><th scope="col" className={th}>Expert name</th><th scope="col" className={th}>Business name</th>
+            <th scope="col" className={th}>Country</th><th scope="col" className={th}>Category</th><th scope="col" className={th}>Specialty</th>
+          </tr></thead>
+          <tbody>
+            {experts.map((e, n) => (
+              <tr key={e.id} id={e.slug} className="relative border-t border-line transition-colors hover:bg-brand-tint/50">
+                <td className={`${td} tabular-nums text-ink-muted`}>{from + n}</td>
+                <td className={td}>
+                  <span className="flex items-center gap-3">
+                    <Face e={e} />
+                    {/* The link's ::after covers the row, so a tap anywhere on it opens the profile */}
+                    <Link href={e.href} className="font-display text-[14px] font-bold text-heading after:absolute after:inset-0 hover:text-brand">{e.name}</Link>
+                  </span>
+                </td>
+                <td className={`${td} font-medium text-heading`}>{e.business ?? "—"}</td>
+                <td className={td}>{e.country ?? "—"}</td>
+                <td className={td}>{e.category ?? "—"}</td>
+                <td className={td}>{e.specialties.join(", ") || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </div>
+
+      <ol className="flex flex-col gap-3 md:hidden">
+        {experts.map((e, n) => (
+          <li key={e.id} className="relative flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
+            <span className="flex items-center gap-3">
+              <Face e={e} />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <Link href={e.href} className="font-display text-[15px] font-bold leading-snug text-heading after:absolute after:inset-0">{e.name}</Link>
+                {e.business ? <span className="text-[13px] text-ink-soft">{e.business}</span> : null}
+              </span>
+              <span className="self-start text-[12px] tabular-nums text-ink-muted">{from + n}</span>
+            </span>
+            <dl className="grid grid-cols-[84px_minmax(0,1fr)] gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[13px]">
+              {([["Country", e.country], ["Category", e.category], ["Specialty", e.specialties.join(", ")]] as const).map(([k, v]) => v ? <Fragment key={k}><dt className="text-ink-muted">{k}</dt><dd className="text-heading">{v}</dd></Fragment> : null)}
+            </dl>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
+/** The photo or logo, or the initials. */
+function Face({ e }: { e: BrowseExpert }) {
+  return (
+    <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-brand-tint text-[12px] font-bold text-brand">
+      {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+      {e.photo ? <img src={e.photo} alt="" loading="lazy" className="h-full w-full object-cover" /> : e.name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+    </span>
   );
 }

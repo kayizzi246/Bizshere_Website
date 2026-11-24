@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { Prisma } from "@prisma/client";
+import { isUpload } from "@/lib/uploads";
 import { prisma, transaction } from "@/lib/prisma";
 import { requireItemArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
@@ -43,7 +44,7 @@ export async function saveSupplierProducts(input: { contentItemId: string; produ
     const imageRaw = String(d.imageUrl ?? "").trim();
     const imageUrl = imageRaw ? (parseField({ name: "imageUrl", kind: "url" }, imageRaw, problems) as string) : null;
     // The other photos: uploaded files or https links, at most 7, none twice
-    const moreImages = [...new Set((Array.isArray(d.moreImages) ? d.moreImages : []).map((p) => String(p).trim()))].filter((p) => p !== imageUrl && /^(https:\/\/|\/uploads\/)/.test(p)).slice(0, 7);
+    const moreImages = [...new Set((Array.isArray(d.moreImages) ? d.moreImages : []).map((p) => String(p).trim()))].filter((p) => p !== imageUrl && isUpload(p)).slice(0, 7);
     const status = PRODUCT_STATUSES.includes(d.status) ? d.status : "PUBLISHED";
     const labels: Record<string, string> = { priceMin: "price from: numbers only", priceMax: "price to: numbers only", minimumOrderQuantity: "minimum order: numbers only", imageUrl: "photo: use Upload, or a link starting with https://" };
     const msg = Object.entries(problems).map(([k, v]) => (k === "productName" || k === "currency" ? v : labels[k] ?? `${k}: ${v}`));

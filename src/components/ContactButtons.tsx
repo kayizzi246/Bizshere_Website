@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { phoneNumbers } from "@/lib/expert-names";
 import { LockKeyhole, Mail, MessageCircle, Phone, type LucideIcon } from "lucide-react";
 
 /** A phone number as WhatsApp wants it: digits with the country code. Local numbers are Ugandan. */
@@ -14,9 +15,10 @@ const whatsappNumber = (phone: string) => {
  */
 export function ContactButtons({ phone, whatsapp, email, gated, back, me = "me" }: { phone?: string | null; /** A separate WhatsApp number; the phone is used when empty. */ whatsapp?: string | null; email?: string | null; gated: boolean; back: string; me?: "me" | "us" }) {
   const hello = encodeURIComponent("Hello, I found you on BizSphere-Ug.");
-  const wa = whatsapp?.trim() || phone;
+  const numbers = phoneNumbers(phone);
+  const wa = whatsapp?.trim() || numbers[0] || phone;
   const buttons: { label: string; Glyph: LucideIcon; tone: string; href: string; shows?: string | null; external?: boolean }[] = [
-    ...(phone ? [{ label: `Call ${me}`, Glyph: Phone, tone: "bg-brand text-white hover:bg-brand-dark hover:text-white", href: `tel:${phone.replace(/\s/g, "")}`, shows: phone }] : []),
+    ...(phone ? (numbers.length ? numbers : [phone]).map((p, n) => ({ label: n ? `Call ${me}, line ${n + 1}` : `Call ${me}`, Glyph: Phone, tone: "bg-brand text-white hover:bg-brand-dark hover:text-white", href: `tel:${p.replace(/\s/g, "")}`, shows: p })) : []),
     ...(wa ? [{ label: `WhatsApp ${me}`, Glyph: MessageCircle, tone: "bg-[#1F7A4D] text-white hover:bg-[#17603C] hover:text-white", href: `https://wa.me/${whatsappNumber(wa)}?text=${hello}`, shows: wa !== phone ? wa : null, external: true }] : []),
     ...(email ? [{ label: `Email ${me}`, Glyph: Mail, tone: "bg-accent text-ink hover:bg-accent-dark hover:text-white", href: `mailto:${email}?subject=${hello}`, shows: email }] : []),
   ];

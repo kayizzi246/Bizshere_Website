@@ -235,24 +235,27 @@ export const DIRECTORIES: Directory[] = [
   },
   {
     type: "CONSULTANT", label: "Business expert", model: "consultant",
-    // Business-oriented (client, 14 Nov 2026): business name, category and description (Basics), then the
-    // services, contact person and address together. The title holds the business name.
+    // The client's template (24 Nov 2026): the expert's name (the title) and the business name apart, then address, phone,
+    // country, email, district, website, specialty and the profile; services and jobs done are tables (ExpertRows.tsx).
+    // fullName is not asked for: it is the title (see actions.ts).
     hideShortSummary: true,
     labels: {
-      title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
-      main: "Services, contact person and address", mainNote: "Shown on the expert's page. Phone and email are shown to members only.", moreNote: "Optional. Fill in what you know.",
+      title: "Expert name", shortSummary: "Short description (optional)", overview: "About the expert (optional)", category: "Category",
+      main: "Business expert profile", mainNote: "Shown on the expert's page. Phone, email and the profile download are shown to members only.", moreNote: "Optional. Fill in what you know.",
     },
     fields: [
-      ess({ ...l("specialties", "Services offered", MAIN), help: "Separate with commas, e.g. tax, accounting, export" }),
-      ess(t("fullName", "Contact person name", MAIN, "The person buyers will talk to")),
-      ess(t("professionalTitle", "Job title", MAIN, "e.g. Accountant, Tax consultant")),
-      ess(t("phone", "Phone number", MAIN, "e.g. 0772 123 456")), ess(t("email", "Email address", MAIN)),
-      ess({ ...u("photoUrl", "Photo", MAIN), upload: "image" }),
-      t("address", "Physical address", MAIN, "Street, building or area, e.g. Plot 12, Kampala Road, 2nd floor"),
-      t("district", "District", MAIN, "e.g. Kampala"), { ...t("country", "Country", MAIN), initial: "Uganda" },
-      { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },
+      ess(t("businessName", "Business name", MAIN, "e.g. BAC Agro Farms")),
+      ess({ ...l("specialties", "Specialty", MAIN), help: "Separate with commas, e.g. bee keeping, fish farming" }),
+      ess({ ...u("photoUrl", "Photo or logo", MAIN), upload: "image" }),
+      ess(t("address", "Address", MAIN, "e.g. Kiyembe Lane, JBK Plaza, Shop K23")),
+      ess(t("phone", "Phone", MAIN, "Separate several with commas, e.g. 0772 547 273, 0701 547 273")),
+      ess({ ...t("country", "Country", MAIN), initial: "Uganda" }),
+      ess(t("email", "Email", MAIN)),
+      ess(t("district", "District", MAIN, "e.g. Wakiso")),
+      ess({ ...u("website", "Website", MAIN), help: "e.g. www.example.com" }),
+      ess({ ...u("profileUrl", "Profile (CV or company profile to download)", MAIN), upload: "file" }),
+      t("professionalTitle", "Job title", "Experience and languages", "e.g. Accountant, Tax consultant"),
       l("languages", "Languages", "Experience and languages"), { ...l("deliveryModes", "How they work", "Experience and languages"), help: "Separate with commas, e.g. in person, online" }, ta("experience", "Experience", "Experience and languages"),
-      { ...u("profileUrl", "Profile to download (CV or company profile)", "Experience and languages"), upload: "file" },
       d("feeMin", "Fee from", "Fees", MONEY_HELP), d("feeMax", "Fee to", "Fees", MONEY_HELP), cur("Fees"), t("pricingBasis", "Charged", "Fees", "per hour, per day, per project"),
       i("consultationMins", "Consultation length (minutes)", "Fees"), b("quotationRequired", "Gives a quote first", "Fees"),
       t("availability", "When they are available", "Availability"), t("responseTime", "How fast they reply", "Availability"), u("bookingUrl", "Booking or enquiry link", "Availability"),

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Briefcase, CheckCircle2, Clock, FileText, KeyRound, Link2, Plus, Trash2, UserRound, XCircle } from "lucide-react";
 import { DashCard, DashHero, DashNotice, DashSteps } from "@/components/PartnerDash";
 import { getSession } from "@/lib/auth";
+import { DIRECTORY_KINDS } from "@/lib/categories";
 import { prisma } from "@/lib/prisma";
 import { UploadButton } from "@/components/UploadButton";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -61,8 +62,9 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
   if ((await partnerAccess(session.user.id, "expert")).mustPay) redirect("/experts/join");
   const expert = await prisma.consultant.findUnique({
     where: { ownerId: session.user.id },
-    include: { contentItem: { select: { slug: true, shortSummary: true, overview: true, publicationStatus: true } }, projects: { orderBy: { createdAt: "desc" } }, services: { orderBy: { name: "asc" } } },
+    include: { contentItem: { select: { primaryCategoryId: true, slug: true, shortSummary: true, overview: true, publicationStatus: true } }, projects: { orderBy: { createdAt: "desc" } }, services: { orderBy: { id: "asc" } } },
   });
+  const categories = expert ? await prisma.category.findMany({ where: { kind: { in: DIRECTORY_KINDS.CONSULTANT } }, orderBy: { name: "asc" }, select: { id: true, name: true } }) : [];
 
   const signOut = <span className="w-32"><SignOutButton to="/expert" className="border border-line bg-white text-ink-soft hover:border-brand" /></span>;
   if (!expert) {
@@ -108,16 +110,21 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
                 <ul className="flex flex-col gap-2">
                   {expert.services.map((s) => (
                     <li key={s.id} className="flex items-center gap-3 rounded-2xl border border-line px-4 py-3 text-[14px]">
-                      <span className="flex min-w-0 flex-1 flex-col"><span className="font-display font-bold text-heading">{s.name}</span><span className="text-[13px] text-ink-soft">{[s.price, s.remark].filter(Boolean).join(" · ") || "No price given"}</span></span>
+                      <span className="flex min-w-0 flex-1 flex-col"><span className="font-display font-bold text-heading">{s.name}</span><span className="text-[13px] text-ink-soft">{[s.description ?? s.remark, s.duration, s.price].filter(Boolean).join(" · ") || "No details given"}</span></span>
                       <form action={deleteService}><input type="hidden" name="id" value={s.id} /><button aria-label={`Remove ${s.name}`} className="flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-bad-bg hover:text-bad-fg"><Trash2 aria-hidden className="h-4 w-4" /></button></form>
                     </li>
                   ))}
                 </ul>
               ) : <p className="rounded-2xl bg-page p-5 text-center text-[14px] text-ink-muted">No services yet. Add the first one below.</p>}
               <form key={expert.services.length} action={addService} className="grid gap-3 rounded-2xl bg-page p-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                <label className={label}>What is the service?<input name="name" required minLength={2} maxLength={160} placeholder="e.g. Filing tax returns" className={`${input} min-h-[48px]`} /></label>
+                <label className={`${label} sm:col-span-2`}>Service name<input name="name" required minLength={2} maxLength={160} placeholder="e.g. Filing tax returns" className={`${input} min-h-[48px]`} /></label>
+                <label className={`${label} sm:col-span-2`}>Description (optional)<textarea name="description" maxLength={1000} rows={2} placeholder="e.g. Hands-on training at your farm" className="input w-full py-2.5 text-[14px]" /></label>
+                <label className={label}>Duration (optional)<input name="duration" maxLength={80} placeholder="e.g. 3 days" className={`${input} min-h-[48px]`} /></label>
                 <label className={label}>Price (optional)<input name="price" maxLength={80} placeholder="e.g. UGX 200,000" className={`${input} min-h-[48px]`} /></label>
-                <label className={`${label} sm:col-span-2`}>A short note (optional)<input name="remark" maxLength={200} placeholder="e.g. Per month, for small businesses" className={input} /></label>
+                <div className={`${label} sm:col-span-2`}>Picture (optional)
+                  <UploadButton target="imageUrl" kind="image" />
+                  <input name="imageUrl" placeholder="Filled in after you upload" aria-label="Picture address" className={`${input} text-[13px] text-ink-muted`} />
+                </div>
                 <button className="btn-primary min-h-[48px] px-6 text-[15px] sm:col-span-2 sm:w-fit"><Plus aria-hidden className="h-4 w-4" />Add this service</button>
               </form>
             </DashCard>
@@ -172,7 +179,8 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
                   <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
                 </div>
                 <label className={label}>What you do (your title)<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
-                <label className={label}>What you are good at<input name="specialties" defaultValue={expert.specialties.join(", ")} placeholder="e.g. tax, accounting, export" className={input} /><span className="text-xs font-normal text-ink-muted">Put a comma between each one.</span></label>
+                <label className={label}>Category<select name="category" defaultValue={expert.contentItem.primaryCategoryId ?? ""} className={input}><option value="">Choose…</option>{categories.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                <label className={label}>Specialty<input name="specialties" defaultValue={expert.specialties.join(", ")} placeholder="e.g. tax, accounting, export" className={input} /><span className="text-xs font-normal text-ink-muted">Put a comma between each one.</span></label>
                 <label className={label}>Business or firm name<input name="businessName" defaultValue={expert.businessName ?? ""} className={input} /></label>
                 <label className={label}>Phone clients call<input name="phone" type="tel" defaultValue={expert.phone ?? ""} placeholder="0772 123 456" className={input} /></label>
                 <label className={label}>Email (if you have one)<input name="email" type="email" defaultValue={expert.email ?? ""} className={input} /></label>

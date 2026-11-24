@@ -18,3 +18,6 @@ export const allowedTypes = (kind: UploadKind) => (kind === "image" ? IMAGE_TYPE
 /** Cloud uploads go straight from the browser to storage; the local fallback passes through the server. */
 export const MAX_CLOUD_BYTES = 50 * 1024 * 1024;
 export const MAX_LOCAL_BYTES = 20 * 1024 * 1024;
+
+/** An uploaded file's address: this server's own disk (/api/uploads/), public/uploads in development, or https. */
+export const isUpload = (v: string) => /^(https:\/\/|\/uploads\/|\/api\/uploads\/)/.test(v);

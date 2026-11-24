@@ -140,7 +140,7 @@
      table of money reads as a table rather than as ragged text. */
   .nums { font-variant-numeric: tabular-nums; }
   /* Type scale, all Inter (client, 13 Nov 2026): hero 800 and very tight · page and section titles 700 · card titles 600–700 */
-  .text-hero { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .text-hero { font-family: var(--font-heading), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
   /* Smaller titles on every page (client, 13 Nov 2026): page 24→32 (was 28→42), section 20→24 (was 24→30), block 17→19 (was 20→24) */
   .text-page-title { @apply font-display text-[24px] font-black leading-[1.15] tracking-[-0.02em] sm:text-[28px] lg:text-[32px]; }
   .text-section-title { @apply font-display text-[20px] font-black leading-[1.2] tracking-[-0.02em] sm:text-[22px] lg:text-[24px]; }
@@ -614,14 +614,18 @@ main h1.text-hero:not([data-home]) { font-size: 25px !important; line-height: 1.
 @media (min-width: 1280px) { main h1.text-hero:not([data-home]) { font-size: 36px !important; } }
 /* Page titles and big section titles on every page: Inter Bold, tight (client, 13 Nov 2026). */
 /* Every heading the same (client, 13 Nov 2026, after a "Success Stories" example), and since
-   24 Nov 2026 Inter Tight Semibold (600), -0.03em on titles and -0.02em on sub-headings, after a wordmark the client sent. !important so a heading's own
+   24 Nov 2026 Manrope: ExtraBold (800) titles and Bold (700) sub-headings, from the client's typography sheet. !important so a heading's own
    weight class (font-bold, font-semibold…) can't make it lighter. */
 h1, h2, h3, h4, h5, h6, .text-hero, .text-page-title, .text-section-title, .text-block-title {
-  font-family: var(--font-heading), var(--font-inter), system-ui, sans-serif !important; font-weight: 600 !important; letter-spacing: -0.02em !important;
+  font-family: var(--font-heading), var(--font-inter), system-ui, sans-serif !important; font-weight: 700 !important; letter-spacing: -0.02em !important;
   /* Tight line-height on every heading, like the reference hero (client, 14 Nov 2026). */
-  line-height: 1.1 !important;
+  line-height: 1.12 !important;
 }
-h1, h2, .text-hero, .text-page-title, .text-section-title { letter-spacing: -0.03em !important; }
+h1, h2, .text-hero, .text-page-title, .text-section-title { font-weight: 800 !important; letter-spacing: -0.03em !important; }
+/* Manrope's own weights, where it is used for navigation and titles; buttons are Inter. */
+.font-display.font-extrabold, .font-display.font-black { font-weight: 800; }
+.font-display.font-bold { font-weight: 700; }
+button, button.font-display, .btn, .btn-primary, .btn-outline { font-family: var(--font-inter), system-ui, sans-serif; }
 /* JPG photos always have a background, so they fill their frame from the first paint, before ImageFit runs */
 main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" i]):not([data-nofit]) { object-fit: cover !important; }
 
@@ -789,19 +793,19 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
   /* Was Semibold at near-normal tracking (17 Nov 2026, after a trading-site card). It now follows
      the hero like every other heading (client, 18 Nov 2026); only the roomier line height is kept,
      because these titles run to two lines inside a panel. */
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   letter-spacing: -0.02em !important;
   line-height: 1.24 !important;
 }
 
 /* ── .hero-title: the homepage headline ───────────────────────────────────────────────────────
-   Semibold (600) since 24 Nov 2026 (client), like every heading; Black (900) from 18 Nov, Bold before that, after a reference sent on 17 Nov. The
+   ExtraBold (800) since 24 Nov 2026, like every title; Black (900) from 18 Nov, Bold before that, after a reference sent on 17 Nov. The
    global heading rule forces every h1 to weight 800 with !important, so this needs !important back
    — the one place that rule is deliberately overridden. The font is loaded as a 400-900 variable
    file (src/app/layout.tsx); asking for a weight the loader does not declare only clamps it.
    Size is set on the element itself. */
 .hero-title {
-  font-weight: 600 !important;
+  font-weight: 800 !important;
   letter-spacing: -0.02em !important;
   line-height: 1.12 !important;
 }

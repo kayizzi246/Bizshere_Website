@@ -9,6 +9,7 @@ import { requireContentType } from "@/lib/access";
 import { audit } from "@/lib/audit";
 import { categorySlug, DIRECTORY_KINDS, findOrAddCategory } from "@/lib/categories";
 import { directoryFor, FREE_TYPES, RELATIONSHIP_TYPES, type ChildList } from "@/lib/content-fields";
+import { isUpload } from "@/lib/uploads";
 import { currencyCode, looseNumber, parseField } from "@/lib/field-parse";
 
 export type ContentFormState = { errors?: Record<string, string> };
@@ -29,6 +30,31 @@ const DELEGATE = {
 type UpsertDelegate = { upsert(args: { where: { contentItemId: string }; create: Record<string, unknown>; update: Record<string, unknown> }): Promise<{ id: string }> };
 
 const str = (v: FormDataEntryValue | null) => (v === null ? "" : String(v).trim());
+/** The Services and Jobs done rows of the expert form (ExpertRows.tsx). */
+async function saveExpertRows(tx: Tx, consultantId: string, form: FormData) {
+  const val = (k: string, max: number) => str(form.get(k)).slice(0, max) || null;
+  const keys = (n: string) => form.getAll(n).map(String).filter((k) => /^[nsj][0-9]+$/.test(k)).slice(0, 100);
+  const loaded = (n: string) => form.getAll(n).map(String);
+  const keptServices: string[] = [], keptJobs: string[] = [];
+  for (const k of keys("ex_service")) {
+    const name = val(`${k}_name`, 160), id = str(form.get(`${k}_id`));
+    if (!name) continue;
+    const image = val(`${k}_image`, 1000);
+    const data = { name, description: val(`${k}_description`, 1000), duration: val(`${k}_duration`, 80), price: val(`${k}_price`, 80), imageUrl: image && isUpload(image) ? image : null };
+    if (id) { keptServices.push(id); await tx.consultantService.updateMany({ where: { id, consultantId }, data: { ...data, remark: null } }); }
+    else await tx.consultantService.create({ data: { ...data, consultantId } });
+  }
+  for (const k of keys("ex_job")) {
+    const title = val(`${k}_name`, 160), id = str(form.get(`${k}_id`));
+    if (!title) continue;
+    const data = { title, clientName: val(`${k}_client`, 160), publicationPermitted: str(form.get(`${k}_show`)) !== "no" };
+    if (id) { keptJobs.push(id); await tx.consultantProject.updateMany({ where: { id, consultantId, status: "PUBLISHED" }, data }); }
+    else await tx.consultantProject.create({ data: { ...data, consultantId, status: "PUBLISHED" } });
+  }
+  await tx.consultantService.deleteMany({ where: { consultantId, id: { in: loaded("ex_loaded_service").filter((x) => !keptServices.includes(x)) } } });
+  await tx.consultantProject.deleteMany({ where: { consultantId, status: "PUBLISHED", id: { in: loaded("ex_loaded_job").filter((x) => !keptJobs.includes(x)) } } });
+}
+
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 80);
 const optDate = (v: string) => (v ? new Date(v) : null);
 
@@ -139,8 +165,11 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
     if (specialised.supplierId && !(await prisma.supplier.findUnique({ where: { id: String(specialised.supplierId) }, select: { id: true } }))) errors.supplierId = "That supplier is no longer on the site. Choose another.";
     if (typeof specialised.providerEmail === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(specialised.providerEmail)) errors.providerEmail = "Not an email address";
   }
-  // An expert's name: typed once, as the page title, unless it is different
-  if (type === "CONSULTANT" && !specialised.fullName && title) specialised.fullName = title;
+  // An expert's name: typed once, as the page title. Their email must look like one.
+  if (type === "CONSULTANT") {
+    if (title) specialised.fullName = title;
+    if (typeof specialised.email === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(specialised.email)) errors.email = "Not an email address";
+  }
   // Left empty, a new page gets its own organization or fund provider (made below, with the page);
   // an existing page keeps the one it has.
   const linkId = dir.link ? str(form.get(dir.link.field)) : "";
@@ -173,7 +202,7 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
   if (type === "SUPPLIER" && !id) {
     const col = (k: string) => form.getAll(k).map((v) => String(v).trim());
     const [names, prices, units, galleries] = [col("np_name"), col("np_price"), col("np_unit"), col("np_images")];
-    const ok = (p: unknown) => typeof p === "string" && /^(https:\/\/|\/uploads\/)/.test(p);
+    const ok = (p: unknown) => typeof p === "string" && isUpload(p);
     names.slice(0, 100).forEach((productName, n) => {
       if (!productName) return;
       const problems: Record<string, string> = {};
@@ -238,6 +267,8 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
 
     const delegate = tx[DELEGATE[dir.model]] as unknown as UpsertDelegate;
     const record = await delegate.upsert({ where: { contentItemId: item.id }, create: { ...specialised, contentItemId: item.id }, update: specialised });
+
+    if (type === "CONSULTANT" && form.has("ex_rows")) await saveExpertRows(tx, record.id, form);
 
     // A supplier's address lives on its business's main location
     if (type === "SUPPLIER" && form.has("f_address")) {

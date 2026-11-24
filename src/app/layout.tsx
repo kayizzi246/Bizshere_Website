@@ -7,7 +7,7 @@ import { Providers } from "./providers";
 import { ImageFit } from "@/components/ImageFit";
 import { site } from "@/config/site";
 
-// One font on the whole site (client, 13 Nov 2026, after an example site): Inter for headings and body text alike.
+// Two fonts (client, 24 Nov 2026): Manrope for headings, navigation and titles (below), Inter for everything else.
 // Headings in Bold (700) with tight letter spacing, the big homepage headline in ExtraBold (800), body text in
 // Regular to Semibold.
 //
@@ -26,11 +26,12 @@ const inter = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
-// Headings only (client, 24 Nov 2026, after a wordmark they sent): Inter Tight, the tight Helvetica-like cut of
-// Inter. Kept in the repo like Inter, under the SIL Open Font License (src/fonts/inter-tight-LICENSE.txt).
-const interTight = localFont({
-  src: "../fonts/inter-tight-latin-var.woff2",
-  weight: "100 900",
+// Headings, navigation and titles (client, 24 Nov 2026, from their typography sheet): Manrope, Medium to ExtraBold.
+// Inter does the rest: body text, forms, tables, buttons and labels. Kept in the repo like Inter, under the SIL
+// Open Font License (src/fonts/manrope-LICENSE.txt).
+const manrope = localFont({
+  src: "../fonts/manrope-latin-var.woff2",
+  weight: "200 800",
   style: "normal",
   variable: "--font-heading",
   display: "swap",
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${interTight.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
         <ImageFit />

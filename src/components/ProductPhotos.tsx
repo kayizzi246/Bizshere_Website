@@ -15,7 +15,7 @@ export const MAX_PRODUCT_PHOTOS = 8;
  *     as `imageUrl` and the others as `moreImages`;
  *   - controlled (the admin's product window): pass `onChange` and keep the list yourself.
  */
-export function ProductPhotos({ initial, onChange, mainName = "imageUrl", extraName = "moreImages" }: { initial: string[]; onChange?: (photos: string[]) => void; mainName?: string; extraName?: string }) {
+export function ProductPhotos({ initial, onChange, mainName = "imageUrl", extraName = "moreImages", max = MAX_PRODUCT_PHOTOS }: { /** How many at most (1: a single picture). */ max?: number; initial: string[]; onChange?: (photos: string[]) => void; mainName?: string; extraName?: string }) {
   const [own, setOwn] = useState(initial);
   const [busy, setBusy] = useState(0);
   const [error, setError] = useState("");
@@ -26,9 +26,9 @@ export function ProductPhotos({ initial, onChange, mainName = "imageUrl", extraN
   const add = async (files: FileList | null) => {
     if (!files?.length) return;
     setError("");
-    const room = MAX_PRODUCT_PHOTOS - photos.length;
+    const room = max - photos.length;
     const chosen = [...files].slice(0, room);
-    if (files.length > room) setError(`A product can have ${MAX_PRODUCT_PHOTOS} photos. Only the first ${room} were added.`);
+    if (files.length > room) setError(`${max === 1 ? "One picture only." : `A product can have ${max} photos.`} Only the first ${room} were added.`);
     setBusy(chosen.length);
     let list = photos;
     for (const file of chosen) {
@@ -62,16 +62,16 @@ export function ProductPhotos({ initial, onChange, mainName = "imageUrl", extraN
         {Array.from({ length: busy }, (_, n) => (
           <li key={`busy-${n}`} className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-line-strong bg-page text-ink-muted sm:h-24 sm:w-24"><Loader2 aria-hidden className="h-5 w-5 animate-spin" /></li>
         ))}
-        {photos.length + busy < MAX_PRODUCT_PHOTOS ? (
+        {photos.length + busy < max ? (
           <li>
             <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-brand/50 bg-brand-tint text-center text-[11px] font-semibold text-brand-dark hover:border-brand sm:h-24 sm:w-24">
-              <ImagePlus aria-hidden className="h-5 w-5" />{photos.length ? "Add more" : "Add photos"}
-              <input ref={input} type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(e) => add(e.target.files)} />
+              <ImagePlus aria-hidden className="h-5 w-5" />{max === 1 ? "Add picture" : photos.length ? "Add more" : "Add photos"}
+              <input ref={input} type="file" multiple={max > 1} accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={(e) => add(e.target.files)} />
             </label>
           </li>
         ) : null}
       </ul>
-      <span className="text-[12px] text-ink-muted">Up to {MAX_PRODUCT_PHOTOS} photos. You can choose several at once. The first one is the main photo.</span>
+      <span className="text-[12px] text-ink-muted">{max === 1 ? "One picture. Take it off to choose another." : `Up to ${max} photos. You can choose several at once. The first one is the main photo.`}</span>
       {error ? <span role="alert" className="text-[12px] font-semibold text-bad-fg">{error}</span> : null}
     </div>
   );

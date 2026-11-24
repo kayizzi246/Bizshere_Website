@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { requireArea } from "@/lib/access";
 import { audit } from "@/lib/audit";
+import { isUpload } from "@/lib/uploads";
+import { DIRECTORY_KINDS } from "@/lib/categories";
 import { phoneKey } from "@/lib/phone-codes";
 import { ensureUsername, personalUrl, sendPin } from "@/lib/pin-accounts";
 import { discardFiles, filesDropped, filesOf } from "@/lib/file-cleanup";
@@ -33,7 +35,7 @@ async function ownExpert() {
 const refresh = (slug: string) => { revalidatePath("/expert"); revalidatePath(`/experts/${slug}`); revalidatePath("/experts"); };
 
 // Photos and files: an uploaded file (/uploads/… or the storage's https address) or any https address.
-const asset = z.string().trim().max(1000).refine((v) => v === "" || v.startsWith("/uploads/") || /^https:\/\//.test(v), "Use the Upload button or an https address.");
+const asset = z.string().trim().max(1000).refine((v) => v === "" || isUpload(v), "Use the Upload button or an https address.");
 const link = z.string().trim().max(500).refine((v) => v === "" || /^https?:\/\/[^\s]+\.[^\s]+/.test(v), "Links start with https://");
 const text = (max: number) => z.string().trim().max(max).transform((v) => v || null);
 const list = (max: number) => z.string().max(2000).transform((v) => v.split(/[,\n]/).map((x) => x.trim()).filter(Boolean).slice(0, max));
@@ -61,19 +63,24 @@ export async function saveExpertProfile(form: FormData) {
   if (!parsed.success) redirect("/expert?error=profile");
   const { photoUrl, profileUrl, email, website, ...rest } = parsed.data;
   await prisma.consultant.update({ where: { id: expert.id }, data: { ...rest, photoUrl: photoUrl || null, profileUrl: profileUrl || null, email: email || null, website: website || null } });
+  // The category is the page's own: only one from the experts' list.
+  const category = field(form, "category");
+  if (category && (await prisma.category.findFirst({ where: { id: category, kind: { in: DIRECTORY_KINDS.CONSULTANT } }, select: { id: true } }))) {
+    await prisma.contentItem.update({ where: { id: expert.contentItem.id }, data: { primaryCategoryId: category } });
+  }
   await audit(userId, "expert.profile_saved", "consultant", expert.id);
   refresh(expert.contentItem.slug);
   redirect("/expert?saved=profile");
 }
 
-const serviceSchema = z.object({ name: z.string().trim().min(2).max(160), price: text(80), remark: text(200) });
+const serviceSchema = z.object({ name: z.string().trim().min(2).max(160), description: text(1000), duration: text(80), price: text(80), imageUrl: asset });
 
 /** The expert adds a service to the Services table on their page. Shows at once, as their profile does. */
 export async function addService(form: FormData) {
   const { expert, userId } = await ownExpert();
-  const parsed = serviceSchema.safeParse({ name: field(form, "name"), price: field(form, "price"), remark: field(form, "remark") });
+  const parsed = serviceSchema.safeParse({ name: field(form, "name"), description: field(form, "description"), duration: field(form, "duration"), price: field(form, "price"), imageUrl: field(form, "imageUrl") });
   if (!parsed.success) redirect("/expert?error=service");
-  await prisma.consultantService.create({ data: { ...parsed.data, consultantId: expert.id } });
+  await prisma.consultantService.create({ data: { ...parsed.data, imageUrl: parsed.data.imageUrl || null, consultantId: expert.id } });
   await audit(userId, "expert.service_added", "consultant", expert.id);
   refresh(expert.contentItem.slug);
   redirect("/expert?saved=service");
@@ -82,7 +89,11 @@ export async function addService(form: FormData) {
 /** Removes one of the expert's own services. */
 export async function deleteService(form: FormData) {
   const { expert, userId } = await ownExpert();
-  await prisma.consultantService.deleteMany({ where: { id: field(form, "id"), consultantId: expert.id } });
+  const gone = await prisma.consultantService.findFirst({ where: { id: field(form, "id"), consultantId: expert.id }, select: { id: true, imageUrl: true } });
+  if (gone) {
+    await prisma.consultantService.delete({ where: { id: gone.id } });
+    discardFiles(gone.imageUrl);
+  }
   await audit(userId, "expert.service_removed", "consultant", expert.id);
   refresh(expert.contentItem.slug);
   redirect("/expert?saved=service-removed");

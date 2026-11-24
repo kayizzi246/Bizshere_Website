@@ -39,14 +39,13 @@ const config: Config = {
         bad: { bg: v("bad-bg"), fg: v("bad-fg") },
         info: { bg: v("info-bg"), fg: v("info-fg") },
       },
-      // Lighter type on the whole site (client, 24 Nov 2026, after a pricing page they sent): nothing is heavier
-      // than Semibold. Inter is a variable file, so 550 is a real weight between Medium and Semibold.
-      fontWeight: { medium: "500", semibold: "550", bold: "600", extrabold: "600", black: "600" },
+      // Inter is never heavier than Semibold (client, 24 Nov 2026). Manrope goes up to ExtraBold: see .font-display in globals.css.
+      fontWeight: { medium: "500", semibold: "600", bold: "600", extrabold: "600", black: "600" },
       fontFamily: {
-        // One font on the whole site (client, 13 Nov 2026): Inter. "display" and "hero" stay as names for headings.
+        // Two fonts (client, 24 Nov 2026): Inter for text, forms and buttons; "display" and "hero" are Manrope.
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-inter)", "system-ui", "sans-serif"], // headings, nav, UI titles
-        hero: ["var(--font-inter)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
+        display: ["var(--font-heading)", "system-ui", "sans-serif"], // headings, nav, UI titles
+        hero: ["var(--font-heading)", "system-ui", "sans-serif"], // hero headlines and footer wordmark
       },
       // Motion defaults: a strong ease-out and a short duration, so everything answers at once. "scale"
       // is included for the press feedback in globals.css.

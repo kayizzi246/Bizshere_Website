@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { isUpload } from "@/lib/uploads";
 import { getSession } from "@/lib/auth";
 import { phoneKey } from "@/lib/phone-codes";
 import { requireArea } from "@/lib/access";
@@ -40,7 +41,7 @@ async function ownSupplier(supplierId: string) {
 const refresh = (slug: string) => { revalidatePath("/supplier"); revalidatePath(`/suppliers/${slug}`); revalidatePath("/suppliers"); };
 
 // Photos: an uploaded file (/uploads/…) or an https address. Nothing else.
-const photo = z.string().trim().max(1000).refine((v) => v === "" || v.startsWith("/uploads/") || /^https:\/\//.test(v), "Use the Upload button or an https address.");
+const photo = z.string().trim().max(1000).refine((v) => v === "" || isUpload(v), "Use the Upload button or an https address.");
 // A price as people type it: "5000", "5,000", "UGX 5,000", "5000/=". Empty means not given.
 const money = z.string().trim().max(30).transform((v) => { if (v === "") return null; const n = v.match(/\d[\d,]*(?:\.\d+)?/g); return n?.length === 1 ? Number(n[0].replace(/,/g, "")) : NaN; }).refine((v) => v === null || (Number.isFinite(v) && v >= 0), "Enter a number");
 const text = (max: number) => z.string().trim().max(max).transform((v) => v || null);

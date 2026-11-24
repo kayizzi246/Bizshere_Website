@@ -1,6 +1,7 @@
 import type { ContentType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { DIRECTORY_KINDS } from "@/lib/categories";
+import { expertNames } from "@/lib/expert-names";
 import { directoryFor, type Field } from "@/lib/content-fields";
 
 export type Option = { value: string; label: string };
@@ -56,7 +57,7 @@ export async function loadValues(id: string) {
       machine: true, businessTip: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } },
       fundingProgramme: { include: { provider: { select: { phone: true, email: true, country: true, organization: { select: { website: true, logoUrl: true } } } } } }, investmentOpportunity: true,
       guide: { include: { steps: { orderBy: { stepNumber: "asc" } }, documents: true } },
-      consultant: true,
+      consultant: { include: { services: { orderBy: { id: "asc" } }, projects: { where: { status: "PUBLISHED" }, orderBy: { createdAt: "asc" } } } },
       recipe: { include: { ingredients: { orderBy: { order: "asc" } }, steps: { orderBy: { stepNumber: "asc" } } } },
       tool: true, website: true, news: true,
     },
@@ -76,6 +77,8 @@ export async function loadValues(id: string) {
     }
   }
   if (dir.link && record) values[dir.link.field] = String(record[dir.link.field] ?? "");
+  const names = item.consultant ? expertNames(item.title, item.consultant) : null;
+  if (names) values.f_businessName = names.business ?? "";
   if (item.supplier) values.f_address = item.supplier.organization.locations[0]?.physicalAddress ?? "";
   const funder = item.fundingProgramme?.provider;
   if (funder) Object.assign(values, { f_funderPhone: funder.phone ?? "", f_funderEmail: funder.email ?? "", f_funderCountry: funder.country, f_funderWebsite: funder.organization.website ?? "", f_funderLogo: funder.organization.logoUrl ?? "" });
@@ -94,7 +97,7 @@ export async function loadValues(id: string) {
     values: {
       ...values,
       id: item.id,
-      title: item.title,
+      title: names?.name ?? item.title,
       slug: item.slug,
       shortSummary: item.shortSummary ?? "",
       overview: item.overview ?? "",
@@ -108,6 +111,10 @@ export async function loadValues(id: string) {
       entitlements: item.entitlements.map((e) => e.entitlement).join(", "),
       relations: item.relatedFrom.map((r) => `${r.relationshipType} ${r.toItem.slug}`).join("\n"),
     },
+    expert: item.consultant ? {
+      services: item.consultant.services.map((s) => ({ id: s.id, name: s.name, description: s.description ?? s.remark ?? "", duration: s.duration ?? "", price: s.price ?? "", imageUrl: s.imageUrl ?? "" })),
+      jobs: item.consultant.projects.map((j) => ({ id: j.id, title: j.title, client: j.clientName ?? "", show: j.publicationPermitted })),
+    } : undefined,
     multi: {
       businessStages: item.businessStages as string[],
       audiences: item.audiences.map((a) => a.audienceId),

@@ -1376,6 +1376,9 @@ model ConsultantService {
   price        String?
   remark       String?
   description  String?
+  /// Free text, e.g. "3 days"
+  duration     String?
+  imageUrl     String?
   deliverables String?
   deliveryMode String?
   coverage     String?

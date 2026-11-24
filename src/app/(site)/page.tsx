@@ -98,8 +98,8 @@ export default async function HomePage() {
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day.
                   Orange and white, as in the menu bar, instead of navy with a moving ring (client, 24 Nov 2026). */}
-              <Link href="/suppliers/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 font-display text-[14px] font-extrabold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-accent text-ink hover:bg-[#FFA64D] hover:text-ink">Join our suppliers</Link>
-              <Link href="/experts/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 font-display text-[14px] font-extrabold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-white text-brand-deep hover:bg-brand-tint hover:text-brand-deep">Join our experts</Link>
+              <Link href="/suppliers/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[14px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-accent text-ink hover:bg-[#FFA64D] hover:text-ink">Join our suppliers</Link>
+              <Link href="/experts/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[14px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-white text-brand-deep hover:bg-brand-tint hover:text-brand-deep">Join our experts</Link>
             </div>
           </div>
 

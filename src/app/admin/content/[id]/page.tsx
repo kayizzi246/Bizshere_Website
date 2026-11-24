@@ -19,7 +19,7 @@ export default async function EditContentPage({ params, searchParams }: { params
   const user = await requireItemArea(params.id);
   const loaded = await loadValues(params.id);
   if (!loaded) notFound();
-  const { item, values, multi } = loaded;
+  const { item, values, multi, expert } = loaded;
   const supplierId = item.contentType === "SUPPLIER" ? item.supplier?.id : undefined;
   const [options, checks, corrections, products] = await Promise.all([
     loadOptions(item.contentType, item.primaryCategoryId),
@@ -82,7 +82,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       {searchParams.saved && !searchParams.in && (searchParams.saved !== "1" || item.publicationStatus === "PUBLISHED") ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{searchParams.saved === "1" ? (item.contentType === "SUPPLIER" ? "Saved. Add this supplier's products with Manage products, below." : "Saved. A revision was recorded.") : "Saved."}</p> : null}
       {searchParams.error && !searchParams.in ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
 
-      <ContentForm type={item.contentType} options={options} values={values} multi={multi} />
+      <ContentForm type={item.contentType} options={options} values={values} multi={multi} expert={expert} />
 
       {/* A supplier: the products come straight after the details, in their own window (one Save on this page,
           one in the window); the rest is rarely needed. */}
@@ -103,7 +103,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       ) : (
         <>
           <ChildEditors contentItemId={item.id} ideaId={item.businessIdea?.id} programmeId={item.fundingProgramme?.id} />
-          {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} notice={searchParams} /> : null}
+          {item.contentType !== "RECIPE" ? <ChildTableEditor contentItemId={item.id} type={item.contentType} except={item.contentType === "CONSULTANT" ? ["services", "projects"] : undefined} notice={searchParams} /> : null}
           {record}
         </>
       )}
