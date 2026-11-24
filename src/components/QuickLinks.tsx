@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronUp } from "lucide-react";
 import { Icon } from "./Icon";
 
-type Service = { href: string; icon: string; nav: string; text: string };
+export type Service = { href: string; icon: string; nav: string; text: string };
 
 /**
  * The colour of each service as a light tint behind its icon, the same colours as on the homepage, so the
@@ -26,86 +26,6 @@ const Grid = ({ className = "h-6 w-6" }: { className?: string }) => (
     {[0, 1, 2, 3].map((i) => <span key={i} className={`rounded-[3px] ${i === 3 ? "bg-accent" : "bg-current"}`} />)}
   </span>
 );
-
-/**
- * Phones and tablets: a floating "All services" button, bottom left, that opens a panel with every directory.
- * Sits above the sticky download bar on pages that have one ([data-sticky-bar]).
- */
-export function QuickLinks({ services }: { services: Service[] }) {
-  const [open, setOpen] = useState(false);
-  const [raised, setRaised] = useState(false);
-  const path = usePathname();
-
-  useEffect(() => {
-    setOpen(false);
-    // Wait a frame so the new page's sticky bar (if any) is in the DOM.
-    const id = requestAnimationFrame(() => setRaised(Boolean(document.querySelector("[data-sticky-bar], [data-list-bar]"))));
-    return () => cancelAnimationFrame(id);
-  }, [path]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [open]);
-
-  // Like the desktop button: everywhere except sign-in, joining, paying and account pages.
-  if (hideQuickLinks(path)) return null;
-
-  return (
-    <div className="lg:hidden">
-      <button type="button" data-quick-services="" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
-        data-chrome="" className={`spin-border fixed left-4 z-40 rounded-full p-[3px] transition-[bottom] ${raised ? "bottom-[92px]" : "bottom-5"}`}>
-        {/* Plain orange ring (.spin-border in globals.css) */}
-        <span className="hero-premium inline-flex h-[46px] items-center gap-2 rounded-full pl-4 pr-5 font-display text-sm font-bold text-white">
-          <Grid className="h-5 w-5 text-white" />
-          All services
-        </span>
-      </button>
-
-      {open ? (
-        <div className="fixed inset-0 z-[80] flex items-end" role="presentation">
-          {/* No onClick: a tap outside doesn't close the sheet, only its × button (or picking a service) does */}
-          <div aria-hidden className="absolute inset-0 bg-black/45 backdrop-blur-sm" />
-          {/* The sheet: a dark header in the hero colour (title, close, search), then the services as white
-              tiles on a soft grey, each with its icon on its own colour. data-lenis-prevent: it scrolls by itself. */}
-          <div role="dialog" aria-modal="true" aria-labelledby="quick-links-title" data-lenis-prevent=""
-            className="onboard-pop relative max-h-[88vh] w-full overflow-y-auto overscroll-contain rounded-t-[28px] bg-[#F3F6FA]">
-            <div className="hero-premium flex flex-col gap-4 px-5 pb-5 pt-3 text-white">
-              <span aria-hidden className="mx-auto block h-1.5 w-10 rounded-full bg-white/30" />
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex flex-col gap-0.5">
-                  <h2 id="quick-links-title" className="font-display text-xl font-extrabold text-white">All services</h2>
-                  <p className="text-[13px] text-white/70">Everything on BizSphere-Ug. Tap one to open it.</p>
-                </div>
-                <button type="button" onClick={() => setOpen(false)} aria-label="Close"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white">
-                  <Icon name="close" className="h-4 w-4" />
-                </button>
-              </div>
-              <Link href="/search" onClick={() => setOpen(false)} className="flex h-12 items-center gap-2.5 rounded-2xl bg-white px-4 text-[14px] text-ink-muted hover:text-ink-muted">
-                <Icon name="search" className="h-[18px] w-[18px] text-brand" />Search everything
-              </Link>
-            </div>
-            <ul className="grid grid-cols-3 gap-2.5 px-4 pb-8 pt-4">
-              {services.map((s) => (
-                <li key={s.href}>
-                  <Link href={s.href} onClick={() => setOpen(false)}
-                    className="flex h-full min-h-[100px] flex-col items-center justify-center gap-2.5 rounded-2xl border border-line bg-white p-3 text-center text-[12px] font-semibold leading-tight text-heading transition-[border-color,background-color,transform] hover:border-brand hover:bg-brand-tint/40 hover:text-heading active:scale-[0.97]">
-                    <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tint(s.href)}`}><Icon name={s.icon} className="h-5 w-5" strokeWidth={1.75} /></span>
-                    {s.nav}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 /**
  * Desktop: an "All services" button in the bottom-left corner (two cards peeking behind it, as a small
@@ -184,7 +104,7 @@ export function ServiceRail({ services }: { services: Service[] }) {
 }
 
 /** Forms and account pages keep the screen for their content. */
-function hideQuickLinks(path: string) {
+export function hideQuickLinks(path: string) {
   const [first, second] = path.split("/").filter(Boolean);
   return ["login", "signup", "account", "membership", "supplier", "expert", "payments", "staff"].includes(first)
     || (["suppliers", "experts"].includes(first) && ["login", "join"].includes(second));
