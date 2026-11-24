@@ -38,6 +38,8 @@ export function NewSupplierProducts() {
               ) : null}
             </div>
 
+            <textarea name="np_text" aria-label={`Product ${n + 1}: description`} placeholder="Description (optional)" rows={2} maxLength={1000} className={`${box} py-2`} />
+
             {/* The product's own gallery, under its row: add several at once, pick which one is the main photo */}
             <div className="border-t border-line pt-3">
               <span className="mb-1.5 block text-[12px] font-semibold text-ink-soft">Photos of product {n + 1}</span>

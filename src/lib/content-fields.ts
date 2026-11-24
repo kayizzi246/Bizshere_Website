@@ -147,24 +147,22 @@ export const DIRECTORIES: Directory[] = [
     link: { field: "organizationId", label: "Business account", advanced: "Only for a business that already has an account on the site. Otherwise leave this alone: one is made for you." },
     hideShortSummary: true, simpleForm: true,
     labels: {
-      title: "Business name", shortSummary: "Short description (optional)", overview: "Business description", category: "Business category",
-      main: "Address", mainNote: "Shown on the supplier's page. Call and WhatsApp are shown to members only. You add their products after saving.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
+      title: "Business name", shortSummary: "Short description (optional)", overview: "About the business (optional)", category: "Category",
+      main: "Supplier profile", mainNote: "Shown on the supplier's page. Phone, WhatsApp and email are shown to members only.", moreNote: "Optional. Buyers can filter the suppliers list by these.",
     },
     // The client's field list (14 Nov 2026): business name, description and category (Basics), then the
     // address: contact person, location, website, WhatsApp, call. The rest after it. Products are added after saving.
     fields: [
-      // Five to fill in, and the rest under "More details" (client, 17 Nov 2026: fewer fields). These
-      // five are what a buyer sees on the card and at the top of the page — who to ask for, where
-      // they are, how to reach them, what they sell, and what the place looks like.
-      ess(t("contactPerson", "Contact person name", MAIN, "e.g. John Okello")),
-      ess({ ...t("address", "Address / location", MAIN, "Street, building or area, e.g. Shop 12, Kikuubo Lane, Kampala"), virtual: true }),
-      ess(t("phone", "Call contact", MAIN, "e.g. 0772 123 456")),
+      // In the order of the supplier's page, all on the first screen (client, 24 Nov 2026, as for experts)
+      ess(t("contactPerson", "Contact person", MAIN, "e.g. John Okello")),
       ess({ ...l("items", "What they sell", MAIN), help: "Separate with commas, e.g. flour, ovens, packaging" }),
-      ess({ ...u("pictureUrl", "Photo (shop front, products or logo)", MAIN), upload: "image" }),
-      { ...u("website", "Website", MAIN), help: "e.g. www.example.com" },
-      t("whatsapp", "WhatsApp number", MAIN, "e.g. 0772 123 456. Leave empty if it is the same as the call number"),
-      t("email", "Email address", MAIN),
-      { ...t("country", "Country", MAIN), initial: "Uganda" },
+      ess({ ...u("pictureUrl", "Photo or logo", MAIN), upload: "image" }),
+      ess({ ...t("address", "Address", MAIN, "e.g. Shop 12, Kikuubo Lane, Kampala"), virtual: true }),
+      ess(t("phone", "Phone", MAIN, "Separate several with commas, e.g. 0772 123 456, 0701 123 456")),
+      ess(t("whatsapp", "WhatsApp", MAIN, "Leave empty if it is the same as the phone")),
+      ess({ ...t("country", "Country", MAIN), initial: "Uganda" }),
+      ess(t("email", "Email", MAIN)),
+      ess({ ...u("website", "Website", MAIN), help: "e.g. www.example.com" }),
       { ...e("supplierType", "Business type", ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "RETAILER", "IMPORTER", "SERVICE_PROVIDER"], MAIN), basics: true },
     ],
   },

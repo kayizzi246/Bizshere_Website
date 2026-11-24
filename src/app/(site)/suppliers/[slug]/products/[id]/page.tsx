@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, LockKeyhole, Mail, MapPin, MessageCircle, Package, Phone, ShieldCheck, Store } from "lucide-react";
 import { whatsappHref } from "@/lib/whatsapp";
+import { phoneNumbers } from "@/lib/expert-names";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -64,9 +65,9 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
     </div>
   ) : (
     <div className="flex flex-col gap-2">
-      {s.phone ? <a href={`tel:${s.phone.replace(/\s/g, "")}`} className={`${btn} min-h-[54px] w-full bg-brand text-[16px] text-white hover:bg-brand-dark hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call {s.phone}</a> : null}
+      {s.phone ? <a href={`tel:${(phoneNumbers(s.phone)[0] ?? s.phone).replace(/\s/g, "")}`} className={`${btn} min-h-[54px] w-full bg-brand text-[16px] text-white hover:bg-brand-dark hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call {s.phone}</a> : null}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
-        {s.phone ? <a href={whatsappHref(s.whatsapp || s.phone, ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
+        {s.phone ? <a href={whatsappHref(s.whatsapp || (phoneNumbers(s.phone)[0] ?? s.phone), ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
         {s.email ? <a href={`mailto:${s.email}?subject=${encodeURIComponent(name)}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4" />Email</a> : null}
       </div>
       {!s.phone && !s.email ? <Link href={back} className="text-sm font-semibold">See the seller&apos;s page →</Link> : null}
@@ -158,8 +159,8 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
       {/* Phones: Call and WhatsApp always in reach (data-sticky-bar lifts the chat button above it) */}
       {!gated && s.phone ? (
         <div data-sticky-bar="" className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-line bg-white/95 p-3 backdrop-blur lg:hidden">
-          <a href={`tel:${s.phone.replace(/\s/g, "")}`} className={`${btn} h-12 flex-1 bg-brand text-[15px] text-white hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call</a>
-          <a href={whatsappHref(s.whatsapp || s.phone, ask)} target="_blank" rel="noopener noreferrer" className={`${btn} h-12 flex-1 bg-[#25D366] text-[15px] text-white hover:text-white`}><MessageCircle aria-hidden className="h-4 w-4" />WhatsApp</a>
+          <a href={`tel:${(phoneNumbers(s.phone)[0] ?? s.phone).replace(/\s/g, "")}`} className={`${btn} h-12 flex-1 bg-brand text-[15px] text-white hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call</a>
+          <a href={whatsappHref(s.whatsapp || (phoneNumbers(s.phone)[0] ?? s.phone), ask)} target="_blank" rel="noopener noreferrer" className={`${btn} h-12 flex-1 bg-[#25D366] text-[15px] text-white hover:text-white`}><MessageCircle aria-hidden className="h-4 w-4" />WhatsApp</a>
         </div>
       ) : null}
 

@@ -67,6 +67,9 @@ const productSchema = z.object({
 });
 
 const detailsSchema = z.object({
+  contactPerson: text(120),
+  whatsapp: text(40),
+  items: z.string().max(2000).transform((v) => v.split(/[,\n]/).map((x) => x.trim()).filter(Boolean).slice(0, 30)),
   address: text(200),
   phone: text(40),
   country: text(60),

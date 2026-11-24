@@ -5,6 +5,7 @@ import { LockKeyhole } from "lucide-react";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
+import { DirectoryTable } from "./DirectoryTable";
 import { BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
@@ -174,7 +175,14 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
           <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}
         listTop={listTop}>
-        {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : grid ? (
+        {items.length === 0 ? <BoardEmpty any={all.length > 0} onClear={clear} /> : variant === "suppliers" ? (
+          // The client's table, as on the experts page (24 Nov 2026)
+          <DirectoryTable nameHeading="Business name" headings={["Contact person", "Country", "Category", "What they sell"]}
+            rows={shown.map((i) => {
+              const cell = (label: string) => i.cells?.find((c) => c.label === label)?.value ?? null;
+              return { id: i.id, slug: i.slug, href: i.href, name: name(i.title), photo: i.picture, sub: cell("Contact person"), cells: [cell("Contact person"), cell("Country"), i.primaryCategory?.name ?? null, cell("Sells")] };
+            })} />
+        ) : grid ? (
           <ul className={gridList}>
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
           </ul>

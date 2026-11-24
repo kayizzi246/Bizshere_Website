@@ -358,7 +358,7 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
             <WishlistHeart id={i.id} className="border border-line" />
           </span>
         </div>
-        <Link href={i.href} className={`w-fit text-[16px] font-bold leading-snug tracking-[-0.015em] hover:underline sm:text-[18px] ${t.name}`}>{title}</Link>
+        <Link href={i.href} className={`w-fit text-[16px] font-[900] leading-snug tracking-[-0.015em] hover:underline sm:text-[18px] ${t.name}`}>{title}</Link>
         {by && clean(by) !== title ? <p data-size="" className="text-[13px] font-semibold text-heading">{clean(by)}</p> : null}
         {purpose ?? i.summary ? <p data-size="" className="line-clamp-2 max-w-[80ch] text-[13px] leading-relaxed text-ink-soft">{purpose ?? i.summary}</p> : null}
       </div>

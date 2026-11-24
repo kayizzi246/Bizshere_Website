@@ -14,7 +14,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products", wide =
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-extrabold text-heading">{title}</h2>
+        <h2 className="font-display text-[clamp(16px,1.5vw,19px)] font-extrabold text-heading">{title}</h2>
         <span className="text-[13px] text-ink-muted">{items.length} {items.length === 1 ? "product" : "products"}</span>
       </div>
       {items.length === 0 ? (

@@ -16,13 +16,17 @@ async function meta(ids: string[]) {
   ].filter(Boolean).join(" · ")]));
 }
 
-// The card's country and what they sell. Both are public.
-async function facts(ids: string[]) {
-  const rows = await prisma.supplier.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, country: true, items: true } });
-  return Object.fromEntries(rows.map((s) => [s.contentItemId, { country: s.country, sells: s.items.slice(0, 4).join(", ") || null }]));
+// The table's contact person, country and what they sell. All public.
+async function cells(ids: string[]) {
+  const rows = await prisma.supplier.findMany({ where: { contentItemId: { in: ids } }, select: { contentItemId: true, contactPerson: true, country: true, items: true } });
+  return Object.fromEntries(rows.map((s) => [s.contentItemId, [
+    { label: "Contact person", value: s.contactPerson },
+    { label: "Country", value: s.country },
+    { label: "Sells", value: s.items.slice(0, 6).join(", ") + (s.items.length > 6 ? "…" : "") || null },
+  ]]));
 }
 
-// The card shows what they sell first: the newest approved product with a photo, then their own photo or logo.
+// Their own photo or logo first, then a product's.
 async function images(ids: string[]) {
   const rows = await prisma.supplier.findMany({
     where: { contentItemId: { in: ids } },
@@ -32,12 +36,12 @@ async function images(ids: string[]) {
     },
   });
   return Object.fromEntries(rows.flatMap((s) => {
-    const picture = s.listings[0]?.imageUrl || s.pictureUrl || s.organization.logoUrl;
+    const picture = s.organization.logoUrl || s.pictureUrl || s.listings[0]?.imageUrl;
     return picture ? [[s.contentItemId, picture]] : [];
   }));
 }
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
   const d = directory("/suppliers");
-  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} facts={facts} images={images} variant="suppliers" title={d.title} intro={d.text} />;
+  return <DirectoryList path="/suppliers" searchParams={searchParams} types={["SUPPLIER"]} tabs={MACHINE_TABS} active="/suppliers" meta={meta} cells={cells} images={images} variant="suppliers" title={d.title} intro={d.text} />;
 }

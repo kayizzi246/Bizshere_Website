@@ -162,6 +162,9 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                   <DashCard Icon={Store} title="My business details" note="Shown at the top of your page. Phone and email are for members only.">
                     <form action={saveSupplierDetails} className="grid gap-3">
                       <input type="hidden" name="supplierId" value={s.id} />
+                      <label className={label}>Contact person<input name="contactPerson" defaultValue={s.contactPerson ?? ""} placeholder="Who buyers ask for" className={input} /></label>
+                      <label className={label}>What you sell<input name="items" defaultValue={s.items.join(", ")} placeholder="e.g. flour, ovens, packaging" className={input} /><span className="text-xs font-normal text-ink-muted">Put a comma between each one.</span></label>
+                      <label className={label}>WhatsApp (if different from your phone)<input name="whatsapp" type="tel" defaultValue={s.whatsapp ?? ""} className={input} /></label>
                       <label className={label}>Where are you? (address)<input name="address" defaultValue={s.organization.locations[0]?.physicalAddress ?? ""} placeholder="e.g. Shop 12, Kikuubo Lane, Kampala" className={input} /></label>
                       <label className={label}>Phone buyers call<input name="phone" type="tel" defaultValue={s.phone ?? ""} placeholder="0772 123 456" className={input} /></label>
                       <label className={label}>Email (if you have one)<input name="email" type="email" defaultValue={s.email ?? ""} className={input} /></label>

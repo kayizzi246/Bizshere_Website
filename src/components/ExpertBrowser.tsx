@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { searchTerms } from "@/lib/search-terms";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
+import { DirectoryTable } from "./DirectoryTable";
 import { BoardEmpty, DirectoryBoard } from "./DirectoryBoard";
 
 /** One expert as the browser needs it: public fields only (email and phone stay on the member profile). */
@@ -84,76 +84,10 @@ export function ExpertBrowser({ experts, intro, initial }: {
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={experts.length > 0} onClear={clear} /> : (
-          <ExpertTable experts={shown} from={(current - 1) * PER_PAGE + 1} />
+          <DirectoryTable nameHeading="Expert name" headings={["Business name", "Country", "Category", "Specialty"]} from={(current - 1) * PER_PAGE + 1}
+            rows={shown.map((e) => ({ ...e, sub: e.business, cells: [e.business, e.country, e.category, e.specialties.join(", ")] }))} />
         )}
       </DirectoryBoard>
     </>
-  );
-}
-
-/**
- * The client's table (24 Nov 2026): S/N, expert name, business name, country, category, specialty. The whole row opens
- * the profile. Phones: each expert is a card with the same details by name, as six columns don't fit.
- */
-function ExpertTable({ experts, from }: { experts: BrowseExpert[]; from: number }) {
-  const th = "px-4 py-3 text-left text-[12px] font-semibold text-white";
-  const td = "px-4 py-3.5 align-middle text-[13px] text-ink-soft";
-  return (
-    <>
-      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-white md:block">
-        <table className="w-full border-collapse">
-          <thead className="bg-brand-deep"><tr>
-            <th scope="col" className={`${th} w-14`}>S/N</th><th scope="col" className={th}>Expert name</th><th scope="col" className={th}>Business name</th>
-            <th scope="col" className={th}>Country</th><th scope="col" className={th}>Category</th><th scope="col" className={th}>Specialty</th>
-          </tr></thead>
-          <tbody>
-            {experts.map((e, n) => (
-              <tr key={e.id} id={e.slug} className="relative border-t border-line transition-colors hover:bg-brand-tint/50">
-                <td className={`${td} tabular-nums text-ink-muted`}>{from + n}</td>
-                <td className={td}>
-                  <span className="flex items-center gap-3">
-                    <Face e={e} />
-                    {/* The link's ::after covers the row, so a tap anywhere on it opens the profile */}
-                    <Link href={e.href} className="font-display text-[14px] font-bold text-heading after:absolute after:inset-0 hover:text-brand">{e.name}</Link>
-                  </span>
-                </td>
-                <td className={`${td} font-medium text-heading`}>{e.business ?? "—"}</td>
-                <td className={td}>{e.country ?? "—"}</td>
-                <td className={td}>{e.category ?? "—"}</td>
-                <td className={td}>{e.specialties.join(", ") || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <ol className="flex flex-col gap-3 md:hidden">
-        {experts.map((e, n) => (
-          <li key={e.id} className="relative flex flex-col gap-3 rounded-2xl border border-line bg-white p-4">
-            <span className="flex items-center gap-3">
-              <Face e={e} />
-              <span className="flex min-w-0 flex-1 flex-col">
-                <Link href={e.href} className="font-display text-[15px] font-bold leading-snug text-heading after:absolute after:inset-0">{e.name}</Link>
-                {e.business ? <span className="text-[13px] text-ink-soft">{e.business}</span> : null}
-              </span>
-              <span className="self-start text-[12px] tabular-nums text-ink-muted">{from + n}</span>
-            </span>
-            <dl className="grid grid-cols-[84px_minmax(0,1fr)] gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[13px]">
-              {([["Country", e.country], ["Category", e.category], ["Specialty", e.specialties.join(", ")]] as const).map(([k, v]) => v ? <Fragment key={k}><dt className="text-ink-muted">{k}</dt><dd className="text-heading">{v}</dd></Fragment> : null)}
-            </dl>
-          </li>
-        ))}
-      </ol>
-    </>
-  );
-}
-
-/** The photo or logo, or the initials. */
-function Face({ e }: { e: BrowseExpert }) {
-  return (
-    <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-brand-tint text-[12px] font-bold text-brand">
-      {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-      {e.photo ? <img src={e.photo} alt="" loading="lazy" className="h-full w-full object-cover" /> : e.name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
-    </span>
   );
 }
