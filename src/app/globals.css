@@ -647,8 +647,8 @@ main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" 
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */
 /* Since 24 Nov 2026 (client: "please no shadows") the whole public site, not only the page content: the menu bar,
-   the Services panel, dropdowns, pop-ups and the floating buttons too. The admin keeps its own. */
-:is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]):not(#admin-shell *) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
+   the Services panel, dropdowns, pop-ups and the floating buttons too, and the admin as well (client, same day). */
+:is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
 
 /* GitHub (Primer) look (client, 14 Nov 2026): tighter corners site-wide (Primer uses 6px), and white text on
    the solid green fills so the primary call to action reads like a GitHub button. Pills (rounded-full) are left

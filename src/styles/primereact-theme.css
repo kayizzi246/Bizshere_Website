@@ -216,7 +216,7 @@
 .p-editor-container .p-editor-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options {
   background: #ffffff;
   border: 0 none;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   border-radius: 6px;
   padding: 0.75rem 0;
 }
@@ -387,7 +387,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-autocomplete-panel .p-autocomplete-items {
     padding: 0.75rem 0;
@@ -435,7 +435,7 @@
   .p-datepicker:not(.p-datepicker-inline) {
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-datepicker:not(.p-datepicker-inline) .p-datepicker-header {
     background: #ffffff;
@@ -690,7 +690,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-cascadeselect-panel .p-cascadeselect-items {
     padding: 0.75rem 0;
@@ -961,7 +961,7 @@
     border-color: #ffffff;
   }
   .p-colorpicker-overlay-panel {
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-dropdown {
     display: inline-flex;
@@ -1102,7 +1102,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-dropdown-panel .p-dropdown-header {
     padding: 0.75rem 1.25rem;
@@ -1539,7 +1539,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-mention-panel .p-mention-items {
     padding: 0.75rem 0;
@@ -1709,7 +1709,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-multiselect-panel .p-multiselect-header {
     padding: 0.75rem 1.25rem;
@@ -1802,7 +1802,7 @@
     background: #ffffff;
     color: #4b5563;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     border-radius: 6px;
   }
   .p-password-panel .p-password-meter {
@@ -2113,7 +2113,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-treeselect-panel .p-treeselect-header {
     padding: 0.75rem 1.25rem;
@@ -3549,7 +3549,7 @@
     color: #4b5563;
     border: 0 none;
     border-radius: 6px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     min-width: 12.5rem;
   }
   .p-column-filter-overlay .p-column-filter-row-items {
@@ -5033,7 +5033,7 @@
     background: #4b5563;
     color: #ffffff;
     padding: 0.75rem 0.75rem;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     border-radius: 6px;
   }
   .p-tooltip.p-tooltip-right .p-tooltip-arrow {
@@ -5114,7 +5114,7 @@
     background: #ffffff;
     color: #4b5563;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     border-radius: 6px;
     width: 12.5rem;
   }
@@ -5125,7 +5125,7 @@
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     border-radius: 6px;
   }
   .p-contextmenu .p-menuitem > .p-menuitem-content {
@@ -5351,7 +5351,7 @@
     background: #ffffff;
     color: #4b5563;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-megamenu .p-submenu-header {
     margin: 0;
@@ -5425,7 +5425,7 @@
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-megamenu.p-megamenu-mobile-active .p-megamenu-root-list .p-menu-separator {
     border-top: 1px solid #e5e7eb;
@@ -5588,7 +5588,7 @@
   .p-menu.p-menu-overlay {
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-menu .p-submenu-header {
     margin: 0;
@@ -5704,7 +5704,7 @@
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     width: 12.5rem;
   }
   .p-menubar .p-submenu-list .p-menuitem-separator {
@@ -5734,7 +5734,7 @@
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-menubar.p-menubar-mobile .p-menubar-root-list .p-menuitem-separator {
     border-top: 1px solid #e5e7eb;
@@ -5799,7 +5799,7 @@
       padding: 0.5rem 0;
       background: #ffffff;
       border: 0 none;
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      box-shadow: none;
       width: 100%;
     }
     .p-menubar .p-menubar-root-list .p-menu-separator {
@@ -6114,13 +6114,13 @@
   .p-slidemenu.p-slidemenu-overlay {
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-slidemenu .p-slidemenu-list {
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-slidemenu .p-slidemenu.p-slidemenu-active > .p-slidemenu-link {
     background: #E7F2FA;
@@ -6241,7 +6241,7 @@
   .p-tieredmenu.p-tieredmenu-overlay {
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-tieredmenu .p-tieredmenu-root-list {
     outline: 0 none;
@@ -6250,7 +6250,7 @@
     padding: 0.5rem 0;
     background: #ffffff;
     border: 0 none;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
   }
   .p-tieredmenu .p-menuitem > .p-menuitem-content {
     color: #4b5563;
@@ -6467,7 +6467,7 @@
   }
   .p-toast .p-toast-message {
     margin: 0 0 1rem 0;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     border-radius: 6px;
   }
   .p-toast .p-toast-message .p-toast-message-content {
@@ -6761,7 +6761,7 @@
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: none;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
   }
   .p-scrolltop.p-link {
