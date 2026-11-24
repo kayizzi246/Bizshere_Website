@@ -1,3 +1,5 @@
+import { BorderSnake } from "./BorderSnake";
+
 export type CollagePhoto = { src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product" };
 
 const KIND: Record<CollagePhoto["kind"], { label: string; tone: string }> = {
@@ -17,7 +19,8 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   const [feature, ...rest] = photos;
   const f = KIND[feature.kind];
   return (
-    <div aria-label="Latest on BizSphere-Ug" className="collage flex h-[470px] flex-col gap-3 rounded-2xl border border-white/5 bg-transparent p-4 text-white">
+    <div aria-label="Latest on BizSphere-Ug" className="collage relative flex h-[470px] flex-col gap-3 rounded-2xl border border-white/5 bg-transparent p-4 text-white">
+      <BorderSnake />
       <div className="flex items-center justify-between gap-3 px-1">
         <span className="flex flex-col leading-tight">
           <span className="font-display text-[13px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>

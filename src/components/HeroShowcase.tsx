@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
+import { BorderSnake } from "./BorderSnake";
 import { Icon } from "./Icon";
 
 export type ShowcaseRow = { href: string; icon: string; title: string; sub: string };
@@ -28,7 +29,8 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
   ));
 
   return (
-    <div role="region" aria-label="Latest on BizSphere-Ug" className="flex h-[470px] flex-col gap-3 rounded-2xl border border-white/10 bg-[#081A3C]/45 p-4 text-white">
+    <div role="region" aria-label="Latest on BizSphere-Ug" className="relative flex h-[470px] flex-col gap-3 rounded-2xl border border-white/10 bg-[#081A3C]/45 p-4 text-white">
+      <BorderSnake />
       {prices.length ? (
         <div className="shrink-0 rounded-xl border border-white/10 bg-[#081A3C]/80 p-4">
           <div className="flex items-start justify-between gap-3 pb-2">
