@@ -9,7 +9,7 @@ import { GlassSelect } from "./GlassSelect";
  * SaaS-style hero with its inline search bar (words, category, sort), category chips, sort menu and page numbers.
  */
 
-export function BrowseHero<T extends string>({ title, intro, tabs, active, q, onSearch, onSubmit, hint, label, popular, cats, category, onCategory, sort, sorts, onSort, compact = false }: {
+export function BrowseHero<T extends string>({ title, intro, tabs, active, q, onSearch, onSubmit, hint, label, popular, cats, category, onCategory, sort, sorts, onSort, compact = false, filter }: {
   /** A shorter band: less padding, no category or sort in the search bar and no "Popular" row (the list below has its own filter bar). */
   compact?: boolean;
   title: React.ReactNode;
@@ -32,6 +32,8 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
   sort: T;
   sorts: readonly { value: T; label: string }[];
   onSort: (v: T) => void;
+  /** One more drop-down in the search bar, on compact heroes too (funding: the fund type). "" is any. */
+  filter?: { label: string; any: string; value: string; options: string[]; onChange: (v: string) => void };
 }) {
   const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-heading";
   return (
@@ -68,6 +70,12 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
               </button>
             ) : null}
           </div>
+          {filter ? (
+            <div className="relative col-span-2 rounded-xl bg-page sm:w-48 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent">
+              <GlassSelect label={filter.label} value={filter.value} onChange={filter.onChange} className={select} icon={<LayoutGrid className="h-4 w-4 text-brand" />}
+                options={[{ value: "", label: filter.any }, ...filter.options.map((o) => ({ value: o, label: o }))]} />
+            </div>
+          ) : null}
           {compact ? null : <>
           {cats.length ? (
             <div className="relative rounded-xl bg-page sm:w-44 sm:rounded-none sm:border-l sm:border-line sm:bg-transparent">
@@ -162,10 +170,11 @@ function PageButton({ disabled, onClick, label, children }: { disabled: boolean;
 }
 
 /** Keeps the address bar in step with the search (no reload, no new history entries). */
-export function syncAddress(path: string, state: { q: string; category: string; sort: string; defaultSort: string; page: number }) {
+export function syncAddress(path: string, state: { q: string; category: string; sort: string; defaultSort: string; page: number; type?: string }) {
   const p = new URLSearchParams();
   if (state.q.trim()) p.set("q", state.q.trim());
   if (state.category) p.set("category", state.category);
+  if (state.type) p.set("type", state.type);
   if (state.sort !== state.defaultSort) p.set("sort", state.sort);
   if (state.page > 1) p.set("page", String(state.page));
   const s = p.toString();

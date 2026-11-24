@@ -8,10 +8,10 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { HomeSearch } from "@/components/HomeSearch";
 import { HomeFeatures } from "@/components/HomeFeatures";
 import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
-import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
+import { HeroShowcase, type ShowcaseRow } from "@/components/HeroShowcase";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
-import { date, money } from "@/lib/format";
+import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +25,7 @@ export default async function HomePage() {
   const viewer = await getViewer();
   // Nothing under the hero buttons: no counts, prices or payment talk on the homepage (client, 10 Nov 2026).
   const [updates, yt, prices, photos] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), heroPhotos()]);
+  const rows = photos.length >= 6 ? [] : await showcaseRows();
 
   return (
     <div className="home-wide">
@@ -93,40 +94,34 @@ export default async function HomePage() {
               ))}
             </ul>
 
-            <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              {/* 18 Nov 2026: "Get started" used to scroll down to #features, which is more reading
-                  before anything is done. It now opens Business Ideas, where a visitor picks an
-                  idea and the machines, suppliers and funding for it follow. To put the scroll back,
-                  make this an <a href="#features"> again. */}
-              {/* Solid and outlined, bold, small corners (client, 12 Nov 2026, after an example they sent) */}
-              {/* Animated (16 Nov 2026): a band of light sweeps across the solid button on hover, both
-                  rise a little, and a press settles them back down so a tap is felt on a phone. The
-                  sweep is a ::before inside overflow-hidden, so it costs one transform and no repaint.
-                  All of it is dropped under prefers-reduced-motion. */}
-              <Link href="/business-ideas" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">
+            <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+              {/* Order and words from the client, 24 Nov 2026: prices, suppliers, experts. A band of light
+                  sweeps across the solid button on hover; the moving ring goes round all three. All of
+                  it is dropped under prefers-reduced-motion. */}
+              <Link href="/prices" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">
                 {/* The label keeps a solid fill so it stays readable while the ring behind it changes
                     colour. Dark text on the deep blue of that gradient would not pass contrast. */}
                 <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[4px] bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors group-hover:bg-[#FFA54A] before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] group-hover:before:left-[150%] motion-reduce:before:hidden">
-                  <span className="relative">Start with a business idea</span>
+                  <span className="relative">Today&apos;s market prices</span>
                 </span>
               </Link>
-              {/* The same moving ring, over the hero rather than a fill, so the pair read as one set.
-                  Its label takes the gradient through the text instead, which is safe here because
-                  the text sits on the dark hero rather than on the gradient itself. */}
-              <Link href="/prices" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
-                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Today&apos;s market prices</span>
+              <Link href="/suppliers/join" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
+                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Join our suppliers</span>
+              </Link>
+              <Link href="/experts/join" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
+                <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Join our experts</span>
               </Link>
             </div>
           </div>
 
           {/* Right panel: the live stream while we're live on YouTube; otherwise two columns of real photos from the
-              site drifting slowly (HeroCollage; client, 12 Nov 2026); with too few photos, today's market prices,
-              then the latest video or the bakery example. Wide screens only (1280px+). */}
+              site drifting slowly (HeroCollage; client, 12 Nov 2026); with too few photos, market prices and
+              a moving list that needs none (HeroShowcase); the latest video when there are no prices. Wide screens only (1280px+). */}
           <div id="watch" className="hidden scroll-mt-28 flex-col xl:-mt-[16px] xl:flex">
             {!yt.video?.live && photos.length >= 6 ? (
               <HeroCollage photos={photos} />
-            ) : !yt.video?.live && prices.rows.length ? (
-              <PricePanel {...prices} video={yt.video ? { id: yt.video.id, title: yt.video.title } : null} />
+            ) : !yt.video || (!yt.video.live && prices.rows.length) ? (
+              <HeroShowcase prices={prices.rows} updated={prices.updated} rows={rows} />
             ) : (
             <div className="w-full rounded-2xl border border-white/15 bg-white/[0.06] p-5">
               <div className="flex items-center gap-3 pb-4">
@@ -146,13 +141,9 @@ export default async function HomePage() {
                   </a>
                 ) : null}
               </div>
-              {yt.video ? (
-                <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
-                  <YouTubePlayer id={yt.video.id} title={yt.video.title ?? "Bizsphere-Ug on YouTube"} live={yt.video.live} />
-                </div>
-              ) : (
-                <Showcase />
-              )}
+              <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
+                <YouTubePlayer id={yt.video.id} title={yt.video.title ?? "Bizsphere-Ug on YouTube"} live={yt.video.live} />
+              </div>
             </div>
             )}
           </div>
@@ -165,43 +156,6 @@ export default async function HomePage() {
       <HomeFeatures />
 
 
-    </div>
-  );
-}
-
-/**
- * Shown in the hero's card while there is no video: starting a bakery as a four-step journey
- * (idea, machine, supplier, funding), one row per step joined by a line. Illustrative only
- * (marked "Example"); each row opens that directory.
- */
-function Showcase() {
-  // [href, icon, step, example, badge, icon tile colour]
-  const steps: [string, string, string, string, string, string][] = [
-    ["/business-ideas", "idea", "Pick an idea", "Bakery business", "Small · Medium · Large", "bg-[#2E6BFF]/20 text-[#8FB0FF]"],
-    ["/machines", "machine", "Get the machine", "Deck oven", "Price for members", "bg-accent/20 text-accent"],
-    ["/suppliers", "supplier", "Find a supplier", "Flour wholesaler", "Contact checked", "bg-[#12B76A]/20 text-[#5BE3A1]"],
-    ["/funding", "funding", "Fund it", "SME loan", "Round open", "bg-[#8B6CFF]/20 text-[#B9A6FF]"],
-  ];
-  return (
-    <div className="flex flex-col gap-3">
-      <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-[12px] text-white/80">Example: starting a bakery</span>
-      <ol className="relative flex flex-col gap-2">
-        {/* The line joining the steps, behind the icon tiles */}
-        <span aria-hidden className="absolute bottom-7 left-[30px] top-7 w-px bg-gradient-to-b from-white/30 via-white/15 to-white/30" />
-        {steps.map(([href, icon, step, example, badge, tone], n) => (
-          <li key={href}>
-            <Link href={href} className="group relative flex items-center gap-3 rounded-2xl border border-white/10 bg-navy/60 px-3 py-2.5 text-white transition-colors hover:border-accent/60 hover:bg-navy/80 hover:text-white">
-              <span className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tone}`}><Icon name={icon} className="h-4 w-4" /></span>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-[11px] uppercase tracking-[0.12em] text-white/50">{n + 1}. {step}</span>
-                <span className="truncate font-display text-[14px] leading-tight text-white">{example}</span>
-              </span>
-              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/75">{badge}</span>
-              <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-accent" />
-            </Link>
-          </li>
-        ))}
-      </ol>
     </div>
   );
 }
@@ -277,42 +231,23 @@ async function marketSnapshot(isMember: boolean): Promise<Snapshot> {
   return { rows: board.map(({ latest: _latest, ...r }) => r), updated: board[0] ? date(board[0].latest) : null };
 }
 
-/** The hero's price panel: a plain table of today's prices, a link to the full board, and the latest video as a link. */
-function PricePanel({ rows, updated, video }: Snapshot & { video: { id: string; title: string | null } | null }) {
-  return (
-    <div className="w-full overflow-hidden rounded-2xl border border-white/15 bg-[#081A3C]/75 backdrop-blur-md">
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
-        <span className="flex flex-col gap-0.5">
-          <span className="font-display text-[14px] text-white">Market prices</span>
-          <span className="text-[12px] text-white/55">Wholesale · Uganda{updated ? ` · updated ${updated}` : ""}</span>
-        </span>
-        <span className="rounded-md bg-white/10 px-2 py-1 text-[11px] uppercase tracking-wide text-white/70">Latest</span>
-      </div>
-      <ul className="divide-y divide-white/10">
-        {rows.map((r) => (
-          <li key={r.id}>
-            <Link href={`/prices?q=${encodeURIComponent(r.name.split(",")[0])}`} className="flex items-center gap-3 px-5 py-3 text-white hover:bg-white/[0.04] hover:text-white">
-              <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-[13px]">{r.name}</span>
-                {r.unit ? <span className="text-[12px] text-white/50">per {r.unit}</span> : null}
-              </span>
-              <span className="shrink-0 text-right text-[13px] tabular-nums">{r.price}</span>
-              <span className={`inline-flex w-[68px] shrink-0 items-center justify-end gap-1 text-[12px] tabular-nums ${r.change === null || Math.abs(r.change) < 0.05 ? "text-white/45" : r.change > 0 ? "text-[#3DD68C]" : "text-[#FF6B6B]"}`}>
-                {r.change !== null && r.change >= 0.05 ? <TrendingUp aria-hidden className="h-3.5 w-3.5" /> : r.change !== null && r.change <= -0.05 ? <TrendingDown aria-hidden className="h-3.5 w-3.5" /> : null}
-                {r.change === null ? "–" : `${r.change > 0 ? "+" : ""}${r.change.toFixed(1)}%`}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <div className="flex items-center justify-between gap-3 border-t border-white/10 px-5 py-3.5">
-        <Link href="/prices" className="inline-flex items-center gap-1 text-[13px] text-accent hover:text-white">See all prices<ChevronRight aria-hidden className="h-4 w-4" /></Link>
-        {video ? (
-          <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-white/60 hover:text-white">
-            <Icon name="video" className="h-4 w-4 shrink-0" /><span className="truncate">How Bizsphere-Ug works</span>
-          </a>
-        ) : null}
-      </div>
-    </div>
-  );
+/** The scrolling rows of HeroShowcase: the newest listings, at most two of a kind, then every directory. Public titles only. */
+async function showcaseRows(): Promise<ShowcaseRow[]> {
+  const items = await prisma.contentItem.findMany({
+    // Website names can be member-only addresses.
+    where: { publicationStatus: "PUBLISHED", contentType: { not: "WEBSITE" } },
+    select: { title: true, slug: true, contentType: true },
+    orderBy: { publishedAt: { sort: "desc", nulls: "last" } },
+    take: 100,
+  }).catch(() => []);
+  const seen = new Map<string, number>();
+  const newest = items.filter((i) => {
+    const n = (seen.get(i.contentType) ?? 0) + 1;
+    seen.set(i.contentType, n);
+    return n <= 2;
+  }).slice(0, 8).map((i) => ({
+    href: itemHref(i), title: i.title.replace(/^Sample:\s*/i, ""), sub: contentTypeLabel[i.contentType],
+    icon: DIRECTORIES.find((d) => d.type === i.contentType)?.icon ?? "opportunity",
+  }));
+  return [...newest, ...DIRECTORIES.map((d) => ({ href: d.href, icon: d.icon, title: d.title, sub: d.text }))];
 }

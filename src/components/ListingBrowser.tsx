@@ -84,7 +84,7 @@ const BOARD: Record<string, { heading: string; note?: string; members?: { title:
  * job-board style list (DirectoryBoard; client, 13 Nov 2026): pinned pill tabs and sort, one row card per listing,
  * a side column. Searching, filtering and sorting happen on the page.
  */
-export function ListingBrowser({ items: all, path, icon, title, intro, unit, tabs, active, variant, initial }: {
+export function ListingBrowser({ items: all, path, icon, title, intro, unit, tabs, active, variant, initial, typeFilter }: {
   items: BrowseListing[];
   path: string;
   icon: string;
@@ -97,11 +97,14 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   variant: "cards" | "documents" | "table" | "suppliers" | "funding";
   /** No longer changes the layout; kept so callers needn't change. */
   photos?: boolean;
-  initial: { q: string; category: string; sort: string; page: number };
+  initial: { q: string; category: string; sort: string; page: number; type?: string };
+  /** A drop-down in the search bar over the "Type" detail of each row (funding: Loan, Grant, Equity…). */
+  typeFilter?: { label: string; any: string; options: string[] };
 }) {
   const [q, setQ] = useState(initial.q);
   const [category, setCategory] = useState(initial.category);
   const [sort, setSort] = useState<Sort>(SORTS.some((s) => s.value === initial.sort) ? (initial.sort as Sort) : "newest");
+  const [type, setType] = useState(typeFilter?.options.find((o) => o.toLowerCase() === initial.type?.toLowerCase()) ?? "");
   const [page, setPage] = useState(initial.page);
   const listTop = useRef<HTMLElement>(null);
 
@@ -109,8 +112,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   // Every word typed must appear somewhere in the listing.
   const items = useMemo(() => {
     const words = q.toLowerCase().split(/\s+/).filter(Boolean);
-    return all.filter((i) => (!category || i.primaryCategory?.id === category) && words.every((w) => i.text.includes(w))).sort(SORTERS[sort]);
-  }, [all, q, category, sort]);
+    return all.filter((i) => (!category || i.primaryCategory?.id === category) && (!type || i.cells?.some((c) => c.label === "Type" && c.value === type)) && words.every((w) => i.text.includes(w))).sort(SORTERS[sort]);
+  }, [all, q, category, type, sort]);
 
   const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
   const current = Math.min(page, pages);
@@ -122,11 +125,11 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
   const examples = useMemo(() => all.slice(0, 6).map((i) => name(i.title).toLowerCase()), [all]);
   const hint = useTypingHint(examples.length ? examples : [unit[1]], { prefix: `Search ${title.toLowerCase()}, e.g. `, paused: Boolean(q) });
 
-  useEffect(() => syncAddress(path, { q, category, sort, defaultSort: "newest", page: current }), [path, q, category, sort, current]);
+  useEffect(() => syncAddress(path, { q, category, sort, defaultSort: "newest", page: current, type }), [path, q, category, type, sort, current]);
 
   const toList = () => listTop.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const goTo = (n: number) => { setPage(n); toList(); };
-  const clear = () => { setQ(""); setCategory(""); setPage(1); };
+  const clear = () => { setQ(""); setCategory(""); setType(""); setPage(1); };
   const pick = (id: string) => { setCategory(id); setPage(1); };
   const order = (v: Sort) => { setSort(v); setPage(1); };
 
@@ -156,6 +159,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
         sorts={SORTS}
         onSort={order}
         compact
+        filter={typeFilter ? { ...typeFilter, value: type, onChange: (v) => { setType(v); setPage(1); } } : undefined}
       />
       <DirectoryBoard crumb={title} heading={heading} count={items.length} note={board.note}
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}

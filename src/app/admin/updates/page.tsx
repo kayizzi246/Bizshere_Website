@@ -37,7 +37,7 @@ export default async function AdminUpdatesPage({ searchParams }: { searchParams:
         {live.length ? (
           <div className="-mx-6 -my-3 bg-page"><UpdatesMarquee updates={live} /></div>
         ) : (
-          <p className="text-sm text-ink-muted">Nothing is live, so the bar is hidden on the homepage.</p>
+          <p className="text-sm text-ink-muted">Nothing is live, so the bar shows the newest listings instead.</p>
         )}
       </section>
 

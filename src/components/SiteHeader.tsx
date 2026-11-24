@@ -12,8 +12,10 @@ import { WishlistLink } from "./Wishlist";
 // the homepage opens with all twelve, so nothing here is the only way to reach anything.
 const NAV = ["/business-ideas", "/suppliers", "/funding", "/prices"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
+const JOIN = [["/suppliers/join", "Become a Supplier"], ["/experts/join", "Become an Expert"]] as const;
+
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading xl:px-3 xl:text-[13px]";
+const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading min-[1360px]:px-3 min-[1360px]:text-[13px]";
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /**
@@ -33,42 +35,49 @@ export async function SiteHeader() {
       {/* 56px on every screen (17 Nov 2026). The bar was 48px on phones, which capped the logo at 42px
           and still read small; 56px is the standard phone app-bar height and gives the logo room.
           Changing this means changing --hh in globals.css to match: pt-2 + 56 = 64px. */}
-      <div className="mx-auto flex h-[56px] w-full max-w-site items-center gap-3 rounded-2xl border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 lg:gap-5 lg:pr-2.5">
+      <div className="mx-auto flex h-[56px] w-full max-w-site items-center gap-3 rounded-2xl border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 xl:gap-3 xl:pr-2.5">
         <Logo full />
 
         {/* The main links, centred in the space left between the logo and the buttons. Hover (or
             keyboard focus) on one shows a small card with what it is. */}
-        <nav aria-label="Main" className="hidden flex-1 justify-center lg:flex">
+        <nav aria-label="Main" className="hidden flex-1 justify-center xl:flex">
           <ul className="flex items-center gap-0.5">
+            {/* Home first (client, 23 Nov 2026): the logo goes home too, but not everyone knows that. */}
+            <li><Link href="/" className={link}>Home</Link></li>
             {NAV.map((n) => (
               <li key={n.href}><Link href={n.href} className={link}>{n.title}</Link></li>
             ))}
             <li><Link href="/membership" className={link}>Pricing</Link></li>
-            {staff ? <li><Link href="/admin" className={link}>Admin</Link></li> : null}
           </ul>
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 lg:gap-2.5">
+        <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-2.5">
+          {/* The full bar needs 1280px; below that everything is in the menu. */}
+          {/* Supplier and expert sign-up back on the bar (client, 24 Nov 2026); on phones they are in the menu. */}
+          {JOIN.map(([href, label]) => (
+            <Link key={href} href={href} className="hidden h-9 items-center whitespace-nowrap rounded-lg border border-line-strong px-2 text-[11px] font-semibold text-heading hover:border-brand hover:text-brand xl:inline-flex min-[1360px]:px-3 min-[1360px]:text-[12px]">{label}</Link>
+          ))}
           <WishlistLink className="rounded-lg" />
           {!viewer.userId ? (
             <>
-              <Link href="/login" className="hidden h-9 items-center whitespace-nowrap rounded-lg px-3 text-[12px] font-semibold text-heading hover:bg-page hover:text-brand lg:inline-flex">Log in</Link>
+              <Link href="/login" className="hidden h-9 items-center whitespace-nowrap rounded-lg px-3 text-[12px] font-semibold text-heading hover:bg-page hover:text-brand xl:inline-flex">Log in</Link>
               {/* The hairline between the quiet link and the solid button, as in the reference. */}
-              <span aria-hidden className="hidden h-5 w-px bg-line lg:block" />
+              <span aria-hidden className="hidden h-5 w-px bg-line xl:block" />
             </>
           ) : null}
           {/* Right side like the reference: the quiet sign-in link, then the solid call to action. In the menu on phones. */}
-          <span className="hidden lg:contents"><AccessButton viewer={viewer} /></span>
+          <span className="hidden xl:contents"><AccessButton viewer={viewer} /></span>
 
-          {/* Phones and tablets: everything else in one menu. Opens without JavaScript; MobileMenu closes it on
+          {/* Below 1280px: everything else in one menu. Opens without JavaScript; MobileMenu closes it on
               an outside tap, Escape or navigation. */}
           <MobileMenu summary={
-            <summary className={`${round} cursor-pointer list-none lg:hidden [&::-webkit-details-marker]:hidden`} aria-label="Menu">
+            <summary className={`${round} cursor-pointer list-none xl:hidden [&::-webkit-details-marker]:hidden`} aria-label="Menu">
               <Icon name="menu" />
             </summary>
           }>
-            <div className="absolute right-0 top-12 flex max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3 shadow-[0_12px_32px_rgba(7,26,51,0.12)] lg:hidden">
+            <div className="absolute right-0 top-12 flex max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3 shadow-[0_12px_32px_rgba(7,26,51,0.12)] xl:hidden">
               <AccessButton viewer={viewer} mobile />
+              <Link href="/" className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-ink hover:bg-page">Home</Link>
               <span className="px-3 pb-1 pt-3 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Directories</span>
               {DIRECTORIES.map((d) => (
                 <Link key={d.href} href={d.href} className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-ink hover:bg-page">
@@ -79,6 +88,7 @@ export async function SiteHeader() {
               <Link href="/search" className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-brand hover:bg-page"><Icon name="search" className="h-4 w-4" />Search everything</Link>
               <div className="my-1 border-t border-line" />
               <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
+              {JOIN.map(([href, label]) => <Link key={href} href={href} className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">{label}</Link>)}
               <Link href="/about" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">About</Link>
               <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact</Link>
               {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Log in</Link> : null}

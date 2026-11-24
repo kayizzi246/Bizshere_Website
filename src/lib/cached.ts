@@ -1,7 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { ContentType } from "@prisma/client";
 import { prisma } from "./prisma";
-import { liveSiteUpdates } from "./site-updates";
+import { homeRibbon } from "./site-updates";
 
 /**
  * Data that changes only when an editor saves something, cached between requests so
@@ -20,7 +20,7 @@ export const cachedMemberPlan = unstable_cache(
   ["member-plan"], opts,
 );
 
-export const cachedSiteUpdates = unstable_cache(() => liveSiteUpdates(), ["site-updates"], opts);
+export const cachedSiteUpdates = unstable_cache(() => homeRibbon(), ["home-ribbon"], opts);
 
 export const cachedRecentGuides = unstable_cache(
   () => prisma.contentItem.findMany({

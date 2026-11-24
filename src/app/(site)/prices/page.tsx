@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpDown, LayoutGrid, Search, Store } from "lucide-react";
+import { ArrowUpDown, Download, LayoutGrid, LockKeyhole, Search, Store } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
@@ -168,6 +168,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     : null;
 
   const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-white";
+  const pdfButton = "inline-flex h-11 w-fit items-center gap-2 rounded-xl bg-accent px-5 text-[14px] font-bold text-ink hover:bg-white hover:text-ink";
   const tab = (on: boolean) => `whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold ${on ? "bg-white text-[#0A0B0D] hover:text-[#0A0B0D]" : "bg-white/[0.06] text-white/80 hover:bg-white/[0.12] hover:text-white"}`;
 
   // One dark page from the very top: title, tabs and the table share the same background.
@@ -225,6 +226,18 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
             <Link key={id} href={href(id)} scroll={false} aria-current={id === market ? "page" : undefined} className={tab(id === market)}>{m.label}</Link>
           ))}
         </nav>
+
+        {/* One market's price list as a PDF (/prices/[market]/pdf). Members download; everyone else gets the
+            sign-up and payment pop-up (data-pay). With no market picked, a line says how to get one. */}
+        {market && rows.some((r) => r.any) ? (
+          viewer.isMember ? (
+            <a href={`/prices/${market}/pdf${category ? `?category=${category}` : ""}`} download className={pdfButton}><Download aria-hidden className="h-4 w-4" />Download price list (PDF)</a>
+          ) : (
+            <a href={`/membership?onboard=pay&next=${encodeURIComponent(href(market))}`} data-pay="" data-next={href(market)} className={pdfButton}><LockKeyhole aria-hidden className="h-4 w-4" />Download price list (PDF)</a>
+          )
+        ) : !market && markets.length ? (
+          <p className="flex items-center gap-2 text-[13px] text-white/60"><Download aria-hidden className="h-4 w-4 shrink-0 text-accent" />Pick a market to download its price list as a PDF.</p>
+        ) : null}
 
         <section aria-label="Prices" className="border-t border-white/10 pt-3">
           {boardRows.length ? (

@@ -4,6 +4,7 @@ import { directory, directoryMetadata } from "@/config/directories";
 import { compactRange, FUNDING_TABS } from "@/lib/format";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
+import { FundingType } from "@prisma/client";
 export const dynamic = "force-dynamic";
 export const metadata = directoryMetadata("/funding");
 
@@ -51,7 +52,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   }
 
   return (
-    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" cells={cells} variant="funding" title={d.title} intro={d.text}
+    <DirectoryList path="/funding" searchParams={searchParams} types={["FUNDING_PROGRAMME"]} tabs={FUNDING_TABS} active="/funding" cells={cells} typeFilter={{ label: "Fund type", any: "All fund types", options: Object.values(FundingType).map(fundType) }} variant="funding" title={d.title} intro={d.text}
       {...(viewer.isMember ? { apply } : { applyLocked: true })} />
   );
 }

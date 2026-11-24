@@ -384,6 +384,7 @@ select {
 .collage-col.collage-down { animation-name: collage-down; animation-duration: 56s; }
 /* The strip ignores the mouse (client, 12 Nov 2026): no pause on hover, no pointer, nothing to click */
 .collage { pointer-events: none; user-select: none; }
+.showcase-col:hover, .showcase-col:focus-within { animation-play-state: paused; }
 @keyframes collage-up { from { transform: translateY(0); } to { transform: translateY(calc(-50% - 6px)); } }
 @keyframes collage-down { from { transform: translateY(calc(-50% - 6px)); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .collage-col, .collage-col.collage-down { animation: none; } }
