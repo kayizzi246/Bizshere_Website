@@ -531,13 +531,13 @@ body:has([data-bare]) :is([data-site-header], footer, [data-chrome]) { display: 
 /* Solid white header bar with a GitHub-style hairline (client, 14 Nov 2026) */
 .liquid-glass { position: relative; isolation: isolate;
   background: #ffffff;
-  border: 1px solid rgb(208 215 222 / 1); box-shadow: 0 1px 2px rgb(27 31 36 / 0.05); }
+  border: 1px solid rgb(208 215 222 / 1); box-shadow: none; }
 .liquid-glass::before { content: none; }
 /* The tab under the bar (Become a Supplier | Expert): the same glass, carrying on from the bar's lower edge
    (its shading continues downwards), and laid 1px over the bar's border so no line shows where they meet */
 .join-tab { margin-top: 0; z-index: 1;
   background: #ffffff;
-  border: 1px solid rgb(208 215 222 / 1); border-top: 0; box-shadow: 0 1px 2px rgb(27 31 36 / 0.05); }
+  border: 1px solid rgb(208 215 222 / 1); border-top: 0; box-shadow: none; }
 /* Without backdrop-filter (very old browsers) the glass is simply near-white, so the text stays readable */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .liquid-glass, .join-tab { background: rgb(255 255 255 / 0.96); }
@@ -646,7 +646,9 @@ main img:is([src$=".jpg" i], [src$=".jpeg" i], [src*=".jpg?" i], [src*=".jpeg?" 
 
 /* No shadows in the page content (client, 12 Nov 2026: "no shadows, make the page simple"). Only the shadow part is
    switched off: rings (outlines and focus rings) use the same property and stay. */
-main :is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
+/* Since 24 Nov 2026 (client: "please no shadows") the whole public site, not only the page content: the menu bar,
+   the Services panel, dropdowns, pop-ups and the floating buttons too. The admin keeps its own. */
+:is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, [class*="shadow-["], [class*=":shadow-"]):not(#admin-shell *) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
 
 /* GitHub (Primer) look (client, 14 Nov 2026): tighter corners site-wide (Primer uses 6px), and white text on
    the solid green fills so the primary call to action reads like a GitHub button. Pills (rounded-full) are left
