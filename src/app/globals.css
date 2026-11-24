@@ -858,6 +858,14 @@ h1.profile-title { font-family: var(--font-inter), system-ui, sans-serif !import
 /* Inputs and selects come down with everything else, but keep 16px on phones: below that iOS zooms
    the page in the moment the field is tapped, and leaves it zoomed. */
 /* The admin keeps its compact fields. */
+/* No outlines round the admin's cards and boxes (client, 24 Nov 2026: "those lines are still there in the dashboard"),
+   in the flat shadcn way: a white card on the grey page needs no line, and a box inside a white card takes a light
+   grey fill instead. Form fields (and the fixed-height boxes holding one, such as the search), buttons and button-like links keep their edges, so it is clear where to type and click; the
+   lines between table rows and sections (border-t, divide) stay. */
+#admin-shell :is(.card, [class*="rounded"].border):not(input, select, textarea, button, a.inline-flex, summary, label, .input, .btn, [class*="btn-"]):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { border-color: transparent !important; }
+#admin-shell :is(.card, [class*="rounded"].border) :is([class*="rounded"].border):not(input, select, textarea, button, a.inline-flex, summary, label, .input, .btn, [class*="btn-"], img):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { background-color: rgb(var(--page)); }
+/* Button-like links inside a filled box (Manage) stay white with their edge, so they still read as buttons */
+#admin-shell :is(.card, [class*="rounded"].border) a.inline-flex.border:not([class*="bg-"]) { background-color: rgb(var(--surface)); border-color: rgb(var(--line)); }
 #admin-shell .input { min-height: 40px; border-radius: 6px; padding-left: 12px; padding-right: 12px; }
 #admin-shell :is(input, select, textarea) { font-size: 13px; }
 @media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }
