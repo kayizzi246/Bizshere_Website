@@ -3,6 +3,7 @@ import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { Logo } from "./Logo";
 import { Icon } from "./Icon";
+import { Button } from "./ui/button";
 import { MobileMenu } from "./MobileMenu";
 import { WishlistLink } from "./Wishlist";
 
@@ -12,7 +13,11 @@ import { WishlistLink } from "./Wishlist";
 // the homepage opens with all twelve, so nothing here is the only way to reach anything.
 const NAV = ["/business-ideas", "/suppliers", "/funding", "/prices"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
 
-const JOIN = [["/suppliers/join", "Become a Supplier"], ["/experts/join", "Become an Expert"]] as const;
+// The shadcn button (components/ui/button): supplier solid orange, expert outlined, so "Get started" keeps the blue.
+const JOIN = [
+  ["/suppliers/join", "Become a Supplier", "supplier", "accent", "text-ink hover:bg-[#FFA64D] hover:text-ink"],
+  ["/experts/join", "Become an Expert", "expert", "outline", "border-line-strong"],
+] as const;
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
 const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading min-[1360px]:px-3 min-[1360px]:text-[13px]";
@@ -54,8 +59,10 @@ export async function SiteHeader() {
         <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-2.5">
           {/* The full bar needs 1280px; below that everything is in the menu. */}
           {/* Supplier and expert sign-up back on the bar (client, 24 Nov 2026); on phones they are in the menu. */}
-          {JOIN.map(([href, label]) => (
-            <Link key={href} href={href} className="hidden h-9 items-center whitespace-nowrap rounded-lg border border-line-strong px-2 text-[11px] font-semibold text-heading hover:border-brand hover:text-brand xl:inline-flex min-[1360px]:px-3 min-[1360px]:text-[12px]">{label}</Link>
+          {JOIN.map(([href, label, icon, variant, tone]) => (
+            <Button key={href} asChild variant={variant} size="sm" className={`hidden h-9 px-2.5 text-[11px] xl:inline-flex min-[1360px]:px-3 min-[1360px]:text-[12px] ${tone}`}>
+              <Link href={href}><Icon name={icon} className="hidden h-3.5 w-3.5 min-[1440px]:block" />{label}</Link>
+            </Button>
           ))}
           <WishlistLink className="rounded-lg" />
           {!viewer.userId ? (
@@ -88,7 +95,11 @@ export async function SiteHeader() {
               <Link href="/search" className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-brand hover:bg-page"><Icon name="search" className="h-4 w-4" />Search everything</Link>
               <div className="my-1 border-t border-line" />
               <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
-              {JOIN.map(([href, label]) => <Link key={href} href={href} className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">{label}</Link>)}
+              <div className="flex flex-col gap-2 py-1.5">
+                {JOIN.map(([href, label, icon, variant, tone]) => (
+                  <Button key={href} asChild variant={variant} size="lg" className={`w-full ${tone}`}><Link href={href}><Icon name={icon} className="h-4 w-4" />{label}</Link></Button>
+                ))}
+              </div>
               <Link href="/about" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">About</Link>
               <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact</Link>
               {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Log in</Link> : null}

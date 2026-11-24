@@ -60,8 +60,8 @@ export default async function HomePage() {
                 (client): about a fifth down from the 17 Nov sizes, which had gone up by a third.
                 The one line is the ceiling either way — the words run about 13.5× the font size
                 wide — and every size here is below it, so nothing can wrap.
-                23 Nov 2026 (client): bigger again, about a quarter up at every width. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(20px,6.6vw,32px)] text-white sm:text-[36px] lg:text-[42px] xl:text-[46px] 2xl:text-[52px]">
+                23 Nov 2026 (client): bigger again. 24 Nov 2026 (client): smaller, and Bold instead of Black. */}
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(18px,5.8vw,27px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[38px] 2xl:text-[42px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
@@ -95,16 +95,8 @@ export default async function HomePage() {
             </ul>
 
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-              {/* Order and words from the client, 24 Nov 2026: prices, suppliers, experts. A band of light
-                  sweeps across the solid button on hover; the moving ring goes round all three. All of
-                  it is dropped under prefers-reduced-motion. */}
-              <Link href="/prices" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 hover:text-ink active:translate-y-0 motion-reduce:hover:translate-y-0">
-                {/* The label keeps a solid fill so it stays readable while the ring behind it changes
-                    colour. Dark text on the deep blue of that gradient would not pass contrast. */}
-                <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[4px] bg-accent px-7 font-display text-[14px] font-extrabold text-ink transition-colors group-hover:bg-[#FFA54A] before:absolute before:inset-y-0 before:-left-full before:w-1/2 before:-skew-x-12 before:bg-gradient-to-r before:from-transparent before:via-white/45 before:to-transparent before:transition-[left] before:duration-700 before:ease-out before:content-[''] group-hover:before:left-[150%] motion-reduce:before:hidden">
-                  <span className="relative">Today&apos;s market prices</span>
-                </span>
-              </Link>
+              {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day. The moving
+                  ring is dropped under prefers-reduced-motion. */}
               <Link href="/suppliers/join" className="ring-shine group inline-flex h-12 rounded-md bg-accent p-[2px] transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0">
                 <span className="flex h-full w-full items-center justify-center rounded-[4px] bg-[#0B1F44] px-7 font-display text-[14px] font-extrabold text-white transition-colors group-hover:bg-transparent group-hover:text-ink">Join our suppliers</span>
               </Link>
