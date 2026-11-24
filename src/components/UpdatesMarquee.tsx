@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-type Update = { id: string; message: string; href: string | null };
+type Update = { id: string; message: string; href: string | null; /** A small label in front, e.g. "Funding source". */ tag?: string };
 
 /**
  * Slim announcement pill of short updates, managed at /admin/updates. While we're live on
@@ -8,8 +8,8 @@ type Update = { id: string; message: string; href: string | null };
  * Pure CSS: the list is rendered twice and slid left by half its width, so it loops
  * without a jump. Pauses on hover or keyboard focus; with reduced motion it stops
  * and becomes a row you can scroll by hand.
- * `dark` is the homepage hero version: a full-width glass ribbon of plain text on the navy hero, no label,
- * fading out at both ends.
+ * `dark` is the homepage hero version (redesigned 24 Nov 2026): a solid navy bar with an orange edge at the left;
+ * each item is its own rounded chip with an orange tag for its kind. No heading; the items fade at both ends.
  */
 export function UpdatesMarquee({ updates, live = null, dark = false }: { updates: Update[]; live?: { title: string | null } | null; dark?: boolean }) {
   const all: (Update & { live?: boolean })[] = live
@@ -20,13 +20,13 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   const copies = Math.ceil(6 / all.length);
   const row = Array.from({ length: copies }, () => all).flat();
   // A steady reading speed (about 45px a second) whatever the number or length of the items.
-  const seconds = Math.max(30, Math.round(row.reduce((n, u) => n + u.message.length + 6, 0) * 0.16));
+  const seconds = Math.max(30, Math.round(row.reduce((n, u) => n + u.message.length + (u.tag?.length ?? 0) + 8, 0) * 0.16));
 
   // Dark: plain text with an orange dot before each item (no chips). Light: chips.
   const chip = dark
-    ? "inline-flex shrink-0 items-center gap-2.5 px-3 py-1 text-[13px] text-white/80"
+    ? "inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.08] pl-1.5 pr-3 text-[12.5px] font-medium text-white sm:h-9 sm:text-[13px]"
     : "inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-page/70 px-3 py-1 text-[13px] text-ink-soft";
-  const hover = dark ? "hover:text-white" : "hover:border-brand/40 hover:bg-white hover:text-ink";
+  const hover = dark ? "hover:border-accent hover:bg-white/[0.16] hover:text-white" : "hover:border-brand/40 hover:bg-white hover:text-ink";
   const items = (dup: boolean) =>
     row.map((u, n) => {
       const body = (
@@ -34,12 +34,16 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
           {u.live ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-[#FF0033] px-1.5 py-px text-[10px] tracking-wide text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
           ) : dark ? (
-            <span aria-hidden className="h-1 w-1 rotate-45 bg-accent" />
+            u.tag ? (
+            <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-ink">{u.tag}</span>
+          ) : (
+            <span aria-hidden className="ml-1.5 h-2 w-2 rounded-full bg-accent" />
+          )
           ) : (
             <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
           )}
-          <span className={`${dark ? "decoration-white/40 underline-offset-4 group-hover:underline" : ""} ${u.live ? ` ${dark ? "text-white" : "text-ink"}` : ""}`}>{u.message}</span>
-          {u.href ? <span aria-hidden className={`transition group-hover:translate-x-0.5 ${dark ? "text-white/50 group-hover:text-accent" : "text-ink-muted group-hover:text-brand"}`}>→</span> : null}
+          <span className={`${u.live ? ` ${dark ? "text-white" : "text-ink"}` : ""}`}>{u.message}</span>
+          {u.href ? <span aria-hidden className={`transition group-hover:translate-x-0.5 ${dark ? "text-accent" : "text-ink-muted group-hover:text-brand"}`}>→</span> : null}
         </>
       );
       const key = `${u.id}-${n}`;
@@ -55,16 +59,16 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   const track = (
     <div className="marquee-viewport min-w-0 flex-1 overflow-hidden">
       <div className="marquee-track flex w-max" style={{ "--marquee-duration": `${seconds}s` } as React.CSSProperties}>
-        <div className={`flex shrink-0 pl-2 pr-2 ${dark ? "gap-1" : "gap-2"}`}>{items(false)}</div>
-        <div aria-hidden className={`marquee-dup flex shrink-0 pr-2 ${dark ? "gap-1" : "gap-2"}`}>{items(true)}</div>
+        <div className="flex shrink-0 gap-2 pr-2">{items(false)}</div>
+        <div aria-hidden className="marquee-dup flex shrink-0 gap-2 pr-2">{items(true)}</div>
       </div>
     </div>
   );
 
-  // Hero: a full-width ribbon, no label; items glide in and out through soft fades at both ends.
+  // Hero: a full-width navy bar, no heading; items glide in and out through short fades at both ends.
   if (dark) {
     return (
-      <div role="region" aria-label="Latest updates" className="marquee marquee-wide flex h-9 w-full items-center sm:h-11 overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
+      <div role="region" aria-label="Latest updates" className="marquee flex h-11 w-full items-center overflow-hidden rounded-xl border border-white/15 border-l-4 border-l-accent bg-[#071A36] sm:h-[52px]">
         {track}
       </div>
     );

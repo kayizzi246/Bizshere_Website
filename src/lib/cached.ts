@@ -20,7 +20,7 @@ export const cachedMemberPlan = unstable_cache(
   ["member-plan"], opts,
 );
 
-export const cachedSiteUpdates = unstable_cache(() => homeRibbon(), ["home-ribbon"], opts);
+export const cachedSiteUpdates = unstable_cache(() => homeRibbon(), ["home-ribbon-2"], opts);
 
 export const cachedRecentGuides = unstable_cache(
   () => prisma.contentItem.findMany({

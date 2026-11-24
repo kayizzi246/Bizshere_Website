@@ -15,7 +15,7 @@ export function liveSiteUpdates(now = new Date()) {
 }
 
 /** What the homepage ribbon shows: the live updates or, with none, the newest published listings, so it is never missing. */
-export async function homeRibbon(): Promise<{ id: string; message: string; href: string | null }[]> {
+export async function homeRibbon(): Promise<{ id: string; message: string; href: string | null; tag?: string }[]> {
   const live = await liveSiteUpdates();
   if (live.length) return live;
   // Titles every visitor already sees on the directory lists. Website names can be member-only addresses.
@@ -25,7 +25,7 @@ export async function homeRibbon(): Promise<{ id: string; message: string; href:
     orderBy: { publishedAt: { sort: "desc", nulls: "last" } },
     take: 12,
   });
-  return items.map((i) => ({ id: i.id, message: `${contentTypeLabel[i.contentType]}: ${i.title.replace(/^Sample:s*/i, "")}`, href: itemHref(i) }));
+  return items.map((i) => ({ id: i.id, message: i.title.replace(/^Sample:[ ]*/i, ""), tag: contentTypeLabel[i.contentType], href: itemHref(i) }));
 }
 
 export type UpdateState = "live" | "hidden" | "scheduled" | "ended";

@@ -46,7 +46,7 @@ export default async function HomePage() {
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
             about 64px above and 72px below (9 Nov 2026); 12–16px between the elements; 48px headline on one line (was 68px). One column below xl. */}
         {/* Updates ribbon across the whole width (managed at /admin/updates), no label. Phones: tighter above and below. */}
-        <div className="container-site relative pt-1.5 sm:pt-[26px]">
+        <div className="container-site relative pt-3 sm:pt-[26px]">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
         <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-7 pb-8 pt-3 sm:pb-9 sm:pt-4 xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:items-start xl:gap-x-12 2xl:grid-cols-[minmax(0,1fr)_minmax(0,450px)] 2xl:gap-x-16">
@@ -60,8 +60,9 @@ export default async function HomePage() {
                 (client): about a fifth down from the 17 Nov sizes, which had gone up by a third.
                 The one line is the ceiling either way — the words run about 13.5× the font size
                 wide — and every size here is below it, so nothing can wrap.
-                23 Nov 2026 (client): bigger again. 24 Nov 2026 (client): smaller, and Bold instead of Black. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(18px,5.8vw,27px)] text-white sm:text-[30px] lg:text-[34px] xl:text-[38px] 2xl:text-[42px]">
+                23 Nov 2026 (client): bigger again. 24 Nov 2026 (client): smaller, and Bold instead of Black; bigger
+                again on phones the same day, as wide as one line allows. */}
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(22px,7.8vw,34px)] text-white sm:text-[34px] xl:text-[38px] 2xl:text-[42px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
@@ -109,7 +110,7 @@ export default async function HomePage() {
           {/* Right panel: the live stream while we're live on YouTube; otherwise two columns of real photos from the
               site drifting slowly (HeroCollage; client, 12 Nov 2026); with too few photos, market prices and
               a moving list that needs none (HeroShowcase); the latest video when there are no prices. Wide screens only (1280px+). */}
-          <div id="watch" className="hidden scroll-mt-28 flex-col xl:-mt-[16px] xl:flex">
+          <div id="watch" className="hidden scroll-mt-28 flex-col xl:flex">
             {!yt.video?.live && photos.length >= 6 ? (
               <HeroCollage photos={photos} />
             ) : !yt.video || (!yt.video.live && prices.rows.length) ? (
