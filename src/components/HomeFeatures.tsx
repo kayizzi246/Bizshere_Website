@@ -335,19 +335,20 @@ export async function HomeFeatures() {
                 const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
                 return (
                   <li key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className="min-h-0">
-                    <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-lg bg-white p-2.5 text-heading transition-transform duration-200 hover:text-heading motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
-                      <span className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[120px] sm:w-full sm:flex-1 sm:rounded-none sm:border-b sm:border-line">
+                    {/* Black card, the photo in its own white rounded box inside it (client, 25 Nov 2026) */}
+                    <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-[#0B0B0F] p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                      <span className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[120px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                         <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none sm:p-3" />
                       </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:p-3">
-                        <span className="line-clamp-2 font-display text-[12.5px] font-bold leading-snug sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
+                      <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
+                        <span className="line-clamp-2 font-display text-[12.5px] font-bold leading-snug text-white sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
                         <span className="flex items-center justify-between gap-2">
                           {hasPrice ? (locked
-                            ? <span className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-ink-muted"><span aria-hidden className="select-none font-display text-[12px] font-bold blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
-                            : <span className="whitespace-nowrap rounded-full bg-accent-tint px-2.5 py-1 font-display text-[12px] font-bold tabular-nums text-accent-dark">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>)
-                            : <span className="text-[12px] text-ink-muted">Price on request</span>}
-                          <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint text-navy transition-colors group-hover:bg-navy group-hover:text-white"><ArrowRight className="h-3.5 w-3.5" /></span>
+                            ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-white/70"><span aria-hidden className="select-none font-display text-[12px] font-bold blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
+                            : <span className="whitespace-nowrap rounded-full bg-accent/20 px-2.5 py-1 font-display text-[12px] font-bold tabular-nums text-accent">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>)
+                            : <span className="text-[12px] text-white/60">Price on request</span>}
+                          <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-[#0B0B0F]"><ArrowRight className="h-3.5 w-3.5" /></span>
                         </span>
                       </span>
                     </Link>
