@@ -191,9 +191,9 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <Link href="/business-ideas" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand">
               <ArrowLeft aria-hidden className="h-4 w-4" />All business ideas
             </Link>
-            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-12">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)] lg:gap-12">
               <div className="order-2 w-full md:order-none">
-                <ProductGallery images={images} videos={videos} icon="idea" wide />
+                <ProductGallery images={images} videos={videos} icon="idea" tall />
               </div>
 
               <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">

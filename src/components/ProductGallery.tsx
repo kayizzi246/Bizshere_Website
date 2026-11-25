@@ -29,7 +29,7 @@ const isFile = (href: string) => /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(href);
  * white slot where the whole photo shows (nothing cropped), thumbnails in a column beside it on wide
  * screens, and a close-up that follows the mouse when pointing at the photo.
  */
-/** `shop`: products on clean white, filling most of the frame (left out of ImageFit, src/components/ImageFit.tsx). `wide`: a short 16:9 banner below tablet width, 4:3 from tablet up (business idea page, client 12 Nov 2026: the photo was too big on phones). `tall`: square at every width (machine page, client 25 Nov 2026: taller machine photos) */
+/** `shop`: products on clean white, filling most of the frame (left out of ImageFit, src/components/ImageFit.tsx). `wide`: a short 16:9 banner below tablet width, 4:3 from tablet up (business idea page, client 12 Nov 2026: the photo was too big on phones). `tall`: square at every width (machine and business idea pages, client 25 Nov 2026: taller machine photos) */
 export function ProductGallery({ images, videos = [], icon, shop = false, wide = false, tall = false }: { images: GalleryImage[]; videos?: GalleryVideo[]; icon: string; shop?: boolean; wide?: boolean; tall?: boolean }) {
   const slides: Slide[] = [...images.map((i) => ({ kind: "image" as const, ...i })), ...videos.map((v) => ({ kind: "video" as const, ...v }))];
   const [current, setCurrent] = useState(0);
