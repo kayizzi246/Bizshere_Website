@@ -81,11 +81,11 @@ const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"],
  * the colour with the colour as text (chips, icon tiles); `softBtn`: the same as a button that fills on hover.
  */
 const S = {
-  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-white text-navy hover:text-navy" },
+  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
   machines: { solid: "bg-navy text-white hover:text-white", ink: "text-navy", onColour: "bg-white text-navy hover:text-navy" },
-  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-white text-navy hover:text-navy" },
-  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-white text-navy hover:text-navy" },
-  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-white text-navy hover:text-navy" },
+  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
+  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
+  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
   tools: { solid: "bg-[#0F766E] text-white hover:text-white", ink: "text-[#0F766E]", onColour: "", soft: "bg-[#E4F3F1] text-[#0F766E]", softBtn: "bg-[#E4F3F1] text-[#0F766E] hover:bg-[#0F766E] hover:text-white" },
   tips: { solid: "bg-[#BE185D] text-white hover:text-white", ink: "text-[#BE185D]", onColour: "", soft: "bg-[#FCE8F1] text-[#BE185D]", softBtn: "bg-[#FCE8F1] text-[#BE185D] hover:bg-[#BE185D] hover:text-white" },
   forum: { solid: "bg-[#EAB308] text-ink hover:text-ink", ink: "text-[#8A6A00]", onColour: "", soft: "bg-[#FDF3D0] text-[#8A6A00]", softBtn: "bg-[#FDF3D0] text-[#8A6A00] hover:bg-[#8A6A00] hover:text-white" },
@@ -173,7 +173,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
         </Link>
       </div>
       {/* min-h-0: the card gives way inside the panel's fixed height rather than spilling out of it */}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-lg bg-white">{children}</div>
+      <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-line bg-white">{children}</div>
       <span className="shrink-0 sm:hidden"><Go href={href} tone={onColour}>{action}</Go></span>
     </li>
   );
@@ -341,23 +341,23 @@ export async function HomeFeatures() {
       <div className="container-site pb-4 pt-6 sm:pt-7">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business ideas</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Ready plans with every cost, line by line.</p>
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-heading sm:text-[24px] lg:text-[26px]">Business ideas</h3>
+          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
-          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/10 raised p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
+          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-brand-tint/60 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
                 {/* The same card as the machines below (client, 25 Nov 2026) */}
-                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-black/20 p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl border border-line bg-white p-2.5 text-heading transition-transform duration-200 hover:text-heading motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
                   <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[150px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                     <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="absolute inset-0 h-full transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-medium leading-snug text-white sm:text-[13px]">{clean(idea.title)}</span>
-                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-navy"><ArrowRight className="h-4 w-4" /></span>
+                    <span className="font-display text-[12.5px] font-medium leading-snug text-heading sm:text-[13px]">{clean(idea.title)}</span>
+                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint text-navy transition-colors group-hover:bg-navy group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
               </li>
@@ -417,7 +417,7 @@ export async function HomeFeatures() {
         ) : null}
       </div>
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
-          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-white" onColour={S.funding.onColour}
+          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-heading" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
             <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] overflow-hidden">
               {funding.map((f, n) => {
@@ -441,7 +441,7 @@ export async function HomeFeatures() {
             </ul>
           </Panel>
 
-          <Panel href="/suppliers" title="Suppliers" action="See all suppliers" tint="skin-suppliers" words="text-white" onColour={S.suppliers.onColour}
+          <Panel href="/suppliers" title="Suppliers" action="See all suppliers" tint="skin-suppliers" words="text-heading" onColour={S.suppliers.onColour}
             text="Checked suppliers in Uganda and abroad.">
             {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
                 fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
@@ -477,19 +477,19 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Find an expert</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">Checked advisors for the hard parts.</p>
-          <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/10 text-white" start />
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-heading sm:text-[24px] lg:text-[26px]">Find an expert</h3>
+          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Checked advisors for the hard parts.</p>
+          <Points points={EXPERT_POINTS} mark="text-brand" tint="bg-brand-tint text-brand-dark" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
         {experts.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/[0.08] raised p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2.5 rounded-xl bg-brand-tint/60 p-3 sm:p-4">
             {experts.map((e, n) => {
               const c = e.consultant;
               const name = clean(c?.fullName || e.title);
               const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
               return (
-                <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-lg bg-white/[0.07] p-2.5 text-white transition-colors hover:bg-white/[0.16] hover:text-white sm:gap-4`}>
+                <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-lg border border-line bg-white p-2.5 text-heading transition-colors hover:border-brand/40 hover:text-heading sm:gap-4`}>
                   <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[16px] text-[#4A1D6B] sm:h-14 sm:w-14">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
@@ -497,10 +497,10 @@ export async function HomeFeatures() {
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
                     <span className="font-display text-[12.5px] font-medium leading-snug sm:text-[13px]">{name}</span>
-                    {role ? <span className="line-clamp-1 text-[10px] text-white/85 sm:text-[11px]">{role}</span> : null}
-                    {c?.district ? <span className="flex items-center gap-1 text-[9.5px] text-white/70 sm:text-[10px]"><MapPin aria-hidden className="h-2.5 w-2.5" />{c.district}</span> : null}
+                    {role ? <span className="line-clamp-1 text-[10px] text-ink-soft sm:text-[11px]">{role}</span> : null}
+                    {c?.district ? <span className="flex items-center gap-1 text-[9.5px] text-ink-muted sm:text-[10px]"><MapPin aria-hidden className="h-2.5 w-2.5" />{c.district}</span> : null}
                   </span>
-                  <ArrowRight aria-hidden className="mr-1 h-4 w-4 shrink-0 text-white transition-transform duration-150 group-hover:translate-x-0.5" />
+                  <ArrowRight aria-hidden className="mr-1 h-4 w-4 shrink-0 text-navy transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>
               );
             })}

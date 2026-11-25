@@ -432,6 +432,17 @@ select {
     radial-gradient(42% 92% at 0% 2%, rgba(93, 190, 255, 0.20) 0%, transparent 72%),
     linear-gradient(260deg, #082344 0%, #0A4E8C 48%, #0072CE 100%);
 }
+/* "The blue is too much" (client, 25 Nov 2026, the same day): Business machines stays the one dark blue panel, and
+   Ideas, Funding, Suppliers and Experts turn light: white with a faint blue wash in one corner and a hairline edge,
+   navy words and navy buttons. Same palette, far less of it. Overrides the dark rules above. */
+.skin-ideas, .skin-funding, .skin-suppliers, .skin-experts {
+  background-color: #FFFFFF;
+  background-image: radial-gradient(70% 120% at 100% 0%, rgba(0, 114, 206, 0.07) 0%, transparent 70%);
+  border: 1px solid rgb(var(--line));
+}
+.skin-experts { background-image: radial-gradient(70% 120% at 0% 0%, rgba(0, 114, 206, 0.07) 0%, transparent 70%); }
+/* The grain and white discs are for dark panels: on white they would only grey it */
+.skin-ideas::before, .skin-funding::before, .skin-suppliers::before, .skin-experts::before { content: none !important; }
 .skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
 
 /* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */
