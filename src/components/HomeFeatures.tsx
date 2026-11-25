@@ -299,14 +299,15 @@ export async function HomeFeatures() {
           <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/10 raised p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
-                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-lg bg-white p-2.5 text-ink transition-transform duration-200 hover:text-ink motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
-                  <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl sm:h-auto sm:min-h-[150px] sm:w-full sm:flex-1 sm:rounded-none">
+                {/* Black card, the photo in its own white rounded box inside it, like the machines below (client, 25 Nov 2026) */}
+                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-[#0B0B0F] p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                  <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[150px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                     <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="absolute inset-0 h-full transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:p-3">
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-bold leading-snug text-heading sm:text-[13px]">{clean(idea.title)}</span>
-                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E6F2EC] text-[#0F5B3E] transition-colors group-hover:bg-[#0F5B3E] group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
+                    <span className="font-display text-[12.5px] font-bold leading-snug text-white sm:text-[13px]">{clean(idea.title)}</span>
+                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-[#0B0B0F]"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
               </li>
