@@ -177,7 +177,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
               </div>
               <p data-size="" className="text-[12px] text-ink-muted">
                 {gated && lowest ? <>Members see the full details, from <strong className="font-semibold text-heading">{lowest}</strong>. </> : null}
-                Please mention <strong className="font-semibold text-ink-soft">BizSphere-Ug</strong> when applying.
+                Always remember to carry out all necessary precautions when applying for loans.
               </p>
               <RememberVisit item={{ href: path, title: name, kind: "Funding", icon: "funding" }} />
             </div>
