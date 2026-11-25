@@ -153,7 +153,7 @@ export async function RecordPage({
               <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
             </Link>
 
-            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-12">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)] lg:gap-12">
               <div className="order-2 w-full md:order-none">
                 <ProductGallery images={images} videos={videos} icon={icon} tall />
               </div>
