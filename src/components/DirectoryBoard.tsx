@@ -377,7 +377,8 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
         ) : (
           <>
             <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[13px] leading-snug text-ink-soft"><Banknote aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />{amount?.value ? <strong className="font-bold text-heading">{amount.value}</strong> : "Amount not added"}</p>
-            {i.apply ? <a href={i.apply} target="_blank" rel="noopener noreferrer" aria-label={`Apply: ${title}`} className={button}>Apply<span aria-hidden>↗</span></a> : <Link href={i.href} aria-label={`View ${title}`} className={button}>View</Link>}
+            {/* View, never Apply, from the list (client, 25 Nov 2026): the details first; Apply now is on the fund's page */}
+            <Link href={i.href} aria-label={`View ${title}`} className={button}>View</Link>
           </>
         )}
       </div>
@@ -419,13 +420,8 @@ function CellsRow({ i }: { i: BrowseListing }) {
         {about ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-soft">{about}</p> : null}
         {purpose ? <p data-size="" className="flex items-start gap-1.5 text-[12px] text-ink-muted"><Target aria-hidden className="mt-0.5 h-3 w-3 shrink-0" /><span className="line-clamp-1"><span className="font-medium text-ink-soft">For:</span> {purpose}</span></p> : null}
       </>}
-      actions={i.apply ? (
-        <a href={i.apply} target="_blank" rel="noopener noreferrer" className={solidButton}>Apply<span aria-hidden>↗</span></a>
-      ) : i.applyLocked ? (
-        <Link href={`/membership?onboard=pay&next=${encodeURIComponent(i.href)}`} data-pay="" data-next={i.href} className={solidButton}><LockKeyhole aria-hidden className="h-3 w-3" />Apply</Link>
-      ) : (
-        <Link href={i.href} className={solidButton}>View</Link>
-      )}
+      // View, never Apply, from the list (client, 25 Nov 2026): the details first; Apply now (locked for visitors) is on the fund's page
+      actions={<Link href={i.href} className={solidButton}>View</Link>}
     />
   );
 }
