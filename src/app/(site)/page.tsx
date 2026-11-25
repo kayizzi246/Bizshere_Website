@@ -37,10 +37,10 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 780px tall (25 Nov 2026; 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
+      {/* Laptops and up (1280px+): the hero is 720px tall (25 Nov 2026; 780, 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(96vh,780px)] xl:flex-col">
+      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(94vh,720px)] xl:flex-col">
         {/* The drifting specks were taken off on 18 Nov 2026 (client), as the moving network of lights
             was before them. The hero is the colour and the words now, and nothing else. */}
         {/* Measured layout (client spec, Nov 2026): 680px text column, 96px gap, 450px card set 120px lower;
@@ -49,7 +49,7 @@ export default async function HomePage() {
         <div className="container-site relative">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,370px)] xl:items-start xl:gap-x-20 2xl:grid-cols-[minmax(0,1fr)_minmax(0,410px)] 2xl:gap-x-28">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-10 pt-6 sm:pb-11 sm:pt-8 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,370px)] xl:items-start xl:gap-x-20 2xl:grid-cols-[minmax(0,1fr)_minmax(0,410px)] 2xl:gap-x-28">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
