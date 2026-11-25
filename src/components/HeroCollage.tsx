@@ -2,11 +2,13 @@ import { BorderSnake } from "./BorderSnake";
 
 export type CollagePhoto = { src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product" };
 
+// What each one is, as a small coloured label in capitals (text only, no pill; client, 25 Nov 2026)
 const KIND: Record<CollagePhoto["kind"], { label: string; tone: string }> = {
-  idea: { label: "Business idea", tone: "bg-[#2E6BFF]/20 text-[#9DBBFF]" },
-  machine: { label: "Machine", tone: "bg-accent/20 text-accent" },
-  product: { label: "Supplier", tone: "bg-[#12B76A]/20 text-[#5BE3A1]" },
+  idea: { label: "Business idea", tone: "text-[#9DBBFF]" },
+  machine: { label: "Machine", tone: "text-accent" },
+  product: { label: "Supplier", tone: "text-[#5BE3A1]" },
 };
+const tag = "text-[8.5px] font-medium uppercase tracking-[0.12em]";
 
 /**
  * The right side of the homepage hero (redesigned 13 Nov 2026, replacing the two drifting photo columns):
@@ -21,22 +23,22 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
   return (
     <div aria-label="Latest on BizSphere-Ug" className="collage relative flex h-[470px] flex-col gap-3 rounded-2xl bg-[#081A3C]/45 p-4 text-white">
       <BorderSnake />
-      <div className="flex items-center justify-between gap-3 px-1">
-        <span className="flex flex-col leading-tight">
-          <span className="font-display text-[11px] font-extrabold tracking-[-0.01em]">Latest on BizSphere-Ug</span>
-          <span className="text-[9px] text-white/55">Ideas · Machines · Suppliers</span>
+      {/* No bold anywhere in the panel (client, 25 Nov 2026): a live dot and the title on one line, regular weight */}
+      <div className="flex items-baseline justify-between gap-3 px-1">
+        <span className="flex items-center gap-2 text-[11px] font-medium text-white">
+          <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />Latest on BizSphere-Ug
         </span>
-        <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[8px] uppercase tracking-wide text-white/70">New</span>
+        <span className="text-[9px] text-white/50">Ideas · Machines · Suppliers</span>
       </div>
 
-      {/* The featured listing */}
+      {/* The featured listing: what it is, then its name in up to two lines */}
       <div className="relative h-[180px] shrink-0 overflow-hidden rounded-xl bg-white/[0.05]">
         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
         <img src={feature.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <span aria-hidden className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#04112A]/90 to-transparent" />
-        <span className="absolute bottom-3 left-3 right-3 flex flex-col items-start gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-[8.5px] font-semibold ${f.tone} backdrop-blur-sm`}>{f.label}</span>
-          <span className="w-full truncate font-display text-[11.5px] font-extrabold leading-tight tracking-[-0.01em]">{feature.title}</span>
+        <span aria-hidden className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#04112A]/95 to-transparent" />
+        <span className="absolute bottom-3 left-3 right-3 flex flex-col items-start gap-1">
+          <span className={`${tag} ${f.tone}`}>{f.label}</span>
+          <span className="line-clamp-2 w-full text-[11.5px] font-normal leading-snug text-white">{feature.title}</span>
         </span>
       </div>
 
@@ -52,11 +54,12 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
                   {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                   <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 </span>
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5 leading-tight">
-                  <span className="truncate font-display text-[10px] font-bold">{p.title}</span>
-                  <span className="truncate text-[9px] text-white/60">{p.sub}</span>
+                {/* What it is above the name, so the name has the whole width and up to two lines */}
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className={`${tag} ${k.tone}`}>{k.label}</span>
+                  <span className="line-clamp-2 text-[10px] font-normal leading-snug text-white">{p.title}</span>
+                  <span className="truncate text-[9px] leading-tight text-white/50">{p.sub}</span>
                 </span>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[8.5px] font-semibold ${k.tone}`}>{k.label}</span>
               </li>
             );
           })}
