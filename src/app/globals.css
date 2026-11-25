@@ -442,29 +442,32 @@ select {
    orange, Suppliers a sky blue, Experts a lavender. All pastel and the same lightness, so they differ without
    shouting; each has its colour stronger in one corner and gentler along the bottom. Navy text reads on all four. */
 .skin-ideas, .skin-funding, .skin-suppliers, .skin-experts { border: 0; }
+/* Strong gradients (client, 25 Nov 2026: "use strong gradients on those cards"): each colour runs on a diagonal from a
+   pale shade behind the words to a rich, saturated one at the far side, with a soft white light near the words so the
+   navy text keeps its contrast. Experts runs downward instead (its words are on the left too), so the four differ. */
 .skin-ideas {
-  background-color: #F1F8F4;
+  background-color: #CDEFDB;
   background-image:
-    radial-gradient(80% 130% at 100% 0%, rgba(31, 122, 77, 0.16) 0%, rgba(31, 122, 77, 0.06) 45%, transparent 75%),
-    radial-gradient(60% 80% at 15% 110%, rgba(91, 190, 140, 0.12) 0%, transparent 70%);
+    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
+    linear-gradient(115deg, #EAF8F0 0%, #BFEAD2 45%, #7FD3A8 80%, #4FBF88 100%);
 }
 .skin-funding {
-  background-color: #FFF6EE;
+  background-color: #FFD9B3;
   background-image:
-    radial-gradient(80% 130% at 100% 0%, rgba(242, 140, 40, 0.20) 0%, rgba(242, 140, 40, 0.07) 45%, transparent 75%),
-    radial-gradient(60% 80% at 15% 110%, rgba(255, 180, 110, 0.14) 0%, transparent 70%);
+    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
+    linear-gradient(115deg, #FFF3E6 0%, #FFD7AE 45%, #FFB26B 80%, #F7953A 100%);
 }
 .skin-suppliers {
-  background-color: #F2F8FE;
+  background-color: #CFE6FB;
   background-image:
-    radial-gradient(80% 130% at 100% 0%, rgba(0, 114, 206, 0.18) 0%, rgba(0, 114, 206, 0.07) 45%, transparent 75%),
-    radial-gradient(60% 80% at 15% 110%, rgba(93, 170, 240, 0.12) 0%, transparent 70%);
+    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
+    linear-gradient(115deg, #EDF6FF 0%, #C2DFFA 45%, #86BFF2 80%, #4C9BE6 100%);
 }
 .skin-experts {
-  background-color: #F6F2FB;
+  background-color: #E3D6F5;
   background-image:
-    radial-gradient(80% 130% at 0% 0%, rgba(101, 42, 142, 0.15) 0%, rgba(101, 42, 142, 0.05) 45%, transparent 75%),
-    radial-gradient(60% 80% at 85% 110%, rgba(160, 120, 210, 0.12) 0%, transparent 70%);
+    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
+    linear-gradient(155deg, #F6F0FD 0%, #DCCAF3 45%, #B694E6 80%, #9466D6 100%);
 }
 /* The grain and white discs are for dark panels: on white they would only grey it */
 .skin-ideas::before, .skin-funding::before, .skin-suppliers::before, .skin-experts::before { content: none !important; }
