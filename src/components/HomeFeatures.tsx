@@ -173,7 +173,7 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
         </Link>
       </div>
       {/* min-h-0: the card gives way inside the panel's fixed height rather than spilling out of it */}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-line bg-white">{children}</div>
+      <div className="min-h-0 flex-1 overflow-hidden rounded-lg bg-white">{children}</div>
       <span className="shrink-0 sm:hidden"><Go href={href} tone={onColour}>{action}</Go></span>
     </li>
   );
@@ -346,11 +346,11 @@ export async function HomeFeatures() {
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
-          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-brand-tint/60 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
+          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/50 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
                 {/* The same card as the machines below (client, 25 Nov 2026) */}
-                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl border border-line bg-white p-2.5 text-heading transition-transform duration-200 hover:text-heading motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-white p-2.5 text-heading transition-transform duration-200 hover:text-heading motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
                   <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[150px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                     <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="absolute inset-0 h-full transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                   </span>
@@ -483,13 +483,13 @@ export async function HomeFeatures() {
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
         {experts.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-xl bg-brand-tint/60 p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/50 p-3 sm:p-4">
             {experts.map((e, n) => {
               const c = e.consultant;
               const name = clean(c?.fullName || e.title);
               const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
               return (
-                <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-lg border border-line bg-white p-2.5 text-heading transition-colors hover:border-brand/40 hover:text-heading sm:gap-4`}>
+                <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-lg bg-white p-2.5 text-heading transition-colors hover:bg-[#FBF9FE] hover:text-heading sm:gap-4`}>
                   <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[16px] text-[#4A1D6B] sm:h-14 sm:w-14">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
