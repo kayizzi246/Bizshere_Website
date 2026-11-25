@@ -18,6 +18,7 @@ import { ProductCard, type Product } from "./ProductCard";
 import { OnboardingGate } from "./Onboarding";
 import { ProductGallery, type GalleryImage, type GalleryVideo } from "./ProductGallery";
 import { StickyBar } from "@/components/StickyBar";
+import { StickyContact } from "./StickyContact";
 import { videoId } from "@/lib/youtube";
 import { WishlistButton } from "./Wishlist";
 import { ShareButton } from "./ShareButton";
@@ -154,7 +155,7 @@ export async function RecordPage({
 
             <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-12">
               <div className="order-2 w-full md:order-none">
-                <ProductGallery images={images} videos={videos} icon={icon} wide />
+                <ProductGallery images={images} videos={videos} icon={icon} tall />
               </div>
 
               <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
@@ -294,6 +295,8 @@ export async function RecordPage({
           </div>
         </div>
 
+        {/* Phones: Call always in reach when the record has a phone (these records have no WhatsApp number) */}
+        {contact && contact !== "locked" ? <StickyContact phone={contact.phone} /> : null}
       </OnboardingGate>
     );
   }
@@ -473,6 +476,8 @@ export async function RecordPage({
         {/* What they looked at before: easy to go back to, and the site feels like theirs */}
         <div className="container-site pb-12 sm:pb-14"><RecentStrip exclude={back} title="You looked at these recently" /></div>
       </div>
+      {/* Phones: Call always in reach when the record has a phone (these records have no WhatsApp number) */}
+      {contact && contact !== "locked" ? <StickyContact phone={contact.phone} /> : null}
     </OnboardingGate>
   );
 }

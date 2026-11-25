@@ -19,6 +19,7 @@ import { RememberVisit } from "@/components/Recent";
 import { WishlistButton } from "@/components/Wishlist";
 import { PdfOpenButton } from "@/components/PdfViewer";
 import { isPdf } from "@/lib/pdf-file";
+import { StickyContact } from "@/components/StickyContact";
 
 export const dynamic = "force-dynamic";
 
@@ -250,6 +251,8 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
           </div>
         </div>
       </article>
+      {/* Phones: Call and WhatsApp (on the same number, as in the buttons above) always in reach, for members */}
+      {!gated && c.phone ? <StickyContact phone={c.phone} whatsapp={phones[0] ?? c.phone} /> : null}
     </OnboardingGate>
   );
 }

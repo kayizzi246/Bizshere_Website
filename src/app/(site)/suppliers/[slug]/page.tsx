@@ -19,6 +19,7 @@ import { OnboardingGate } from "@/components/Onboarding";
 import { RememberVisit } from "@/components/Recent";
 import { WishlistButton } from "@/components/Wishlist";
 import { PdfOpenButton } from "@/components/PdfViewer";
+import { StickyContact } from "@/components/StickyContact";
 
 export const dynamic = "force-dynamic";
 
@@ -207,6 +208,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
           </div>
         </div>
       </article>
+      {/* Phones: Call and WhatsApp always in reach, for members */}
+      {!gated ? <StickyContact phone={s.phone} whatsapp={s.whatsapp || (s.phone ? (phoneNumbers(s.phone)[0] ?? s.phone) : null)} /> : null}
     </OnboardingGate>
   );
 }

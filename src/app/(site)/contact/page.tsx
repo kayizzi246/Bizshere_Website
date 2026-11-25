@@ -4,6 +4,7 @@ import { getContact, whatsappHref } from "@/lib/site-contact";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { LeadForm } from "@/components/LeadForm";
+import { StickyContact } from "@/components/StickyContact";
 import type { LeadInterest } from "@/lib/leads";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +63,8 @@ export default async function ContactPage({ searchParams }: { searchParams: { ab
           <LeadForm defaults={me ?? undefined} interest={about} whatsapp={wa} />
         </div>
       </div>
+      {/* Phones: Call and WhatsApp always in reach */}
+      <StickyContact ours phone={c.phone} whatsapp={c.whatsapp} message="Hello BizSphere-Ug, I'd like to know more." />
     </div>
   );
 }

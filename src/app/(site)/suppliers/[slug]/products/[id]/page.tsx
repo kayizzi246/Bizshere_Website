@@ -12,6 +12,7 @@ import { OnboardingGate } from "@/components/Onboarding";
 import { ProductGallery } from "@/components/ProductGallery";
 import { SupplierCatalog, type CatalogItem } from "@/components/SupplierCatalog";
 import { popupPlan } from "@/lib/billing";
+import { StickyContact } from "@/components/StickyContact";
 
 export const dynamic = "force-dynamic";
 
@@ -156,13 +157,8 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
         </div>
       </section>
 
-      {/* Phones: Call and WhatsApp always in reach (data-sticky-bar lifts the chat button above it) */}
-      {!gated && s.phone ? (
-        <div data-sticky-bar="" className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-line bg-white/95 p-3 backdrop-blur lg:hidden">
-          <a href={`tel:${(phoneNumbers(s.phone)[0] ?? s.phone).replace(/\s/g, "")}`} className={`${btn} h-12 flex-1 bg-brand text-[15px] text-white hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call</a>
-          <a href={whatsappHref(s.whatsapp || (phoneNumbers(s.phone)[0] ?? s.phone), ask)} target="_blank" rel="noopener noreferrer" className={`${btn} h-12 flex-1 bg-[#25D366] text-[15px] text-white hover:text-white`}><MessageCircle aria-hidden className="h-4 w-4" />WhatsApp</a>
-        </div>
-      ) : null}
+      {/* Phones: Call and WhatsApp always in reach */}
+      {!gated ? <StickyContact phone={s.phone} whatsapp={s.whatsapp || (s.phone ? (phoneNumbers(s.phone)[0] ?? s.phone) : null)} message={ask} /> : null}
 
       <div className="bg-page">
         <div className="container-site pb-24 pt-7 sm:pb-14 sm:pt-9 lg:pb-16 lg:pt-10">
