@@ -130,7 +130,7 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
             <li key={s.kind === "image" ? s.src : s.href} className="snap-start">
               <button type="button" onClick={() => setCurrent(n)} aria-pressed={n === current}
                 aria-label={s.kind === "image" ? `Show photo ${n + 1}${s.label ? `: ${s.label}` : ""}` : `Play ${s.label.toLowerCase()}`}
-                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition ${shop ? "h-[72px] w-[72px] md:h-20 md:w-20" : "h-16 w-20 sm:h-[72px] sm:w-24"} ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}
+                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition ${shop ? "h-[72px] w-[72px] md:h-20 md:w-20" : tall ? "h-20 w-[104px] sm:h-24 sm:w-32" : "h-16 w-20 sm:h-[72px] sm:w-24"} ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}
                   onMouseEnter={shop ? () => setCurrent(n) : undefined}>
                 {s.kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
