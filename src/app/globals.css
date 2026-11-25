@@ -442,35 +442,34 @@ select {
    orange, Suppliers a sky blue, Experts a lavender. All pastel and the same lightness, so they differ without
    shouting; each has its colour stronger in one corner and gentler along the bottom. Navy text reads on all four. */
 .skin-ideas, .skin-funding, .skin-suppliers, .skin-experts { border: 0; }
-/* Strong gradients (client, 25 Nov 2026: "use strong gradients on those cards"): each colour runs on a diagonal from a
-   pale shade behind the words to a rich, saturated one at the far side, with a soft white light near the words so the
-   navy text keeps its contrast. Experts runs downward instead (its words are on the left too), so the four differ. */
+/* Very strong colours (client, 25 Nov 2026: "they look pale, I want strong colours, very strong"): each panel a full,
+   saturated gradient in its own colour with white words, the deep end behind the words (white text keeps its
+   contrast there) opening into the bright end, with a light from the far corner. The grain and soft discs of the
+   dark panels (::before, below) come back with the colour. Experts runs downward, so the four don't look stamped out. */
 .skin-ideas {
-  background-color: #CDEFDB;
+  background-color: #0E8A55;
   background-image:
-    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
-    linear-gradient(115deg, #EAF8F0 0%, #BFEAD2 45%, #7FD3A8 80%, #4FBF88 100%);
+    radial-gradient(70% 120% at 100% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 65%),
+    linear-gradient(115deg, #05603A 0%, #0E8A55 40%, #13B26B 75%, #2FD487 100%);
 }
 .skin-funding {
-  background-color: #FFD9B3;
+  background-color: #E0620B;
   background-image:
-    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
-    linear-gradient(115deg, #FFF3E6 0%, #FFD7AE 45%, #FFB26B 80%, #F7953A 100%);
+    radial-gradient(70% 120% at 100% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 65%),
+    linear-gradient(115deg, #B23F05 0%, #DC5A0A 40%, #F47A16 75%, #FF9A2E 100%);
 }
 .skin-suppliers {
-  background-color: #CFE6FB;
+  background-color: #1366D6;
   background-image:
-    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
-    linear-gradient(115deg, #EDF6FF 0%, #C2DFFA 45%, #86BFF2 80%, #4C9BE6 100%);
+    radial-gradient(70% 120% at 100% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 65%),
+    linear-gradient(115deg, #0A3F9E 0%, #1366D6 40%, #1E86F0 75%, #3FA8FF 100%);
 }
 .skin-experts {
-  background-color: #E3D6F5;
+  background-color: #6D28D9;
   background-image:
-    radial-gradient(55% 90% at 8% 40%, rgba(255, 255, 255, 0.55) 0%, transparent 70%),
-    linear-gradient(155deg, #F6F0FD 0%, #DCCAF3 45%, #B694E6 80%, #9466D6 100%);
+    radial-gradient(70% 120% at 100% 100%, rgba(255, 255, 255, 0.16) 0%, transparent 65%),
+    linear-gradient(155deg, #3B0F8C 0%, #5B21B6 40%, #7C3AED 75%, #9D5CFF 100%);
 }
-/* The grain and white discs are for dark panels: on white they would only grey it */
-.skin-ideas::before, .skin-funding::before, .skin-suppliers::before, .skin-experts::before { content: none !important; }
 .skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
 
 /* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */

@@ -81,11 +81,11 @@ const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"],
  * the colour with the colour as text (chips, icon tiles); `softBtn`: the same as a button that fills on hover.
  */
 const S = {
-  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
+  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-white text-[#05603A] hover:text-[#05603A]" },
   machines: { solid: "bg-navy text-white hover:text-white", ink: "text-navy", onColour: "bg-white text-navy hover:text-navy" },
-  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
-  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
-  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-navy text-white hover:bg-brand-dark hover:text-white" },
+  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-white text-[#B23F05] hover:text-[#B23F05]" },
+  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-white text-[#0A3F9E] hover:text-[#0A3F9E]" },
+  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-white text-[#3B0F8C] hover:text-[#3B0F8C]" },
   tools: { solid: "bg-[#0F766E] text-white hover:text-white", ink: "text-[#0F766E]", onColour: "", soft: "bg-[#E4F3F1] text-[#0F766E]", softBtn: "bg-[#E4F3F1] text-[#0F766E] hover:bg-[#0F766E] hover:text-white" },
   tips: { solid: "bg-[#BE185D] text-white hover:text-white", ink: "text-[#BE185D]", onColour: "", soft: "bg-[#FCE8F1] text-[#BE185D]", softBtn: "bg-[#FCE8F1] text-[#BE185D] hover:bg-[#BE185D] hover:text-white" },
   forum: { solid: "bg-[#EAB308] text-ink hover:text-ink", ink: "text-[#8A6A00]", onColour: "", soft: "bg-[#FDF3D0] text-[#8A6A00]", softBtn: "bg-[#FDF3D0] text-[#8A6A00] hover:bg-[#8A6A00] hover:text-white" },
@@ -341,12 +341,12 @@ export async function HomeFeatures() {
       <div className="container-site pb-4 pt-6 sm:pt-7">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-heading sm:text-[24px] lg:text-[26px]">Business ideas</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ready plans with every cost, line by line.</p>
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business ideas</h3>
+          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white/90 sm:text-[15px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
-          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/50 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
+          <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/15 p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
                 {/* The same card as the machines below (client, 25 Nov 2026) */}
@@ -417,7 +417,7 @@ export async function HomeFeatures() {
         ) : null}
       </div>
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
-          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-heading" onColour={S.funding.onColour}
+          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-white" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
             <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] overflow-hidden">
               {funding.map((f, n) => {
@@ -441,7 +441,7 @@ export async function HomeFeatures() {
             </ul>
           </Panel>
 
-          <Panel href="/suppliers" title="Suppliers" action="See all suppliers" tint="skin-suppliers" words="text-heading" onColour={S.suppliers.onColour}
+          <Panel href="/suppliers" title="Suppliers" action="See all suppliers" tint="skin-suppliers" words="text-white" onColour={S.suppliers.onColour}
             text="Checked suppliers in Uganda and abroad.">
             {/* Four suppliers, in two rows of two: with six the list ran past the bottom of the panel, which has a
                 fixed height, and cut off the button (seen on the live site, 11 Nov 2026) */}
@@ -477,13 +477,13 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-heading sm:text-[24px] lg:text-[26px]">Find an expert</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Checked advisors for the hard parts.</p>
-          <Points points={EXPERT_POINTS} mark="text-brand" tint="bg-brand-tint text-brand-dark" start />
+          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Find an expert</h3>
+          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white/90 sm:text-[15px]">Checked advisors for the hard parts.</p>
+          <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/15 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
         {experts.length ? (
-          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/50 p-3 sm:p-4">
+          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/15 p-3 sm:p-4">
             {experts.map((e, n) => {
               const c = e.consultant;
               const name = clean(c?.fullName || e.title);
