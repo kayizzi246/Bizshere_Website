@@ -296,24 +296,24 @@ export async function HomeFeatures() {
           </h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
-        <ul className="grid w-full max-w-[1000px] grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {NEEDS.map(([say, href, colour]) => (
-            <li key={href}>
-              {/* One line, never two (client, 18 Nov 2026): "I need money for my business" is the
-                  longest of the six and used to wrap, which made that card taller than the rest. The
-                  icon and the gaps give back the room it needs, and truncate is the safety net — a
-                  longer line added later ends in an ellipsis rather than breaking the row.
-                  Bolder and a size up on 19 Nov 2026 (client). Bold at 15px is about 14px wider than
-                  the 14px semibold it replaces, which the longest line did not have spare, so the
-                  room comes back from a 36px icon box and slightly tighter letter spacing. */}
-              <Link href={href} className="card-premium group flex min-h-[64px] items-center gap-3 p-3 pr-3.5 text-ink hover:text-ink">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100 ${colour}`}><Icon name={directory(href).icon} className="h-[18px] w-[18px]" /></span>
-                <span className="min-w-0 flex-1 truncate font-display text-[14.5px] font-bold leading-snug tracking-[-0.01em] sm:text-[15px]">{say}</span>
-                <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-1 group-hover:text-ink" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Made to draw the eye (client, 25 Nov 2026): the six choices in one soft blue tray with a faint blue glow behind
+            it, so they read as the one thing to do here. Each card: a solid blue icon tile, the words in semibold, and an
+            arrow in a circle that turns orange; the card lifts and takes a blue edge under the pointer. One line per card,
+            never two (18 Nov 2026): truncate is the safety net for a longer line added later. */}
+        <div className="relative w-full max-w-[1040px]">
+          <span aria-hidden className="pointer-events-none absolute -inset-4 -z-10 rounded-[32px] bg-[radial-gradient(60%_70%_at_50%_50%,rgba(0,114,206,0.16),transparent_75%)] blur-xl" />
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-2xl border border-brand/15 bg-gradient-to-b from-brand-tint/80 to-white p-2.5 sm:grid-cols-2 sm:gap-3 sm:p-3.5 lg:grid-cols-3">
+            {NEEDS.map(([say, href], n) => (
+              <li key={href} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
+                <Link href={href} className="group flex min-h-[64px] items-center gap-2.5 rounded-xl border border-white bg-white p-3 pr-2.5 text-ink transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-[#F7FAFE] hover:text-ink motion-reduce:hover:translate-y-0">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0072CE] to-[#0A4E8C] text-white transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"><Icon name={directory(href).icon} className="h-[18px] w-[18px]" /></span>
+                  <span className="min-w-0 flex-1 truncate font-display text-[14px] font-semibold leading-snug tracking-[-0.01em] text-heading">{say}</span>
+                  <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint text-brand-dark transition-colors duration-200 group-hover:bg-accent group-hover:text-ink"><ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
         <p data-size="" className="text-center text-[14px] text-ink-soft">Not sure where to start? <Link href="/contact" className="">Tell us what you need</Link> and a person will help you.</p>
       </div>
       </div>

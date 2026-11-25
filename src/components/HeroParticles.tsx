@@ -89,7 +89,7 @@ export function HeroParticles({ links = true }: { /** false: small drifting spec
       const count = links ? Math.min(width < 640 ? 34 : 95, Math.round((width * height) / 11000)) : Math.min(width < 640 ? 50 : 135, Math.round((width * height) / 7500));
       // The lights are very small (client, 11 Nov 2026): about one pixel, the gold ones a little more
       dots = Array.from({ length: count }, (_, i) => {
-        const angle = Math.random() * Math.PI * 2, speed = links ? 0.12 + Math.random() * 0.22 : 0.05 + Math.random() * 0.12;
+        const angle = Math.random() * Math.PI * 2, speed = links ? 0.12 + Math.random() * 0.22 : 0.12 + Math.random() * 0.22;
         const glow = links ? i % 7 === 0 : i % 4 === 0;
         return {
           x: Math.random() * width, y: Math.random() * height, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
