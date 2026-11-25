@@ -340,7 +340,7 @@ export async function HomeFeatures() {
                     <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-[#0B0B0F] p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
                       <span className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[120px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-                        <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none sm:p-3" />
+                        <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
                         <span className="line-clamp-2 font-display text-[12.5px] font-bold leading-snug text-white sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
