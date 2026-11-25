@@ -158,7 +158,7 @@ export async function RecordPage({
                 <ProductGallery images={images} videos={videos} icon={icon} tall />
               </div>
 
-              <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
+              <div className="contents md:flex md:min-w-0 md:max-w-[500px] md:flex-col md:gap-5">
                 <div className="order-1 flex flex-col gap-2 md:order-none">
                   <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
                     <span className="inline-flex items-center gap-1.5 font-semibold text-brand-dark"><Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}</span>
@@ -295,8 +295,19 @@ export async function RecordPage({
           </div>
         </div>
 
-        {/* Phones: Call always in reach when the record has a phone (these records have no WhatsApp number) */}
-        {contact && contact !== "locked" ? <StickyContact phone={contact.phone} /> : null}
+        {/* Phones: the main action always in reach (client, 25 Nov 2026). Call when the seller has a phone (these records
+            have no WhatsApp number); otherwise Contact the seller, down to where to buy; Unlock for visitors. */}
+        {contact && contact !== "locked" && contact.phone ? <StickyContact phone={contact.phone} /> : locked || hasContact || (whereRow && !empty(whereRow.value)) ? (
+          <div data-sticky-bar="" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+            {locked ? (
+              <Link href={back} data-onboard="" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-center text-[15px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+                <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" /><span className="truncate">{planInfo.daily ? `Unlock the price and sellers · ${planInfo.daily} a day` : "Unlock the price and sellers"}</span>
+              </Link>
+            ) : (
+              <a href="#contact" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
+            )}
+          </div>
+        ) : null}
       </OnboardingGate>
     );
   }
