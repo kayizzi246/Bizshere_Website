@@ -193,7 +193,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
 }
 
 /** The list as a photo grid beside the side column: two a row on phones, three on tablets, four from 1280px. */
-export const gridList = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4";
+export const gridList = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4"; // tighter on phones (client, 25 Nov 2026)
 
 /** A grid card (business ideas, machines, suppliers): photo on top with the heart, then category, name, pills, a short
     description and the buttons along the bottom, so the cards in a row line up. */
@@ -219,7 +219,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
           <WishlistHeart id={id} />
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
+      <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
         <p data-size="" className="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-ink-muted">{meta}</p>
         <Link href={href} className="line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
         {pills ? <ul className="flex flex-wrap gap-1">{pills}</ul> : null}
