@@ -6,6 +6,7 @@ import { directory } from "@/config/directories";
 import { compactRange, date, itemHref, websiteName } from "@/lib/format";
 import { Icon } from "./Icon";
 import { IdeaPhoto } from "./IdeaParts";
+import { HelpTabs, type HelpTab } from "./HelpTabs";
 
 /**
  * The homepage below the hero: what BizSphere-Ug offers. A centred title; Business Ideas as the wide
@@ -36,6 +37,26 @@ async function records() {
     prisma.contentItem.findMany({ where: { contentType: "CONSULTANT", ...live }, select: { slug: true, title: true, contentType: true, consultant: { select: { fullName: true, professionalTitle: true, photoUrl: true, specialties: true, district: true } } }, orderBy: [...newest], take: 3 }),
   ]);
   return { ideas, funding, suppliers, machines, experts };
+}
+
+/** What "Help for every working day" shows (back on 25 Nov 2026, client; taken off on 18 Nov): titles and real counts. */
+async function helpRecords() {
+  const newest = [{ publishedAt: { sort: "desc", nulls: "last" } }] as const;
+  const live = { publicationStatus: "PUBLISHED" } as const;
+  const item = { slug: true, title: true, contentType: true, shortSummary: true, publishedAt: true } as const;
+  const [guides, news, websites, products, tips, topics, byType, tracked, topicCount] = await Promise.all([
+    prisma.contentItem.findMany({ where: { contentType: "GUIDE", ...live }, select: item, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "NEWS", ...live }, select: item, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "WEBSITE", ...live }, select: { slug: true, title: true, contentType: true, accessLevel: true, website: { select: { siteType: true } } }, orderBy: [...newest], take: 6 }),
+    prisma.product.findMany({ where: { observations: { some: { status: "PUBLISHED" } } }, select: { name: true }, orderBy: { name: "asc" }, distinct: ["name"], take: 6 }),
+    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_TIP", ...live }, select: { slug: true, title: true, primaryCategory: { select: { name: true } } }, orderBy: [...newest], take: 3 }),
+    prisma.forumTopic.findMany({ where: { status: { not: "HIDDEN" } }, select: { id: true, title: true, _count: { select: { posts: { where: { hiddenAt: null } } } } }, orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }], take: 3 }).catch(() => []),
+    prisma.contentItem.groupBy({ by: ["contentType"], where: live, _count: { _all: true } }),
+    prisma.product.count({ where: { observations: { some: { status: "PUBLISHED" } } } }),
+    prisma.forumTopic.count({ where: { status: { not: "HIDDEN" } } }).catch(() => 0),
+  ]);
+  const counts = Object.fromEntries(byType.map((r) => [r.contentType, r._count._all])) as Record<string, number>;
+  return { guides, news, websites, products, tips, topics, counts, tracked, topicCount };
 }
 
 /** Websites a visitor who hasn't paid sees in full on the homepage card; the rest are locked. */
@@ -224,9 +245,35 @@ function NeedIcons() {
 }
 
 export async function HomeFeatures() {
-  const [{ ideas, funding, suppliers, machines, experts }, viewer] = await Promise.all([records(), getViewer()]);
+  const [{ ideas, funding, suppliers, machines, experts }, { guides, news, websites, products, tips, topics, counts, tracked, topicCount }, viewer] = await Promise.all([records(), helpRecords(), getViewer()]);
   const sell = !viewer.isMember && !viewer.isStaff;
   const stat = (n: number | undefined, label: string) => (n ? { value: n.toLocaleString("en-GB"), label } : null);
+  const helpTabs: HelpTab[] = [
+    { id: "guides", label: "Guides", icon: "guide", title: "Step-by-step guides", text: "Registration, licences, EFRIS and tax, explained in plain words, with the documents you need.", action: "See all guides", href: "/guides", window: "Business guides",
+      stat: stat(counts.GUIDE, "Guides"), kind: "steps", rows: guides.map((g) => ({ title: clean(g.title), sub: g.shortSummary, href: itemHref(g) })),
+      points: ["Each step in order, with what to bring", "Official sources, checked by our team", "Read on the site, or download the PDF"] },
+    { id: "tools", label: "Tools", icon: "tool", title: "Your numbers in minutes", text: "Calculators and templates for VAT, PAYE, business plans and cash flow, ready to use.", action: "Open the tools", href: "/tools", window: "VAT calculator",
+      stat: stat(counts.TOOL, "Tools"), kind: "vat", rows: [],
+      points: ["VAT and PAYE worked out for you", "Templates you can fill in and print", "Uganda's current rates"] },
+    { id: "prices", label: "Prices", icon: "prices", title: "Today's market prices", text: "What things cost, market by market across Uganda, so you buy and sell at the right price.", action: "Check prices", href: "/prices", window: "Markets and prices",
+      stat: stat(tracked, "Products tracked"), kind: "list", rows: products.slice(0, 5).map((x) => ({ title: x.name, side: "See price", href: `/prices?q=${encodeURIComponent(x.name)}` })),
+      points: ["Prices from markets around the country", "See how each price is moving", "Compare markets before you travel"] },
+    { id: "news", label: "News", icon: "news", title: "Business news that matters", text: "What is changing for business in Uganda: new rules, funding rounds and opportunities.", action: "Read the news", href: "/news", window: "Latest news",
+      stat: stat(counts.NEWS, "News stories"), kind: "list", rows: news.map((n) => ({ title: clean(n.title), sub: n.publishedAt ? date(n.publishedAt) : null, href: itemHref(n) })),
+      points: ["Short and to the point", "What it means for your business", "New funding rounds as they open"] },
+    { id: "tips", label: "Tips", icon: "tip", title: "Tips that save you money", text: "Short tips that work, from running a shop to keeping records, with remarks from members.", action: "Read the tips", href: "/tips", window: "Business tips",
+      stat: stat(counts.BUSINESS_TIP, "Tips"), kind: "list", rows: tips.map((t) => ({ title: clean(t.title), sub: t.primaryCategory?.name ?? null, href: `/tips/${t.slug}` })),
+      points: ["A few minutes to read", "Remarks from other owners", "Share any tip in one tap"] },
+    { id: "forum", label: "Forum", icon: "forum", title: "Talk to other owners", text: "Ask a question, answer one, find stock and meet other business owners.", action: "Join the conversation", href: "/forum", window: "Business forum",
+      stat: stat(topicCount, "Conversations"), kind: "topics", rows: topics.map((t) => ({ title: t.title, side: `${t._count.posts} ${t._count.posts === 1 ? "reply" : "replies"}`, href: `/forum/${t.id}` })),
+      points: ["Ask anything about running a business", "Answers from people who have done it", "Free to read for everyone"] },
+    { id: "websites", label: "Websites", icon: "link", title: "Useful websites", text: "Government and business sites in one list: registration, tax, export and finance.", action: "See all websites", href: "/websites", window: "Useful websites",
+      stat: stat(counts.WEBSITE, "Websites"), kind: "chips",
+      // A visitor who has not paid sees the first two and one pill for the rest, which opens the join pop-up; the other names are never sent.
+      rows: (sell ? websites.slice(0, FREE_WEBSITES) : websites.slice(0, 6)).map((w) => ({ title: websiteName(w.title, { hideAddress: w.accessLevel !== "PUBLIC" && sell, siteType: w.website?.siteType }), href: itemHref(w) })),
+      more: sell && websites.length > FREE_WEBSITES ? { label: `${websites.length - FREE_WEBSITES} more for members`, href: "/membership?onboard=pay&next=%2Fwebsites" } : null,
+      points: ["The right official site, first time", "What each site is for", "Checked links, kept up to date"] },
+  ];
   // Get started in the hero scrolls to #features; the smooth scroll leaves 96px for the header, which stays
   // in view on the homepage (SmoothScroll, HeaderAutoHide).
   // Weights (client, 11 Nov 2026): headings (h1 to h3, .text-hero) are 900; nothing else on the homepage is bold.
@@ -461,10 +508,21 @@ export async function HomeFeatures() {
 
       </div>
 
-      {/* The page ends with the panels (client, 18 Nov 2026). Two sections stood here: a tabbed
-          "Help for every working day" showcase, which listed the guides, tools, prices, news, tips
-          and forum directories the hero already opens with, and a "For businesses" banner, whose
-          Become a Supplier and Become an Expert links the footer carries. */}
+      {/* 3. Help for every working day, as a tabbed showcase (client, 12 Nov 2026, after a SaaS site they liked; taken
+          off on 18 Nov, back on 25 Nov 2026): a warm off-white band with a faint speckle (.speckle in globals.css), a
+          centred heading, pill tabs and one panel per part of the product (HelpTabs). Real content and real counts only.
+          The "For businesses" banner taken off with it on 18 Nov stays off: the footer carries its links. */}
+      <div data-everyday="" className="speckle mt-4">
+      <div className="container-site flex flex-col items-center gap-5 pb-8 pt-7 sm:gap-6 sm:pb-10 sm:pt-8">
+        <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
+          <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+            Help for <span className="text-accent">every working day</span><span className="text-accent">.</span>
+          </h2>
+          <p data-size="" className="text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
+        </div>
+        <HelpTabs tabs={helpTabs} />
+      </div>
+      </div>
 
     </section>
   );
