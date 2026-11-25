@@ -8,6 +8,7 @@ import { contentArea } from "@/lib/admin-areas";
 import { redirect } from "next/navigation";
 import { SERVICE_STYLE, STATUS_WORDS } from "@/lib/service-style";
 import { SelectAllRows, SelectedActions } from "./SelectRows";
+import { FUNDER_CATEGORIES } from "@/lib/content-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Content" };
@@ -21,7 +22,7 @@ const SHOW: [string, string, PublicationStatus | "CHECK" | null][] = [["all", "E
  * is (in its service colour), whether it is live, and when it last changed, with Edit and View. Tick
  * rows to take them off the site or delete them.
  */
-export default async function ContentPage({ searchParams }: { searchParams: { type?: string; show?: string; q?: string; deleted?: string } }) {
+export default async function ContentPage({ searchParams }: { searchParams: { type?: string; show?: string; q?: string; deleted?: string; funder?: string } }) {
   const user = await staffAccess();
   // Only the directories this staff member may edit (sub-admins: their areas).
   const mine = DIRS.filter(([t]) => !t || user.can(contentArea(t))).filter(([t], _n, all) => t || all.length > 1);
@@ -30,16 +31,22 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
   const type = mine.some(([t]) => t === searchParams.type) ? (searchParams.type as ContentType | "") : "";
   const show = SHOW.find(([k]) => k === searchParams.show) ?? SHOW[0];
   const q = searchParams.q?.trim() ?? "";
+  // Funding Sources only: filter by funder category (client, 25 Nov 2026). A fund without its own category takes its
+  // funder's, as on the site; "none" finds the ones with neither, to fill in.
+  const funder = type === "FUNDING_PROGRAMME" && (searchParams.funder === "none" || (FUNDER_CATEGORIES as readonly string[]).includes(searchParams.funder ?? "")) ? searchParams.funder! : "";
+  const funderWhere: Prisma.ContentItemWhereInput = !funder ? {}
+    : funder === "none" ? { fundingProgramme: { providerCategory: null, provider: { providerCategory: null } } }
+    : { fundingProgramme: { OR: [{ providerCategory: funder }, { providerCategory: null, provider: { providerCategory: funder } }] } };
   const now = new Date();
-  const base: Prisma.ContentItemWhereInput = { contentType: type || { in: allowed }, ...(q ? { title: { contains: q, mode: "insensitive" } } : {}) };
+  const base: Prisma.ContentItemWhereInput = { contentType: type || { in: allowed }, ...(q ? { title: { contains: q, mode: "insensitive" } } : {}), ...funderWhere };
   const statusWhere = (s: (typeof SHOW)[number][2]): Prisma.ContentItemWhereInput => (s === "CHECK" ? { nextReviewDueAt: { lt: now } } : s ? { publicationStatus: s } : {});
   const where: Prisma.ContentItemWhereInput = { ...base, ...statusWhere(show[2]) };
   const [items, total, counts] = await Promise.all([
-    prisma.contentItem.findMany({ where, select: { id: true, slug: true, title: true, contentType: true, publicationStatus: true, updatedAt: true, nextReviewDueAt: true }, orderBy: { updatedAt: "desc" }, take: 100 }),
+    prisma.contentItem.findMany({ where, select: { id: true, slug: true, title: true, contentType: true, publicationStatus: true, updatedAt: true, nextReviewDueAt: true, fundingProgramme: { select: { providerCategory: true, provider: { select: { providerCategory: true } } } } }, orderBy: { updatedAt: "desc" }, take: 100 }),
     prisma.contentItem.count({ where }),
     Promise.all(SHOW.map(([, , s]) => prisma.contentItem.count({ where: { ...base, ...statusWhere(s) } }))),
   ]);
-  const href = (set: Record<string, string>) => "?" + new URLSearchParams(Object.entries({ type, show: show[0], q, ...set }).filter(([, v]) => v && v !== "all")).toString();
+  const href = (set: Record<string, string>) => "?" + new URLSearchParams(Object.entries({ type, show: show[0], q, funder, ...set }).filter(([, v]) => v && v !== "all")).toString();
   const keep = href({}).slice(1);
   const addLabel = type ? SERVICE_STYLE[type].name.toLowerCase() : "content";
 
@@ -71,11 +78,22 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
         <form action="/admin/content" className="ml-auto flex items-center gap-2">
           {type ? <input type="hidden" name="type" value={type} /> : null}
           {show[0] !== "all" ? <input type="hidden" name="show" value={show[0]} /> : null}
+          {funder ? <input type="hidden" name="funder" value={funder} /> : null}
           <label htmlFor="content-q" className="sr-only">Search by name</label>
           <input id="content-q" name="q" defaultValue={q} placeholder="Search by name" className="input min-h-[40px] w-[220px]" />
           <button className="btn-outline min-h-[40px] px-4">Search</button>
         </form>
       </div>
+
+      {/* Funding Sources: which kind of funder */}
+      {type === "FUNDING_PROGRAMME" ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-[13px] font-semibold text-ink-muted">Funder category</span>
+          {([["", "All"], ...FUNDER_CATEGORIES.map((c) => [c, c]), ["none", "No category"]] as [string, string][]).map(([k, l]) => (
+            <Link key={k || "all"} href={href({ funder: k })} aria-current={funder === k ? "page" : undefined} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ${funder === k ? "bg-brand-deep text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:text-heading"}`}>{l}</Link>
+          ))}
+        </div>
+      ) : null}
 
       <form className="overflow-hidden rounded-xl border border-line bg-surface">
         {/* After a delete, back to this same list */}
@@ -99,6 +117,11 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
                         <span className="inline-flex w-fit items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: s.soft, color: s.colour }}>
                           <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: s.colour }} />{s.name}
                         </span>
+                        {i.contentType === "FUNDING_PROGRAMME" ? (() => {
+                          const cat = i.fundingProgramme?.providerCategory ?? i.fundingProgramme?.provider.providerCategory;
+                          return cat ? <span className="text-[12px] text-ink-muted">Funder: <span className="font-semibold text-ink-soft">{cat}</span></span>
+                            : <span className="text-[12px] font-semibold text-[#B45309]">No funder category</span>;
+                        })() : null}
                       </span>
                     </td>
                     <td><span className="flex flex-col items-start gap-1"><span className={badge}>{word}</span>{due ? <span className="badge-warn">Due a check</span> : null}</span></td>
