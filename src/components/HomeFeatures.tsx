@@ -296,13 +296,13 @@ export async function HomeFeatures() {
           </h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
-        {/* Made to draw the eye (client, 25 Nov 2026): the six choices in one soft blue tray with a faint blue glow behind
+        {/* Made to draw the eye (client, 25 Nov 2026): the six choices in one dark blue tray (.panel-drop, like the panels below) with a faint blue glow behind
             it, so they read as the one thing to do here. Each card: a solid blue icon tile, the words in semibold, and an
             arrow in a circle that turns orange; the card lifts and takes a blue edge under the pointer. One line per card,
             never two (18 Nov 2026): truncate is the safety net for a longer line added later. */}
         <div className="relative w-full max-w-[1040px]">
           <span aria-hidden className="pointer-events-none absolute -inset-4 -z-10 rounded-[32px] bg-[radial-gradient(60%_70%_at_50%_50%,rgba(0,114,206,0.16),transparent_75%)] blur-xl" />
-          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-2xl border border-brand/15 bg-gradient-to-b from-brand-tint/80 to-white p-2.5 sm:grid-cols-2 sm:gap-3 sm:p-3.5 lg:grid-cols-3">
+          <ul className="panel-drop relative isolate grid grid-cols-[minmax(0,1fr)] gap-2.5 overflow-hidden rounded-2xl p-2.5 sm:grid-cols-2 sm:gap-3 sm:p-4 lg:grid-cols-3">
             {NEEDS.map(([say, href], n) => (
               <li key={href} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
                 <Link href={href} className="group flex min-h-[64px] items-center gap-2.5 rounded-xl border border-white bg-white p-3 pr-2.5 text-ink transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-[#F7FAFE] hover:text-ink motion-reduce:hover:translate-y-0">
