@@ -832,10 +832,6 @@ h1.profile-title { font-family: var(--font-inter), system-ui, sans-serif !import
 main h1.text-hero.profile-title:not([data-home])[class] { font-size: 32px !important; line-height: 1.08 !important; }
 @media (min-width: 640px) { main h1.text-hero.profile-title:not([data-home])[class] { font-size: 42px !important; } }
 @media (min-width: 1280px) { main h1.text-hero.profile-title:not([data-home])[class] { font-size: 50px !important; } }
-/* Its banner, a little taller than .pad-hero (client, 25 Nov 2026) */
-.pad-hero.profile-hero { padding-top: 2.5rem; padding-bottom: 3rem; }
-@media (min-width: 640px) { .pad-hero.profile-hero { padding-top: 3.25rem; padding-bottom: 3.75rem; } }
-@media (min-width: 1024px) { .pad-hero.profile-hero { padding-top: 3.5rem; padding-bottom: 4rem; } }
 .hero-title {
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;

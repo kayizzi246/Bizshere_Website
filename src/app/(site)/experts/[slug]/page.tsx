@@ -108,7 +108,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         ) : null}
         {/* ── Who they are, and what they do ── */}
         <header className="under-header hero-glow hero-still bg-navy text-white">
-          <div className="container-site flex flex-col gap-4 pad-hero profile-hero">
+          <div className="container-site flex flex-col gap-4 pad-hero">
             <Link href="/experts" className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-4 w-4" />All experts</Link>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
