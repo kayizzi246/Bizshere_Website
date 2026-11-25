@@ -435,12 +435,20 @@ select {
 /* "The blue is too much" (client, 25 Nov 2026, the same day): Business machines stays the one dark blue panel, and
    Ideas, Funding, Suppliers and Experts turn light: white with a faint blue wash in one corner and a hairline edge,
    navy words and navy buttons. Same palette, far less of it. Overrides the dark rules above. */
+/* The wash made clearly visible (client, 25 Nov 2026: "let this blue be visible"): stronger in the corner, a gentler
+   second one along the bottom, and a faintly blue edge. Still light enough for navy text everywhere. */
 .skin-ideas, .skin-funding, .skin-suppliers, .skin-experts {
-  background-color: #FFFFFF;
-  background-image: radial-gradient(70% 120% at 100% 0%, rgba(0, 114, 206, 0.07) 0%, transparent 70%);
-  border: 1px solid rgb(var(--line));
+  background-color: #F7FAFE;
+  background-image:
+    radial-gradient(80% 130% at 100% 0%, rgba(0, 114, 206, 0.18) 0%, rgba(0, 114, 206, 0.07) 45%, transparent 75%),
+    radial-gradient(60% 80% at 15% 110%, rgba(93, 170, 240, 0.12) 0%, transparent 70%);
+  border: 1px solid rgba(0, 114, 206, 0.18);
 }
-.skin-experts { background-image: radial-gradient(70% 120% at 0% 0%, rgba(0, 114, 206, 0.07) 0%, transparent 70%); }
+.skin-experts {
+  background-image:
+    radial-gradient(80% 130% at 0% 0%, rgba(0, 114, 206, 0.18) 0%, rgba(0, 114, 206, 0.07) 45%, transparent 75%),
+    radial-gradient(60% 80% at 85% 110%, rgba(93, 170, 240, 0.12) 0%, transparent 70%);
+}
 /* The grain and white discs are for dark panels: on white they would only grey it */
 .skin-ideas::before, .skin-funding::before, .skin-suppliers::before, .skin-experts::before { content: none !important; }
 .skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
