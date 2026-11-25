@@ -25,7 +25,7 @@ const JOIN = [
 ] as const;
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[12px] font-medium text-ink-soft transition-colors hover:bg-page hover:text-heading min-[1360px]:px-3 min-[1360px]:text-[13px]";
+const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[11.5px] font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading min-[1360px]:px-3 min-[1360px]:text-[12px]"; // semibold and smaller (client, 25 Nov 2026)
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /**

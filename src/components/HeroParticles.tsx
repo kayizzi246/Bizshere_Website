@@ -63,14 +63,14 @@ export function HeroParticles({ links = true }: { /** false: small drifting spec
         const shine = 0.55 + 0.45 * Math.sin(now * 0.0012 + d.phase);
         if (d.glow) {
           const halo = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r * 4);
-          halo.addColorStop(0, `rgba(${d.color},${0.35 * shine})`);
+          halo.addColorStop(0, `rgba(${d.color},${(links ? 0.35 : 0.5) * shine})`);
           halo.addColorStop(1, `rgba(${d.color},0)`);
           ctx.fillStyle = halo;
           ctx.beginPath();
           ctx.arc(d.x, d.y, d.r * 4, 0, Math.PI * 2);
           ctx.fill();
         }
-        ctx.fillStyle = `rgba(${d.color},${0.45 + 0.5 * shine})`;
+        ctx.fillStyle = `rgba(${d.color},${links ? 0.45 + 0.5 * shine : 0.7 + 0.3 * shine})`;
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
         ctx.fill();
@@ -86,14 +86,14 @@ export function HeroParticles({ links = true }: { /** false: small drifting spec
       canvas.height = height * ratio;
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       // Fewer on a phone: less to draw, and the text needs the room
-      const count = Math.min(width < 640 ? 34 : 95, Math.round((width * height) / 11000));
+      const count = links ? Math.min(width < 640 ? 34 : 95, Math.round((width * height) / 11000)) : Math.min(width < 640 ? 50 : 135, Math.round((width * height) / 7500));
       // The lights are very small (client, 11 Nov 2026): about one pixel, the gold ones a little more
       dots = Array.from({ length: count }, (_, i) => {
         const angle = Math.random() * Math.PI * 2, speed = links ? 0.12 + Math.random() * 0.22 : 0.05 + Math.random() * 0.12;
-        const glow = i % 7 === 0;
+        const glow = links ? i % 7 === 0 : i % 4 === 0;
         return {
           x: Math.random() * width, y: Math.random() * height, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-          r: links ? (glow ? 0.7 + Math.random() * 0.3 : 0.35 + Math.random() * 0.3) : (glow ? 1 + Math.random() * 0.5 : 0.6 + Math.random() * 0.6), color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
+          r: links ? (glow ? 0.7 + Math.random() * 0.3 : 0.35 + Math.random() * 0.3) : (glow ? 1.5 + Math.random() * 0.8 : 0.9 + Math.random() * 0.9), color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
         };
       });
       draw(performance.now());
