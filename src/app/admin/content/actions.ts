@@ -295,6 +295,13 @@ export async function saveContent(_prev: ContentFormState, form: FormData): Prom
         select: { organizationId: true },
       });
       await tx.organization.update({ where: { id: provider.organizationId }, data: { website: pick(funder.funderWebsite), logoUrl: pick(funder.funderLogo) } });
+      // The funder's office (client, 25 Nov 2026), on its organization's main location, as a supplier's address is
+      const physicalAddress = pick(funder.funderAddress);
+      if (physicalAddress !== undefined) {
+        const place = await tx.organizationLocation.findFirst({ where: { organizationId: provider.organizationId }, orderBy: { isPrimary: "desc" } });
+        if (place) await tx.organizationLocation.update({ where: { id: place.id }, data: { physicalAddress } });
+        else if (physicalAddress) await tx.organizationLocation.create({ data: { organizationId: provider.organizationId, physicalAddress, isPrimary: true } });
+      }
     }
 
     for (const child of dir.children ?? []) {

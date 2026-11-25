@@ -55,7 +55,7 @@ export async function loadValues(id: string) {
       revisions: { include: { editor: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 10 },
       businessIdea: { include: { steps: { orderBy: { stepNumber: "asc" } } } },
       machine: true, businessTip: true, supplier: { include: { organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } },
-      fundingProgramme: { include: { provider: { select: { phone: true, email: true, country: true, organization: { select: { website: true, logoUrl: true } } } } } }, investmentOpportunity: true,
+      fundingProgramme: { include: { provider: { select: { phone: true, email: true, country: true, organization: { select: { website: true, logoUrl: true, locations: { orderBy: { isPrimary: "desc" }, take: 1, select: { physicalAddress: true } } } } } } } }, investmentOpportunity: true,
       guide: { include: { steps: { orderBy: { stepNumber: "asc" } }, documents: true } },
       consultant: { include: { services: { orderBy: { id: "asc" } }, projects: { where: { status: "PUBLISHED" }, orderBy: { createdAt: "asc" } } } },
       recipe: { include: { ingredients: { orderBy: { order: "asc" } }, steps: { orderBy: { stepNumber: "asc" } } } },
@@ -81,7 +81,7 @@ export async function loadValues(id: string) {
   if (names) values.f_businessName = names.business ?? "";
   if (item.supplier) values.f_address = item.supplier.organization.locations[0]?.physicalAddress ?? "";
   const funder = item.fundingProgramme?.provider;
-  if (funder) Object.assign(values, { f_funderPhone: funder.phone ?? "", f_funderEmail: funder.email ?? "", f_funderCountry: funder.country, f_funderWebsite: funder.organization.website ?? "", f_funderLogo: funder.organization.logoUrl ?? "" });
+  if (funder) Object.assign(values, { f_funderPhone: funder.phone ?? "", f_funderAddress: funder.organization.locations[0]?.physicalAddress ?? "", f_funderEmail: funder.email ?? "", f_funderCountry: funder.country, f_funderWebsite: funder.organization.website ?? "", f_funderLogo: funder.organization.logoUrl ?? "" });
 
   const children: Record<string, string> = {
     ideaSteps: item.businessIdea?.steps.map((s) => [s.title, s.description].filter(Boolean).join(" | ")).join("\n") ?? "",

@@ -18,7 +18,7 @@ export default async function MachinePage({ params }: { params: { slug: string }
     where: { slug: params.slug, contentType: "MACHINE", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
     include: {
       primaryCategory: true,
-      machine: { include: { supplier: { select: { phone: true, email: true, website: true, contentItem: { select: { slug: true, title: true, publicationStatus: true } } } } } },
+      machine: { include: { supplier: { select: { phone: true, email: true, website: true, organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1, select: { physicalAddress: true, town: true } } } }, contentItem: { select: { slug: true, title: true, publicationStatus: true } } } } } },
     },
   });
   if (!item || !item.machine) notFound();
@@ -38,8 +38,9 @@ export default async function MachinePage({ params }: { params: { slug: string }
     phone: m.providerPhone || supplier?.phone || null,
     email: m.providerEmail || supplier?.email || null,
     website: m.providerWebsite || supplier?.website || null,
+    address: m.providerAddress || [supplier?.organization.locations[0]?.physicalAddress, supplier?.organization.locations[0]?.town].filter(Boolean).join(", ") || null,
   };
-  const hasContacts = Boolean(contacts.phone || contacts.email || contacts.website);
+  const hasContacts = Boolean(contacts.phone || contacts.email || contacts.website || contacts.address);
   // Visitors get a lock, and the values are never sent
   const contact = !hasContacts ? undefined : gated ? ("locked" as const) : contacts;
   const where = providerName || m.sources ? (

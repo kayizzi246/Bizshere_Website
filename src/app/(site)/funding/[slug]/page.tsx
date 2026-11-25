@@ -41,7 +41,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const viewer = await getViewer();
   const item = await prisma.contentItem.findFirst({
     where: { slug: params.slug, contentType: "FUNDING_PROGRAMME", publicationStatus: viewer.isStaff ? undefined : "PUBLISHED" },
-    include: { fundingProgramme: { include: { provider: { include: { organization: true } }, rounds: { orderBy: { opensAt: "desc" } } } } },
+    include: { fundingProgramme: { include: { provider: { include: { organization: { include: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } } }, rounds: { orderBy: { opensAt: "desc" } } } } },
   });
   if (!item || !item.fundingProgramme) notFound();
   const f = item.fundingProgramme;
@@ -69,6 +69,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
     { label: "Funder name", value: funderName, strong: true },
     ...((f.providerCategory ?? f.provider.providerCategory) ? [{ label: "Category", value: f.providerCategory ?? f.provider.providerCategory }] : []),
     ...(f.provider.phone ? [{ label: "Phone", value: f.provider.phone, locked: gated }] : []),
+    ...(f.provider.organization.locations[0]?.physicalAddress ? [{ label: "Address", value: [f.provider.organization.locations[0].physicalAddress, f.provider.organization.locations[0].town].filter(Boolean).join(", ") }] : []),
     { label: "Country", value: f.provider.country },
     ...(f.provider.email ? [{ label: "Email", value: <a href={`mailto:${f.provider.email}`} className="break-all">{f.provider.email}</a>, locked: gated }] : []),
     ...(website ? [{ label: "Website", value: <a href={href(website)} target="_blank" rel="noopener noreferrer" className="break-all">{bare(website)}</a>, locked: gated }] : []),

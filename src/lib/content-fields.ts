@@ -99,7 +99,7 @@ export const FUNDER = "Funder details";
 /** Who sells a machine: a supplier on the site, or a name and contacts typed in. Always open in the form. */
 export const PROVIDER = "Provider (where to buy)";
 /** The provider fields, shown in "Where to buy" on the machine page rather than in the specifications. */
-export const PROVIDER_FIELDS = ["supplierId", "providerName", "providerPhone", "providerEmail", "providerWebsite"];
+export const PROVIDER_FIELDS = ["supplierId", "providerName", "providerPhone", "providerEmail", "providerWebsite", "providerAddress"];
 
 export const DIRECTORIES: Directory[] = [
   {
@@ -149,6 +149,8 @@ export const DIRECTORIES: Directory[] = [
       t("providerName", "Provider name", PROVIDER, "Not needed when you chose a supplier above"),
       t("providerPhone", "Provider phone", PROVIDER, "e.g. 0772 123 456"), t("providerEmail", "Provider email", PROVIDER),
       { ...u("providerWebsite", "Provider website", PROVIDER), help: "e.g. www.example.com" },
+      // A physical address for every service that has one (client, 25 Nov 2026)
+      t("providerAddress", "Provider address", PROVIDER, "e.g. Plot 14, Nakivubo Road, Kampala. Not needed when you chose a supplier above"),
       t("manufacturer", "Manufacturer", "Identity"), t("brand", "Brand", "Identity"), t("modelNumber", "Model number", "Identity"),
       t("materialsProcessed", "Materials processed", "Applications"), t("productsProduced", "Products produced", "Applications"),
       d("capacityMin", "Capacity min", "Performance"), d("capacityMax", "Capacity max", "Performance"), t("capacityUnit", "Capacity unit", "Performance", "Use a unit code, e.g. kg_per_hour"),
@@ -208,6 +210,7 @@ export const DIRECTORIES: Directory[] = [
       { ...t("funderPhone", "Phone", FUNDER, "e.g. 0772 547 273, 0701 547 273"), virtual: true },
       { ...t("funderEmail", "Email", FUNDER), virtual: true },
       { ...u("funderWebsite", "Website", FUNDER), virtual: true },
+      { ...t("funderAddress", "Address", FUNDER, "The office to visit, e.g. Plot 17, Kampala Road, Kampala"), virtual: true },
       { ...t("funderCountry", "Country", FUNDER, "Uganda if left empty"), virtual: true },
       { ...u("funderLogo", "Photo or logo", FUNDER), upload: "image", virtual: true },
       b("requiresRegistration", "Registration required", "Eligibility"),
@@ -360,7 +363,7 @@ export const FREE_TYPES = new Set<ContentType>(["NEWS", "WEBSITE", "BUSINESS_TIP
  * checks this on the server and never sends these values to a visitor.
  */
 export const MEMBER_ONLY: Partial<Record<ContentType, { fields?: string[]; groups?: string[] }>> = {
-  MACHINE: { fields: ["priceMin", "priceMax", "sources", "providerName", "providerPhone", "providerEmail", "providerWebsite"] },
+  MACHINE: { fields: ["priceMin", "priceMax", "sources", "providerName", "providerPhone", "providerEmail", "providerWebsite", "providerAddress"] },
   SUPPLIER: { fields: ["email", "phone", "whatsapp", "minimumOrder", "paymentMethods", "leadTime"] },
   FUNDING_PROGRAMME: { fields: ["amountMin", "amountMax", "minAnnualTurnover", "matchingContribution", "amountBasis", "officialTermsUrl", "tenor", "howToApply", "funderPhone", "funderEmail", "funderWebsite"], groups: ["Loan terms", "Grant terms", "Equity terms"] },
   INVESTMENT_OPPORTUNITY: { groups: ["Terms", "Application", "Claims"], fields: ["capitalSought", "minimumParticipation", "useOfFunds"] },

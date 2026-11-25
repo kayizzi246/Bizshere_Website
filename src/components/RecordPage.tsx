@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, Globe, LockKeyhole, Mail, Phone } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Globe, LockKeyhole, Mail, MapPin, Phone } from "lucide-react";
 import type { ContentType } from "@prisma/client";
 import type { Viewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -35,7 +35,7 @@ import { popupPlan } from "@/lib/billing";
 export type DetailRow = { label: string; value?: React.ReactNode; locked?: boolean };
 export type TextBlock = { label: string; text?: string | null; locked?: boolean };
 export type LinkItem = { label: string; href?: string | null; locked?: boolean; icon?: string };
-export type ContactInfo = { email?: string | null; phone?: string | null; website?: string | null };
+export type ContactInfo = { email?: string | null; phone?: string | null; website?: string | null; /** A physical address (client, 25 Nov 2026) */ address?: string | null };
 
 const empty = (v: React.ReactNode) => v === null || v === undefined || v === "" || (Array.isArray(v) && v.length === 0);
 
@@ -139,7 +139,7 @@ export async function RecordPage({
       ...listSections.map((x) => [`c-${x.table.key}`, x.table.label] as [string, string]),
       ["related", "Related"],
     ];
-    const hasContact = contact !== undefined && (contact === "locked" || contact.phone || contact.email || contact.website);
+    const hasContact = contact !== undefined && (contact === "locked" || contact.phone || contact.email || contact.website || contact.address);
     const name = title.replace(/^Sample:\s*/i, "");
 
     return (
@@ -210,6 +210,7 @@ export async function RecordPage({
                         {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
                         {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
                         {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
+                        {contact.address ? <ContactRow icon={<MapPin className="h-4 w-4" />} label="Address" value={contact.address} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`} external /> : null}
                       </div>
                     ) : null}
                     {listSections.some((x) => x.table.key === "offers") ? (
@@ -443,12 +444,13 @@ export async function RecordPage({
                   </div>
                   <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock contact details</Link>
                 </>
-              ) : contact.email || contact.phone || contact.website ? (
+              ) : contact.email || contact.phone || contact.website || contact.address ? (
                 <>
                   <div className="flex flex-col gap-2">
                     {contact.phone ? <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={contact.phone} href={`tel:${contact.phone.replace(/\s/g, "")}`} /> : null}
                     {contact.email ? <ContactRow icon={<Mail className="h-4 w-4" />} label="Email" value={contact.email} href={`mailto:${contact.email}`} /> : null}
                     {contact.website ? <ContactRow icon={<Globe className="h-4 w-4" />} label="Website" value={contact.website.replace(/^https?:\/\//, "").replace(/\/$/, "")} href={contact.website} external /> : null}
+                        {contact.address ? <ContactRow icon={<MapPin className="h-4 w-4" />} label="Address" value={contact.address} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`} external /> : null}
                   </div>
                   <p className="text-xs leading-relaxed text-ink-muted">Say you found them on BizSphere-Ug. Agree prices and terms in writing before you pay.</p>
                 </>

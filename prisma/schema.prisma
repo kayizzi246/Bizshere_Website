@@ -901,6 +901,8 @@ model Machine {
   providerPhone            String?
   providerEmail            String?
   providerWebsite          String?
+  /// The provider's physical address (client, 25 Nov 2026); a linked supplier's own address is used when empty
+  providerAddress          String?
 
   contentItem ContentItem     @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
   supplier    Supplier?       @relation("MachineProvider", fields: [supplierId], references: [id], onDelete: SetNull)
