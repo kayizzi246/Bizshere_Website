@@ -71,6 +71,24 @@ const dt = (name: string, label: string, group?: string): Field => ({ name, labe
 const l = (name: string, label: string, group?: string): Field => ({ name, label, kind: "list", group, help: "Comma-separated" });
 const u = (name: string, label: string, group?: string): Field => ({ name, label, kind: "url", group });
 const e = (name: string, label: string, options: string[], group?: string): Field => ({ name, label, kind: "enum", options, group });
+
+/**
+ * Who gives a fund's money (client, 25 Nov 2026). Saved as written; shown as written (it is already in plain words).
+ * Changing a name here means changing the rows that hold it too (see the 20261125120000_funder_category migration).
+ */
+export const FUNDER_CATEGORIES = [
+  "Government programme", // PDM, Emyooga, UDB-managed government funds, ministries and agencies
+  "Development bank", // Uganda Development Bank, East African Development Bank
+  "Commercial bank", // Stanbic, Centenary, Equity, DFCU… (and Tier 2 credit institutions)
+  "Microfinance institution", // MDIs and Tier 4 microfinance (FINCA, Pride, UGAFODE…)
+  "SACCO", // savings and credit co-operatives
+  "Money lender", // licensed money lenders (UMRA)
+  "Digital lender", // mobile and app loans (MoKash, Wewole, Airtel Wewole…)
+  "Development partner or donor", // World Bank, UNDP, GIZ, USAID, UK and EU donors
+  "NGO or foundation", // charities and foundations giving grants
+  "Investor", // angels, venture capital, private equity, impact investors
+  "Other",
+] as const;
 const cur = (group?: string): Field => ({ name: "currency", label: "Currency", kind: "text", group, help: "e.g. UGX or USD" });
 /** Marks a field as one of the few shown before "More details" (see Field.essential). */
 const ess = (f: Field): Field => ({ ...f, essential: true });
@@ -183,7 +201,9 @@ export const DIRECTORIES: Directory[] = [
       l("eligibleBusinessTypes", "Eligible sectors", MAIN),
       ess(ta("howToApply", "How to apply", MAIN, "e.g. SMS MAALI to 8979, or fill in the form on their website")),
       u("officialTermsUrl", "Apply link", MAIN),
-      t("providerCategory", "Provider category", MAIN, "e.g. Bank, Government agency, Private"),
+      // A fixed list since 25 Nov 2026 (client: "add a field for Funder category: Government, Bank, Microfinance,
+      // Money lender…"), so the Category filter on /funding groups like with like. Was free text.
+      { ...e("providerCategory", "Funder category", [...FUNDER_CATEGORIES], MAIN), help: "Who gives the money. Choose the closest; Other if none fits." },
       // The funder's own details, kept on the fund provider and shared by all its funds (saved in src/app/admin/content/actions.ts)
       { ...t("funderPhone", "Phone", FUNDER, "e.g. 0772 547 273, 0701 547 273"), virtual: true },
       { ...t("funderEmail", "Email", FUNDER), virtual: true },

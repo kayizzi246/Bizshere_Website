@@ -256,7 +256,8 @@ function FieldInput({ f: raw, value, error, member, options }: { f: Field; value
 }
 
 /** MANUFACTURER → Manufacturer, SERVICE_PROVIDER → Service provider */
-const titleWord = (o: string) => { const w = o.replace(/_/g, " ").toLowerCase(); return w.charAt(0).toUpperCase() + w.slice(1); };
+// CODE_LIKE_THIS becomes "Code like this"; an option already written in plain words ("Commercial bank", "SACCO") stays as written
+const titleWord = (o: string) => { if (/[a-z]/.test(o)) return o; const w = o.replace(/_/g, " ").toLowerCase(); return w.charAt(0).toUpperCase() + w.slice(1); };
 
 /** A section that stays closed until it is wanted. Its fields are sent with the form either way. */
 function Fold({ id, title, note, open, hidden, children }: { id: string; title: string; note?: string; open?: boolean; hidden?: boolean; children: React.ReactNode }) {

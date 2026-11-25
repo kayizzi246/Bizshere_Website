@@ -85,7 +85,7 @@ async function main() {
     for (const [name, focus, site, category] of DONORS) {
       const url = `https://${site}`;
       const org = await tx.organization.create({ data: { legalName: name, accountType: "FUNDING_PROVIDER", status: "ACTIVE", website: url, description: `UK donor organisation. Focus: ${focus}.` } });
-      const provider = await tx.fundingProvider.create({ data: { organizationId: org.id, providerCategory: "UK donor", country: "United Kingdom" } });
+      const provider = await tx.fundingProvider.create({ data: { organizationId: org.id, providerCategory: "Development partner or donor", country: "United Kingdom" } });
       const base = slugify(name);
       await tx.contentItem.create({
         data: {
@@ -100,7 +100,7 @@ async function main() {
           publishedAt: now,
           lastReviewedAt: now,
           fundingProgramme: {
-            create: { providerId: provider.id, providerCategory: focus, fundingType: "GRANT", purpose: focus, officialTermsUrl: url, termsLastCheckedAt: now },
+            create: { providerId: provider.id, fundingType: "GRANT", purpose: focus, officialTermsUrl: url, termsLastCheckedAt: now },
           },
         },
       });

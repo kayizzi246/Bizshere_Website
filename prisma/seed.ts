@@ -275,7 +275,7 @@ async function main() {
   const provider = await prisma.fundingProvider.upsert({
     where: { organizationId: funderOrg.id },
     update: {},
-    create: { organizationId: funderOrg.id, providerCategory: "Development fund" },
+    create: { organizationId: funderOrg.id, providerCategory: "Development partner or donor" },
   });
   const fundItem = await upsertContent("sample-sme-equipment-loan", {
     contentType: "FUNDING_PROGRAMME",

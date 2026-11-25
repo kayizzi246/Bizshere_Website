@@ -115,7 +115,8 @@ function Value({ f, v, currency }: { f: Field; v: unknown; currency: string }) {
     case "date":
       return <>{date(v as Date)}</>;
     case "enum":
-      return <>{titleCase(String(v))}</>;
+      // CODE_LIKE_THIS reads "Code like this"; an option already in plain words ("SACCO", "Commercial bank") as written
+      return <>{/[a-z]/.test(String(v)) ? String(v) : titleCase(String(v))}</>;
     case "list":
       return (
         <span className="flex flex-wrap justify-end gap-1.5">
