@@ -55,8 +55,9 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
     if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
   };
 
-  // Keep the picked thumbnail in view in the scrolling row. Only the row scrolls, sideways, and only
-  // after a change: scrollIntoView would also scroll the whole page, even on load.
+  // The thumbnail row moves with the photo (client, 25 Nov 2026): the picked thumbnail slides to the middle of the
+  // row (or of the column beside a shop photo), with its neighbours showing either side, never cut off at an edge.
+  // Only the row scrolls, and only after a change: scrollIntoView would also scroll the whole page, even on load.
   const thumbs = useRef<HTMLUListElement>(null);
   const moved = useRef(false);
   useEffect(() => {
@@ -64,9 +65,12 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
     const row = thumbs.current;
     const el = row?.children[current] as HTMLElement | undefined;
     if (!row || !el) return;
-    const left = el.offsetLeft - row.offsetLeft;
-    if (left < row.scrollLeft) row.scrollTo({ left, behavior: "smooth" });
-    else if (left + el.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollTo({ left: left + el.offsetWidth - row.clientWidth, behavior: "smooth" });
+    const r = row.getBoundingClientRect(), e = el.getBoundingClientRect();
+    row.scrollBy({
+      left: row.scrollWidth > row.clientWidth ? e.left + e.width / 2 - (r.left + r.width / 2) : 0,
+      top: row.scrollHeight > row.clientHeight ? e.top + e.height / 2 - (r.top + r.height / 2) : 0,
+      behavior: "smooth",
+    });
   }, [current]);
 
   const arrow = (dir: -1 | 1, big = false) => (
@@ -125,7 +129,7 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
       </figure>
 
       {many ? (
-        <ul ref={thumbs} className={`-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${shop ? "md:mx-0 md:max-h-[560px] md:w-[100px] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-visible md:px-0 md:pb-0 md:pt-0.5" : ""}`}>
+        <ul ref={thumbs} className={`-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${shop ? "md:mx-0 md:max-h-[560px] md:w-[100px] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-visible md:px-0 md:pb-0 md:pt-0.5" : ""}`}>
           {slides.map((s, n) => (
             <li key={s.kind === "image" ? s.src : s.href} className="snap-start">
               <button type="button" onClick={() => setCurrent(n)} aria-pressed={n === current}
