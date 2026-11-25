@@ -493,7 +493,7 @@ export async function HomeFeatures() {
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-bold leading-snug sm:text-[13px]">{name}</span>
+                    <span className="font-display text-[12.5px] font-medium leading-snug sm:text-[13px]">{name}</span>
                     {role ? <span className="line-clamp-1 text-[10px] text-white/85 sm:text-[11px]">{role}</span> : null}
                     {c?.district ? <span className="flex items-center gap-1 text-[9.5px] text-white/70 sm:text-[10px]"><MapPin aria-hidden className="h-2.5 w-2.5" />{c.district}</span> : null}
                   </span>
