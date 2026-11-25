@@ -324,35 +324,41 @@ export async function HomeFeatures() {
           <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
+        {/* Redesigned (client, 25 Nov 2026), like the business ideas above: white shop cards, the whole machine on
+            white (nothing cropped), the name in two lines at most and the price as a pill. Phones: compact rows. */}
         {machines.length ? (
-          <div className="relative flex flex-col gap-2 rounded-xl bg-white/[0.07] raised p-3">
-            {machines.map((m, n) => {
-              const x = m.machine;
-              const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
-              const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
-              return (
-                <Link key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(m)} className="group flex items-center gap-3 rounded-lg bg-white/[0.07] p-2 text-white transition-colors hover:bg-white/[0.16] hover:text-white sm:gap-4">
-                  <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-page sm:h-14 sm:w-14">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
-                    <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                  </span>
-                  {/* Phones: the price under the name, so the name has the whole width */}
-                  <span className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                  <span className="flex min-w-0 flex-col">
-                    <span className="font-display text-[14px] font-bold leading-tight">{clean(m.title)}</span>
-                    {m.shortSummary ? <span className="line-clamp-1 text-[12px] text-white/85 sm:text-[13px]">{m.shortSummary}</span> : null}
-                  </span>
-                  {hasPrice ? (locked
-                    ? <span className="flex shrink-0 items-center gap-1.5 text-white/80"><span aria-hidden className="select-none font-display text-[14px] text-white blur-[6px] sm:text-[16px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-4 w-4" /></span>
-                    : <span className="shrink-0 font-display text-[14px] leading-tight sm:text-right sm:text-[16px]">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>) : null}
-                  </span>
-                </Link>
-              );
-            })}
+          <div className="relative flex flex-col gap-2.5 rounded-xl bg-white/10 raised p-3 sm:p-4 lg:h-full">
+            <ul aria-label="Newest business machines" className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-2.5 sm:grid-cols-3">
+              {machines.map((m, n) => {
+                const x = m.machine;
+                const hasPrice = x && (x.priceMin !== null || x.priceMax !== null);
+                const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
+                return (
+                  <li key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className="min-h-0">
+                    <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-lg bg-white p-2.5 text-heading transition-transform duration-200 hover:text-heading motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
+                      <span className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[120px] sm:w-full sm:flex-1 sm:rounded-none sm:border-b sm:border-line">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
+                        <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-contain p-1.5 transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none sm:p-3" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:p-3">
+                        <span className="line-clamp-2 font-display text-[12.5px] font-bold leading-snug sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
+                        <span className="flex items-center justify-between gap-2">
+                          {hasPrice ? (locked
+                            ? <span className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-ink-muted"><span aria-hidden className="select-none font-display text-[12px] font-bold blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
+                            : <span className="whitespace-nowrap rounded-full bg-accent-tint px-2.5 py-1 font-display text-[12px] font-bold tabular-nums text-accent-dark">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>)
+                            : <span className="text-[12px] text-ink-muted">Price on request</span>}
+                          <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint text-navy transition-colors group-hover:bg-navy group-hover:text-white"><ArrowRight className="h-3.5 w-3.5" /></span>
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
             {!viewer.isMember ? (
-              <p data-size="" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-lg bg-white px-4 py-2.5 text-[13px] text-heading">
-                <span className="inline-flex items-center gap-2"><LockKeyhole aria-hidden className="h-4 w-4 text-navy" />Prices and where to buy</span>
-                <span className="rounded-lg bg-navy px-2.5 py-1 text-[13px] text-white">For members</span>
+              <p data-size="" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-lg bg-white/10 px-3.5 py-2 text-[12.5px] text-white">
+                <span className="inline-flex items-center gap-2"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />Prices and where to buy</span>
+                <span className="rounded-md bg-white px-2 py-0.5 text-[12px] font-semibold text-navy">For members</span>
               </p>
             ) : null}
           </div>
