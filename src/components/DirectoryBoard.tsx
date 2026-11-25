@@ -330,6 +330,7 @@ const FUND_TONES: { edge: string; fill: string; soft: string; name: string }[] =
 function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const cell = (label: string) => i.cells?.find((c) => c.label === label);
   const type = cell("Type")?.value ?? "Other";
+  const category = cell("Category")?.value;
   const by = cell("By")?.value;
   const where = cell("Where")?.value;
   const purpose = cell("For")?.value;
@@ -351,6 +352,8 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
               <span className={`${part} rounded-l-md border ${t.soft}`}>Fund type</span>
               <span className={`${part} rounded-r-md border text-white ${t.fill}`}>{type}</span>
             </span>
+            {/* The funder category (client, 25 Nov 2026): Commercial bank, SACCO, Government programme… */}
+            {category ? <span className="inline-flex items-center gap-1.5 rounded-md border border-line bg-page px-2 py-0.5 text-[12px] font-semibold text-heading"><Landmark aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" />{category}</span> : null}
             <span className="flex min-w-0 flex-wrap gap-2">
             <span className="inline-flex max-w-full divide-x divide-line overflow-hidden rounded-md border border-line text-[12px] font-medium text-heading empty:hidden">
               {where ? <span className={`${part} min-w-0 gap-1.5`}><MapPin aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{where}</span></span> : null}

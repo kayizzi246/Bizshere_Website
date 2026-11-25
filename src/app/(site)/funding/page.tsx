@@ -54,6 +54,8 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
         // Labels the card reads (DirectoryBoard): By, Type, Where, For, Amount
         { label: "By", value: org.tradingName ?? org.legalName },
         { label: "Type", value: fundType(p.fundingType) },
+        // Who gives the money (client, 25 Nov 2026): the fund's own, or else its funder's, as on the fund's page
+        { label: "Category", value: p.providerCategory ?? p.provider.providerCategory },
         { label: "Where", value: p.provider.country },
         { label: "For", value: p.purpose },
         { label: "Status", value: roundStatus(p.rounds) },
