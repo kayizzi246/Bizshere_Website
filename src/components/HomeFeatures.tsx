@@ -346,15 +346,15 @@ export async function HomeFeatures() {
           <ul aria-label="Newest business plans" className="grid grid-cols-[minmax(0,1fr)] gap-2.5 rounded-xl bg-white/10 raised p-3 sm:grid-cols-3 sm:p-4 lg:h-full">
             {ideas.map((idea) => (
               <li key={idea.slug}>
-                {/* Black card, the photo in its own white rounded box inside it, like the machines below (client, 25 Nov 2026) */}
-                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-[#0B0B0F] p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                {/* The same card as the machines below (client, 25 Nov 2026) */}
+                <Link href={`/business-ideas/${idea.slug}`} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-black/20 p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
                   <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[150px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                     <IdeaPhoto src={idea.businessIdea?.pictureUrl} alt="" className="absolute inset-0 h-full transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-bold leading-snug text-white sm:text-[13px]">{clean(idea.title)}</span>
-                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-[#0B0B0F]"><ArrowRight className="h-4 w-4" /></span>
+                    <span className="font-display text-[12.5px] font-medium leading-snug text-white sm:text-[13px]">{clean(idea.title)}</span>
+                    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-navy"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
               </li>
@@ -383,20 +383,20 @@ export async function HomeFeatures() {
                 const locked = m.accessLevel !== "PUBLIC" && !viewer.isMember;
                 return (
                   <li key={m.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} className="min-h-0">
-                    {/* Black card, the photo in its own white rounded box inside it (client, 25 Nov 2026) */}
-                    <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-[#0B0B0F] p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
+                    {/* A dark see-through card that lets the panel colour through, the photo in its own white rounded box, regular-weight text (client, 25 Nov 2026) */}
+                    <Link href={itemHref(m)} className="group flex h-full items-center gap-3 overflow-hidden rounded-xl bg-black/20 p-2.5 text-white transition-transform duration-200 hover:text-white motion-safe:hover:-translate-y-1 sm:flex-col sm:items-stretch sm:gap-0 sm:p-2">
                       <span className="relative block h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-white sm:h-auto sm:min-h-[120px] sm:w-full sm:flex-1 sm:rounded-[10px]">
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                         <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
-                        <span className="line-clamp-2 font-display text-[12.5px] font-bold leading-snug text-white sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
+                        <span className="line-clamp-2 font-display text-[12.5px] font-medium leading-snug text-white sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
                         <span className="flex items-center justify-between gap-2">
                           {hasPrice ? (locked
-                            ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-white/70"><span aria-hidden className="select-none font-display text-[12px] font-bold blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
-                            : <span className="whitespace-nowrap rounded-full bg-accent/20 px-2.5 py-1 font-display text-[12px] font-bold tabular-nums text-accent">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>)
+                            ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-white/70"><span aria-hidden className="select-none font-display text-[12px] font-medium blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
+                            : <span className="whitespace-nowrap rounded-full bg-accent/20 px-2.5 py-1 font-display text-[12px] font-medium tabular-nums text-accent">{compactRange(x.priceMin, x.priceMax, x.currency)}</span>)
                             : <span className="text-[12px] text-white/60">Price on request</span>}
-                          <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-[#0B0B0F]"><ArrowRight className="h-3.5 w-3.5" /></span>
+                          <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-navy"><ArrowRight className="h-3.5 w-3.5" /></span>
                         </span>
                       </span>
                     </Link>
