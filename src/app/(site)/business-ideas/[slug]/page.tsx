@@ -193,7 +193,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             </Link>
             <div className="grid grid-cols-[minmax(0,1fr)] gap-5 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)] lg:gap-12">
               <div className="order-2 w-full md:order-none">
-                <ProductGallery images={images} videos={videos} icon="idea" tall />
+                <ProductGallery images={images} videos={videos} icon="idea" wide tall />
               </div>
 
               <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
