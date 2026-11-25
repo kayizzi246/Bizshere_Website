@@ -12,19 +12,19 @@ const ICONS: Record<string, string> = {
  * The top card of a supplier's and an expert's page (client, 24 Nov 2026): the picture with the name under it, beside
  * the details in two columns, each with its icon. Member detail arrives as a lock from the page, never as the value.
  */
-export function ProfileCard({ label, photo, name, sub, rows }: { label: string; photo: string | null; name: string; sub?: string | null; rows: ProfileRow[] }) {
+export function ProfileCard({ label, photo, name, sub, rows, big = false }: { label: string; photo: string | null; name: string; sub?: string | null; rows: ProfileRow[]; /** A bigger picture (expert pages, client 25 Nov 2026). */ big?: boolean }) {
   const all = rows.map((r) => (Array.isArray(r) ? { label: r[0], value: r[1], tags: null } : { label: r.label, value: null, tags: r.tags }));
   const details = all.filter((r) => r.tags === null && r.value !== null && r.value !== undefined && r.value !== "" && r.value !== false);
   const lists = all.filter((r) => r.tags?.length);
   const icon = (key: string) => <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={ICONS[key] ?? "check"} className="h-4 w-4" strokeWidth={1.9} /></span>;
   return (
-    <section aria-label={label} className="grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-white md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
+    <section aria-label={label} className={`grid grid-cols-[minmax(0,1fr)] overflow-hidden rounded-2xl border border-line bg-white ${big ? "md:grid-cols-[minmax(0,360px)_minmax(0,1fr)]" : "md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]"}`}>
       <div className="flex flex-col border-b border-line md:border-b-0 md:border-r">
-        <div className="flex min-h-[200px] flex-1 items-center justify-center bg-white p-4">
+        <div className={`flex flex-1 items-center justify-center bg-white ${big ? "min-h-[260px] p-3" : "min-h-[200px] p-4"}`}>
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
-            <img src={photo} alt={name} data-nofit="" className="max-h-[260px] w-full rounded-xl object-contain" />
-          ) : <span aria-hidden className="flex h-28 w-28 items-center justify-center rounded-2xl bg-brand-tint font-display text-[38px] font-extrabold text-brand">{name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
+            <img src={photo} alt={name} data-nofit="" className={`${big ? "max-h-[400px]" : "max-h-[260px]"} w-full rounded-xl object-contain`} />
+          ) : <span aria-hidden className={`flex items-center justify-center rounded-2xl bg-brand-tint font-display font-extrabold text-brand ${big ? "h-40 w-40 text-[52px]" : "h-28 w-28 text-[38px]"}`}>{name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
         </div>
         <div className="flex flex-col gap-0.5 border-t border-line bg-page px-4 py-4 text-center">
           <span className="font-display text-[16px] font-extrabold leading-snug text-heading">{name}</span>
