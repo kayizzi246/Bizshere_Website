@@ -11,7 +11,12 @@ import { WishlistLink } from "./Wishlist";
 // simple"). There were six menus, each dropping a card, plus a floating "All services" button that
 // listed the twelve directories again. The logo goes home, the footer carries every directory, and
 // the homepage opens with all twelve, so nothing here is the only way to reach anything.
-const NAV = ["/business-ideas", "/suppliers", "/funding", "/prices"].map((href) => DIRECTORIES.find((d) => d.href === href)!);
+// Machines and Experts added (client, 25 Nov 2026), with short names so the bar still fits at 1280px.
+const SHORT: Record<string, string> = { "/machines": "Machines", "/experts": "Experts" };
+const NAV = ["/business-ideas", "/machines", "/suppliers", "/experts", "/funding", "/prices"].map((href) => {
+  const d = DIRECTORIES.find((x) => x.href === href)!;
+  return { href, title: SHORT[href] ?? d.title };
+});
 
 // The shadcn button (components/ui/button): supplier solid orange, expert outlined, so "Get started" keeps the blue.
 const JOIN = [
