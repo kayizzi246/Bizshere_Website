@@ -291,8 +291,8 @@ export async function HomeFeatures() {
           {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
               businesses banner: the word the line turns on in the logo orange, closing on an orange
               mark — here the question mark, since this one asks rather than promises. */}
-          <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
-            What do you <span className="text-accent">need</span> today<span className="text-accent">?</span>
+          <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+            What do you need <span className="head-serif">today?</span>
           </h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
         </div>
@@ -329,8 +329,8 @@ export async function HomeFeatures() {
         {/* The site's heading treatment (16 Nov 2026). The word is "Everything", not "needs": the promise
             here is that the whole lot is in one place, and "need" is already the orange word in the heading
             above this one — repeating it would blunt both. */}
-        <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
-          <span className="text-accent">Everything</span> a business needs<span className="text-accent">.</span>
+        <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+          Everything <span className="head-serif">a business needs</span>
         </h2>
         <p data-size="" className="max-w-2xl text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
@@ -518,8 +518,8 @@ export async function HomeFeatures() {
       <div data-everyday="" className="speckle">
       <div className="container-site flex flex-col items-center gap-5 pb-8 pt-7 sm:gap-6 sm:pb-10 sm:pt-8">
         <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
-          <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
-            Help for <span className="text-accent">every working day</span><span className="text-accent">.</span>
+          <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+            Help for <span className="head-serif">every working day</span>
           </h2>
           <p data-size="" className="text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
         </div>
