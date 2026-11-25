@@ -13,7 +13,7 @@ export function Logo({ href = "/", light = false, sub, full = false }: { href?: 
         {/* 48/50px (17 Nov 2026). 42px still read small on a phone, and it could not grow inside a
             48px bar — so the phone bar went to 56px (SiteHeader, --hh) and the logo with it. Both
             sizes now leave 3-4px of air top and bottom inside the 56px bar. */}
-        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[48px] w-auto lg:h-[50px]" />
+        <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} priority data-nofit="" className="h-[52px] w-auto lg:h-[60px]" />
       </Link>
     );
   }

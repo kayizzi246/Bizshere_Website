@@ -42,10 +42,12 @@ export async function SiteHeader() {
 
   return (
     <header data-site-header="" className="sticky top-0 z-[45] px-3 pt-2 sm:px-4 sm:pt-3">
-      {/* 56px on every screen (17 Nov 2026). The bar was 48px on phones, which capped the logo at 42px
+      {/* 60px on phones and 68px from 1024px (client, 25 Nov 2026: "make the navbar bigger, the logo bigger"; 56px
+          everywhere from 17 Nov 2026). The bar was 48px on phones before that, which capped the logo at 42px
           and still read small; 56px is the standard phone app-bar height and gives the logo room.
-          Changing this means changing --hh in globals.css to match: pt-2 + 56 = 64px. */}
-      <div className="mx-auto flex h-[56px] w-full max-w-site items-center gap-3 rounded-2xl border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 xl:gap-3 xl:pr-2.5">
+          Changing this means changing --hh in globals.css to match: 8 + 60 = 68px, 12 + 60 = 72px from 640px,
+          12 + 68 = 80px from 1024px. */}
+      <div className="mx-auto flex h-[60px] w-full max-w-site lg:h-[68px] items-center gap-3 rounded-2xl border border-line bg-surface pl-4 pr-2 shadow-[0_6px_24px_rgba(7,26,51,0.08)] sm:pl-5 xl:gap-3 xl:pr-2.5">
         <Logo full />
 
         {/* The main links, centred in the space left between the logo and the buttons. Hover (or
