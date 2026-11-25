@@ -512,7 +512,7 @@ export async function HomeFeatures() {
           off on 18 Nov, back on 25 Nov 2026): a warm off-white band with a faint speckle (.speckle in globals.css), a
           centred heading, pill tabs and one panel per part of the product (HelpTabs). Real content and real counts only.
           The "For businesses" banner taken off with it on 18 Nov stays off: the footer carries its links. */}
-      <div data-everyday="" className="speckle mt-4">
+      <div data-everyday="" className="speckle">
       <div className="container-site flex flex-col items-center gap-5 pb-8 pt-7 sm:gap-6 sm:pb-10 sm:pt-8">
         <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
           <h2 className="text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
