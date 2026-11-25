@@ -817,11 +817,11 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 .card-title {
   /* Was Semibold at near-normal tracking (17 Nov 2026, after a trading-site card). It now follows
      the hero like every other heading (client, 18 Nov 2026); only the roomier line height is kept,
-     because these titles run to two lines inside a panel. Inter Black (900) since 24 Nov 2026 (client), like the
-     page and section titles. */
+     because these titles run to two lines inside a panel. Inter Black (900) from 24 Nov 2026; Bold (700) since
+     25 Nov 2026 (client: "like 800 or 700"), with the tracking eased to suit the lighter weight. */
   font-family: var(--font-inter), system-ui, sans-serif !important;
-  font-weight: 900 !important;
-  letter-spacing: -0.022em !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
   line-height: 1.24 !important;
 }
 
