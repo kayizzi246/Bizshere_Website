@@ -135,7 +135,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
             {/* ── The shop ── */}
             <div className="flex min-w-0 flex-col gap-6">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
-              <ProfileCard label="Supplier profile" photo={logo} name={name} sub={item.primaryCategory?.name} rows={profile} />
+              <ProfileCard big label="Supplier profile" photo={logo} name={name} sub={item.primaryCategory?.name} rows={profile} />
 
               {/* ── Products ── */}
               <section id="products" className="scroll-mt-28 overflow-hidden rounded-2xl border border-line bg-white">

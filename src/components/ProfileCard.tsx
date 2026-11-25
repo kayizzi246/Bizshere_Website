@@ -12,7 +12,7 @@ const ICONS: Record<string, string> = {
  * The top card of a supplier's and an expert's page (client, 24 Nov 2026): the picture with the name under it, beside
  * the details in two columns, each with its icon. Member detail arrives as a lock from the page, never as the value.
  */
-export function ProfileCard({ label, photo, name, sub, rows, big = false }: { label: string; photo: string | null; name: string; sub?: string | null; rows: ProfileRow[]; /** A bigger picture (expert pages, client 25 Nov 2026). */ big?: boolean }) {
+export function ProfileCard({ label, photo, name, sub, rows, big = false }: { label: string; photo: string | null; name: string; sub?: string | null; rows: ProfileRow[]; /** A bigger picture (expert and supplier pages, client 25 Nov 2026). */ big?: boolean }) {
   const all = rows.map((r) => (Array.isArray(r) ? { label: r[0], value: r[1], tags: null } : { label: r.label, value: null, tags: r.tags }));
   const details = all.filter((r) => r.tags === null && r.value !== null && r.value !== undefined && r.value !== "" && r.value !== false);
   const lists = all.filter((r) => r.tags?.length);
