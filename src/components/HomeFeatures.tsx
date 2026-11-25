@@ -81,11 +81,11 @@ const FORUM_POINTS: [LucideIcon, string][] = [[MessagesSquare, "Ask questions"],
  * the colour with the colour as text (chips, icon tiles); `softBtn`: the same as a button that fills on hover.
  */
 const S = {
-  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-white text-[#0F5B3E] hover:text-[#0F5B3E]" },
+  ideas: { solid: "bg-[#0F5B3E] text-white hover:text-white", ink: "text-[#0F5B3E]", onColour: "bg-white text-navy hover:text-navy" },
   machines: { solid: "bg-navy text-white hover:text-white", ink: "text-navy", onColour: "bg-white text-navy hover:text-navy" },
-  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-white text-accent-dark hover:text-accent-dark" },
-  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-white text-brand-dark hover:text-brand-dark" },
-  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-white text-[#4A1D6B] hover:text-[#4A1D6B]" },
+  funding: { solid: "bg-accent text-ink hover:text-ink", ink: "text-accent-dark", onColour: "bg-white text-navy hover:text-navy" },
+  suppliers: { solid: "bg-brand text-white hover:text-white", ink: "text-brand-dark", onColour: "bg-white text-navy hover:text-navy" },
+  experts: { solid: "bg-[#4A1D6B] text-white hover:text-white", ink: "text-[#4A1D6B]", onColour: "bg-white text-navy hover:text-navy" },
   tools: { solid: "bg-[#0F766E] text-white hover:text-white", ink: "text-[#0F766E]", onColour: "", soft: "bg-[#E4F3F1] text-[#0F766E]", softBtn: "bg-[#E4F3F1] text-[#0F766E] hover:bg-[#0F766E] hover:text-white" },
   tips: { solid: "bg-[#BE185D] text-white hover:text-white", ink: "text-[#BE185D]", onColour: "", soft: "bg-[#FCE8F1] text-[#BE185D]", softBtn: "bg-[#FCE8F1] text-[#BE185D] hover:bg-[#BE185D] hover:text-white" },
   forum: { solid: "bg-[#EAB308] text-ink hover:text-ink", ink: "text-[#8A6A00]", onColour: "", soft: "bg-[#FDF3D0] text-[#8A6A00]", softBtn: "bg-[#FDF3D0] text-[#8A6A00] hover:bg-[#8A6A00] hover:text-white" },
@@ -107,13 +107,15 @@ const BAND = { need: "speckle speckle-blue", all: "speckle" } as const; // "Ever
  * "What do you need today?": the visitor's own problem in their own words, each one straight to the part of
  * the site that solves it. [what they say, where it goes, that service's colour]
  */
+// One soft blue tile for every icon (25 Nov 2026: one palette for the page; there were six colours here)
+const NEED_TILE = "bg-brand-tint text-brand-dark";
 const NEEDS: [string, string, string][] = [
-  ["I want to start a business", "/business-ideas", "bg-[#E6F1EC] text-[#0F5B3E]"],
-  ["I need money for my business", "/funding", "bg-accent-tint text-accent-dark"],
-  ["I am looking for a supplier", "/suppliers", "bg-brand-tint text-brand-dark"],
-  ["I need a machine", "/machines", "bg-[#E4EBF7] text-navy"],
-  ["I need advice from an expert", "/experts", "bg-[#EFE7F5] text-[#4A1D6B]"],
-  ["I want today's market prices", "/prices", S.prices.soft],
+  ["I want to start a business", "/business-ideas", NEED_TILE],
+  ["I need money for my business", "/funding", NEED_TILE],
+  ["I am looking for a supplier", "/suppliers", NEED_TILE],
+  ["I need a machine", "/machines", NEED_TILE],
+  ["I need advice from an expert", "/experts", NEED_TILE],
+  ["I want today's market prices", "/prices", NEED_TILE],
 ];
 
 /** Good morning / afternoon / evening by the clock in Uganda, where the visitors are. */
@@ -217,20 +219,21 @@ const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, st
   </ul>
 );
 
-// [icon, where, size, colour, turn]: kept to the sides and edges, away from the heading and the cards.
+// [icon, where, size, colour, turn]: kept to the sides and edges, away from the heading and the cards. All one blue
+// since 25 Nov 2026 (one palette for the page).
 const NEED_ICONS: [string, string, string, string, string][] = [
-  ["idea", "left-[4%] top-[14%]", "h-8 w-8", "text-[#0F5B3E]", "-rotate-12"],
-  ["funding", "left-[13%] top-[40%] max-2xl:hidden", "h-7 w-7", "text-accent", "rotate-6"],
+  ["idea", "left-[4%] top-[14%]", "h-8 w-8", "text-brand", "-rotate-12"],
+  ["funding", "left-[13%] top-[40%] max-2xl:hidden", "h-7 w-7", "text-brand", "rotate-6"],
   ["supplier", "left-[5%] top-[66%] max-xl:hidden", "h-9 w-9", "text-brand", "-rotate-6"],
-  ["wallet", "left-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-[#6D28D9]", "rotate-12"],
+  ["wallet", "left-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-brand", "rotate-12"],
   ["calendar", "left-[20%] top-[12%] max-md:hidden", "h-6 w-6", "text-brand", "rotate-6"],
-  ["store", "left-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-accent", "-rotate-12"],
+  ["store", "left-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-brand", "-rotate-12"],
   ["machine", "right-[5%] top-[13%]", "h-8 w-8", "text-brand", "rotate-12"],
-  ["expert", "right-[14%] top-[38%] max-2xl:hidden", "h-7 w-7", "text-[#6D28D9]", "-rotate-6"],
-  ["prices", "right-[5%] top-[66%] max-xl:hidden", "h-9 w-9", "text-[#CF222E]", "rotate-6"],
-  ["guide", "right-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-[#0F5B3E]", "-rotate-12"],
-  ["tool", "right-[20%] top-[11%] max-md:hidden", "h-6 w-6", "text-accent", "-rotate-6"],
-  ["news", "right-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-[#0F5B3E]", "rotate-12"],
+  ["expert", "right-[14%] top-[38%] max-2xl:hidden", "h-7 w-7", "text-brand", "-rotate-6"],
+  ["prices", "right-[5%] top-[66%] max-xl:hidden", "h-9 w-9", "text-brand", "rotate-6"],
+  ["guide", "right-[16%] top-[82%] max-md:hidden", "h-6 w-6", "text-brand", "-rotate-12"],
+  ["tool", "right-[20%] top-[11%] max-md:hidden", "h-6 w-6", "text-brand", "-rotate-6"],
+  ["news", "right-[31%] top-[26%] max-lg:hidden", "h-6 w-6", "text-brand", "rotate-12"],
 ];
 
 /** Small, faint icons scattered behind "What do you need today?" (client, 24 Nov 2026). Decoration only. */
@@ -414,7 +417,7 @@ export async function HomeFeatures() {
         ) : null}
       </div>
         <ul data-panels="" className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
-          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-ink" onColour={S.funding.onColour}
+          <Panel href="/funding" title="Funding sources" action="See funding sources" tint="skin-funding" words="text-white" onColour={S.funding.onColour}
             text="Banks, government and other lenders.">
             <ul className="grid h-full auto-rows-fr grid-cols-[minmax(0,1fr)] overflow-hidden">
               {funding.map((f, n) => {

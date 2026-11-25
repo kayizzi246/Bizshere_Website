@@ -414,31 +414,25 @@ select {
    flat set they replaced, only lit. This supersedes the flat fills of 12 Nov 2026.
    The light is white at 12-16%: strong enough to see on the deep colours, weak enough to leave the orange
    panel's dark ink text and the white text on the others at their old contrast. */
-.skin-ideas {
-  background-color: #0F5B3E;
+/* One palette for the whole homepage (client, 25 Nov 2026: "smooth to someone's eyes, the colours match, no
+   disorganisation"). The green, orange, blue and plum panels became the hero's royal blue to navy, lit like
+   .panel-drop; the logo orange is the one accent. The light alternates sides down the page (Ideas right, Machines
+   left, Funding and Suppliers right, Experts left), so the panels match without looking stamped out. */
+.skin-ideas, .skin-funding, .skin-suppliers, .skin-experts {
+  background-color: #0A4E8C;
   background-image:
-    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.14) 0%, transparent 64%),
-    linear-gradient(100deg, #0A4530 0%, #0F5B3E 48%, #17784F 100%);
-}
-.skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
-.skin-funding {
-  background-color: #F28C28;
-  background-image:
-    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.16) 0%, transparent 64%),
-    linear-gradient(100deg, #D9741A 0%, #F28C28 48%, #FFA64D 100%);
-}
-.skin-suppliers {
-  background-color: #157EC2;
-  background-image:
-    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 64%),
-    linear-gradient(100deg, #0E5F96 0%, #157EC2 48%, #2E9BE0 100%);
+    radial-gradient(76% 150% at 93% 50%, rgba(150, 200, 255, 0.22) 0%, rgba(96, 158, 228, 0.10) 34%, transparent 66%),
+    radial-gradient(42% 92% at 100% 2%, rgba(93, 190, 255, 0.20) 0%, transparent 72%),
+    linear-gradient(100deg, #082344 0%, #0A4E8C 48%, #0072CE 100%);
+  background-repeat: no-repeat; background-origin: border-box;
 }
 .skin-experts {
-  background-color: #4A1D6B;
   background-image:
-    radial-gradient(74% 150% at 93% 50%, rgba(255, 255, 255, 0.14) 0%, transparent 64%),
-    linear-gradient(100deg, #351049 0%, #4A1D6B 48%, #652A8E 100%);
+    radial-gradient(76% 150% at 7% 50%, rgba(150, 200, 255, 0.22) 0%, rgba(96, 158, 228, 0.10) 34%, transparent 66%),
+    radial-gradient(42% 92% at 0% 2%, rgba(93, 190, 255, 0.20) 0%, transparent 72%),
+    linear-gradient(260deg, #082344 0%, #0A4E8C 48%, #0072CE 100%);
 }
+.skin-machines { background: #0B1F44; } /* kept: the Machines panel uses .panel-drop now */
 
 /* .hero-still: kept on some heroes from when the light drifted; it holds nothing now. */
 .hero-still { animation: none; }
@@ -801,7 +795,7 @@ main [data-compact-page] :is(h3, h3[class]) { font-size: 16px !important; line-h
 }
 /* The orange panel carries dark ink text, so its grain is darker rather than lighter: white grain on
    orange greys the panel and takes the edge off the colour. */
-.skin-funding::before { mix-blend-mode: soft-light; }
+/* (The orange Funding panel's darker grain went with the orange on 25 Nov 2026: it is blue with white text now.) */
 
 /* ── .card-title: the title inside a panel card (client, 17 Nov 2026, after a trading-site card) ──
    The reference title is lighter and airier than this site's headings: Semibold rather than ExtraBold,

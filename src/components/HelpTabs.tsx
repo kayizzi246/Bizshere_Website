@@ -39,22 +39,14 @@ export type HelpTab = {
  * quotes or numbers: the figures are counts of what is on the site.
  */
 /**
- * One colour per tab (client, 17 Nov 2026). These are the colours each of these sections already uses
- * elsewhere on the homepage (S in HomeFeatures), so a tab and its panel below match the section it
- * leads to. `ink` is the dark colour; everything light is mixed from it in globals.css (.help-panel,
- * .help-preview, .help-rule), and `soft` is only the fallback where color-mix is unsupported.
+ * Every tab in the site's blue (client, 25 Nov 2026: one palette for the homepage, "the colours match, no
+ * disorganisation"; from 17 Nov each tab had its own colour: indigo, teal, red, brown, pink, gold, grey).
+ * `ink` is the dark colour; everything light is mixed from it in globals.css (.help-panel, .help-preview,
+ * .help-rule), and `soft` is only the fallback where color-mix is unsupported. The light wash still runs
+ * across the panel on every switch, so changing tabs still shows.
  */
-const SKIN: Record<string, { ink: string; soft: string }> = {
-  guides: { ink: "#4338CA", soft: "#ECEBFB" },
-  tools: { ink: "#0F766E", soft: "#E4F3F1" },
-  prices: { ink: "#C8102E", soft: "#FDE8EB" },
-  news: { ink: "#8B5E1A", soft: "#F6EEDF" },
-  tips: { ink: "#BE185D", soft: "#FCE8F1" },
-  forum: { ink: "#8A6A00", soft: "#FDF3D0" },
-  websites: { ink: "#475467", soft: "#EDF0F4" },
-};
-const skin = (id: string) => SKIN[id] ?? { ink: "#0B1F33", soft: "#E4E2DA" };
-const vars = (id: string) => ({ "--tab-ink": skin(id).ink, "--tab-soft": skin(id).soft }) as React.CSSProperties;
+const BLUE = { ink: "#0A4E8C", soft: "#E6EEF7" };
+const vars = (_id: string) => ({ "--tab-ink": BLUE.ink, "--tab-soft": BLUE.soft }) as React.CSSProperties;
 
 export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
   const [active, setActive] = useState(tabs[0]?.id);
