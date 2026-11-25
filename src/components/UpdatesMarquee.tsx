@@ -24,7 +24,7 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
 
   // Dark: plain text with an orange dot before each item (no chips). Light: chips.
   const chip = dark
-    ? "inline-flex h-8 shrink-0 items-center gap-2 rounded-full bg-white/[0.08] raised pl-1.5 pr-3 text-[12.5px] font-medium text-white sm:h-9 sm:text-[13px]"
+    ? "inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.08] raised pl-1 pr-2.5 text-[11px] font-normal text-white sm:h-8 sm:text-[11.5px]"
     : "inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-page/70 px-3 py-1 text-[13px] text-ink-soft";
   const hover = dark ? "hover:border-accent hover:bg-white/[0.16] hover:text-white" : "hover:border-brand/40 hover:bg-white hover:text-ink";
   const items = (dup: boolean) =>
@@ -35,7 +35,7 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
             <span className="inline-flex items-center gap-1 rounded-full bg-[#FF0033] px-1.5 py-px text-[10px] tracking-wide text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
           ) : dark ? (
             u.tag ? (
-            <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-ink">{u.tag}</span>
+            <span className="rounded-full bg-accent px-1.5 py-px text-[9.5px] font-medium text-ink">{u.tag}</span>
           ) : (
             <span aria-hidden className="ml-1.5 h-2 w-2 rounded-full bg-accent" />
           )
