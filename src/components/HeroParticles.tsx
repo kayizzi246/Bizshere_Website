@@ -17,7 +17,7 @@ const GOLD = "242,170,70";
  * must be positioned, and sits behind the content. Purely decorative: it takes no clicks and is hidden
  * from screen readers. It stops when off screen or in a hidden tab; with reduced motion it is drawn still.
  */
-export function HeroParticles() {
+export function HeroParticles({ links = true }: { /** false: small drifting specks only, no lines and no mouse (homepage hero, client 25 Nov 2026). */ links?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function HeroParticles() {
       ctx.clearRect(0, 0, width, height);
       // Lines first, so the lights sit on top of them
       ctx.lineWidth = 0.6;
-      for (let i = 0; i < dots.length; i++) {
+      for (let i = 0; links && i < dots.length; i++) {
         const a = dots[i];
         for (let j = i + 1; j < dots.length; j++) {
           const b = dots[j];
@@ -89,11 +89,11 @@ export function HeroParticles() {
       const count = Math.min(width < 640 ? 34 : 95, Math.round((width * height) / 11000));
       // The lights are very small (client, 11 Nov 2026): about one pixel, the gold ones a little more
       dots = Array.from({ length: count }, (_, i) => {
-        const angle = Math.random() * Math.PI * 2, speed = 0.12 + Math.random() * 0.22;
+        const angle = Math.random() * Math.PI * 2, speed = links ? 0.12 + Math.random() * 0.22 : 0.05 + Math.random() * 0.12;
         const glow = i % 7 === 0;
         return {
           x: Math.random() * width, y: Math.random() * height, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-          r: glow ? 0.7 + Math.random() * 0.3 : 0.35 + Math.random() * 0.3, color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
+          r: links ? (glow ? 0.7 + Math.random() * 0.3 : 0.35 + Math.random() * 0.3) : (glow ? 1 + Math.random() * 0.5 : 0.6 + Math.random() * 0.6), color: i % 7 === 0 ? GOLD : i % 3 === 0 ? BLUE : WHITE, glow, phase: Math.random() * Math.PI * 2,
         };
       });
       draw(performance.now());
@@ -130,7 +130,7 @@ export function HeroParticles() {
     const seen = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; run(); });
     seen.observe(panel);
     document.addEventListener("visibilitychange", run);
-    if (!still) {
+    if (!still && links) {
       panel.addEventListener("pointermove", move);
       panel.addEventListener("pointerleave", leave);
     }
@@ -143,7 +143,7 @@ export function HeroParticles() {
       panel.removeEventListener("pointermove", move);
       panel.removeEventListener("pointerleave", leave);
     };
-  }, []);
+  }, [links]);
 
   return <canvas ref={ref} aria-hidden className="pointer-events-none absolute inset-0 -z-10 h-full w-full" />;
 }
