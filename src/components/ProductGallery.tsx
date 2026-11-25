@@ -90,7 +90,7 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img key={shown.src} src={shown.src} alt={shown.alt} data-nofit={shop ? "" : undefined}
                 style={zoom ? { transform: "scale(2)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
-                className={`gallery-fade h-full w-full ${shop ? "object-contain p-2 transition-transform duration-150 sm:p-3" : "object-cover"}`} />
+                className={`gallery-fade h-full w-full ${shop ? "object-contain p-1 transition-transform duration-150 sm:p-2" : "object-cover"}`} />
             </button>
           ) : shown.youtubeId ? (
             <div key={shown.href} className="absolute inset-0 bg-black"><YouTubePlayer id={shown.youtubeId} title={shown.label} live={false} /></div>
@@ -125,12 +125,12 @@ export function ProductGallery({ images, videos = [], icon, shop = false, wide =
       </figure>
 
       {many ? (
-        <ul ref={thumbs} className={`-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${shop ? "md:mx-0 md:max-h-[560px] md:w-[84px] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-visible md:px-0 md:pb-0 md:pt-0.5" : ""}`}>
+        <ul ref={thumbs} className={`-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${shop ? "md:mx-0 md:max-h-[560px] md:w-[100px] md:shrink-0 md:flex-col md:overflow-y-auto md:overflow-x-visible md:px-0 md:pb-0 md:pt-0.5" : ""}`}>
           {slides.map((s, n) => (
             <li key={s.kind === "image" ? s.src : s.href} className="snap-start">
               <button type="button" onClick={() => setCurrent(n)} aria-pressed={n === current}
                 aria-label={s.kind === "image" ? `Show photo ${n + 1}${s.label ? `: ${s.label}` : ""}` : `Play ${s.label.toLowerCase()}`}
-                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition ${shop ? "h-[72px] w-[72px] md:h-20 md:w-20" : tall ? "h-20 w-[104px] sm:h-24 sm:w-32" : "h-16 w-20 sm:h-[72px] sm:w-24"} ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}
+                className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white transition ${shop ? "h-[88px] w-[88px] md:h-24 md:w-24" : tall ? "h-20 w-[104px] sm:h-24 sm:w-32" : "h-16 w-20 sm:h-[72px] sm:w-24"} ${n === current ? "ring-2 ring-brand ring-offset-2" : "opacity-75 ring-1 ring-line hover:opacity-100"}`}
                   onMouseEnter={shop ? () => setCurrent(n) : undefined}>
                 {s.kind === "image" ? (
                   // eslint-disable-next-line @next/next/no-img-element
