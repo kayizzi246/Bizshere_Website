@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DIRECTORIES } from "@/config/directories";
+import { FUNDER_CATEGORIES } from "@/lib/content-fields";
 import { homeVideo } from "@/lib/youtube";
 import { cachedSiteUpdates } from "@/lib/cached";
 import { UpdatesMarquee } from "@/components/UpdatesMarquee";
@@ -51,7 +52,9 @@ export default async function HomePage() {
         <div className="container-site relative">
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,370px)] xl:items-start xl:gap-x-20 2xl:grid-cols-[minmax(0,1fr)_minmax(0,410px)] 2xl:gap-x-28">
+        {/* Wider on big screens (client, 26 Nov 2026: "increase width, make it responsive on all screens"): up to 1680px like the
+            navbar, 48px side margins from 1536px, and a wider showcase column. Below 1280px it stacks as before. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] xl:items-start xl:gap-x-14 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] 2xl:gap-x-20 2xl:px-12 min-[1800px]:grid-cols-[minmax(0,1fr)_minmax(0,500px)]">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -72,7 +75,7 @@ export default async function HomePage() {
             {/* One short line instead of the nine-item list that was here (18 Nov 2026): the list
                 repeated the directory tiles immediately under it, and nobody reads a label twice.
                 What a visitor needs to know is what the site answers for them. */}
-            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[13.5px]">
+            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[13.5px] 2xl:max-w-3xl 2xl:text-[14.5px]">
               {/* The client's words, 23 Nov 2026 */}
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources,
               Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
@@ -83,7 +86,7 @@ export default async function HomePage() {
 
             {/* Every directory as a link tile: on phones bigger tiles, two to a row (solid hairline: no dotted borders, client 10 Nov 2026), from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
-            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5">
+            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5 2xl:max-w-[1000px]">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
                   {/* Answers the pointer (16 Nov 2026): the tile rises a hair, its edge takes the logo
@@ -96,6 +99,15 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
+
+            {/* Funding by who gives it (client, 26 Nov 2026): each funder category opens /funding filtered to it.
+                Smaller pills than the tiles above, so they read as a second level of the same choice. */}
+            <nav aria-label="Funding by funder category" className="mt-3 flex w-full max-w-[720px] items-center gap-1.5 overflow-x-auto [scrollbar-width:none] max-sm:-mr-5 max-sm:pr-5 sm:flex-wrap sm:overflow-visible lg:max-w-[820px] 2xl:max-w-[1000px] [&::-webkit-scrollbar]:hidden">
+              <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-white/75"><Icon name="funding" className="h-4 w-4 text-accent" />Funding by funder:</span>
+              {FUNDER_CATEGORIES.filter((c) => c !== "Other").map((c) => (
+                <Link key={c} href={`/funding?providerCategory=${encodeURIComponent(c)}`} className="inline-flex min-h-[32px] shrink-0 items-center whitespace-nowrap rounded-full bg-white/[0.08] px-3 text-[12.5px] font-medium text-white/90 transition-colors duration-150 hover:bg-accent hover:text-ink">{c}</Link>
+              ))}
+            </nav>
 
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day.

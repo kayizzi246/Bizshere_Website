@@ -31,7 +31,7 @@ export function HomeSearch() {
   const [q, setQ] = useState("");
   const hint = useTypingHint(EXAMPLES, { paused: Boolean(q) });
   return (
-    <form action="/search" role="search" className="search-glow w-full max-w-[640px] rounded-2xl">
+    <form action="/search" role="search" className="search-glow w-full max-w-[640px] rounded-2xl 2xl:max-w-[760px]">
       <div className="flex items-center gap-2 rounded-[14px] bg-white p-1.5 pl-4 text-ink-muted">
         <Icon name="search" className="h-5 w-5 shrink-0" />
         <label className="sr-only" htmlFor="hero-q">Search all directories</label>
