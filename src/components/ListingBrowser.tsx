@@ -7,7 +7,7 @@ import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 import { DirectoryTable } from "./DirectoryTable";
 import { ServicesPanel } from "./ServicesPanel";
-import { BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
+import { BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridSide } from "./DirectoryBoard";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
 export type BrowseListing = {
@@ -172,8 +172,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
       <DirectoryBoard crumb={title} heading={heading} count={items.length} note={board.note}
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
-        grid={grid || variant === "suppliers"}
-        aside={<ServicesPanel path={path} row={grid || variant === "suppliers"} />}
+        grid={variant === "suppliers"}
+        aside={<ServicesPanel path={path} row={variant === "suppliers"} />}
         pager={remaining > 0 ? (
           <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}
@@ -186,7 +186,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
               return { id: i.id, slug: i.slug, href: i.href, name: name(i.title), photo: i.picture, sub: cell("Contact person"), cells: [cell("Contact person"), cell("Country"), i.primaryCategory?.name ?? null, cell("Sells")] };
             })} />
         ) : grid ? (
-          <ul className={gridList}>
+          <ul className={gridSide}>
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
           </ul>
         ) : (
