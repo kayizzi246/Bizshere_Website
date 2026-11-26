@@ -2,6 +2,7 @@ import { DirectoryList } from "@/components/DirectoryList";
 import type { SearchParams } from "@/lib/directory-search";
 import { directory, directoryMetadata } from "@/config/directories";
 import { compactRange, FUNDING_TABS } from "@/lib/format";
+import { funderCategoryOf } from "@/lib/content-fields";
 import { getViewer } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { FundingType } from "@prisma/client";
@@ -55,7 +56,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
         { label: "By", value: org.tradingName ?? org.legalName },
         { label: "Type", value: fundType(p.fundingType) },
         // Who gives the money (client, 25 Nov 2026): the fund's own, or else its funder's, as on the fund's page
-        { label: "Category", value: p.providerCategory ?? p.provider.providerCategory },
+        { label: "Category", value: funderCategoryOf(p.providerCategory, p.provider.providerCategory, org.tradingName ?? org.legalName) },
         { label: "Where", value: p.provider.country },
         { label: "For", value: p.purpose },
         { label: "Status", value: roundStatus(p.rounds) },

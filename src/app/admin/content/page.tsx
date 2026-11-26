@@ -8,7 +8,7 @@ import { contentArea } from "@/lib/admin-areas";
 import { redirect } from "next/navigation";
 import { SERVICE_STYLE, STATUS_WORDS } from "@/lib/service-style";
 import { SelectAllRows, SelectedActions } from "./SelectRows";
-import { FUNDER_CATEGORIES } from "@/lib/content-fields";
+import { FUNDER_CATEGORIES, guessFunderCategory } from "@/lib/content-fields";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Content" };
@@ -42,7 +42,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
   const statusWhere = (s: (typeof SHOW)[number][2]): Prisma.ContentItemWhereInput => (s === "CHECK" ? { nextReviewDueAt: { lt: now } } : s ? { publicationStatus: s } : {});
   const where: Prisma.ContentItemWhereInput = { ...base, ...statusWhere(show[2]) };
   const [items, total, counts] = await Promise.all([
-    prisma.contentItem.findMany({ where, select: { id: true, slug: true, title: true, contentType: true, publicationStatus: true, updatedAt: true, nextReviewDueAt: true, fundingProgramme: { select: { providerCategory: true, provider: { select: { providerCategory: true } } } } }, orderBy: { updatedAt: "desc" }, take: 100 }),
+    prisma.contentItem.findMany({ where, select: { id: true, slug: true, title: true, contentType: true, publicationStatus: true, updatedAt: true, nextReviewDueAt: true, fundingProgramme: { select: { providerCategory: true, provider: { select: { providerCategory: true, organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: { updatedAt: "desc" }, take: 100 }),
     prisma.contentItem.count({ where }),
     Promise.all(SHOW.map(([, , s]) => prisma.contentItem.count({ where: { ...base, ...statusWhere(s) } }))),
   ]);
@@ -119,8 +119,11 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
                         </span>
                         {i.contentType === "FUNDING_PROGRAMME" ? (() => {
                           const cat = i.fundingProgramme?.providerCategory ?? i.fundingProgramme?.provider.providerCategory;
-                          return cat ? <span className="text-[12px] text-ink-muted">Funder: <span className="font-semibold text-ink-soft">{cat}</span></span>
-                            : <span className="text-[12px] font-semibold text-[#B45309]">No funder category</span>;
+                          if (cat) return <span className="text-[12px] text-ink-muted">Funder: <span className="font-semibold text-ink-soft">{cat}</span></span>;
+                          // Not saved yet: the site already shows a guess from the funder's name, so say which (client, 26 Nov 2026)
+                          const org = i.fundingProgramme?.provider.organization;
+                          const guess = guessFunderCategory(org?.tradingName) ?? guessFunderCategory(org?.legalName) ?? "Other";
+                          return <span className="text-[12px] text-ink-muted">Funder: <span className="font-semibold text-ink-soft">{guess}</span> <span className="font-semibold text-[#B45309]">(not saved: open to choose)</span></span>;
                         })() : null}
                       </span>
                     </td>

@@ -89,6 +89,31 @@ export const FUNDER_CATEGORIES = [
   "Investor", // angels, venture capital, private equity, impact investors
   "Other",
 ] as const;
+
+/** A funder's category from its name, by keyword; null when nothing fits. Kept in step with pg_temp.guess_funder in
+ *  the 20261126120000_funder_category_fill migration (most specific first: "World Bank" is a donor, not a bank). */
+const FUNDER_GUESSES: [RegExp, (typeof FUNDER_CATEGORIES)[number]][] = [
+  [/world bank|\b(undp|giz|usaid|unicef|fao|ifad|jica|kfw|enabel|sida|danida|eu|afdb)\b|european union|embassy|lottery|international development|african development bank/i, "Development partner or donor"],
+  [/development bank|\b(udb|eadb)\b/i, "Development bank"],
+  [/sacco|co-?operative/i, "SACCO"],
+  [/micro ?finance|\b(mdi|finca|pride|brac)\b|ugafode/i, "Microfinance institution"],
+  [/money ?lend/i, "Money lender"],
+  [/mokash|wewole|digital|fintech|mobile money|\b(mtn)\b|airtel/i, "Digital lender"],
+  [/\bbank\b|stanbic|centenary|\b(dfcu|absa)\b|housing finance|equity bank|post bank|opportunity/i, "Commercial bank"],
+  [/ministry|government|parish development|\b(pdm|uwep|ylp|naads|owc|uiri|kcca)\b|emyooga|livelihood|authority|agency|commission|operation wealth|uganda investment|council|presidential|state house|district/i, "Government programme"],
+  [/foundation|\bngos?\b|charit|\btrust\b|relief|mission|world vision|\bcare\b|oxfam|heifer/i, "NGO or foundation"],
+  [/capital|venture|invest|equity|angel|partners|\bfund managers?\b|accelerator/i, "Investor"],
+];
+export function guessFunderCategory(name?: string | null): string | null {
+  if (!name?.trim()) return null;
+  return FUNDER_GUESSES.find(([re]) => re.test(name))?.[1] ?? null;
+}
+
+/** The category a fund shows (client, 26 Nov 2026: shown everywhere, never blank): its own, else its funder's, else
+ *  a guess from the funder's name, else Other. */
+export function funderCategoryOf(own?: string | null, funders?: string | null, funderName?: string | null): string {
+  return own?.trim() || funders?.trim() || guessFunderCategory(funderName) || "Other";
+}
 const cur = (group?: string): Field => ({ name: "currency", label: "Currency", kind: "text", group, help: "e.g. UGX or USD" });
 /** Marks a field as one of the few shown before "More details" (see Field.essential). */
 const ess = (f: Field): Field => ({ ...f, essential: true });

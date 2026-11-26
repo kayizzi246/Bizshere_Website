@@ -7,7 +7,7 @@ import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
 import { popupPlan } from "@/lib/billing";
 import { cachedMemberPlan } from "@/lib/cached";
-import { memberOnlyLabels } from "@/lib/content-fields";
+import { funderCategoryOf, memberOnlyLabels } from "@/lib/content-fields";
 import { date, moneyRange } from "@/lib/format";
 import { SaveButton } from "@/components/Wishlist";
 import { ChildSections, loadChildSections } from "@/components/ChildSections";
@@ -55,6 +55,8 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const name = item.title.replace(/^Sample:\s*/i, "");
   const org = f.provider.organization;
   const funderName = (org.tradingName ?? org.legalName).replace(/^Sample:?\s*/i, "");
+  // Always shown (client, 26 Nov 2026): the fund's own, else its funder's, else a guess from the name, else Other
+  const funderCategory = funderCategoryOf(f.providerCategory, f.provider.providerCategory, funderName);
   const website = org.website;
   const applyAt = f.officialTermsUrl ?? (website ? href(website) : null);
 
@@ -67,7 +69,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
   // ── The funder ──
   const funder: Row[] = [
     { label: "Funder name", value: funderName, strong: true },
-    ...((f.providerCategory ?? f.provider.providerCategory) ? [{ label: "Category", value: f.providerCategory ?? f.provider.providerCategory }] : []),
+    { label: "Category", value: funderCategory },
     ...(f.provider.phone ? [{ label: "Phone", value: f.provider.phone, locked: gated }] : []),
     ...(f.provider.organization.locations[0]?.physicalAddress ? [{ label: "Address", value: [f.provider.organization.locations[0].physicalAddress, f.provider.organization.locations[0].town].filter(Boolean).join(", ") }] : []),
     { label: "Country", value: f.provider.country },
@@ -221,7 +223,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
                 {logo("h-14 w-14", "text-[24px]")}
                 <h2 className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
                 <ul className="flex flex-wrap gap-1.5">
-                  {f.providerCategory ?? f.provider.providerCategory ? <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.providerCategory ?? f.provider.providerCategory}</li> : null}
+                  {funderCategory ? <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{funderCategory}</li> : null}
                   <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><MapPin aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.provider.country}</li>
                 </ul>
                 {contacts.length ? (
