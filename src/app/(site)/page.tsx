@@ -39,10 +39,10 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 780px tall (25 Nov 2026; 720, 660, 720, 780, 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
+      {/* Laptops and up (1280px+): the hero is 660px tall (26 Nov 2026, client: "reduce the padding"; 780 from 25 Nov 2026; 720, 660, 720, 780, 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(96vh,780px)] xl:flex-col">
+      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(90vh,660px)] xl:flex-col">
         {/* Small drifting specks behind everything (client, 25 Nov 2026; taken off on 18 Nov, as the moving network of
             lights was before them). Specks only: no lines, no mouse effect, still for reduced motion. */}
         <HeroParticles links={false} />
@@ -53,8 +53,8 @@ export default async function HomePage() {
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
         {/* Wider on big screens (client, 26 Nov 2026: "increase width, make it responsive on all screens"): up to 1680px like the
-            navbar, 48px side margins from 1536px. The right panel stays compact (340px, 380px from 1536px) and sits level with the middle of the left side. Below 1280px it stacks as before. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-12 2xl:px-12">
+            navbar, 24px side margins from 1536px so it lines up with the bar (26 Nov 2026; 48px before). The right panel stays compact (340px, 380px from 1536px) and sits level with the middle of the left side. Below 1280px it stacks as before. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-10 pt-6 sm:pb-12 sm:pt-8 xl:my-auto xl:pb-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-10 2xl:px-6">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -75,7 +75,7 @@ export default async function HomePage() {
             {/* One short line instead of the nine-item list that was here (18 Nov 2026): the list
                 repeated the directory tiles immediately under it, and nobody reads a label twice.
                 What a visitor needs to know is what the site answers for them. */}
-            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[13.5px] 2xl:max-w-3xl 2xl:text-[14.5px]">
+            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[13.5px] 2xl:max-w-4xl 2xl:text-[14.5px]">
               {/* The client's words, 23 Nov 2026 */}
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources,
               Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
@@ -86,7 +86,7 @@ export default async function HomePage() {
 
             {/* Every directory as a link tile: on phones bigger tiles, two to a row (solid hairline: no dotted borders, client 10 Nov 2026), from sm a quiet hairline tile,
                 padded just enough for the twelve to sit in three rows of four on a laptop */}
-            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5 2xl:max-w-[1080px]">
+            <ul aria-label="Directories" className="mt-4 grid w-full max-w-[720px] grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2 lg:max-w-[820px] lg:gap-2.5 2xl:max-w-[1200px]">
               {DIRECTORIES.map((d) => (
                 <li key={d.href}>
                   {/* Answers the pointer (16 Nov 2026): the tile rises a hair, its edge takes the logo
@@ -102,7 +102,7 @@ export default async function HomePage() {
 
             {/* Funding by who gives it (client, 26 Nov 2026): each funder category opens /funding filtered to it.
                 Smaller pills than the tiles above, so they read as a second level of the same choice. */}
-            <nav aria-label="Funding by funder category" className="mt-3 flex w-full max-w-[720px] items-center gap-1.5 overflow-x-auto [scrollbar-width:none] max-sm:-mr-5 max-sm:pr-5 sm:flex-wrap sm:overflow-visible lg:max-w-[820px] 2xl:max-w-[1080px] [&::-webkit-scrollbar]:hidden">
+            <nav aria-label="Funding by funder category" className="mt-3 flex w-full max-w-[720px] items-center gap-1.5 overflow-x-auto [scrollbar-width:none] max-sm:-mr-5 max-sm:pr-5 sm:flex-wrap sm:overflow-visible lg:max-w-[820px] 2xl:max-w-[1200px] [&::-webkit-scrollbar]:hidden">
               <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-white/75"><Icon name="funding" className="h-4 w-4 text-accent" />Funding by funder:</span>
               {FUNDER_CATEGORIES.filter((c) => c !== "Other").map((c) => (
                 <Link key={c} href={`/funding?providerCategory=${encodeURIComponent(c)}`} className="inline-flex min-h-[32px] shrink-0 items-center whitespace-nowrap rounded-full bg-white/[0.08] px-3 text-[12.5px] font-medium text-white/90 transition-colors duration-150 hover:bg-accent hover:text-ink">{c}</Link>

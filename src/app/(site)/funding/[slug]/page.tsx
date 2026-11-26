@@ -25,7 +25,11 @@ export const dynamic = "force-dynamic";
 
 // A funder without a logo gets a tile in its own colour, picked from the web address so it stays the same.
 const COLOURS = ["bg-[#5B21B6]", "bg-[#BE123C]", "bg-[#C2410C]", "bg-[#1D4ED8]", "bg-[#0F766E]", "bg-[#A21CAF]"];
-const colourOf = (slug: string) => COLOURS[[...slug].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7) % COLOURS.length];
+// The same colours for the letter on the white tile (written out, so Tailwind builds them)
+const TEXTS = ["text-[#5B21B6]", "text-[#BE123C]", "text-[#C2410C]", "text-[#1D4ED8]", "text-[#0F766E]", "text-[#A21CAF]"];
+const pick = (slug: string) => [...slug].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7) % COLOURS.length;
+const colourOf = (slug: string) => COLOURS[pick(slug)];
+const textOf = (slug: string) => TEXTS[pick(slug)];
 const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 /** Just the site's name (msc.co.ug), without the page or anchor */
 const host = (url: string) => bare(url).split(/[/?#]/)[0];
@@ -316,20 +320,32 @@ export default async function FundingPage({ params }: { params: { slug: string }
             </div>
 
             <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-32">
-              {/* ── The funder (redesigned 26 Nov 2026, client: "make advanced and perfect"): a band in the funder's colour
-                   with the logo over its edge, the name, what kind and where, then each contact as a row you can act on
-                   (call, WhatsApp, email, visit), all member detail, and their other funds. ── */}
+              {/* ── The funder (redesigned 26 Nov 2026, client: "make advanced and perfect", then "fix this design" when the
+                   logo hung off the band and vanished into it): everything in a header in the funder's colour (the logo on
+                   a white tile, the name beside it), then what kind and where, each contact as a row you can act on (call,
+                   WhatsApp, email, visit), all member detail, and their other funds. Nothing overlaps. ── */}
               <section aria-labelledby="funder-name" className="overflow-hidden rounded-2xl bg-white">
-                <div className={`relative h-20 ${colourOf(item.slug)}`}>
-                  <span aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_100%_0%,rgba(255,255,255,0.28),transparent_60%)]" />
-                  <span aria-hidden className="absolute inset-0 opacity-30 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1px)] [background-size:14px_14px] [mask-image:linear-gradient(to_left,#000,transparent_75%)]" />
-                  <span className="absolute left-5 top-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/85">The funder</span>
-                  {isOpen ? <span className="absolute right-4 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold text-[#1F7A4D]"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#1F9D5C]" />Taking applications</span> : null}
+                <div className={`relative overflow-hidden px-5 pb-5 pt-4 ${colourOf(item.slug)}`}>
+                  <span aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_100%_0%,rgba(255,255,255,0.22),transparent_60%)]" />
+                  <span aria-hidden className="absolute inset-0 opacity-30 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1px)] [background-size:14px_14px] [mask-image:linear-gradient(to_left,#000,transparent_70%)]" />
+                  <div className="relative flex flex-col gap-3.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">The funder</span>
+                      {isOpen ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[#1F7A4D]"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#1F9D5C]" />Taking applications</span> : null}
+                    </div>
+                    <div className="flex items-center gap-3.5">
+                      {org.logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
+                        <img src={org.logoUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl bg-white object-contain p-1.5" />
+                      ) : (
+                        <span aria-hidden className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white text-[24px] font-bold ${textOf(item.slug)}`}>{funderName.charAt(0)}</span>
+                      )}
+                      <h2 id="funder-name" className="min-w-0 text-[18px] font-bold leading-tight tracking-[-0.02em] text-white">{funderName}</h2>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-4 px-5 pb-5">
-                  <div className="relative -mt-8 flex flex-col gap-2.5">
-                    <span className="w-fit rounded-xl bg-white p-1">{logo("h-14 w-14", "text-[24px]")}</span>
-                    <h2 id="funder-name" className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
+                <div className="flex flex-col gap-4 p-5">
+                  <div className="flex flex-col gap-2.5">
                     <ul className="flex flex-wrap gap-1.5">
                       {funderCategory ? <li className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-[12px] font-medium text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{funderCategory}</li> : null}
                       <li className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-[12px] font-medium text-ink-soft"><MapPin aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.provider.country}</li>
