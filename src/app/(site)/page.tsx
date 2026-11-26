@@ -53,8 +53,8 @@ export default async function HomePage() {
           <UpdatesMarquee dark updates={updates} live={yt.video?.live ? { title: yt.video.title } : null} />
         </div>
         {/* Wider on big screens (client, 26 Nov 2026: "increase width, make it responsive on all screens"): up to 1680px like the
-            navbar, 48px side margins from 1536px, and a wider showcase column. Below 1280px it stacks as before. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] xl:items-start xl:gap-x-14 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] 2xl:gap-x-20 2xl:px-12 min-[1800px]:grid-cols-[minmax(0,1fr)_minmax(0,500px)]">
+            navbar, 48px side margins from 1536px. The right panel stays compact (340px, 380px from 1536px) and sits level with the middle of the left side. Below 1280px it stacks as before. */}
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:pb-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-14 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-20 2xl:px-12">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
