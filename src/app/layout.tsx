@@ -38,17 +38,6 @@ const manrope = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
-// The italic serif for the second half of some homepage headings ("Operators, *not lecturers*" style; client,
-// 25 Nov 2026). Instrument Serif Italic, kept in the repo like the others under the SIL Open Font License
-// (src/fonts/instrument-serif-LICENSE.txt). Used only through .head-serif in globals.css.
-const serif = localFont({
-  src: "../fonts/instrument-serif-italic-latin.woff2",
-  weight: "400",
-  style: "italic",
-  variable: "--font-serif",
-  display: "swap",
-  fallback: ["Georgia", "serif"],
-});
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
 export const viewport: Viewport = { themeColor: "#0d1117" };
@@ -69,7 +58,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${manrope.variable} ${serif.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
         <ImageFit />
