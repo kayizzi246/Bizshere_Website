@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, isMemberOnly, MAIN, MONEY_FIELDS, type Field } from "@/lib/content-fields";
+import { directoryFor, FUNDER_KIND, isMemberOnly, MAIN, MONEY_FIELDS, type Field } from "@/lib/content-fields";
 import { date, money } from "@/lib/format";
 
 /**
@@ -30,7 +30,8 @@ export function visibleGroups(type: ContentType, record: Rec, skip: string[] = [
   const groups = new Map<string, Field[]>();
   for (const f of dir.fields) {
     const g = f.group ?? "Details";
-    if (g === MAIN || skipped.has(f.name) || isEmpty(record[f.name])) continue;
+    // The funder category already shows on the funder card
+    if (g === MAIN || g === FUNDER_KIND || skipped.has(f.name) || isEmpty(record[f.name])) continue;
     groups.set(g, [...(groups.get(g) ?? []), f]);
   }
   return [...groups.entries()];

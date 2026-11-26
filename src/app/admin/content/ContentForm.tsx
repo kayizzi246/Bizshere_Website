@@ -2,7 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import type { ContentType } from "@prisma/client";
-import { directoryFor, FREE_TYPES, FUNDER, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
+import { directoryFor, FREE_TYPES, FUNDER, FUNDER_KIND, isMemberOnly, MAIN, PROVIDER, RELATIONSHIP_TYPES, type Field } from "@/lib/content-fields";
 import { saveContent, type ContentFormState } from "./actions";
 import { UploadButton } from "@/components/UploadButton";
 import { ProductPhotos } from "@/components/ProductPhotos";
@@ -28,9 +28,10 @@ export function ContentForm({ type, options, values = {}, multi, expert }: Props
   const lb = dir.labels ?? {};
   // What people need comes first, one screen of plain questions. Optional extras and the technical
   // settings fold away, and open by themselves when something inside needs fixing.
-  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER && g !== PROVIDER);
+  const extraGroups = [...new Set(dir.fields.map((f) => f.group ?? "Details"))].filter((g) => g !== MAIN && g !== FUNDER && g !== FUNDER_KIND && g !== PROVIDER);
   // A funding source's funder details sit with the fund provider choice, always open
   const funderFields = dir.fields.filter((f) => f.group === FUNDER);
+  const funderKind = dir.fields.filter((f) => f.group === FUNDER_KIND);
   // Where a directory marks its essentials (Field.essential), the first screen shows only those and
   // the rest of its main details join the optional groups below. A directory that marks none is
   // unchanged. Nothing is ever dropped — "More details" holds everything that is not up here.
@@ -93,6 +94,8 @@ export function ContentForm({ type, options, values = {}, multi, expert }: Props
             {linkSelect}
             {values?.id ? null : <Input name="linkNew" label={`New ${dir.link.label.toLowerCase()} name`} defaultValue="" help={`Leave empty to use the ${(lb.title ?? "title").toLowerCase()}.`} />}
           </Row>
+          {/* Who gives the money, right after who the funder is (client, 26 Nov 2026) */}
+          {funderKind.length ? <div className="flex flex-wrap gap-3.5">{funderKind.map(field)}</div> : null}
           {funderFields.length ? (
             <>
               <p className="text-sm text-ink-muted">{values?.id ? "The funder's details. Shared by all its funds: a change here shows on each of them." : "The funder's details. Leave empty when you chose a funder above: what it already has is kept."}</p>

@@ -12,7 +12,7 @@ import { HeroCollage, type CollagePhoto } from "@/components/HeroCollage";
 import { HeroShowcase, type ShowcaseRow } from "@/components/HeroShowcase";
 import { prisma } from "@/lib/prisma";
 import { getViewer, FREE_PREVIEW } from "@/lib/access";
-import { contentTypeLabel, date, itemHref, money } from "@/lib/format";
+import { compactRange, contentTypeLabel, date, itemHref, money } from "@/lib/format";
 import { HeroParticles } from "@/components/HeroParticles";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const viewer = await getViewer();
   // Nothing under the hero buttons: no counts, prices or payment talk on the homepage (client, 10 Nov 2026).
-  const [updates, yt, prices, photos] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), heroPhotos()]);
+  const [updates, yt, prices, photos] = await Promise.all([cachedSiteUpdates(), homeVideo(), marketSnapshot(viewer.isMember), heroPhotos(viewer.isMember)]);
   const rows = photos.length >= 6 ? [] : await showcaseRows();
 
   return (
@@ -173,19 +173,27 @@ type Snapshot = { rows: { id: string; name: string; unit: string | null; price: 
  */
 /**
  * Photos for the hero collage: real, published pages that have a photo (business ideas, machines and suppliers'
- * products), mixed so the same kind never sits twice in a row. Names and what each is, nothing member-only.
+ * products), mixed so the same kind never sits twice in a row. Names, what each is and the price (client, 26 Nov 2026: "add
+ * price"): an idea's starting capital is public; machine and product prices are member detail, so visitors get
+ * `locked` and the figure is never sent.
  */
-async function heroPhotos(): Promise<CollagePhoto[]> {
+async function heroPhotos(isMember: boolean): Promise<CollagePhoto[]> {
+  type Money = Parameters<typeof compactRange>[0];
+  // Member detail: the figure for members, only "there is a price" for everyone else
+  const priced = (x: { priceMin: Money; priceMax: Money; currency: string }) => {
+    const has = x.priceMin !== null || x.priceMax !== null;
+    return isMember ? { price: has ? compactRange(x.priceMin, x.priceMax, x.currency) : null } : { price: null, locked: has };
+  };
   const live = { publicationStatus: "PUBLISHED" } as const;
   const clean = (t: string) => t.replace(/^Sample:\s*/i, "");
   const [ideas, machines, products] = await Promise.all([
-    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live, businessIdea: { pictureUrl: { not: null } } }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
-    prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, machine: { select: { pictureUrl: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
-    prisma.supplierProductListing.findMany({ where: { status: "PUBLISHED", imageUrl: { not: null }, supplier: { contentItem: live } }, select: { id: true, productName: true, imageUrl: true, supplier: { select: { contentItem: { select: { slug: true, title: true } } } } }, orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live, businessIdea: { pictureUrl: { not: null } } }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true, capitalMin: true, capitalMax: true, currency: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
+    prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: { publishedAt: { sort: "desc", nulls: "last" } }, take: 5 }),
+    prisma.supplierProductListing.findMany({ where: { status: "PUBLISHED", imageUrl: { not: null }, supplier: { contentItem: live } }, select: { id: true, productName: true, imageUrl: true, priceMin: true, priceMax: true, currency: true, supplier: { select: { contentItem: { select: { slug: true, title: true } } } } }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]).catch(() => [[], [], []] as const);
-  const a: CollagePhoto[] = ideas.map((i) => ({ src: i.businessIdea!.pictureUrl!, title: clean(i.title), sub: "Business ideas", href: `/business-ideas/${i.slug}`, kind: "idea" }));
-  const b: CollagePhoto[] = machines.map((m) => ({ src: m.machine!.pictureUrl!, title: clean(m.title), sub: "Business machines", href: `/machines/${m.slug}`, kind: "machine" }));
-  const c: CollagePhoto[] = products.map((p) => ({ src: p.imageUrl!, title: clean(p.productName), sub: clean(p.supplier.contentItem.title), href: `/suppliers/${p.supplier.contentItem.slug}/products/${p.id}`, kind: "product" }));
+  const a: CollagePhoto[] = ideas.map((i) => ({ src: i.businessIdea!.pictureUrl!, title: clean(i.title), sub: "Business ideas", href: `/business-ideas/${i.slug}`, kind: "idea", price: compactRange(i.businessIdea!.capitalMin, i.businessIdea!.capitalMax, i.businessIdea!.currency) }));
+  const b: CollagePhoto[] = machines.map((m) => ({ src: m.machine!.pictureUrl!, title: clean(m.title), sub: "Business machines", href: `/machines/${m.slug}`, kind: "machine", ...priced(m.machine!) }));
+  const c: CollagePhoto[] = products.map((p) => ({ src: p.imageUrl!, title: clean(p.productName), sub: clean(p.supplier.contentItem.title), href: `/suppliers/${p.supplier.contentItem.slug}/products/${p.id}`, kind: "product", ...priced(p) }));
   const out: CollagePhoto[] = [];
   for (let i = 0; i < 5; i++) for (const list of [a, b, c]) if (list[i]) out.push(list[i]);
   return out.slice(0, 12);

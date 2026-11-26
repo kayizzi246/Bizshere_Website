@@ -121,6 +121,8 @@ const ess = (f: Field): Field => ({ ...f, essential: true });
 const MONEY_HELP = "Leave empty if unknown. Don't enter 0 unless it really is zero.";
 /** The funder's details on a funding source. */
 export const FUNDER = "Funder details";
+/** A funding source's funder category: in the Fund provider section, right after the provider (client, 26 Nov 2026). */
+export const FUNDER_KIND = "Funder category";
 /** Who sells a machine: a supplier on the site, or a name and contacts typed in. Always open in the form. */
 export const PROVIDER = "Provider (where to buy)";
 /** The provider fields, shown in "Where to buy" on the machine page rather than in the specifications. */
@@ -230,7 +232,7 @@ export const DIRECTORIES: Directory[] = [
       u("officialTermsUrl", "Apply link", MAIN),
       // A fixed list since 25 Nov 2026 (client: "add a field for Funder category: Government, Bank, Microfinance,
       // Money lender…"), so the Category filter on /funding groups like with like. Was free text.
-      { ...e("providerCategory", "Funder category", [...FUNDER_CATEGORIES], MAIN), help: "Who gives the money. Choose the closest; Other if none fits." },
+      { ...e("providerCategory", "Funder category", [...FUNDER_CATEGORIES], FUNDER_KIND), help: "Who gives the money. Choose the closest; Other if none fits." },
       // The funder's own details, kept on the fund provider and shared by all its funds (saved in src/app/admin/content/actions.ts)
       { ...t("funderPhone", "Phone", FUNDER, "e.g. 0772 547 273, 0701 547 273"), virtual: true },
       { ...t("funderEmail", "Email", FUNDER), virtual: true },

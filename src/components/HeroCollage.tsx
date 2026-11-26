@@ -1,6 +1,13 @@
+import { LockKeyhole } from "lucide-react";
 import { BorderSnake } from "./BorderSnake";
 
-export type CollagePhoto = { src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product" };
+export type CollagePhoto = {
+  src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product";
+  /** Short price ("UGX 3.5M–4.6M"): an idea's starting capital, or for members a machine's or product's price */
+  price?: string | null;
+  /** There is a price, but it is member detail (never sent to visitors) */
+  locked?: boolean;
+};
 
 // What each one is, as a small coloured label (text only; client, 25 Nov 2026)
 const KIND: Record<CollagePhoto["kind"], { label: string; tone: string; dot: string }> = {
@@ -43,6 +50,13 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
               <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 px-3 pb-2.5">
                 <span className={`text-[9.5px] font-semibold uppercase tracking-[0.12em] ${k.tone}`}>{k.label}</span>
                 <span className="truncate text-[12.5px] font-medium leading-snug text-white">{p.title}</span>
+                {p.price || p.locked ? (
+                  <span className="mt-1 w-fit">{p.price ? (
+                    <span className="inline-flex items-center rounded-md bg-accent px-2 py-0.5 text-[11.5px] font-bold text-ink">{p.kind === "idea" ? `Start with ${p.price}` : p.price}</span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-0.5 text-[11px] font-semibold text-white"><LockKeyhole aria-hidden className="h-3 w-3 text-accent" />Price for members</span>
+                  )}</span>
+                ) : null}
               </figcaption>
             </figure>
           );
@@ -69,6 +83,11 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
                     <span aria-hidden className={`h-1.5 w-1.5 shrink-0 rounded-full ${k.dot}`} />
                     <span className="truncate text-[10px] leading-tight text-white/75">{p.title}</span>
                   </span>
+                  {p.price ? (
+                    <span className="truncate px-0.5 text-[10.5px] font-bold leading-tight text-accent">{p.price}</span>
+                  ) : p.locked ? (
+                    <span className="flex items-center gap-1 px-0.5 text-[10px] font-semibold leading-tight text-white/60"><LockKeyhole aria-hidden className="h-2.5 w-2.5 shrink-0 text-accent" />Members</span>
+                  ) : null}
                   <span className="sr-only">{k.label}</span>
                 </li>
               );
