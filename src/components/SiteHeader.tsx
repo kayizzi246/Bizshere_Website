@@ -18,7 +18,7 @@ const NAV = ["/business-ideas", "/machines", "/suppliers", "/experts", "/funding
   const d = DIRECTORIES.find((x) => x.href === href)!;
   return { href, title: SHORT[href] ?? d.title };
 });
-// More on the bar (client, 26 Nov 2026: "add more things on the nav menu"): Guides and Forum where there is room (1440px),
+// More on the bar (client, 26 Nov 2026: "add more things on the nav menu"): Guides and Forum where there is room (1536px),
 // and a More menu, opened by a click, with every other directory and page.
 const WIDE = [["/guides", "Guides"], ["/forum", "Forum"]] as const;
 const MORE = [
@@ -34,7 +34,8 @@ const JOIN = [
 ] as const;
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-const link = "whitespace-nowrap rounded-lg px-2.5 py-1.5 font-display text-[11.5px] font-semibold text-ink-soft transition-colors hover:bg-page hover:text-heading min-[1360px]:px-3 min-[1360px]:text-[12px]"; // semibold and smaller (client, 25 Nov 2026)
+// Bigger and bold (client, 26 Nov 2026: "increase the font size and also font weight"; semibold 11.5px from 25 Nov 2026)
+const link = "whitespace-nowrap rounded-lg px-2 py-1.5 font-display text-[12.5px] font-bold text-ink transition-colors hover:bg-page hover:text-brand min-[1360px]:px-2.5 min-[1360px]:text-[13px] min-[1600px]:px-3 min-[1600px]:text-[14px]";
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /**
@@ -71,7 +72,7 @@ export async function SiteHeader() {
               <li key={n.href}><Link href={n.href} className={link}>{n.title}</Link></li>
             ))}
             {WIDE.map(([href, label]) => (
-              <li key={href} className="hidden min-[1440px]:block"><Link href={href} className={link}>{label}</Link></li>
+              <li key={href} className="hidden min-[1536px]:block"><Link href={href} className={link}>{label}</Link></li>
             ))}
             <li><Link href="/membership" className={link}>Pricing</Link></li>
             <li>
@@ -83,7 +84,7 @@ export async function SiteHeader() {
                 <div className="absolute right-0 top-11 z-50 flex w-[560px] flex-col gap-1 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(7,26,51,0.16)]">
                   <ul className="grid grid-cols-2 gap-1">
                     {MORE.map((m) => (
-                      <li key={m.href} className={WIDE.some(([h]) => h === m.href) ? "min-[1440px]:hidden" : undefined}>
+                      <li key={m.href} className={WIDE.some(([h]) => h === m.href) ? "min-[1536px]:hidden" : undefined}>
                         <Link href={m.href} className="group/item flex items-start gap-3 rounded-xl p-2.5 text-ink hover:bg-page hover:text-ink">
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={m.icon} className="h-4 w-4" /></span>
                           <span className="flex min-w-0 flex-col gap-0.5">

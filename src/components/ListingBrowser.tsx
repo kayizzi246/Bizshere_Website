@@ -172,8 +172,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
       <DirectoryBoard crumb={title} heading={heading} count={items.length} note={board.note}
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
-        grid={variant === "suppliers"}
-        aside={<ServicesPanel path={path} row={variant === "suppliers"} />}
+        aside={<ServicesPanel path={path} />}
         pager={remaining > 0 ? (
           <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}
