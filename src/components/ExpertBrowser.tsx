@@ -82,7 +82,7 @@ export function ExpertBrowser({ experts, intro, initial }: {
         hint={hint} label="Search experts" popular={[]} cats={[]} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order} compact />
       <DirectoryBoard crumb="Business Experts" heading={heading} count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only="/experts" />}
-        grid aside={<ServicesPanel path="/experts" row />}
+        aside={<ServicesPanel path="/experts" />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={experts.length > 0} onClear={clear} /> : (
