@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { funderCategoryOf } from "@/lib/content-fields";
 import { ArrowRight, BookOpen, Calculator, Coins, FileText, Lightbulb, LockKeyhole, MapPin, Megaphone, MessagesSquare, Moon, Percent, Ship, Sprout, Store, Sun, Sunrise, TrendingUp, Users, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
@@ -30,7 +31,7 @@ async function records() {
   const live = { publicationStatus: "PUBLISHED" } as const;
   const [ideas, funding, suppliers, machines, experts] = await Promise.all([
     prisma.contentItem.findMany({ where: { contentType: "BUSINESS_IDEA", ...live, businessIdea: { AND: [{ pictureUrl: { not: null } }, { pictureUrl: { not: "" } }] } }, select: { slug: true, title: true, businessIdea: { select: { pictureUrl: true } } }, orderBy: [...newest], take: 3 }),
-    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, provider: { select: { organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
+    prisma.contentItem.findMany({ where: { contentType: "FUNDING_PROGRAMME", ...live }, select: { slug: true, title: true, fundingProgramme: { select: { fundingType: true, providerCategory: true, provider: { select: { providerCategory: true, organization: { select: { legalName: true, tradingName: true } } } } } } }, orderBy: [...newest], take: 3 }),
     prisma.contentItem.findMany({ where: { contentType: "SUPPLIER", ...live }, select: { slug: true, title: true, supplier: { select: { country: true, items: true, pictureUrl: true, listings: { where: { status: "PUBLISHED", imageUrl: { not: null } }, select: { imageUrl: true }, orderBy: { createdAt: "desc" }, take: 1 } } } }, orderBy: [...newest], take: 6 }),
     prisma.contentItem.findMany({ where: { contentType: "MACHINE", ...live, machine: { pictureUrl: { not: null } } }, select: { slug: true, title: true, contentType: true, shortSummary: true, accessLevel: true, machine: { select: { pictureUrl: true, priceMin: true, priceMax: true, currency: true } } }, orderBy: [...newest], take: 3 }),
     // Public fields only: name, title, specialties and district. Contacts stay on the member profile.
@@ -429,7 +430,11 @@ export async function HomeFeatures() {
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate font-display text-[13px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
-                        {org ? <span className="truncate text-[11px] text-ink-muted">{clean(org.tradingName ?? org.legalName)}</span> : null}
+                        {/* The funder category first, as on /funding (client, 26 Nov 2026: "make it visible on the home page as well") */}
+                        <span className="truncate text-[11px] text-ink-muted">
+                          <span className="font-semibold text-accent-dark">{funderCategoryOf(f.fundingProgramme?.providerCategory, f.fundingProgramme?.provider.providerCategory, org ? org.tradingName ?? org.legalName : null)}</span>
+                          {org ? <> · {clean(org.tradingName ?? org.legalName)}</> : null}
+                        </span>
                       </span>
                       {type ? <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${FUND_TAG[type] ?? "bg-page text-ink-soft"}`}>{type.charAt(0) + type.slice(1).toLowerCase()}</span> : null}
                       <ArrowRight aria-hidden className="hidden h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent-dark sm:block" />
