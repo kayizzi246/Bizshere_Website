@@ -122,7 +122,7 @@ export default async function HomePage() {
               a moving list that needs none (HeroShowcase); the latest video when there are no prices. Wide screens only (1280px+). */}
           <div id="watch" className="hidden scroll-mt-28 flex-col xl:flex">
             {!yt.video?.live && photos.length >= 6 ? (
-              <HeroCollage photos={photos} />
+              <HeroCollage photos={photos} prices={prices.rows} updated={prices.updated} />
             ) : !yt.video || (!yt.video.live && prices.rows.length) ? (
               <HeroShowcase prices={prices.rows} updated={prices.updated} rows={rows} />
             ) : (

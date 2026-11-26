@@ -1,5 +1,7 @@
-import { LockKeyhole } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, LockKeyhole, TrendingDown, TrendingUp } from "lucide-react";
 import { BorderSnake } from "./BorderSnake";
+import type { ShowcasePrice } from "./HeroShowcase";
 
 export type CollagePhoto = {
   src: string; title: string; sub: string; href: string; kind: "idea" | "machine" | "product";
@@ -24,7 +26,8 @@ const KIND: Record<CollagePhoto["kind"], { label: string; tone: string; dot: str
  * scrolls slowly sideways and loops with no jump (the strip holds its tiles twice). Pictures only, nothing to click
  * (client, 12 Nov 2026). Still for reduced motion: the first photo, and the strip at rest.
  */
-export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
+export function HeroCollage({ photos, prices = [], updated = null }: { photos: CollagePhoto[]; /** Latest wholesale prices for the strip on top (what this viewer may see) */ prices?: ShowcasePrice[]; updated?: string | null }) {
+  const ticker = prices.slice(0, 8);
   const slides = photos.slice(0, 4);
   const strip = photos.slice(1);
   return (
@@ -37,6 +40,43 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
         </span>
         <span className="text-[10px] text-white/50">Ideas · Machines · Suppliers</span>
       </div>
+
+      {/* Markets and Prices on top (client, 26 Nov 2026): the latest wholesale prices as chips that scroll sideways
+          and loop, like the thumbnails (the list held twice), each with its unit and change. Still for reduced motion. */}
+      {ticker.length ? (
+        <div className="flex flex-col gap-2 rounded-xl bg-[#04112A]/70 px-3 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2">
+              <span aria-hidden className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent/20 text-accent"><TrendingUp className="h-3.5 w-3.5" /></span>
+              <span className="flex min-w-0 flex-col leading-tight">
+                <span className="flex items-center gap-1.5 text-[12px] font-bold text-white">Market prices<span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#3DD68C]" /></span>
+                <span className="truncate text-[10px] text-white/55">Wholesale{updated ? ` · updated ${updated}` : ""}</span>
+              </span>
+            </span>
+            <Link href="/prices" className="inline-flex shrink-0 items-center gap-0.5 text-[11px] font-semibold text-accent hover:text-white">See all<ChevronRight aria-hidden className="h-3.5 w-3.5" /></Link>
+          </div>
+          <div className="relative -mx-3 overflow-hidden px-3 [mask-image:linear-gradient(to_right,transparent,#000_5%,#000_95%,transparent)]">
+            <ul className="thumb-strip flex w-max" style={{ animationDuration: `${ticker.length * 5}s` }}>
+              {[...ticker, ...ticker].map((p, i) => {
+                const up = (p.change ?? 0) >= 0.05, down = (p.change ?? 0) <= -0.05;
+                return (
+                  <li key={`${p.id}-${i}`} aria-hidden={i >= ticker.length || undefined} className="shrink-0 pr-1.5">
+                    <Link href="/prices" tabIndex={i >= ticker.length ? -1 : undefined} className="flex items-center gap-2 rounded-lg bg-white/[0.07] px-2.5 py-1.5 text-white hover:bg-white/[0.12] hover:text-white">
+                      <span className="max-w-[110px] truncate text-[11px] text-white/80">{p.name}</span>
+                      <span className="whitespace-nowrap text-[11.5px] font-bold tabular-nums">{p.price}{p.unit ? <span className="font-normal text-white/50">/{p.unit}</span> : null}</span>
+                      {up || down ? (
+                        <span className={`inline-flex items-center gap-0.5 text-[10.5px] font-semibold tabular-nums ${up ? "text-[#3DD68C]" : "text-[#FF8A8A]"}`}>
+                          {up ? <TrendingUp aria-hidden className="h-3 w-3" /> : <TrendingDown aria-hidden className="h-3 w-3" />}{up ? "+" : ""}{p.change!.toFixed(1)}%
+                        </span>
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      ) : null}
 
       {/* The featured listings, taking turns */}
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl bg-[#04112A]">
