@@ -417,6 +417,23 @@ select {
 .collage-col.collage-down { animation-name: collage-down; animation-duration: 56s; }
 /* The strip ignores the mouse (client, 12 Nov 2026): no pause on hover, no pointer, nothing to click */
 .collage { pointer-events: none; user-select: none; }
+/* The hero panel moving (client, 26 Nov 2026: "make the carousel scroll", src/components/HeroCollage.tsx). Four featured
+   photos take 5 seconds each in a 20-second loop: each fades in over 0.6s, holds, fades out as the next fades in, and
+   zooms slowly while it shows; the little bars fill in step. The thumbnail strip moves left by half its length (it
+   holds its tiles twice), at about 4 seconds a tile. Transform and opacity only. */
+.feature-slide { opacity: 0; animation: feature-show 20s linear infinite both; }
+.feature-slide:first-child { opacity: 1; }
+@keyframes feature-show { 0% { opacity: 0; } 3% { opacity: 1; } 25% { opacity: 1; } 28% { opacity: 0; } 100% { opacity: 0; } }
+.feature-zoom { animation: feature-zoom 20s linear infinite both; }
+@keyframes feature-zoom { 0% { transform: scale(1); } 28% { transform: scale(1.07); } 100% { transform: scale(1.07); } }
+.feature-tick { transform: scaleX(0); animation: feature-tick 20s linear infinite both; }
+@keyframes feature-tick { 0% { transform: scaleX(0); } 25% { transform: scaleX(1); } 26%, 100% { transform: scaleX(0); } }
+.thumb-strip { animation: thumb-strip 32s linear infinite; will-change: transform; }
+@keyframes thumb-strip { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .feature-slide, .feature-zoom, .feature-tick, .thumb-strip { animation: none; }
+  .feature-slide:not(:first-child) { display: none; }
+}
 /* The orange dot and tail round the hero panel (BorderSnake). Each line starts its own length behind, so the
    fronts of all of them stay together at the dot. */
 .border-snake rect { animation: border-snake 9s linear infinite; }
