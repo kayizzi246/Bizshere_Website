@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
  * The phone menu: a <details> dropdown (so it still opens without JavaScript) that also closes
  * on a tap outside it, on Escape, when a link inside is tapped, and after navigating.
  */
-export function MobileMenu({ summary, children }: { summary: React.ReactNode; children: React.ReactNode }) {
+export function MobileMenu({ summary, children, className = "lg:hidden" }: { summary: React.ReactNode; children: React.ReactNode; /** Where it shows (the header's More menu: wide screens only) */ className?: string }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const path = usePathname();
 
@@ -23,7 +23,7 @@ export function MobileMenu({ summary, children }: { summary: React.ReactNode; ch
   }, []);
 
   return (
-    <details ref={ref} className="group relative lg:hidden"
+    <details ref={ref} className={`group relative ${className}`}
       onClick={(e) => { if ((e.target as HTMLElement).closest("a")) ref.current?.removeAttribute("open"); }}>
       {summary}
       {children}

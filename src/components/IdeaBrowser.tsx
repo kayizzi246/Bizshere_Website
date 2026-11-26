@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Wallet } from "lucide-react";
 import { type CardIdea } from "./IdeaParts";
 import { compactRange } from "@/lib/format";
+import { ServicesPanel } from "./ServicesPanel";
 import { BoardEmpty, DirectoryBoard, GridFrame, gridChip, gridList, softButton, solidButton } from "./DirectoryBoard";
 import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, countCategories, syncAddress } from "./BrowseParts";
@@ -100,6 +101,7 @@ export function IdeaBrowser({ ideas, intro, initial }: {
       <DirectoryBoard crumb="Business Ideas" count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         heading={q.trim() ? `Results for “${q.trim()}”${chosenName ? ` in ${chosenName}` : ""}` : chosenName ? `${chosenName} business ideas` : "Businesses you can start"}
         top={<RecentStrip only="/business-ideas" />}
+        grid aside={<ServicesPanel path="/business-ideas" row />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {/* A photo grid beside the side column, four a row from 1280px (client, 13 Nov 2026) */}

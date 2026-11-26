@@ -33,7 +33,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
   sort: T;
   sorts: readonly { value: T; label: string }[];
   onSort: (v: T) => void;
-  /** Above the bar (recently viewed) */
+  /** Under the list and everything else (recently viewed; client, 26 Nov 2026: "put below the content") */
   top?: React.ReactNode;
   /** The side column. Left out (18 Nov 2026, client: simpler pages) the list runs full width. */
   aside?: React.ReactNode;
@@ -45,7 +45,6 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
   return (
     <div className="bg-page board-bg">
       <div className="container-site flex flex-col gap-4 pad-body sm:gap-5">
-        {top}
         <div className="flex flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-[12px] text-ink-muted">
             <Link href="/" className="text-ink-muted hover:text-brand">Home</Link>
@@ -67,6 +66,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
           </div>
           {aside}
         </section>
+        {top}
       </div>
     </div>
   );

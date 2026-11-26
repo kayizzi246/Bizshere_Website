@@ -6,6 +6,7 @@ import { useTypingHint } from "./TypingHint";
 import { BrowseHero, Pager, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 import { DirectoryTable } from "./DirectoryTable";
+import { ServicesPanel } from "./ServicesPanel";
 import { BoardEmpty, DirectoryBoard } from "./DirectoryBoard";
 
 /** One expert as the browser needs it: public fields only (email and phone stay on the member profile). */
@@ -81,6 +82,7 @@ export function ExpertBrowser({ experts, intro, initial }: {
         hint={hint} label="Search experts" popular={[]} cats={[]} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order} compact />
       <DirectoryBoard crumb="Business Experts" heading={heading} count={items.length} cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only="/experts" />}
+        grid aside={<ServicesPanel path="/experts" row />}
         pager={<Pager current={current} pages={pages} goTo={goTo} />}
         listTop={listTop}>
         {items.length === 0 ? <BoardEmpty any={experts.length > 0} onClear={clear} /> : (

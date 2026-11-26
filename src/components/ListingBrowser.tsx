@@ -6,7 +6,7 @@ import { useTypingHint } from "./TypingHint";
 import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 import { DirectoryTable } from "./DirectoryTable";
-import { FundingServices } from "./FundingServices";
+import { ServicesPanel } from "./ServicesPanel";
 import { BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
@@ -172,7 +172,8 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
       <DirectoryBoard crumb={title} heading={heading} count={items.length} note={board.note}
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
-        aside={variant === "funding" ? <FundingServices /> : undefined}
+        grid={grid || variant === "suppliers"}
+        aside={<ServicesPanel path={path} row={grid || variant === "suppliers"} />}
         pager={remaining > 0 ? (
           <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}

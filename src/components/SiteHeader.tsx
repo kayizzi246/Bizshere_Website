@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { getViewer } from "@/lib/access";
 import { DIRECTORIES } from "@/config/directories";
 import { Logo } from "./Logo";
@@ -17,6 +18,14 @@ const NAV = ["/business-ideas", "/machines", "/suppliers", "/experts", "/funding
   const d = DIRECTORIES.find((x) => x.href === href)!;
   return { href, title: SHORT[href] ?? d.title };
 });
+// More on the bar (client, 26 Nov 2026: "add more things on the nav menu"): Guides and Forum where there is room (1440px),
+// and a More menu, opened by a click, with every other directory and page.
+const WIDE = [["/guides", "Guides"], ["/forum", "Forum"]] as const;
+const MORE = [
+  ...DIRECTORIES.filter((d) => !NAV.some((n) => n.href === d.href)).map((d) => ({ href: d.href, title: d.title, text: d.text, icon: d.icon })),
+  { href: "/opportunities", title: "Investment opportunities", text: "Projects looking for investors and partners.", icon: "funding" },
+];
+const PAGES = [["/about", "About us"], ["/contact", "Contact"], ["/search", "Search everything"]] as const;
 
 // The shadcn button (components/ui/button): supplier solid orange, expert outlined, so "Get started" keeps the blue.
 const JOIN = [
@@ -61,7 +70,38 @@ export async function SiteHeader() {
             {NAV.map((n) => (
               <li key={n.href}><Link href={n.href} className={link}>{n.title}</Link></li>
             ))}
+            {WIDE.map(([href, label]) => (
+              <li key={href} className="hidden min-[1440px]:block"><Link href={href} className={link}>{label}</Link></li>
+            ))}
             <li><Link href="/membership" className={link}>Pricing</Link></li>
+            <li>
+              <MobileMenu className="" summary={
+                <summary className={`${link} flex cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden`}>
+                  More<ChevronDown aria-hidden className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                </summary>
+              }>
+                <div className="absolute right-0 top-11 z-50 flex w-[560px] flex-col gap-1 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(7,26,51,0.16)]">
+                  <ul className="grid grid-cols-2 gap-1">
+                    {MORE.map((m) => (
+                      <li key={m.href} className={WIDE.some(([h]) => h === m.href) ? "min-[1440px]:hidden" : undefined}>
+                        <Link href={m.href} className="group/item flex items-start gap-3 rounded-xl p-2.5 text-ink hover:bg-page hover:text-ink">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={m.icon} className="h-4 w-4" /></span>
+                          <span className="flex min-w-0 flex-col gap-0.5">
+                            <span className="text-[13px] font-bold leading-tight text-heading group-hover/item:text-brand">{m.title}</span>
+                            <span className="line-clamp-2 text-[11.5px] leading-snug text-ink-muted">{m.text}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-1 flex items-center gap-1 rounded-xl bg-page p-1.5">
+                    {PAGES.map(([href, label]) => (
+                      <Link key={href} href={href} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-ink-soft hover:bg-white hover:text-heading">{label}</Link>
+                    ))}
+                  </div>
+                </div>
+              </MobileMenu>
+            </li>
           </ul>
         </nav>
 
