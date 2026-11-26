@@ -195,7 +195,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
 /** The list as a photo grid beside the side column: two a row on phones, three on tablets, four from 1280px. */
 export const gridList = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4"; // tighter on phones (client, 25 Nov 2026)
 /** The same beside the services side column (machines, business ideas; client, 26 Nov 2026): four a row from 1280px (client, 26 Nov 2026). */
-export const gridSide = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4 xl:gap-3";
+export const gridSide = "grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4"; // 8px between cards everywhere (client, 26 Nov 2026: "reduce spacing")
 
 /** A grid card (business ideas, machines, suppliers): photo on top with the heart, then category, name, pills, a short
     description and the buttons along the bottom, so the cards in a row line up. */

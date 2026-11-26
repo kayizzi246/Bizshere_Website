@@ -134,12 +134,13 @@ const claimLabel: Record<string, string> = {
 };
 
 /** 6. Connected resources in both directions (idea → machine, and machine → idea). */
-export async function Connected({ contentItemId, title = "Connected resources" }: { contentItemId: string; title?: string }) {
+export async function Connected({ contentItemId, title = "Connected resources", hideEmpty = false }: { contentItemId: string; title?: string; /** Show nothing rather than "coming soon" when none are linked */ hideEmpty?: boolean }) {
   const [from, to] = await Promise.all([
     prisma.relatedContent.findMany({ where: { fromItemId: contentItemId, toItem: { publicationStatus: "PUBLISHED" } }, include: { toItem: true }, orderBy: { displayOrder: "asc" } }),
     prisma.relatedContent.findMany({ where: { toItemId: contentItemId, fromItem: { publicationStatus: "PUBLISHED" } }, include: { fromItem: true }, orderBy: { displayOrder: "asc" } }),
   ]);
   const items = [...from.map((r) => r.toItem), ...to.map((r) => r.fromItem)].filter((v, i, a) => a.findIndex((x) => x.id === v.id) === i);
+  if (hideEmpty && items.length === 0) return null;
   return (
     <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-4 sm:p-5">
       <h2 className="w-fit mb-1 font-display text-sm font-extrabold text-heading">{title}</h2>

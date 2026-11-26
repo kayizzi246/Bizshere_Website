@@ -1,7 +1,7 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BadgeCheck, Banknote, Building2, CalendarCheck, ExternalLink, FileText, LockKeyhole, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Banknote, Building2, CalendarCheck, ExternalLink, FileText, Globe, LockKeyhole, Mail, MapPin, MessageCircle, Phone, Sparkles, Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -24,6 +24,8 @@ export const dynamic = "force-dynamic";
 const COLOURS = ["bg-[#5B21B6]", "bg-[#BE123C]", "bg-[#C2410C]", "bg-[#1D4ED8]", "bg-[#0F766E]", "bg-[#A21CAF]"];
 const colourOf = (slug: string) => COLOURS[[...slug].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7) % COLOURS.length];
 const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+/** Just the site's name (msc.co.ug), without the page or anchor */
+const host = (url: string) => bare(url).split(/[/?#]/)[0];
 const href = (url: string) => (/^https?:\/\//.test(url) ? url : `https://${url}`);
 
 type Row = { label: string; value: React.ReactNode; strong?: boolean; locked?: boolean };
@@ -47,7 +49,11 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const f = item.fundingProgramme;
   const path = `/funding/${item.slug}`;
   await trackView(viewer, item.id, path);
-  const [memberPlan, sections] = await Promise.all([cachedMemberPlan(), loadChildSections("FUNDING_PROGRAMME", { record: f.id, item: item.id, org: null })]);
+  const [memberPlan, sections, fundCount] = await Promise.all([
+    cachedMemberPlan(),
+    loadChildSections("FUNDING_PROGRAMME", { record: f.id, item: item.id, org: null }),
+    prisma.fundingProgramme.count({ where: { providerId: f.providerId, contentItem: { publicationStatus: "PUBLISHED" } } }),
+  ]);
   const plan = popupPlan(memberPlan);
 
   const gated = item.accessLevel !== "PUBLIC" && !viewer.isMember;
@@ -114,6 +120,13 @@ export default async function FundingPage({ params }: { params: { slug: string }
   const h2 = "text-[19px] font-bold leading-tight tracking-[-0.02em] text-heading sm:text-[20px]";
   // The funder's contacts for the side card (member detail: locked for visitors)
   const contacts = funder.filter((r) => ["Phone", "Email", "Website"].includes(r.label));
+  // Each number on its own, callable; one marked WhatsApp ("watsapp" too) also opens a chat (Uganda's 0 becomes 256)
+  const phones = gated ? [] : (f.provider.phone ?? "").split(/[,;/]+/).map((s) => s.trim()).filter(Boolean).map((s) => {
+    const whatsapp = /wh?ats+ap+/i.test(s);
+    const text = s.replace(/\(?\s*wh?ats+ap+\s*\)?/i, "").trim();
+    const digits = text.replace(/[^\d+]/g, "");
+    return { text, whatsapp, digits, intl: digits.replace(/^\+/, "").replace(/^0/, "256") };
+  });
   const locked = (label: string) => (
     <Link href={path} data-onboard="" aria-label={`See the ${label.toLowerCase()}`} className="inline-flex items-center gap-2 text-brand">
       <span aria-hidden className="hidden select-none blur-[5px] sm:inline">0000 000 000</span>
@@ -218,28 +231,83 @@ export default async function FundingPage({ params }: { params: { slug: string }
             </div>
 
             <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-32">
-              {/* ── The funder: logo, name, what kind and where, then contacts (member detail) ── */}
-              <section aria-label="The funder" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
-                {logo("h-14 w-14", "text-[24px]")}
-                <h2 className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
-                <ul className="flex flex-wrap gap-1.5">
-                  {funderCategory ? <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{funderCategory}</li> : null}
-                  <li className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[12px] text-ink-soft"><MapPin aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.provider.country}</li>
-                </ul>
-                {contacts.length ? (
-                  <dl className="flex flex-col divide-y divide-line border-y border-line text-[14px]">
-                    {contacts.map((r) => (
-                      <div key={r.label} className="grid grid-cols-[72px_minmax(0,1fr)] gap-2 py-2.5">
-                        <dt className="text-ink-muted">{r.label}</dt>
-                        <dd className="min-w-0 text-heading">{cell(r)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                ) : null}
-                <Link href={`/funding?q=${encodeURIComponent(funderName)}`} className="inline-flex h-11 items-center justify-center rounded-lg border border-line px-4 text-center text-[14px] font-semibold text-heading hover:border-brand hover:text-brand">More funds from {funderName}</Link>
+              {/* ── The funder (redesigned 26 Nov 2026, client: "make advanced and perfect"): a band in the funder's colour
+                   with the logo over its edge, the name, what kind and where, then each contact as a row you can act on
+                   (call, WhatsApp, email, visit), all member detail, and their other funds. ── */}
+              <section aria-labelledby="funder-name" className="lift overflow-hidden rounded-2xl bg-white">
+                <div className={`relative h-20 ${colourOf(item.slug)}`}>
+                  <span aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_100%_0%,rgba(255,255,255,0.28),transparent_60%)]" />
+                  <span aria-hidden className="absolute inset-0 opacity-30 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1px)] [background-size:14px_14px] [mask-image:linear-gradient(to_left,#000,transparent_75%)]" />
+                  <span className="absolute left-5 top-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/85">The funder</span>
+                  {isOpen ? <span className="absolute right-4 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold text-[#1F7A4D]"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#1F9D5C]" />Taking applications</span> : null}
+                </div>
+                <div className="flex flex-col gap-4 px-5 pb-5">
+                  <div className="-mt-8 flex flex-col gap-2.5">
+                    <span className="w-fit rounded-xl bg-white p-1 shadow-[0_4px_14px_rgba(16,24,40,0.12)]">{logo("h-14 w-14", "text-[24px]")}</span>
+                    <h2 id="funder-name" className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
+                    <ul className="flex flex-wrap gap-1.5">
+                      {funderCategory ? <li className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-[12px] font-medium text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{funderCategory}</li> : null}
+                      <li className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-[12px] font-medium text-ink-soft"><MapPin aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{f.provider.country}</li>
+                    </ul>
+                  </div>
+
+                  {contacts.length ? (
+                    <ul className="flex flex-col gap-1 rounded-xl bg-page p-1.5">
+                      {contacts.map((r) => {
+                        const RowIcon = r.label === "Phone" ? Phone : r.label === "Email" ? Mail : Globe;
+                        return (
+                          <li key={r.label} className="flex items-start gap-3 rounded-lg bg-white p-2.5">
+                            <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><RowIcon className="h-4 w-4" /></span>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                              <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{r.label}</span>
+                              <div className="min-w-0 text-[14px] font-medium leading-snug text-heading">
+                                {r.locked ? locked(r.label) : r.label === "Phone" ? (
+                                  <ul className="flex flex-col gap-1.5">
+                                    {phones.map((p) => (
+                                      <li key={p.text} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        <a href={`tel:${p.digits}`} className="text-heading hover:text-brand">{p.text}</a>
+                                        {p.whatsapp ? <a href={`https://wa.me/${p.intl}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-[#E7F8EE] px-2 py-0.5 text-[11px] font-semibold text-[#128C4A] hover:bg-[#D3F2E0] hover:text-[#128C4A]"><MessageCircle aria-hidden className="h-3 w-3" />WhatsApp</a> : null}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : r.label === "Email" && f.provider.email ? (
+                                  <a href={`mailto:${f.provider.email}`} className="break-all text-heading hover:text-brand">{f.provider.email}</a>
+                                ) : website ? (
+                                  <a href={href(website)} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-1 text-heading hover:text-brand"><span className="truncate">{host(website)}</span><ExternalLink aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" /></a>
+                                ) : null}
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : null}
+
+                  <div className="flex flex-col gap-2">
+                    {website && !gated ? (
+                      <a href={href(website)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-bold text-white hover:bg-brand-dark hover:text-white"><Globe aria-hidden className="h-4 w-4" />Visit their website</a>
+                    ) : null}
+                    <Link href={`/funding?q=${encodeURIComponent(funderName)}`} className="group inline-flex h-11 items-center justify-between gap-3 rounded-lg bg-page px-4 text-[14px] font-semibold text-heading hover:bg-brand-tint hover:text-brand">
+                      <span className="truncate">{fundCount > 1 ? `${fundCount} funds from this funder` : "More from this funder"}</span>
+                      <ArrowRight aria-hidden className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5" />
+                    </Link>
+                  </div>
+                </div>
               </section>
+
               {gated ? <MemberValue back={path} unlocks={lockedTerms} plan={plan} /> : null}
-              <Connected contentItemId={item.id} title="Goes well with this" />
+
+              {/* Help applying, as in the services panel on the list */}
+              <Link href="/experts" className="lift group flex items-center gap-3 rounded-2xl bg-navy p-4 text-white hover:text-white">
+                <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FFCF1A]"><Users className="h-5 w-5" /></span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="text-[14px] font-bold leading-tight">Need help applying?</span>
+                  <span className="text-[12px] leading-snug text-white/70">An expert can check you qualify and get your papers ready.</span>
+                </span>
+                <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-[#FFCF1A] transition group-hover:translate-x-0.5" />
+              </Link>
+
+              <Connected contentItemId={item.id} title="Goes well with this" hideEmpty />
             </aside>
           </div>
         </div>
