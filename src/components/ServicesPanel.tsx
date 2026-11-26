@@ -41,7 +41,7 @@ export function ServicesPanel({ path, row = false }: { path: string; row?: boole
   const others = SERVICES.filter((s) => s.href !== path && s.href !== f.href).slice(0, row ? 6 : 5);
   return (
     <aside aria-labelledby="services" className={row ? "grid grid-cols-[minmax(0,1fr)] gap-2.5 pt-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" : "flex flex-col gap-2.5 lg:sticky lg:top-[calc(var(--hh)+6.5rem)]"}>
-      <div className="lift relative flex flex-col gap-3 overflow-hidden rounded-2xl bg-navy p-5 text-white">
+      <div className="relative flex flex-col gap-3 overflow-hidden rounded-2xl bg-navy p-5 text-white">
         <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#FFCF1A]/15 blur-2xl" />
         <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#FFCF1A]">
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#FFCF1A]" />Our services
@@ -54,7 +54,7 @@ export function ServicesPanel({ path, row = false }: { path: string; row?: boole
         </Link>
       </div>
 
-      <nav aria-label="More services" className="lift overflow-hidden rounded-2xl border border-line bg-white">
+      <nav aria-label="More services" className="overflow-hidden rounded-2xl border border-line bg-white">
         <p className="px-4 pb-1 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-muted">More ways we help</p>
         <ul className={row ? "grid grid-cols-[minmax(0,1fr)] p-1.5 sm:grid-cols-2" : "flex flex-col p-1.5"}>
           {others.map(({ href, title, text, icon: ServiceIcon, tone }) => (

@@ -165,7 +165,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
   thumb: React.ReactNode; meta: React.ReactNode; pills: React.ReactNode; body: React.ReactNode; actions: React.ReactNode;
 }) {
   return (
-    <article className="lift group relative flex gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
+    <article className="group relative flex gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
       {thumb}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
@@ -208,7 +208,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
   cover?: boolean;
 }) {
   return (
-    <article className="lift group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white">
       <div className="relative">
         <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
@@ -347,7 +347,7 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const part = "inline-flex items-center px-2 py-0.5";
   const button = "inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink";
   return (
-    <article className="lift group relative overflow-hidden rounded-xl border border-line bg-white">
+    <article className="group relative overflow-hidden rounded-xl border border-line bg-white">
       {/* The colour edge as a bar, not a border: public pages hide card borders (globals.css) */}
       <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${t.edge}`} />
       <div className="flex flex-col gap-1.5 px-4 pb-3 pt-3 sm:px-5">

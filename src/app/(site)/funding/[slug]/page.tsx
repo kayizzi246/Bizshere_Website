@@ -1,7 +1,10 @@
 import { itemMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, BadgeCheck, Banknote, Building2, CalendarCheck, ExternalLink, FileText, Globe, LockKeyhole, Mail, MapPin, MessageCircle, Phone, Sparkles, Users } from "lucide-react";
+import {
+  ArrowRight, BadgeCheck, Banknote, Building2, CalendarCheck, CalendarClock, CircleCheck, ExternalLink, FileText, Globe, ListChecks, LockKeyhole,
+  Mail, MapPin, MessageCircle, Phone, ShieldAlert, ShieldCheck, Sparkles, Target, UserCheck, Users,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getViewer } from "@/lib/access";
 import { googleEnabled } from "@/lib/auth";
@@ -112,6 +115,19 @@ export default async function FundingPage({ params }: { params: { slug: string }
     }] : []),
   ];
 
+  // The key facts as tiles at the top of the details (member detail locked)
+  const facts: { label: string; value: React.ReactNode; locked?: boolean; icon: typeof Banknote; tone: string }[] = [
+    ...(amount || f.amountBasis ? [{ label: "Amount", value: [amount, f.amountBasis].filter(Boolean).join(". "), locked: gated, icon: Banknote, tone: "bg-[#E3F4EA] text-[#1F7A4D]" }] : []),
+    ...(tenor ? [{ label: "Repayment", value: tenor, locked: gated, icon: CalendarClock, tone: "bg-[#EEF4FF] text-[#1D4ED8]" }] : []),
+    ...(f.collateralRequired !== null ? [{ label: "Collateral", value: f.collateralRequired ? "Required" : "Not required", icon: f.collateralRequired ? ShieldAlert : ShieldCheck, tone: f.collateralRequired ? "bg-[#FFF5E6] text-[#B45309]" : "bg-[#E3F4EA] text-[#1F7A4D]" }] : []),
+    ...(f.targetGroup ? [{ label: "Who it's for", value: f.targetGroup, icon: Users, tone: "bg-[#F4EEFF] text-[#6D28D9]" }] : []),
+  ];
+  // How to apply as steps: one a line, without the numbers or bullets typed in front
+  const steps = (howToApply ?? "").split(/\r?\n/).map((s) => s.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, "").trim()).filter(Boolean);
+  const card = "flex flex-col gap-3.5 rounded-2xl bg-white p-5";
+  const cardHead = "flex items-center gap-2.5 text-[16px] font-bold tracking-[-0.01em] text-heading";
+  const headIcon = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg";
+
   const lockedTerms = gated ? [...new Set([...funder, ...fund].filter((r) => r.locked).map((r) => r.label).concat(memberOnlyLabels("FUNDING_PROGRAMME", record)))] : [];
   const skip = gated ? Object.keys(record) : undefined; // visitors: the extra terms are member detail too
   const media = sections.filter((x) => x.table.layout === "gallery");
@@ -133,7 +149,6 @@ export default async function FundingPage({ params }: { params: { slug: string }
       <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" /><span className="whitespace-nowrap text-[13px] font-semibold">Tap to see</span>
     </Link>
   );
-  const cell = (r: Row) => (r.locked ? locked(r.label) : r.value);
 
   // Small logo (or colour tile with the first letter) for the funder line and the side card
   const logo = (size: string, text: string) => org.logoUrl ? (
@@ -207,20 +222,90 @@ export default async function FundingPage({ params }: { params: { slug: string }
                 </section>
               ) : null}
 
-              {/* ── The fund in one place (client, 14 Nov 2026): the numbered rows, then every other
-                   detail underneath, nothing folded away and no separate "About"/"More about" sections. ── */}
-              <section id="details" aria-labelledby="fund-details" className="flex scroll-mt-28 flex-col gap-3">
-                <h2 id="fund-details" className={h2}>Fund details</h2>
-                <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-                  {fund.map((r, n) => (
-                    <li key={r.label} className="grid grid-cols-[minmax(0,1fr)] gap-1 px-4 py-3 text-[15px] sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-4 sm:px-5">
-                      <span className="flex items-baseline gap-2 font-medium text-ink-muted">
-                        <span className="w-5 shrink-0 font-semibold text-brand">{n + 1}.</span>{r.label}
-                      </span>
-                      <div className={`min-w-0 pl-7 leading-relaxed text-heading sm:pl-0 ${r.strong ? "font-semibold" : ""}`}>{cell(r)}</div>
-                    </li>
-                  ))}
-                </ol>
+              {/* ── The fund in one place (client, 14 Nov 2026; redesigned 26 Nov 2026, client: "redesign the fund details
+                   section too"): the key facts as tiles, then what it's for, who can apply as a checklist and how to apply
+                   as numbered steps with the documents to bring. Every other detail underneath, nothing folded away. ── */}
+              <section id="details" aria-labelledby="fund-details" className="flex scroll-mt-28 flex-col gap-4">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <h2 id="fund-details" className={h2}>Fund details</h2>
+                  {checked ? <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-muted"><CalendarCheck aria-hidden className="h-3.5 w-3.5" />Checked {checked}</span> : null}
+                </div>
+
+                {facts.length ? (
+                  <ul className={`grid grid-cols-2 gap-2.5 ${facts.length >= 4 ? "lg:grid-cols-4" : facts.length === 3 ? "sm:grid-cols-3" : ""}`}>
+                    {facts.map((x) => (
+                      <li key={x.label} className="flex flex-col gap-2.5 rounded-2xl bg-white p-4">
+                        <span aria-hidden className={`flex h-9 w-9 items-center justify-center rounded-xl ${x.tone}`}><x.icon className="h-4 w-4" /></span>
+                        <span className="flex flex-col gap-0.5">
+                          <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{x.label}</span>
+                          <span className="text-[15px] font-bold leading-snug tracking-[-0.01em] text-heading">{x.locked ? locked(x.label) : x.value}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {f.purpose || f.eligibleBusinessTypes.length ? (
+                  <div className={card}>
+                    <h3 className={cardHead}><span aria-hidden className={`${headIcon} bg-[#EEF4FF] text-[#1D4ED8]`}><Target className="h-4 w-4" /></span>What it&apos;s for</h3>
+                    {f.purpose ? <p data-size="" className="text-[15px] leading-relaxed text-heading">{f.purpose}</p> : null}
+                    {f.eligibleBusinessTypes.length ? (
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted">Eligible sectors</span>
+                        <ul className="flex flex-wrap gap-1.5">
+                          {f.eligibleBusinessTypes.map((s) => <li key={s} className="rounded-full bg-page px-3 py-1 text-[13px] font-medium text-heading">{s}</li>)}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {needs.length ? (
+                  <div className={card}>
+                    <h3 className={cardHead}><span aria-hidden className={`${headIcon} bg-[#E3F4EA] text-[#1F7A4D]`}><UserCheck className="h-4 w-4" /></span>Who can apply</h3>
+                    <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
+                      {needs.map((n) => (
+                        <li key={n} className="flex items-start gap-2.5 rounded-xl bg-page px-3 py-2.5 text-[14px] leading-snug text-heading">
+                          <CircleCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[#1F9D5C]" />{n.replace(/^[-•*\d.)\s]+/, "")}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {howToApply || documents.length ? (
+                  <div className={card}>
+                    <h3 className={cardHead}><span aria-hidden className={`${headIcon} bg-[#FFF5E6] text-[#B45309]`}><ListChecks className="h-4 w-4" /></span>How to apply</h3>
+                    {gated ? (
+                      <div className="flex flex-col items-start gap-3 rounded-xl bg-[#FFFBEB] p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p data-size="" className="flex items-center gap-2.5 text-[14px] leading-snug text-ink-soft"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0 text-accent-dark" />Members see each step and the documents to bring.</p>
+                        <Link href={path} data-onboard="" className="inline-flex h-9 shrink-0 items-center justify-center rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink hover:bg-[#FFDB52] hover:text-ink">Unlock</Link>
+                      </div>
+                    ) : (
+                      <>
+                        {steps.length > 1 ? (
+                          <ol className="flex flex-col">
+                            {steps.map((s, n) => (
+                              <li key={s} className="relative flex gap-3 pb-4 last:pb-0">
+                                {n < steps.length - 1 ? <span aria-hidden className="absolute bottom-0 left-[13px] top-7 w-px bg-line" /> : null}
+                                <span aria-hidden className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-[12px] font-bold text-white">{n + 1}</span>
+                                <p data-size="" className="pt-0.5 text-[14px] leading-relaxed text-heading">{s}</p>
+                              </li>
+                            ))}
+                          </ol>
+                        ) : steps.length ? <p data-size="" className="whitespace-pre-line text-[15px] leading-relaxed text-heading">{steps[0]}</p> : null}
+                        {documents.length ? (
+                          <div className="flex flex-col gap-2">
+                            <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted">Documents to bring</span>
+                            <ul className="flex flex-wrap gap-1.5">
+                              {documents.map((d) => <li key={d} className="inline-flex items-center gap-1.5 rounded-lg bg-page px-2.5 py-1.5 text-[13px] font-semibold text-heading"><FileText aria-hidden className="h-3.5 w-3.5 text-brand" />{d}</li>)}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                ) : null}
                 {visibleGroups("FUNDING_PROGRAMME", record, skip).length ? (
                   <div className="mt-1 flex flex-col gap-4"><FieldSections bare type="FUNDING_PROGRAMME" record={record} gated={gated} skip={skip} back={path} /></div>
                 ) : null}
@@ -234,7 +319,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
               {/* ── The funder (redesigned 26 Nov 2026, client: "make advanced and perfect"): a band in the funder's colour
                    with the logo over its edge, the name, what kind and where, then each contact as a row you can act on
                    (call, WhatsApp, email, visit), all member detail, and their other funds. ── */}
-              <section aria-labelledby="funder-name" className="lift overflow-hidden rounded-2xl bg-white">
+              <section aria-labelledby="funder-name" className="overflow-hidden rounded-2xl bg-white">
                 <div className={`relative h-20 ${colourOf(item.slug)}`}>
                   <span aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_90%_at_100%_0%,rgba(255,255,255,0.28),transparent_60%)]" />
                   <span aria-hidden className="absolute inset-0 opacity-30 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1px)] [background-size:14px_14px] [mask-image:linear-gradient(to_left,#000,transparent_75%)]" />
@@ -242,8 +327,8 @@ export default async function FundingPage({ params }: { params: { slug: string }
                   {isOpen ? <span className="absolute right-4 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold text-[#1F7A4D]"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#1F9D5C]" />Taking applications</span> : null}
                 </div>
                 <div className="flex flex-col gap-4 px-5 pb-5">
-                  <div className="-mt-8 flex flex-col gap-2.5">
-                    <span className="w-fit rounded-xl bg-white p-1 shadow-[0_4px_14px_rgba(16,24,40,0.12)]">{logo("h-14 w-14", "text-[24px]")}</span>
+                  <div className="relative -mt-8 flex flex-col gap-2.5">
+                    <span className="w-fit rounded-xl bg-white p-1">{logo("h-14 w-14", "text-[24px]")}</span>
                     <h2 id="funder-name" className="text-[20px] font-bold leading-tight tracking-[-0.02em] text-heading">{funderName}</h2>
                     <ul className="flex flex-wrap gap-1.5">
                       {funderCategory ? <li className="inline-flex items-center gap-1.5 rounded-full bg-page px-2.5 py-1 text-[12px] font-medium text-ink-soft"><Building2 aria-hidden className="h-3.5 w-3.5 text-ink-muted" />{funderCategory}</li> : null}
@@ -298,7 +383,7 @@ export default async function FundingPage({ params }: { params: { slug: string }
               {gated ? <MemberValue back={path} unlocks={lockedTerms} plan={plan} /> : null}
 
               {/* Help applying, as in the services panel on the list */}
-              <Link href="/experts" className="lift group flex items-center gap-3 rounded-2xl bg-navy p-4 text-white hover:text-white">
+              <Link href="/experts" className="group flex items-center gap-3 rounded-2xl bg-navy p-4 text-white hover:text-white">
                 <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FFCF1A]"><Users className="h-5 w-5" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-[14px] font-bold leading-tight">Need help applying?</span>

@@ -971,10 +971,12 @@ main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-p
 /* Lines inside a card (under a photo, above a footer) go with its outline; table rows keep theirs */
 main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) > :is([class~="border-b"], [class~="border-t"]):not(tr, td, th, thead, tbody) { border-color: transparent !important; }
 /* Cards that stand out without lines (client, 26 Nov 2026: "make designs and background show well"): the list pages sit on
-   a slightly deeper grey, and each card lifts off it with a soft shadow that grows on hover. */
+   a slightly deeper grey, so the white cards show against it. */
 main .board-bg[class] { background-color: #EBEFF4; }
-.lift { box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 14px -4px rgba(16, 24, 40, 0.10); transition: box-shadow 200ms var(--ease-out), transform 200ms var(--ease-out); }
-@media (hover: hover) and (pointer: fine) { .lift:hover { box-shadow: 0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 28px -8px rgba(16, 24, 40, 0.18); transform: translateY(-1px); } }
+/* No shadows on the public site (client, 26 Nov 2026: "no shadows in my site"). Every Tailwind shadow-* class goes
+   through --tw-shadow, so this turns them all off; focus rings use --tw-ring-shadow and stay, so keyboard focus still shows.
+   The admin keeps its own. */
+:not(#admin-shell, #admin-shell *) { --tw-shadow: 0 0 #0000 !important; --tw-shadow-colored: 0 0 #0000 !important; }
 #admin-shell .input { min-height: 40px; border-radius: 6px; padding-left: 12px; padding-right: 12px; }
 #admin-shell :is(input, select, textarea) { font-size: 13px; }
 @media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }

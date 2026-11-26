@@ -81,7 +81,7 @@ export async function SiteHeader() {
                   More<ChevronDown aria-hidden className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
                 </summary>
               }>
-                <div className="absolute right-0 top-11 z-50 flex w-[560px] flex-col gap-1 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(7,26,51,0.16)]">
+                <div className="absolute right-0 top-11 z-50 flex w-[560px] flex-col gap-1 rounded-2xl border border-line bg-white p-3">
                   <ul className="grid grid-cols-2 gap-1">
                     {MORE.map((m) => (
                       <li key={m.href} className={WIDE.some(([h]) => h === m.href) ? "min-[1536px]:hidden" : undefined}>
