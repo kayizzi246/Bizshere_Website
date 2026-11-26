@@ -39,10 +39,10 @@ export default async function HomePage() {
           minmax(0,1fr) keeps long content from stretching the page past the screen on phones. ── */}
       {/* 11 Nov 2026 (client): a richer, premium colour (.hero-premium in globals.css: midnight navy into deep royal blue. The moving lights (HeroParticles) were removed on 12 Nov 2026 at the client's request; the specks stay.
           with soft blue and gold light) and a moving network of lights behind everything (HeroParticles). */}
-      {/* Laptops and up (1280px+): the hero is 660px tall (26 Nov 2026, client: "reduce the padding"; 780 from 25 Nov 2026; 720, 660, 720, 780, 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
+      {/* Laptops and up (1280px+): the hero is 740px tall (26 Nov 2026, client: "increase the height"; 660 earlier that day; 780 from 25 Nov 2026; 720, 660, 720, 780, 720, 660, 600, 720, 790, 660, 740, 700 and 760 before), or
           the screen's height if that is less, with its content in the middle. Below about 700 the panel
           on the right loses its third row to the overflow-hidden on this section. */}
-      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(90vh,660px)] xl:flex-col">
+      <section className="hero-premium hero-home under-header-pad relative isolate overflow-hidden text-white xl:flex xl:min-h-[min(96vh,740px)] xl:flex-col">
         {/* Small drifting specks behind everything (client, 25 Nov 2026; taken off on 18 Nov, as the moving network of
             lights was before them). Specks only: no lines, no mouse effect, still for reduced motion. */}
         <HeroParticles links={false} />
@@ -54,7 +54,7 @@ export default async function HomePage() {
         </div>
         {/* Wider on big screens (client, 26 Nov 2026: "increase width, make it responsive on all screens"): up to 1680px like the
             navbar, 24px side margins from 1536px so it lines up with the bar (26 Nov 2026; 48px before). The right panel stays compact (340px, 380px from 1536px) and sits level with the middle of the left side. Below 1280px it stacks as before. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-10 pt-6 sm:pb-12 sm:pt-8 xl:my-auto xl:pb-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-10 2xl:px-6">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:py-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-10 2xl:px-6">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
