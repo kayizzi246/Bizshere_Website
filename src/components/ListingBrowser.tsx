@@ -6,6 +6,7 @@ import { useTypingHint } from "./TypingHint";
 import { BrowseHero, countCategories, syncAddress } from "./BrowseParts";
 import { RecentStrip } from "./Recent";
 import { DirectoryTable } from "./DirectoryTable";
+import { FundingServices } from "./FundingServices";
 import { BoardEmpty, DirectoryBoard, ListingRow, ListingTile, gridList } from "./DirectoryBoard";
 
 /** One listing as the browser needs it: plain values only (it runs in the visitor's browser). */
@@ -171,6 +172,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
       <DirectoryBoard crumb={title} heading={heading} count={items.length} note={board.note}
         cats={cats} category={category} onCategory={pick} sort={sort} sorts={SORTS} onSort={order}
         top={<RecentStrip only={path} />}
+        aside={variant === "funding" ? <FundingServices /> : undefined}
         pager={remaining > 0 ? (
           <LoadMore remaining={remaining} step={perPage} unit={unit} lockedAt={moreLocked ? path : null} onMore={() => setPage(current + 1)} />
         ) : null}
@@ -187,7 +189,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
             {shown.map((i) => <li key={i.id} id={i.slug}><ListingTile i={i} icon={icon} variant={variant} /></li>)}
           </ul>
         ) : (
-          <ul className={`flex flex-col gap-3 sm:gap-4 ${variant === "funding" ? "mx-auto w-full max-w-[920px]" : ""}`}>
+          <ul className="flex flex-col gap-3 sm:gap-4">
             {shown.map((i, n) => <li key={i.id} id={i.slug}><ListingRow i={i} n={n} icon={icon} variant={variant} /></li>)}
           </ul>
         )}

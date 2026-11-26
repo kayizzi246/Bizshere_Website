@@ -43,7 +43,7 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-page">
+    <div className="bg-page board-bg">
       <div className="container-site flex flex-col gap-4 pad-body sm:gap-5">
         {top}
         <div className="flex flex-col gap-1.5">
@@ -165,7 +165,7 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
   thumb: React.ReactNode; meta: React.ReactNode; pills: React.ReactNode; body: React.ReactNode; actions: React.ReactNode;
 }) {
   return (
-    <article className="group relative flex gap-4 rounded-2xl border border-line bg-white p-4 transition-colors hover:border-ink-muted/50 sm:p-5">
+    <article className="lift group relative flex gap-4 rounded-2xl border border-line bg-white p-4 sm:p-5">
       {thumb}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
@@ -206,7 +206,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
   cover?: boolean;
 }) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-colors hover:border-ink-muted/50">
+    <article className="lift group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white">
       <div className="relative">
         <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
@@ -315,11 +315,11 @@ export function ListingRow({ i, n = 0, icon, variant }: { i: BrowseListing; /** 
 
 // The funding cards take these in turn down the list, so no two neighbours match (client, 24 Nov 2026; by fund type before).
 const FUND_TONES: { edge: string; fill: string; soft: string; name: string }[] = [
-  { edge: "border-l-[#1D4ED8]", fill: "border-[#1D4ED8] bg-[#1D4ED8]", soft: "border-[#1D4ED8] bg-[#EEF4FF] text-[#1D4ED8]", name: "text-[#1D4ED8]" },
-  { edge: "border-l-[#0F766E]", fill: "border-[#0F766E] bg-[#0F766E]", soft: "border-[#0F766E] bg-[#E9F7F5] text-[#0F766E]", name: "text-[#0F766E]" },
-  { edge: "border-l-[#7C3AED]", fill: "border-[#7C3AED] bg-[#7C3AED]", soft: "border-[#7C3AED] bg-[#F4EEFF] text-[#6D28D9]", name: "text-[#6D28D9]" },
-  { edge: "border-l-[#B45309]", fill: "border-[#B45309] bg-[#B45309]", soft: "border-[#B45309] bg-[#FFF5E6] text-[#B45309]", name: "text-[#B45309]" },
-  { edge: "border-l-[#BE185D]", fill: "border-[#BE185D] bg-[#BE185D]", soft: "border-[#BE185D] bg-[#FDEEF5] text-[#BE185D]", name: "text-[#BE185D]" },
+  { edge: "bg-[#1D4ED8]", fill: "border-[#1D4ED8] bg-[#1D4ED8]", soft: "border-[#1D4ED8] bg-[#EEF4FF] text-[#1D4ED8]", name: "text-[#1D4ED8]" },
+  { edge: "bg-[#0F766E]", fill: "border-[#0F766E] bg-[#0F766E]", soft: "border-[#0F766E] bg-[#E9F7F5] text-[#0F766E]", name: "text-[#0F766E]" },
+  { edge: "bg-[#7C3AED]", fill: "border-[#7C3AED] bg-[#7C3AED]", soft: "border-[#7C3AED] bg-[#F4EEFF] text-[#6D28D9]", name: "text-[#6D28D9]" },
+  { edge: "bg-[#B45309]", fill: "border-[#B45309] bg-[#B45309]", soft: "border-[#B45309] bg-[#FFF5E6] text-[#B45309]", name: "text-[#B45309]" },
+  { edge: "bg-[#BE185D]", fill: "border-[#BE185D] bg-[#BE185D]", soft: "border-[#BE185D] bg-[#FDEEF5] text-[#BE185D]", name: "text-[#BE185D]" },
 ];
 
 /**
@@ -344,7 +344,9 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const part = "inline-flex items-center px-2 py-0.5";
   const button = "inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink";
   return (
-    <article className={`group overflow-hidden rounded-xl border border-l-4 border-line bg-white transition-colors hover:border-y-ink-muted/40 hover:border-r-ink-muted/40 ${t.edge}`}>
+    <article className="lift group relative overflow-hidden rounded-xl border border-line bg-white">
+      {/* The colour edge as a bar, not a border: public pages hide card borders (globals.css) */}
+      <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${t.edge}`} />
       <div className="flex flex-col gap-1.5 px-4 pb-3 pt-3 sm:px-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-between">

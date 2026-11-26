@@ -12,7 +12,7 @@ const KIND: Record<CollagePhoto["kind"], { label: string; tone: string; dot: str
 /**
  * The right side of the homepage hero. Smaller and redesigned (client, 26 Nov 2026: "don't make this big, make it
  * small and redesign it well"), and moving (same day: "make the carousel scroll"). A compact card: on top the four
- * newest listings take turns as the featured photo (a crossfade every 5 seconds with a slow zoom; .feature-slide in
+ * newest listings take turns as the featured photo (sliding in sideways every 5 seconds with a slow zoom; .feature-slide in
  * globals.css), each with its kind and name; under it every other listing as square thumbnails in a strip that
  * scrolls slowly sideways and loops with no jump (the strip holds its tiles twice). Pictures only, nothing to click
  * (client, 12 Nov 2026). Still for reduced motion: the first photo, and the strip at rest.
@@ -32,7 +32,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
       </div>
 
       {/* The featured listings, taking turns */}
-      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden rounded-xl bg-[#04112A]">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl bg-[#04112A]">
         {slides.map((p, i) => {
           const k = KIND[p.kind];
           return (
@@ -60,7 +60,7 @@ export function HeroCollage({ photos }: { photos: CollagePhoto[] }) {
             {[...strip, ...strip].map((p, i) => {
               const k = KIND[p.kind];
               return (
-                <li key={`${p.href}-${i}`} aria-hidden={i >= strip.length || undefined} className="flex w-[108px] shrink-0 flex-col gap-1 pr-2 2xl:w-[120px]">
+                <li key={`${p.href}-${i}`} aria-hidden={i >= strip.length || undefined} className="flex w-[124px] shrink-0 flex-col gap-1 pr-2 2xl:w-[140px]">
                   <span className="collage-thumb relative block aspect-square overflow-hidden rounded-lg bg-white">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     <img src={p.src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />

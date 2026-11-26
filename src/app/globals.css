@@ -421,9 +421,15 @@ select {
    photos take 5 seconds each in a 20-second loop: each fades in over 0.6s, holds, fades out as the next fades in, and
    zooms slowly while it shows; the little bars fill in step. The thumbnail strip moves left by half its length (it
    holds its tiles twice), at about 4 seconds a tile. Transform and opacity only. */
-.feature-slide { opacity: 0; animation: feature-show 20s linear infinite both; }
-.feature-slide:first-child { opacity: 1; }
-@keyframes feature-show { 0% { opacity: 0; } 3% { opacity: 1; } 25% { opacity: 1; } 28% { opacity: 0; } 100% { opacity: 0; } }
+/* Horizontal since 26 Nov 2026 (client: "make the carousel move horizontally"): each photo slides in from the right,
+   holds, and slides out to the left as the next one slides in; it jumps back to the right while out of view. */
+.feature-slide { transform: translateX(100%); animation: feature-show 20s linear infinite both; }
+.feature-slide:first-child { transform: none; }
+@keyframes feature-show {
+  0% { transform: translateX(100%); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  4%, 25% { transform: translateX(0); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+  29%, 100% { transform: translateX(-100%); }
+}
 .feature-zoom { animation: feature-zoom 20s linear infinite both; }
 @keyframes feature-zoom { 0% { transform: scale(1); } 28% { transform: scale(1.07); } 100% { transform: scale(1.07); } }
 .feature-tick { transform: scaleX(0); animation: feature-tick 20s linear infinite both; }
@@ -964,6 +970,11 @@ main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-p
 main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { background-color: rgb(var(--page)); }
 /* Lines inside a card (under a photo, above a footer) go with its outline; table rows keep theirs */
 main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) > :is([class~="border-b"], [class~="border-t"]):not(tr, td, th, thead, tbody) { border-color: transparent !important; }
+/* Cards that stand out without lines (client, 26 Nov 2026: "make designs and background show well"): the list pages sit on
+   a slightly deeper grey, and each card lifts off it with a soft shadow that grows on hover. */
+main .board-bg[class] { background-color: #EBEFF4; }
+.lift { box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 14px -4px rgba(16, 24, 40, 0.10); transition: box-shadow 200ms var(--ease-out), transform 200ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .lift:hover { box-shadow: 0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 28px -8px rgba(16, 24, 40, 0.18); transform: translateY(-1px); } }
 #admin-shell .input { min-height: 40px; border-radius: 6px; padding-left: 12px; padding-right: 12px; }
 #admin-shell :is(input, select, textarea) { font-size: 13px; }
 @media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }
