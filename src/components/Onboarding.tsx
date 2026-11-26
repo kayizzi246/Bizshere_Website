@@ -224,8 +224,8 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, of
             <div className="onboard-stagger flex flex-col gap-6">
               <StepBar n={1} />
               <div className="flex flex-col gap-2.5">
-                <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.12] tracking-[-0.025em] text-heading sm:text-[26px] md:text-[28px]">Enter your phone number</h2>
-                <p className="text-[13.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
+                <h2 id="onboard-title" className="font-display text-[18px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[20px] md:text-[21px]">Enter your phone number</h2>
+                <p className="text-[12.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
               </div>
               <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
@@ -268,7 +268,7 @@ function WhyPanel({ renew }: { renew: boolean }) {
         <span className="hidden w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80 sm:inline-flex">
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />BizSphere membership
         </span>
-        <p className="font-display text-[20px] font-bold leading-[1.12] tracking-[-0.025em] sm:mt-4 sm:text-[26px] md:text-[30px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
+        <p className="font-display text-[20px] font-bold leading-[1.12] tracking-[-0.025em] sm:mt-4 sm:text-[21px] md:text-[23px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
         <p className="mt-3 hidden text-[13.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
       </div>
       <ul className="onboard-stagger relative mt-5 hidden flex-col gap-2.5 sm:flex md:mt-0">
