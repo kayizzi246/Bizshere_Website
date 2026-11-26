@@ -207,10 +207,10 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, of
 
   return (
     // No onClick on the backdrop: tapping outside never closes the pop-up (a payment may be under way)
-    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8">
+    <div role="dialog" aria-modal="true" aria-labelledby="onboard-title" className="onboard-backdrop fixed inset-0 z-[70] flex items-end justify-center overflow-y-auto bg-ink/60 backdrop-blur-sm sm:items-center sm:px-4 sm:py-8">
       {/* A sheet from the bottom on phones; a large two-panel card on larger screens: why it's worth it on the left, the form on the right.
           While paying, the Pesapal page takes the whole card. */}
-      <div className={`onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:overflow-hidden md:rounded-3xl ${checkout ? "max-w-[680px]" : "max-w-[1020px] md:grid-cols-[1fr_1.1fr]"}`}>
+      <div className={`onboard-pop relative grid max-h-[calc(100dvh-0.5rem)] w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white md:max-h-none md:overflow-hidden md:rounded-3xl ${checkout ? "max-w-[680px]" : "max-w-[1080px] md:min-h-[600px] md:grid-cols-[1fr_1.1fr]"}`}>
         {/* Pinned to the top of the sheet, so it stays in reach while the sheet scrolls on phones */}
         {/* Desktop: positioned absolutely, so it is not a grid cell and the two panels keep their columns */}
         <div className="sticky top-0 z-20 col-span-full h-0 md:absolute md:inset-x-0 md:top-0">
@@ -219,15 +219,15 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, of
 
         {checkout ? null : <WhyPanel renew={renew} />}
 
-        <div className={`flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 ${checkout ? "sm:px-6 md:py-6" : "md:py-10"}`}>
+        <div className={`flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 ${checkout ? "sm:px-6 md:py-6" : "md:px-12 md:py-14"}`}>
           {step === "account" ? (
-            <div className="flex flex-col gap-5">
+            <div className="onboard-stagger flex flex-col gap-6">
               <StepBar n={1} />
-              <div className="flex flex-col gap-2">
-                <h2 id="onboard-title" className="font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]">Enter your phone number</h2>
-                <p className="text-[12.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
+              <div className="flex flex-col gap-2.5">
+                <h2 id="onboard-title" className="font-display text-[22px] font-bold leading-[1.12] tracking-[-0.025em] text-heading sm:text-[26px] md:text-[28px]">Enter your phone number</h2>
+                <p className="text-[13.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
               </div>
-              <PhoneSignIn size="md" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
+              <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
             </div>
           ) : (
             <PayStep plan={plan} help={help} renew={renew} initialPeriod={initialPeriod} picked={picked} offerCode={offerCode} pending={pending} onCheckout={setCheckout} onPaid={() => { pending.current = null; onPaid(); }} />
@@ -258,20 +258,30 @@ const WHY = [
   { icon: Download, title: "Prices and downloads", text: "Price history, machine prices, tools and templates." },
 ];
 
-/** Left panel: why an account and membership are worth it. Deep brand blue like the hero; trimmed on phones. */
+/** Left panel: why an account and membership are worth it. A deep blue gradient with a soft light in one corner,
+ *  each reason in its own icon tile, and how payment works at the foot. Trimmed on phones. The lines come in one
+ *  after another, quickly (client, 26 Nov 2026: "premium and fast, advanced"). */
 function WhyPanel({ renew }: { renew: boolean }) {
   return (
-    <div className="bg-brand-deep px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:py-10 md:pr-9">
-      <p className="font-display text-[19px] font-bold leading-[1.2] tracking-[-0.015em] sm:text-[21px] md:text-[22px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
-      <p className="mt-2.5 hidden text-[12.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
-      <ul className="mt-4 hidden flex-col divide-y divide-white/10 sm:flex">
+    <div className="onboard-why relative flex flex-col overflow-hidden px-5 pb-4 pt-5 pr-16 text-white sm:px-9 sm:pb-6 sm:pt-8 md:justify-between md:gap-8 md:p-12">
+      <div className="onboard-stagger relative flex flex-col">
+        <span className="hidden w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80 sm:inline-flex">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />BizSphere membership
+        </span>
+        <p className="font-display text-[20px] font-bold leading-[1.12] tracking-[-0.025em] sm:mt-4 sm:text-[26px] md:text-[30px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
+        <p className="mt-3 hidden text-[13.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
+      </div>
+      <ul className="onboard-stagger relative mt-5 hidden flex-col gap-2.5 sm:flex md:mt-0">
         {WHY.map((w) => (
-          <li key={w.title} className="flex items-start gap-3 py-3 first:pt-0">
-            <w.icon aria-hidden className="mt-0.5 h-[18px] w-[18px] shrink-0 text-accent" />
-            <span className="text-[12.5px] leading-snug text-white/70"><span className="font-semibold text-white">{w.title}.</span> {w.text}</span>
+          <li key={w.title} className="flex items-start gap-3.5 rounded-2xl bg-white/[0.06] p-3.5 transition-colors duration-200 hover:bg-white/[0.1]">
+            <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent"><w.icon className="h-[18px] w-[18px]" /></span>
+            <span className="text-[13px] leading-snug text-white/70"><span className="block font-semibold text-white">{w.title}</span>{w.text}</span>
           </li>
         ))}
       </ul>
+      <p className="relative hidden items-center gap-2 text-[12px] text-white/60 md:flex">
+        <ShieldCheck aria-hidden className="h-4 w-4 shrink-0 text-accent" />Secure payment · MoMo, Airtel Money or card · Opens straight away
+      </p>
     </div>
   );
 }

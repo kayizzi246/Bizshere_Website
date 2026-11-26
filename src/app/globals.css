@@ -267,7 +267,34 @@ select {
 /* Hero search boxes: a solid 2px blue edge (the box sits inside the padding). */
 .search-glow { padding: 2px; background: #157EC2; }
 
-.onboard-pop { animation: pop 0.24s var(--ease-out) both; }
+/* Sign-up pop-up (src/components/Onboarding.tsx), premium and fast (client, 26 Nov 2026): the backdrop fades in
+   150ms, the card settles in 280ms on a quick-out curve (no bounce), and its lines follow 35ms apart, all done
+   in under half a second. On phones the sheet slides up from the bottom instead. Transform and opacity only. */
+.onboard-backdrop { animation: celebrate-fade 0.15s ease-out both; }
+.onboard-pop { animation: onboard-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (max-width: 639px) { .onboard-pop { animation-name: onboard-up; } }
+@keyframes onboard-in { from { opacity: 0; transform: translateY(14px) scale(0.965); } }
+@keyframes onboard-up { from { transform: translateY(100%); } }
+.onboard-stagger > * { animation: rise 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.onboard-stagger > *:nth-child(1) { animation-delay: 0.06s; }
+.onboard-stagger > *:nth-child(2) { animation-delay: 0.095s; }
+.onboard-stagger > *:nth-child(3) { animation-delay: 0.13s; }
+.onboard-stagger > *:nth-child(4) { animation-delay: 0.165s; }
+.onboard-stagger > *:nth-child(5) { animation-delay: 0.2s; }
+/* The left panel: deep blue running darker to the foot, a soft light from the top corner and a faint fine grid */
+.onboard-why {
+  background-color: #0B4FB0;
+  background-image:
+    radial-gradient(70% 55% at 100% 0%, rgba(93, 170, 240, 0.35) 0%, transparent 70%),
+    radial-gradient(60% 45% at 0% 100%, rgba(242, 140, 40, 0.16) 0%, transparent 70%),
+    linear-gradient(160deg, #0D5BC4 0%, #0A47A0 55%, #072F6E 100%);
+}
+.onboard-why::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(80% 70% at 100% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(80% 70% at 100% 0%, #000 0%, transparent 75%);
+}
 @keyframes pop { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
 
 /* Welcome screen after payment (src/components/Celebration.tsx): fades in, then the text rises in turn */
@@ -500,7 +527,7 @@ select {
   .marquee-dup { display: none; }
   .live-dot { animation: none; }
   .reveal-ready [data-reveal]:not([data-shown]) { opacity: 1; transform: none; }
-  .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop, .celebrate-in, .celebrate-rise, .drawer-in, .drawer-out, .drawer-fade, .drawer-fade-out, .gallery-fade, .glass-drop { animation: none; }
+  .hero-rise > *, .rise-late, .float, .float-slow, .drift, .text-gradient, .onboard-pop, .onboard-backdrop, .onboard-stagger > *, .celebrate-in, .celebrate-rise, .drawer-in, .drawer-out, .drawer-fade, .drawer-fade-out, .gallery-fade, .glass-drop { animation: none; }
 }
 
 /* A page that opens on the light background carries it up behind the header, as the navy heroes do.
@@ -910,13 +937,16 @@ main h1.text-hero.profile-title:not([data-home])[class] { font-size: 32px !impor
 /* The same on every public page (client, 26 Nov 2026: "also remove those border lines on all other pages", after the
    homepage cards lost theirs). The page is white, so a white card with no line takes the light grey page fill, and a
    box inside it goes back to white; on a grey band (.bg-page) it is the other way round. Coloured and tinted cards
-   keep their own fill. Form fields and boxes holding one, buttons, button-like links, pills and chips (rounded-full),
-   fixed-height controls and dashed drop areas keep their edges; lines between rows and sections (border-t, divide) stay. */
-main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"], [class~="border-dashed"], :has(> :is(input, select, textarea))):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { border-color: transparent !important; }
-main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"], [class~="border-dashed"], :has(> :is(input, select, textarea))):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { background-color: rgb(var(--page)); }
-main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"], [class~="border-dashed"], :has(> :is(input, select, textarea))):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { background-color: rgb(var(--surface)); }
-main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"], [class~="border-dashed"], :has(> :is(input, select, textarea))):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { background-color: rgb(var(--surface)); }
-main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"], [class~="border-dashed"], :has(> :is(input, select, textarea))):not([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"]) { background-color: rgb(var(--page)); }
+   keep their own fill. Form fields and boxes holding one, buttons, button-like links, white pills (filters: white on
+   white, they need the edge) and dashed drop areas keep their edges. Filled chips ("Price for members") and small tiles
+   lose theirs too (client, 26 Nov 2026: "on all pages please"); lines between table rows (divide, td) stay. */
+main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { border-color: transparent !important; }
+main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { background-color: rgb(var(--page)); }
+main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { background-color: rgb(var(--surface)); }
+main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { background-color: rgb(var(--surface)); }
+main:not(#admin-shell *) [class~="bg-page"] :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]):is([class~="card"], [class~="card-premium"], [class~="bg-white"], [class~="bg-surface"]):not(input, select, textarea, button, a[class~="inline-flex"], summary, label, img, [class~="input"], [class~="btn"], [class*="btn-"], [class*="rounded-full"]:is(a, button, [class~="bg-white"], [class~="bg-surface"], [class~="bg-transparent"]), [class~="border-dashed"], :has(> :is(input, select, textarea))):not(a:is([class*="h-8"], [class*="h-9"], [class*="h-10"], [class*="h-11"], [class*="h-12"])) { background-color: rgb(var(--page)); }
+/* Lines inside a card (under a photo, above a footer) go with its outline; table rows keep theirs */
+main:not(#admin-shell *) :is([class~="card"], [class~="card-premium"], [class*="rounded"][class~="border"]) > :is([class~="border-b"], [class~="border-t"]):not(tr, td, th, thead, tbody) { border-color: transparent !important; }
 #admin-shell .input { min-height: 40px; border-radius: 6px; padding-left: 12px; padding-right: 12px; }
 #admin-shell :is(input, select, textarea) { font-size: 13px; }
 @media (max-width: 767px) { #admin-shell :is(input, select, textarea) { font-size: 16px; } }

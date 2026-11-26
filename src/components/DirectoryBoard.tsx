@@ -208,7 +208,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white transition-colors hover:border-ink-muted/50">
       <div className="relative">
-        <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden border-b border-line bg-white">
+        <Link href={href} tabIndex={-1} aria-hidden className="relative block aspect-[4/3] overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
           {src ? <img src={src} alt="" loading="lazy" className={`absolute inset-0 h-full w-full transition duration-300 group-hover:scale-[1.04] ${cover ? "object-cover object-top" : "object-contain"}`} /> : (
             <span className="flex h-full w-full items-center justify-center bg-brand-tint/60 text-brand/50">{placeholder ?? <Icon name={icon} className="h-9 w-9" strokeWidth={1.5} />}</span>
