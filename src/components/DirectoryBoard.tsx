@@ -222,7 +222,8 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
-        <p data-size="" className="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-ink-muted">{meta}</p>
+        {/* The category on its own line, then the detail (client, 26 Nov 2026: the category was cut to "Fo…") */}
+        <p data-size="" className="flex min-w-0 flex-col gap-0.5 text-[11px] text-ink-muted [&>*]:truncate">{meta}</p>
         <Link href={href} className="line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
         {pills ? <ul className="flex flex-wrap gap-1">{pills}</ul> : null}
         {body}
@@ -240,8 +241,8 @@ export function ListingTile({ i, icon, variant }: { i: BrowseListing; icon: stri
   return (
     <GridFrame id={i.id} href={i.href} title={clean(i.title)} src={i.picture} icon={icon}
       meta={<>
-        <span className="truncate font-semibold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
-        {i.extra ? <><span aria-hidden>·</span><span className="truncate">{i.extra}</span></> : null}
+        <span className="text-[11.5px] font-bold text-accent-dark">{i.primaryCategory?.name ?? "General"}</span>
+        {i.extra ? <span>{i.extra}</span> : null}
       </>}
       pills={i.locked || i.price || i.country ? <>
         {i.locked ? <li className={`${gridChip} font-semibold text-ink-muted`}><LockKeyhole aria-hidden className="h-3 w-3 shrink-0" /><span className="truncate">Price for members</span></li>

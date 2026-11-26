@@ -124,8 +124,8 @@ function IdeaTile({ idea }: { idea: BrowseIdea }) {
   return (
     <GridFrame id={idea.id} href={href} title={name(idea)} src={bi?.pictureUrl} icon="idea"
       meta={<>
-        <span className="truncate font-semibold text-accent-dark">{idea.primaryCategory?.name ?? "Business idea"}</span>
-        {idea.reqs ? <><span aria-hidden>·</span><span className="shrink-0">{idea.reqs} requirement{idea.reqs === 1 ? "" : "s"}</span></> : null}
+        <span className="text-[11.5px] font-bold text-accent-dark">{idea.primaryCategory?.name ?? "Business idea"}</span>
+        {idea.reqs ? <span>{idea.reqs} requirement{idea.reqs === 1 ? "" : "s"}</span> : null}
       </>}
       pills={<li className={`${gridChip} ${cost ? "font-semibold text-heading" : ""}`}><Wallet aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{cost ?? "Being priced"}</span></li>}
       body={idea.shortSummary ? <p data-size="" className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{idea.shortSummary}</p> : null}
