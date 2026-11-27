@@ -11,8 +11,8 @@ export type TableRow = { id: string; slug: string; href: string; name: string; p
  */
 export function DirectoryTable({ nameHeading, headings, rows, from = 1, action = "Contact" }: { /** The button on each row, opening the full page */ action?: string; nameHeading: string; headings: string[]; rows: TableRow[]; /** S/N of the first row */ from?: number }) {
   const th = "px-4 py-3 text-left text-[12px] font-semibold text-white";
-  const td = "px-4 py-3.5 align-middle text-[13px] text-ink-soft";
-  const button = "inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-accent text-[13px] font-semibold text-ink transition-colors hover:bg-[#FFA64D] hover:text-ink";
+  const td = "px-4 py-3.5 align-middle text-[12.5px] text-ink-soft";
+  const button = "inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-accent text-[12.5px] font-semibold text-ink transition-colors hover:bg-[#FFA64D] hover:text-ink";
   return (
     <>
       <div className="mx-auto hidden w-full max-w-[1040px] overflow-x-auto rounded-2xl border border-line bg-white md:block">
@@ -30,7 +30,7 @@ export function DirectoryTable({ nameHeading, headings, rows, from = 1, action =
                   <span className="flex items-center gap-3">
                     <Face r={r} />
                     {/* The link's ::after covers the row, so a tap anywhere on it opens the page */}
-                    <Link href={r.href} className="font-display text-[14px] font-bold text-heading after:absolute after:inset-0 hover:text-brand">{r.name}</Link>
+                    <Link href={r.href} className="font-display text-[13px] font-bold text-heading after:absolute after:inset-0 hover:text-brand">{r.name}</Link>
                   </span>
                 </td>
                 {headings.map((h, i) => <td key={h} className={`${td} ${i === 0 ? "font-medium text-heading" : ""}`}>{r.cells[i] || "—"}</td>)}
@@ -47,12 +47,12 @@ export function DirectoryTable({ nameHeading, headings, rows, from = 1, action =
             <span className="flex items-center gap-3">
               <Face r={r} />
               <span className="flex min-w-0 flex-1 flex-col">
-                <Link href={r.href} className="font-display text-[15px] font-bold leading-snug text-heading after:absolute after:inset-0">{r.name}</Link>
-                {r.sub ? <span className="text-[13px] text-ink-soft">{r.sub}</span> : null}
+                <Link href={r.href} className="font-display text-[14px] font-bold leading-snug text-heading after:absolute after:inset-0">{r.name}</Link>
+                {r.sub ? <span className="text-[12.5px] text-ink-soft">{r.sub}</span> : null}
               </span>
               <span className="self-start text-[12px] tabular-nums text-ink-muted">{from + n}</span>
             </span>
-            <dl className="grid grid-cols-[96px_minmax(0,1fr)] gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[13px]">
+            <dl className="grid grid-cols-[96px_minmax(0,1fr)] gap-x-3 gap-y-1.5 border-t border-line pt-3 text-[12.5px]">
               {headings.map((h, i) => r.cells[i] && r.cells[i] !== r.sub ? <Fragment key={h}><dt className="text-ink-muted">{h}</dt><dd className="text-heading">{r.cells[i]}</dd></Fragment> : null)}
             </dl>
             <Link href={r.href} aria-label={`${action} ${r.name}`} className={`${button} relative z-10 h-11 w-full`}>{action}</Link>

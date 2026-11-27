@@ -27,7 +27,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
     return (
       <>
         <div>
-          <h1 className="font-display text-[24px] font-extrabold tracking-tight text-heading">What do you want to add?</h1>
+          <h1 className="font-display text-[21px] font-extrabold tracking-tight text-heading">What do you want to add?</h1>
           <p className="text-sm text-ink-muted">Pick one. Each colour is the same as on the website.</p>
         </div>
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -40,12 +40,12 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
                 <Link href={`?type=${d.type}`} className="group flex flex-1 items-center gap-4 p-5 text-ink hover:text-ink">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105" style={{ background: s.soft, color: s.colour }}><Icon name={iconOf(d.type)} className="h-6 w-6" /></span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="font-display text-[16px] font-extrabold text-heading">{s.name}</span>
-                    <span className="text-[13px] leading-snug text-ink-muted">{s.what}</span>
+                    <span className="font-display text-[15px] font-extrabold text-heading">{s.name}</span>
+                    <span className="text-[12.5px] leading-snug text-ink-muted">{s.what}</span>
                   </span>
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform group-hover:scale-110" style={{ background: s.colour }} aria-hidden><Icon name="plus" className="h-4 w-4" /></span>
                 </Link>
-                <Link href={`/admin/content?type=${d.type}`} className="flex items-center justify-between border-t border-line px-5 py-2.5 text-[13px] font-semibold text-ink-soft hover:bg-page hover:text-heading">
+                <Link href={`/admin/content?type=${d.type}`} className="flex items-center justify-between border-t border-line px-5 py-2.5 text-[12.5px] font-semibold text-ink-soft hover:bg-page hover:text-heading">
                   <span>{live} live{drafts ? ` · ${drafts} not live yet` : ""}</span>
                   <span style={{ color: s.colour }}>Manage →</span>
                 </Link>
@@ -62,7 +62,7 @@ export default async function NewContentPage({ searchParams }: { searchParams: {
     <>
       <div>
         <Link href="/admin/content/new" className="text-sm">← Add something else</Link>
-        <h1 className="flex items-center gap-2.5 font-display text-[22px] font-extrabold tracking-tight text-heading">
+        <h1 className="flex items-center gap-2.5 font-display text-[19px] font-extrabold tracking-tight text-heading">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: SERVICE_STYLE[dir.type].soft, color: SERVICE_STYLE[dir.type].colour }}><Icon name={iconOf(dir.type)} className="h-5 w-5" /></span>
           New {SERVICE_STYLE[dir.type].name.toLowerCase()}
         </h1>

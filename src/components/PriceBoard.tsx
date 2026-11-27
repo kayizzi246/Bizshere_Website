@@ -74,10 +74,10 @@ export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; detai
   }, [open]);
 
   const cell = (p: BoardPrice, unit: string | null) => p.value
-    ? <span className="font-display text-[14px] font-semibold tabular-nums text-white sm:text-[15px]">{p.value}{unit ? <span className="ml-1 font-sans text-[11px] font-medium text-white/60">/{unit}</span> : null}</span>
+    ? <span className="font-display text-[13px] font-semibold tabular-nums text-white sm:text-[14px]">{p.value}{unit ? <span className="ml-1 font-sans text-[11px] font-medium text-white/60">/{unit}</span> : null}</span>
     : p.locked
       ? <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-accent"><LockKeyhole aria-hidden className="h-3 w-3" />Members</span>
-      : <span className="text-[13px] text-white/30">—</span>;
+      : <span className="text-[12.5px] text-white/30">—</span>;
 
   const change = (c: number | null) => {
     const up = (c ?? 0) > 0, down = (c ?? 0) < 0;
@@ -96,7 +96,7 @@ export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; detai
       <span className="flex min-w-0 items-center gap-2.5">
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-extrabold text-white ${r.tone}`}>{r.initial}</span>
         <span className="flex min-w-0 flex-col">
-          <span className="truncate font-display text-[14px] font-semibold sm:text-[15px]">{r.name}</span>
+          <span className="truncate font-display text-[13px] font-semibold sm:text-[14px]">{r.name}</span>
           {r.supplier.href ? (
             <a href={r.supplier.href} className="relative z-10 w-fit text-[11px] font-semibold text-accent hover:text-white">Supplier</a>
           ) : (
@@ -144,7 +144,7 @@ export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; detai
           className="fixed inset-0 z-[70] flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4">
           <div onClick={(e) => e.stopPropagation()} className="onboard-pop flex max-h-[85dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl bg-[#0A0B0D] text-white sm:rounded-3xl">
             <div className="flex items-center gap-3 border-b border-white/10 p-4">
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold ${open.tone}`}>{open.initial}</span>
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold ${open.tone}`}>{open.initial}</span>
               <span className="flex min-w-0 flex-1 flex-col">
                 <span id="price-title" className="truncate font-display text-lg font-bold">{open.name}</span>
                 <span className="text-[12px] text-white/50">{watching.has(open.id) ? "We text you when this price moves" : open.sub}</span>
@@ -166,7 +166,7 @@ export function PriceBoard({ rows, details, watched }: { rows: BoardRow[]; detai
                       {m.stale ? <span className="rounded-full bg-[#F0616D]/15 px-2 py-px text-[11px] font-semibold text-[#F0616D]">May be out of date</span> : null}
                     </span>
                   </span>
-                  <span className="shrink-0 text-right font-display text-[15px] font-semibold tabular-nums">{m.range}</span>
+                  <span className="shrink-0 text-right font-display text-[14px] font-semibold tabular-nums">{m.range}</span>
                 </li>
               ))}
               {!(details[open.id] ?? []).length ? <li className="px-3 py-8 text-center text-sm text-white/50">No published prices for this product yet.</li> : null}

@@ -50,22 +50,22 @@ export function Celebration({ until, renewed, onContinue }: { until: string | nu
         <div aria-hidden className="h-44 w-44 sm:h-52 sm:w-52">
           <Lottie animationData={badge} loop={false} autoplay={!still} initialSegment={still ? [119, 120] : undefined} />
         </div>
-        <p className="celebrate-rise mt-1 text-[13px] font-semibold uppercase tracking-[0.14em] text-accent">{renewed ? "Membership renewed" : "Payment successful"}</p>
-        <h2 id="celebrate-title" className="celebrate-rise mt-2 font-display text-[34px] font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-[42px]">
+        <p className="celebrate-rise mt-1 text-[12.5px] font-semibold uppercase tracking-[0.14em] text-accent">{renewed ? "Membership renewed" : "Payment successful"}</p>
+        <h2 id="celebrate-title" className="celebrate-rise mt-2 font-display text-[30px] font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-[37px]">
           Congratulations!<br />You&apos;re a member.
         </h2>
-        <p className="celebrate-rise mt-3 text-[15px] text-white/75">
+        <p className="celebrate-rise mt-3 text-[14px] text-white/75">
           Everything on BizSphere-Ug is open to you{untilText ? <> until <strong className="font-semibold text-white">{untilText}</strong></> : null}.
           We&apos;ll remind you by SMS or email before it renews.
         </p>
         <ul className="celebrate-rise mt-6 grid w-full grid-cols-2 gap-2 text-left">
           {UNLOCKED.map((u) => (
-            <li key={u.text} className="flex items-center gap-2 rounded-xl bg-white/[0.08] raised px-3 py-2.5 text-[13px] text-white/85">
+            <li key={u.text} className="flex items-center gap-2 rounded-xl bg-white/[0.08] raised px-3 py-2.5 text-[12.5px] text-white/85">
               <u.icon aria-hidden className="h-4 w-4 shrink-0 text-accent" /> {u.text}
             </li>
           ))}
         </ul>
-        <button ref={button} type="button" onClick={onContinue} className="celebrate-rise group mt-7 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-[16px] font-bold text-heading transition hover:bg-brand-tint">
+        <button ref={button} type="button" onClick={onContinue} className="celebrate-rise group mt-7 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-[15px] font-bold text-heading transition hover:bg-brand-tint">
           Start exploring <ArrowRight aria-hidden className="h-4 w-4 transition group-hover:translate-x-0.5" />
         </button>
       </div>

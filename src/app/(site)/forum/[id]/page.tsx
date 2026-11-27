@@ -34,8 +34,8 @@ export default async function TopicPage({ params }: { params: { id: string } }) 
       <div className="flex items-start gap-3">
         <Link href="/forum" aria-label="All topics" className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink hover:border-brand hover:text-brand"><ArrowLeft className="h-5 w-5" /></Link>
         <div className="flex min-w-0 flex-col">
-          <h1 className="font-display text-[20px] font-extrabold leading-tight text-heading sm:text-[24px]">{topic.title}</h1>
-          <span className="text-[13px] text-ink-muted">
+          <h1 className="font-display text-[18px] font-extrabold leading-tight text-heading sm:text-[21px]">{topic.title}</h1>
+          <span className="text-[12.5px] text-ink-muted">
             {[topic.category?.name ?? "General", `started by ${shortName(topic.author.name)}`].join(" · ")}
             {topic.status === "HIDDEN" ? <span className="badge-bad ml-2">Hidden from the website</span> : null}
           </span>

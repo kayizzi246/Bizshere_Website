@@ -176,7 +176,7 @@ function Lightbox({ slide, index, count, onStep, onClose }: { slide: GalleryImag
   return (
     <div role="dialog" aria-modal="true" aria-label="Photo" className="fixed inset-0 z-[85] flex flex-col bg-black/95 text-white">
       <div className="flex items-center justify-between gap-3 px-4 py-3">
-        <span className="text-[13px] text-white/70">{count > 1 ? `${index + 1} / ${count}` : ""}</span>
+        <span className="text-[12.5px] text-white/70">{count > 1 ? `${index + 1} / ${count}` : ""}</span>
         <button type="button" onClick={onClose} aria-label="Close" autoFocus className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"><X aria-hidden className="h-5 w-5" /></button>
       </div>
       <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-16">
@@ -190,7 +190,7 @@ function Lightbox({ slide, index, count, onStep, onClose }: { slide: GalleryImag
         ) : null}
       </div>
       <div className="flex flex-col items-center gap-1 px-4 py-4 text-center">
-        {slide.label ? (slide.href ? <Link href={slide.href} onClick={onClose} className="text-[14px] font-bold text-white hover:text-accent">{slide.label} →</Link> : <span className="text-[14px] font-bold">{slide.label}</span>) : null}
+        {slide.label ? (slide.href ? <Link href={slide.href} onClick={onClose} className="text-[13px] font-bold text-white hover:text-accent">{slide.label} →</Link> : <span className="text-[13px] font-bold">{slide.label}</span>) : null}
         {slide.credit ? <span className="text-[11px] text-white/60">{slide.credit}</span> : null}
       </div>
     </div>

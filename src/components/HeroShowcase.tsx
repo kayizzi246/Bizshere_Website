@@ -35,7 +35,7 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
         <div className="shrink-0 rounded-xl bg-[#081A3C]/80 raised p-4">
           <div className="flex items-start justify-between gap-3 pb-2">
             <span className="flex flex-col leading-tight">
-              <span className="font-display text-[14px] font-extrabold">Market prices</span>
+              <span className="font-display text-[13px] font-extrabold">Market prices</span>
               <span className="text-[11px] text-white/60">Wholesale{updated ? ` · updated ${updated}` : ""}</span>
             </span>
             <Link href="/prices" className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-accent hover:text-white">See all<ChevronRight aria-hidden className="h-3.5 w-3.5" /></Link>
@@ -44,7 +44,7 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
             {prices.slice(0, 3).map((p) => {
               const up = (p.change ?? 0) >= 0.05, down = (p.change ?? 0) <= -0.05;
               return (
-                <li key={p.id} className="flex items-center gap-3 py-2 text-[13px] last:pb-0">
+                <li key={p.id} className="flex items-center gap-3 py-2 text-[12.5px] last:pb-0">
                   <span className="min-w-0 flex-1 truncate">{p.name}</span>
                   {up || down ? (
                     <span className={`inline-flex shrink-0 items-center gap-1 text-[11px] tabular-nums ${up ? "text-[#3DD68C]" : "text-[#FF8A8A]"}`}>
@@ -60,7 +60,7 @@ export function HeroShowcase({ prices, updated, rows }: { prices: ShowcasePrice[
         </div>
       ) : (
         <div className="shrink-0 rounded-xl bg-[#081A3C]/80 raised p-4">
-          <p data-size="" className="pb-3 font-display text-[14px] font-extrabold">From idea to business</p>
+          <p data-size="" className="pb-3 font-display text-[13px] font-extrabold">From idea to business</p>
           <ol className="grid grid-cols-4 gap-2 text-center text-[11px]">
             {([["/business-ideas", "idea", "Idea"], ["/machines", "machine", "Machine"], ["/suppliers", "supplier", "Supplier"], ["/funding", "funding", "Funding"]] as const).map(([href, icon, text], i) => (
               <li key={href}>

@@ -207,7 +207,7 @@ export function ListingBrowser({ items: all, path, icon, title, intro, unit, tab
  */
 function LoadMore({ remaining, step, unit, lockedAt, onMore }: { lockedAt: string | null; remaining: number; step: number; unit: readonly [string, string] | string[]; onMore: () => void }) {
   const next = Math.min(step, remaining);
-  const look = "inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page";
+  const look = "inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-6 font-display text-[13px] font-bold text-heading transition-colors hover:bg-page";
   return (
     <div className="flex flex-col items-center gap-2 py-2">
       {lockedAt ? (

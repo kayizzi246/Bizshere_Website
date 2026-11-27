@@ -2,7 +2,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { HeaderAutoHide } from "@/components/HeaderAutoHide";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollEffects } from "@/components/ScrollEffects";
-import { SmoothScroll } from "@/components/SmoothScroll";
 import { NavProgress } from "@/components/NavProgress";
 import { OnboardingGate } from "@/components/Onboarding";
 import { CookieNotice } from "@/components/CookieNotice";
@@ -46,7 +45,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SiteHeader />
         <HeaderAutoHide />
         <ScrollEffects />
-        <SmoothScroll />
         <main className="flex-1">{children}</main>
         <SiteFooter />
         {/* All services, bottom left on every screen (client, 24 Nov 2026; taken off on 18 Nov) */}

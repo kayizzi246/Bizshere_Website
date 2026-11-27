@@ -82,8 +82,8 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
     );
   }
 
-  const input = "input min-h-[44px] w-full text-[14px]";
-  const label = "flex flex-col gap-1 text-[13px] font-semibold text-ink-soft";
+  const input = "input min-h-[44px] w-full text-[13px]";
+  const label = "flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft";
   const count = (st: string) => expert.projects.filter((p) => p.status === st).length;
   const statusOf = (s: string) => STATUS[(s in STATUS ? s : "IN_REVIEW") as keyof typeof STATUS];
 
@@ -99,7 +99,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
 
       <div className="container-site flex flex-col gap-6 pad-body sm:gap-7">
         <DashNotice ok={searchParams.saved ? NOTICE[searchParams.saved] : undefined} bad={searchParams.error ? ERROR[searchParams.error] : undefined} />
-        {expert.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[15px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your services and jobs now, and use &quot;See my page&quot; to see how it will look.</p> : null}
+        {expert.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[14px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your services and jobs now, and use &quot;See my page&quot; to see how it will look.</p> : null}
         <DashSteps steps={[["Say what you offer", "List your services and what each costs."], ["Show a job you did", "A photo and a few words. We check it first."], ["Clients find you", "They read your page and call or WhatsApp you."]]} />
 
         <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
@@ -109,23 +109,23 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
               {expert.services.length ? (
                 <ul className="flex flex-col gap-2">
                   {expert.services.map((s) => (
-                    <li key={s.id} className="flex items-center gap-3 rounded-2xl border border-line px-4 py-3 text-[14px]">
-                      <span className="flex min-w-0 flex-1 flex-col"><span className="font-display font-bold text-heading">{s.name}</span><span className="text-[13px] text-ink-soft">{[s.description ?? s.remark, s.duration, s.price].filter(Boolean).join(" · ") || "No details given"}</span></span>
+                    <li key={s.id} className="flex items-center gap-3 rounded-2xl border border-line px-4 py-3 text-[13px]">
+                      <span className="flex min-w-0 flex-1 flex-col"><span className="font-display font-bold text-heading">{s.name}</span><span className="text-[12.5px] text-ink-soft">{[s.description ?? s.remark, s.duration, s.price].filter(Boolean).join(" · ") || "No details given"}</span></span>
                       <form action={deleteService}><input type="hidden" name="id" value={s.id} /><button aria-label={`Remove ${s.name}`} className="flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-bad-bg hover:text-bad-fg"><Trash2 aria-hidden className="h-4 w-4" /></button></form>
                     </li>
                   ))}
                 </ul>
-              ) : <p className="rounded-2xl bg-page p-5 text-center text-[14px] text-ink-muted">No services yet. Add the first one below.</p>}
+              ) : <p className="rounded-2xl bg-page p-5 text-center text-[13px] text-ink-muted">No services yet. Add the first one below.</p>}
               <form key={expert.services.length} action={addService} className="grid gap-3 rounded-2xl bg-page p-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
                 <label className={`${label} sm:col-span-2`}>Service name<input name="name" required minLength={2} maxLength={160} placeholder="e.g. Filing tax returns" className={`${input} min-h-[48px]`} /></label>
-                <label className={`${label} sm:col-span-2`}>Description (optional)<textarea name="description" maxLength={1000} rows={2} placeholder="e.g. Hands-on training at your farm" className="input w-full py-2.5 text-[14px]" /></label>
+                <label className={`${label} sm:col-span-2`}>Description (optional)<textarea name="description" maxLength={1000} rows={2} placeholder="e.g. Hands-on training at your farm" className="input w-full py-2.5 text-[13px]" /></label>
                 <label className={label}>Duration (optional)<input name="duration" maxLength={80} placeholder="e.g. 3 days" className={`${input} min-h-[48px]`} /></label>
                 <label className={label}>Price (optional)<input name="price" maxLength={80} placeholder="e.g. UGX 200,000" className={`${input} min-h-[48px]`} /></label>
                 <div className={`${label} sm:col-span-2`}>Picture (optional)
                   <UploadButton target="imageUrl" kind="image" />
-                  <input name="imageUrl" placeholder="Filled in after you upload" aria-label="Picture address" className={`${input} text-[13px] text-ink-muted`} />
+                  <input name="imageUrl" placeholder="Filled in after you upload" aria-label="Picture address" className={`${input} text-[12.5px] text-ink-muted`} />
                 </div>
-                <button className="btn-primary min-h-[48px] px-6 text-[15px] sm:col-span-2 sm:w-fit"><Plus aria-hidden className="h-4 w-4" />Add this service</button>
+                <button className="btn-primary min-h-[48px] px-6 text-[14px] sm:col-span-2 sm:w-fit"><Plus aria-hidden className="h-4 w-4" />Add this service</button>
               </form>
             </DashCard>
 
@@ -134,7 +134,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
             </DashCard>
 
             <DashCard Icon={FileText} title={`Jobs done (${expert.projects.length})`} note={expert.projects.length ? "Tap Change to edit one. A changed job is checked again." : undefined}>
-              {expert.projects.length === 0 ? <p className="rounded-2xl bg-page p-6 text-center text-[14px] text-ink-muted">No jobs yet. Add your first one above.</p> : (
+              {expert.projects.length === 0 ? <p className="rounded-2xl bg-page p-6 text-center text-[13px] text-ink-muted">No jobs yet. Add your first one above.</p> : (
                 <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {expert.projects.map((w) => {
                     const st = statusOf(w.status);
@@ -146,14 +146,14 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
                           <span className={`absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${st.cls}`}><st.Icon aria-hidden className="h-3 w-3" />{st.label}</span>
                         </div>
                         <div className="flex flex-1 flex-col gap-2 p-4">
-                          <span className="line-clamp-2 font-display text-[15px] font-bold text-heading">{w.title}</span>
+                          <span className="line-clamp-2 font-display text-[14px] font-bold text-heading">{w.title}</span>
                           {w.clientName || w.year ? <span className="text-[12px] text-ink-muted">{[w.clientName, w.year].filter(Boolean).join(" · ")}</span> : null}
                           <span className="flex flex-wrap gap-3 text-[12px] font-semibold">
                             {w.fileUrl ? <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1"><FileText aria-hidden className="h-3.5 w-3.5" />File</a> : null}
                             {w.linkUrl ? <a href={w.linkUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1"><Link2 aria-hidden className="h-3.5 w-3.5" />Link</a> : null}
                           </span>
                           <details className="mt-auto [&>summary::-webkit-details-marker]:hidden">
-                            <summary className="inline-flex h-10 cursor-pointer list-none items-center rounded-full border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand">Change</summary>
+                            <summary className="inline-flex h-10 cursor-pointer list-none items-center rounded-full border border-line px-4 text-[12.5px] font-semibold text-heading hover:border-brand hover:text-brand">Change</summary>
                             <WorkForm work={w} input={input} label={label} />
                           </details>
                           <form action={deleteWork}>
@@ -176,7 +176,7 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
                 <div className="flex flex-col gap-2">
                   <span className={label}>My photo or logo</span>
                   <UploadButton target="photoUrl" kind="image" />
-                  <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
+                  <input name="photoUrl" defaultValue={expert.photoUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[12.5px] text-ink-muted`} />
                 </div>
                 <label className={label}>What you do (your title)<input name="professionalTitle" defaultValue={expert.professionalTitle ?? ""} placeholder="e.g. Tax consultant" className={input} /></label>
                 <label className={label}>Category<select name="category" defaultValue={expert.contentItem.primaryCategoryId ?? ""} className={input}><option value="">Choose…</option>{categories.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
@@ -191,19 +191,19 @@ export default async function ExpertPortal({ searchParams }: { searchParams: { s
                 </div>
                 <label className={label}>Website (if you have one)<input name="website" type="url" defaultValue={expert.website ?? ""} placeholder="https://" className={input} /></label>
                 <details className="rounded-xl bg-page p-3 [&>summary::-webkit-details-marker]:hidden" open={Boolean(expert.profileUrl)}>
-                  <summary className="cursor-pointer list-none text-[14px] font-semibold text-brand">+ Add my CV or company profile (optional)</summary>
+                  <summary className="cursor-pointer list-none text-[13px] font-semibold text-brand">+ Add my CV or company profile (optional)</summary>
                   <div className="mt-3 flex flex-col gap-2">
                     <UploadButton target="profileUrl" kind="file" />
-                    <input name="profileUrl" defaultValue={expert.profileUrl ?? ""} placeholder="Filled in after you upload" aria-label="Profile file address" className={`${input} text-[13px] text-ink-muted`} />
+                    <input name="profileUrl" defaultValue={expert.profileUrl ?? ""} placeholder="Filled in after you upload" aria-label="Profile file address" className={`${input} text-[12.5px] text-ink-muted`} />
                     <span className="text-xs text-ink-muted">Members can read and download it.</span>
                   </div>
                 </details>
-                <button className="btn-primary min-h-[48px] w-full px-5 text-[15px]">Save my details</button>
+                <button className="btn-primary min-h-[48px] w-full px-5 text-[14px]">Save my details</button>
               </form>
             </DashCard>
 
             <details className="rounded-3xl border border-line bg-white p-5 [&>summary::-webkit-details-marker]:hidden">
-              <summary className="flex cursor-pointer list-none items-center gap-3 font-display text-[16px] font-bold text-heading"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-page text-ink-soft"><KeyRound aria-hidden className="h-5 w-5" /></span>Change my PIN</summary>
+              <summary className="flex cursor-pointer list-none items-center gap-3 font-display text-[15px] font-bold text-heading"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-page text-ink-soft"><KeyRound aria-hidden className="h-5 w-5" /></span>Change my PIN</summary>
               <form action={changeMyPin} className="mt-4 flex flex-col gap-3">
                 <input type="hidden" name="back" value="/expert" />
                 <label className={label}>New 4-digit PIN<input name="password" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
@@ -223,9 +223,9 @@ function WorkForm({ work, input, label }: {
   input: string;
   label: string;
 }) {
-  const step = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[13px] font-bold text-white";
-  const question = "flex items-center gap-2 font-display text-[15px] font-bold text-heading";
-  const big = `${input} min-h-[52px] text-[16px]`;
+  const step = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[12.5px] font-bold text-white";
+  const question = "flex items-center gap-2 font-display text-[14px] font-bold text-heading";
+  const big = `${input} min-h-[52px] text-[15px]`;
   const more = Boolean(work && (work.clientName || work.year || work.outcome || work.fileUrl || work.linkUrl));
   return (
     <form action={saveWork} className="mt-3 flex flex-col gap-5">
@@ -235,29 +235,29 @@ function WorkForm({ work, input, label }: {
         <input name="title" required defaultValue={work?.title} placeholder="e.g. Business plan for a poultry farm" className={big} />
       </label>
       <div className="flex flex-col gap-2">
-        <span className={question}><span className={step}>2</span>Add a photo <span className="font-sans text-[13px] font-normal text-ink-muted">(optional)</span></span>
+        <span className={question}><span className={step}>2</span>Add a photo <span className="font-sans text-[12.5px] font-normal text-ink-muted">(optional)</span></span>
         <UploadButton target="imageUrl" kind="image" />
-        <input name="imageUrl" defaultValue={work?.imageUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
+        <input name="imageUrl" defaultValue={work?.imageUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[12.5px] text-ink-muted`} />
       </div>
       <label className="flex flex-col gap-2">
-        <span className={question}><span className={step}>3</span>What did you do? <span className="font-sans text-[13px] font-normal text-ink-muted">(a few words)</span></span>
-        <textarea name="summary" rows={3} defaultValue={work?.summary ?? ""} placeholder="e.g. Wrote the plan and the budget, and helped them apply for a loan" className="input w-full py-3 text-[15px]" />
+        <span className={question}><span className={step}>3</span>What did you do? <span className="font-sans text-[12.5px] font-normal text-ink-muted">(a few words)</span></span>
+        <textarea name="summary" rows={3} defaultValue={work?.summary ?? ""} placeholder="e.g. Wrote the plan and the budget, and helped them apply for a loan" className="input w-full py-3 text-[14px]" />
       </label>
       <details open={more} className="rounded-xl bg-page p-3 [&>summary::-webkit-details-marker]:hidden">
-        <summary className="cursor-pointer list-none text-[14px] font-semibold text-brand">+ More details (optional): client, year, result, a file or a link</summary>
+        <summary className="cursor-pointer list-none text-[13px] font-semibold text-brand">+ More details (optional): client, year, result, a file or a link</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className={label}>Who was it for?<input name="clientName" defaultValue={work?.clientName ?? ""} className={input} /></label>
           <label className={label}>Which year?<input name="year" inputMode="numeric" maxLength={4} defaultValue={work?.year ?? ""} placeholder="e.g. 2026" className={input} /></label>
           <label className={`${label} sm:col-span-2`}>What was the result?<input name="outcome" defaultValue={work?.outcome ?? ""} placeholder="e.g. Loan of UGX 40m approved" className={input} /></label>
           <div className={`${label} sm:col-span-2`}>A file (PDF or document)
             <UploadButton target="fileUrl" kind="file" />
-            <input name="fileUrl" defaultValue={work?.fileUrl ?? ""} placeholder="Filled in after you upload" aria-label="File address" className={`${input} text-[13px] font-normal text-ink-muted`} />
+            <input name="fileUrl" defaultValue={work?.fileUrl ?? ""} placeholder="Filled in after you upload" aria-label="File address" className={`${input} text-[12.5px] font-normal text-ink-muted`} />
           </div>
           <label className={`${label} sm:col-span-2`}>A link (website, article or video)<input name="linkUrl" type="url" defaultValue={work?.linkUrl ?? ""} placeholder="https://" className={input} /></label>
         </div>
       </details>
       <div className="flex flex-col gap-1.5">
-        <button className="btn-primary min-h-[52px] w-full px-6 text-[16px] sm:w-fit">{work ? "Save changes" : "Add this job"}</button>
+        <button className="btn-primary min-h-[52px] w-full px-6 text-[15px] sm:w-fit">{work ? "Save changes" : "Add this job"}</button>
         <span className="text-[12px] text-ink-muted">Our team checks it, then it shows on your page.</span>
       </div>
     </form>

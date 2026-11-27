@@ -83,33 +83,33 @@ export function PinLogin({ kind, portal, callPhone, account }: {
   ) : (
     <a href="/contact" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the team</a>
   );
-  const pinInput = "input min-h-[46px] w-full pl-9 text-[18px] tracking-[0.5em]";
+  const pinInput = "input min-h-[46px] w-full pl-9 text-[17px] tracking-[0.5em]";
   const sentTo = account ? (account.phoneHint ?? "your phone") : phone;
 
   return (
     // Shown inside <SplitShell> (src/components/SplitShell.tsx).
     <div className="flex w-full flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-hero text-[30px] leading-[1.1] text-heading sm:text-[36px]">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h1>
-        <p className="text-[15px] text-ink-muted">{reset ? (resent ? `New code sent to ${sentTo}. Use the newest SMS: earlier codes no longer work.` : `We sent a code by SMS to ${sentTo}.`) : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
+        <h1 className="text-hero text-[26px] leading-[1.1] text-heading sm:text-[32px]">{reset ? "Reset your PIN" : account ? `Welcome, ${account.name}` : words.title}</h1>
+        <p className="text-[14px] text-ink-muted">{reset ? (resent ? `New code sent to ${sentTo}. Use the newest SMS: earlier codes no longer work.` : `We sent a code by SMS to ${sentTo}.`) : account ? `Enter your 4-digit PIN to open your dashboard${account.phoneHint ? ` (phone ${account.phoneHint})` : ""}.` : words.intro}</p>
       </div>
 
       {reset ? (
         <form onSubmit={saveNewPin} className="flex flex-col gap-3" noValidate>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Code from the SMS
-            <input inputMode="numeric" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(digits(e.target.value, reset.length))} placeholder={"•".repeat(reset.length)} className="input min-h-[46px] w-full text-center text-[18px] tracking-[0.5em]" />
+          <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">Code from the SMS
+            <input inputMode="numeric" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(digits(e.target.value, reset.length))} placeholder={"•".repeat(reset.length)} className="input min-h-[46px] w-full text-center text-[17px] tracking-[0.5em]" />
           </label>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">New 4-digit PIN
+          <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">New 4-digit PIN
             <span className="relative"><KeyRound aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
               <input type="password" inputMode="numeric" autoComplete="new-password" required value={next} onChange={(e) => setNext(digits(e.target.value, 4))} className={pinInput} /></span>
           </label>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Repeat the new PIN
+          <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">Repeat the new PIN
             <span className="relative"><KeyRound aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
               <input type="password" inputMode="numeric" autoComplete="new-password" required value={again} onChange={(e) => setAgain(digits(e.target.value, 4))} className={pinInput} /></span>
           </label>
           {error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{error}</p> : null}
-          <button disabled={busy} className="btn-primary min-h-[48px] w-full text-[15px] disabled:opacity-60">{busy ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}{busy ? "Saving…" : "Save PIN and sign in"}</button>
-          <span className="flex justify-between text-[13px]">
+          <button disabled={busy} className="btn-primary min-h-[48px] w-full text-[14px] disabled:opacity-60">{busy ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}{busy ? "Saving…" : "Save PIN and sign in"}</button>
+          <span className="flex justify-between text-[12.5px]">
             <button type="button" onClick={sendResetCode} disabled={busy} className="font-semibold text-brand">Send the code again</button>
             <button type="button" onClick={() => { setReset(null); setError(null); }} className="font-semibold text-ink-muted">Back to sign in</button>
           </span>
@@ -119,19 +119,19 @@ export function PinLogin({ kind, portal, callPhone, account }: {
           <p className="text-sm font-semibold text-accent-dark">This {account ? "account" : "number"} isn&apos;t registered as {words.who}.</p>
           <p className="text-sm text-ink-soft">{words.register}</p>
           {kind === "any" ? call : <a href={kind === "expert" ? "/experts/join" : "/suppliers/join"} className="inline-flex h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-dark hover:text-white">{kind === "expert" ? "Become an Expert" : "Become a Supplier"}</a>}
-          {account ? null : <button type="button" onClick={() => setState("idle")} className="text-left text-[13px] font-semibold text-brand">Try another number</button>}
+          {account ? null : <button type="button" onClick={() => setState("idle")} className="text-left text-[12.5px] font-semibold text-brand">Try another number</button>}
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
           {account ? null : (
-            <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Phone number
+            <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">Phone number
               <span className="relative">
                 <Smartphone aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-                <input type="tel" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setFails(0); }} placeholder="0772 123 456" className="input min-h-[46px] w-full pl-9 text-[15px]" />
+                <input type="tel" inputMode="tel" autoComplete="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setFails(0); }} placeholder="0772 123 456" className="input min-h-[46px] w-full pl-9 text-[14px]" />
               </span>
             </label>
           )}
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">4-digit PIN
+          <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">4-digit PIN
             <span className="relative">
               <LockKeyhole aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
               <input type="password" inputMode="numeric" autoComplete="current-password" autoFocus={Boolean(account)} required value={pinValue} onChange={(e) => setPin(digits(e.target.value, 4))} placeholder="••••" className={pinInput} />
@@ -141,13 +141,13 @@ export function PinLogin({ kind, portal, callPhone, account }: {
           {state === "wrong" ? <p role="alert" className="text-sm font-semibold text-bad-fg">Wrong PIN{fails < RESET_AFTER ? ` (${RESET_AFTER - fails} ${RESET_AFTER - fails === 1 ? "try" : "tries"} before you can reset it)` : ""}.</p> : null}
           {state === "no-password" ? <p role="alert" className="text-sm font-semibold text-bad-fg">Your PIN isn&apos;t set up yet. Reset it below, or call us.</p> : null}
           {error ? <p role="alert" className="text-sm font-semibold text-bad-fg">{error}</p> : null}
-          <button disabled={busy || pinValue.length !== 4} className="btn-primary min-h-[48px] w-full text-[15px] disabled:opacity-60">{busy ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}{busy ? "Signing in…" : "Sign in"}</button>
+          <button disabled={busy || pinValue.length !== 4} className="btn-primary min-h-[48px] w-full text-[14px] disabled:opacity-60">{busy ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}{busy ? "Signing in…" : "Sign in"}</button>
           {fails >= RESET_AFTER || state === "no-password" ? (
-            <button type="button" onClick={sendResetCode} disabled={busy} className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-tint text-[15px] font-bold text-accent-dark hover:bg-accent hover:text-ink disabled:opacity-60">
+            <button type="button" onClick={sendResetCode} disabled={busy} className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl border-2 border-accent bg-accent-tint text-[14px] font-bold text-accent-dark hover:bg-accent hover:text-ink disabled:opacity-60">
               <KeyRound aria-hidden className="h-4 w-4" />Reset PIN by SMS
             </button>
           ) : null}
-          <p className="text-center text-[13px] text-ink-muted">Not registered as {words.who}? {callPhone ? <a href={`tel:${callPhone.replace(/\s/g, "")}`} className="font-semibold">Call {callPhone}</a> : <a href="/contact" className="font-semibold">Contact us</a>} to register.</p>
+          <p className="text-center text-[12.5px] text-ink-muted">Not registered as {words.who}? {callPhone ? <a href={`tel:${callPhone.replace(/\s/g, "")}`} className="font-semibold">Call {callPhone}</a> : <a href="/contact" className="font-semibold">Contact us</a>} to register.</p>
         </form>
       )}
     </div>

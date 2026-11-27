@@ -52,7 +52,7 @@ export async function ChildTableEditor({ contentItemId, type, only, except, edit
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="flex flex-col gap-0.5">
               <h2 className="text-base font-extrabold text-heading">{table.label}</h2>
-              <p className="text-[13px] text-ink-muted">{table.intro ?? (table.adminOnly ? "Not shown on the public page." : "Shown on the public page.")}</p>
+              <p className="text-[12.5px] text-ink-muted">{table.intro ?? (table.adminOnly ? "Not shown on the public page." : "Shown on the public page.")}</p>
             </div>
             {rows ? <span className="text-xs text-ink-muted">{rows.length} {rows.length === 1 ? table.item : `${table.item}s`}</span> : null}
           </div>
@@ -117,7 +117,7 @@ function ProductSection({ table, p, contentItemId, rows, options, editRow, note 
     <>
       {rows.length ? (
         <ProductTable rows={rows as unknown as ProductRow[]} statusLabels={PRODUCT_STATUS} actions={(r) => (
-          <Link href={`/admin/content/${contentItemId}?product=${r.id}#t-listings`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">Edit</Link>
+          <Link href={`/admin/content/${contentItemId}?product=${r.id}#t-listings`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[12.5px] font-semibold text-ink hover:border-brand hover:text-brand">Edit</Link>
         )} />
       ) : <p className="text-sm text-ink-muted">No products yet. Add the first one below.</p>}
       {note}
@@ -179,7 +179,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
   const help = f.help ? <span className="text-xs font-normal text-ink-muted">{f.help}</span> : null;
   if (f.kind === "textarea" || f.kind === "json") {
     return (
-      <label className="label flex-[1_1_100%] text-[13px]">{label}
+      <label className="label flex-[1_1_100%] text-[12.5px]">{label}
         <textarea name={name} defaultValue={value} rows={f.kind === "json" ? 3 : 3} className={`input py-2 text-sm ${f.kind === "json" ? "font-mono" : ""}`} />{help}
       </label>
     );
@@ -191,7 +191,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
   if (f.upload) {
     return (
       <div className="flex min-w-0 flex-[1_1_100%] flex-col gap-2">
-        <label className="label min-w-0 text-[13px]">{label}
+        <label className="label min-w-0 text-[12.5px]">{label}
           <input name={name} defaultValue={value} type="text" pattern="(https?://|/).*" title="Use the Upload button, or a link starting with https://" className="input min-h-[44px] w-full min-w-0 text-sm" placeholder="Paste a link, or upload below" />
         </label>
         <UploadButton target={name} kind={f.upload} />
@@ -199,7 +199,7 @@ function Input({ f, value, options }: { f: ChildField; value: string; options?: 
     );
   }
   return (
-    <label className="label min-w-0 flex-[1_1_200px] text-[13px]">{label}
+    <label className="label min-w-0 flex-[1_1_200px] text-[12.5px]">{label}
       {choices ? (
         <select name={name} defaultValue={value} className="input min-h-[44px] w-full min-w-0 text-sm">{choices.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>
       ) : (

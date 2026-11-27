@@ -11,7 +11,7 @@ import { WishlistButton } from "./Wishlist";
 
 export function Crumbs({ trail, title }: { trail: [string, string][]; title: string }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted">
+    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[12.5px] text-ink-muted">
       <Link href="/" className="text-ink-muted hover:text-brand">Home</Link>
       {trail.map(([href, label]) => <span key={href} className="flex items-center gap-1.5"><span aria-hidden className="text-line-strong">/</span><Link href={href} className="text-ink-muted hover:text-brand">{label}</Link></span>)}
       <span aria-hidden className="text-line-strong">/</span><span className="max-w-[40ch] truncate text-ink">{title}</span>
@@ -59,7 +59,7 @@ export function Rows({ rows }: { rows: [string, React.ReactNode][] }) {
   return (
     <div>
       {shown.map(([k, v]) => (
-        <div key={k} className="flex flex-wrap justify-between gap-x-6 gap-y-1 border-b border-line py-3 text-[15px] last:border-0">
+        <div key={k} className="flex flex-wrap justify-between gap-x-6 gap-y-1 border-b border-line py-3 text-[14px] last:border-0">
           <span className="text-ink-muted">{k}</span>
           <span className="max-w-[60%] text-right font-semibold">{v}</span>
         </div>
@@ -97,7 +97,7 @@ export async function Evidence({ contentItemId, nextReviewDueAt, viewer, back, e
       {extra}
       {sources.length || nextReviewDueAt ? (
         <details className="group rounded-xl bg-page px-4 py-3 [&_summary::-webkit-details-marker]:hidden">
-          <summary className="flex min-h-[32px] cursor-pointer list-none items-center justify-between gap-2 text-[13px] font-semibold text-ink-soft">
+          <summary className="flex min-h-[32px] cursor-pointer list-none items-center justify-between gap-2 text-[12.5px] font-semibold text-ink-soft">
             {sources.length ? `Where this comes from (${sources.length})` : "Check dates"}
             <span aria-hidden className="transition-transform group-open:rotate-180">↓</span>
           </summary>
@@ -144,10 +144,10 @@ export async function Connected({ contentItemId, title = "Connected resources", 
   return (
     <section className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-4 sm:p-5">
       <h2 className="w-fit mb-1 font-display text-sm font-extrabold text-heading">{title}</h2>
-      {items.length === 0 ? <p className="text-[13px] text-ink-muted">Linked resources coming soon.</p> : null}
+      {items.length === 0 ? <p className="text-[12.5px] text-ink-muted">Linked resources coming soon.</p> : null}
       {items.map((i) => (
         <Link key={i.id} href={itemHref(i)} className="group -mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-ink hover:bg-page hover:text-ink">
-          <span className="flex min-w-0 flex-col"><span className="truncate text-[13px] font-semibold group-hover:text-brand">{i.title}</span><span className="text-[11px] text-ink-muted">{contentTypeLabel[i.contentType]}</span></span>
+          <span className="flex min-w-0 flex-col"><span className="truncate text-[12.5px] font-semibold group-hover:text-brand">{i.title}</span><span className="text-[11px] text-ink-muted">{contentTypeLabel[i.contentType]}</span></span>
           <span aria-hidden className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand">→</span>
         </Link>
       ))}

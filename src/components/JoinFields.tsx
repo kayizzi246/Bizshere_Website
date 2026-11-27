@@ -10,12 +10,12 @@ import { Icon } from "./Icon";
  * tick once what is typed is enough. They submit under the same names as plain inputs.
  */
 const box = "group relative flex items-center rounded-xl border border-line bg-page transition-[border-color,background-color,box-shadow] duration-200 hover:border-brand/50 focus-within:border-brand focus-within:bg-surface focus-within:shadow-[0_0_0_4px_rgba(9,105,218,0.12)]";
-const field = "peer h-12 w-full min-w-0 rounded-xl bg-transparent text-[15px] font-medium text-heading outline-none placeholder:font-normal placeholder:text-ink-muted";
+const field = "peer h-12 w-full min-w-0 rounded-xl bg-transparent text-[14px] font-medium text-heading outline-none placeholder:font-normal placeholder:text-ink-muted";
 const glyph = "pointer-events-none flex h-12 w-11 shrink-0 items-center justify-center text-ink-muted transition-colors group-focus-within:text-brand";
 
 function Label({ id, text, optional }: { id: string; text: string; optional?: boolean }) {
   return (
-    <label htmlFor={id} className="flex items-baseline justify-between gap-2 text-[13px] font-semibold text-heading">
+    <label htmlFor={id} className="flex items-baseline justify-between gap-2 text-[12.5px] font-semibold text-heading">
       {text}{optional ? <span className="text-[11px] font-normal text-ink-muted">Optional</span> : null}
     </label>
   );
@@ -60,7 +60,7 @@ export function JoinTags({ name, label, hint, suggestions }: { name: string; lab
       <input type="hidden" name={name} value={all.join(", ").slice(0, 600)} />
       <div className={`${box} min-h-[84px] cursor-text flex-wrap content-start gap-1.5 p-2`} onClick={() => input.current?.focus()}>
         {tags.map((t) => (
-          <span key={t} className="inline-flex max-w-full items-center gap-1 rounded-lg bg-brand-tint py-1 pl-2.5 pr-1 text-[13px] font-semibold text-brand-dark">
+          <span key={t} className="inline-flex max-w-full items-center gap-1 rounded-lg bg-brand-tint py-1 pl-2.5 pr-1 text-[12.5px] font-semibold text-brand-dark">
             <span className="truncate">{t}</span>
             <button type="button" aria-label={`Remove ${t}`} onClick={(e) => { e.stopPropagation(); setTags(tags.filter((x) => x !== t)); }} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md hover:bg-brand hover:text-white"><X aria-hidden className="h-3.5 w-3.5" /></button>
           </span>
@@ -72,7 +72,7 @@ export function JoinTags({ name, label, hint, suggestions }: { name: string; lab
             if (e.key === "Enter" && text.trim()) { e.preventDefault(); add(text); }
             else if (e.key === "Backspace" && !text && tags.length) setTags(tags.slice(0, -1));
           }}
-          className="h-8 min-w-[10rem] flex-1 bg-transparent px-1.5 text-[15px] font-medium text-heading outline-none placeholder:font-normal placeholder:text-ink-muted" />
+          className="h-8 min-w-[10rem] flex-1 bg-transparent px-1.5 text-[14px] font-medium text-heading outline-none placeholder:font-normal placeholder:text-ink-muted" />
       </div>
       {left.length ? (
         <div className="flex flex-wrap gap-1.5">

@@ -26,17 +26,17 @@ export function LeadForm({ defaults, interest = "membership", whatsapp, compact 
     return (
       <div role="status" className="flex flex-col items-start gap-3 rounded-2xl border border-line bg-white p-6">
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E6F4EC] text-[#1F7A4D]"><CheckCircle2 aria-hidden className="h-6 w-6" /></span>
-        <p className="font-display text-[18px] font-extrabold text-heading">Thank you. We&apos;ll call you shortly.</p>
-        <p className="text-[14px] text-ink-soft">Usually within the hour during working hours. If it&apos;s urgent, WhatsApp us now.</p>
-        {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[46px] items-center gap-2 rounded-xl bg-[#25D366] px-5 text-[15px] font-bold text-white hover:bg-[#1DA851] hover:text-white"><MessageCircle aria-hidden className="h-4 w-4" />WhatsApp us</a> : null}
+        <p className="font-display text-[17px] font-extrabold text-heading">Thank you. We&apos;ll call you shortly.</p>
+        <p className="text-[13px] text-ink-soft">Usually within the hour during working hours. If it&apos;s urgent, WhatsApp us now.</p>
+        {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[46px] items-center gap-2 rounded-xl bg-[#25D366] px-5 text-[14px] font-bold text-white hover:bg-[#1DA851] hover:text-white"><MessageCircle aria-hidden className="h-4 w-4" />WhatsApp us</a> : null}
       </div>
     );
   }
 
   return (
     <form action={action} className={`flex flex-col gap-3 rounded-2xl border border-line bg-white ${compact ? "p-4 sm:p-5" : "p-5 sm:p-6"}`}>
-      {!compact ? <p className="font-display text-[18px] font-extrabold text-heading">Leave your number and we&apos;ll call you</p> : null}
-      {state.error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[13px] font-semibold text-bad-fg">{state.error}</p> : null}
+      {!compact ? <p className="font-display text-[17px] font-extrabold text-heading">Leave your number and we&apos;ll call you</p> : null}
+      {state.error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[12.5px] font-semibold text-bad-fg">{state.error}</p> : null}
       <input type="hidden" name="page" value={path ?? ""} />
       {/* Robots fill every box; people never see this one */}
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
@@ -51,7 +51,7 @@ export function LeadForm({ defaults, interest = "membership", whatsapp, compact 
       <label className="label">Message (optional)<textarea name="message" rows={compact ? 2 : 3} placeholder="e.g. I want to start a bakery in Mbarara. Which machines do I need?" className={`${input("message")} py-2`} /></label>
       <div className="flex flex-wrap items-center gap-3 pt-1">
         <Submit />
-        {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[46px] items-center gap-2 rounded-xl border border-[#25D366] px-4 text-[14px] font-bold text-[#1F7A4D] hover:bg-[#25D366] hover:text-white"><MessageCircle aria-hidden className="h-4 w-4" />Or WhatsApp us</a> : null}
+        {whatsapp ? <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[46px] items-center gap-2 rounded-xl border border-[#25D366] px-4 text-[13px] font-bold text-[#1F7A4D] hover:bg-[#25D366] hover:text-white"><MessageCircle aria-hidden className="h-4 w-4" />Or WhatsApp us</a> : null}
       </div>
       <p className="text-[12px] text-ink-muted">We only use your number to call you back. No spam.</p>
     </form>
@@ -60,5 +60,5 @@ export function LeadForm({ defaults, interest = "membership", whatsapp, compact 
 
 function Submit() {
   const { pending } = useFormStatus();
-  return <button disabled={pending} className="btn-primary min-h-[46px] px-5 text-[15px]"><Send aria-hidden className="h-4 w-4" />{pending ? "Sending…" : "Call me back"}</button>;
+  return <button disabled={pending} className="btn-primary min-h-[46px] px-5 text-[14px]"><Send aria-hidden className="h-4 w-4" />{pending ? "Sending…" : "Call me back"}</button>;
 }

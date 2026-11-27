@@ -70,7 +70,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <Link href={`/admin/content?type=${item.contentType}`} className="text-sm">← {contentTypeLabel[item.contentType]} list</Link>
-          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">{item.title}</h1>
+          <h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">{item.title}</h1>
           <p className="text-sm text-ink-muted">{contentTypeLabel[item.contentType]} · {item.publicationStatus.replace("_", " ").toLowerCase()} · updated {date(item.updatedAt)}</p>
         </div>
         <div className="flex gap-2">
@@ -91,7 +91,7 @@ export default async function EditContentPage({ params, searchParams }: { params
       {item.contentType === "SUPPLIER" ? (
         <details open={Boolean(searchParams.in && searchParams.in !== "listings")} className="group/more rounded-2xl border border-line bg-surface [&>summary::-webkit-details-marker]:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 sm:px-6 sm:py-5">
-            <span className="flex flex-col gap-0.5"><span className="text-base font-extrabold text-heading">More options</span><span className="text-[13px] text-ink-muted">Catalogue download, branches, extra contacts, checks and history. You can usually leave these alone.</span></span>
+            <span className="flex flex-col gap-0.5"><span className="text-base font-extrabold text-heading">More options</span><span className="text-[12.5px] text-ink-muted">Catalogue download, branches, extra contacts, checks and history. You can usually leave these alone.</span></span>
             <span aria-hidden className="text-lg text-ink-muted transition group-open/more:rotate-90">›</span>
           </summary>
           <div className="flex flex-col gap-5 border-t border-line p-4 sm:p-6">
@@ -111,7 +111,7 @@ export default async function EditContentPage({ params, searchParams }: { params
         <section id="delete" className="flex flex-col gap-4 rounded-2xl border border-bad-fg/25 bg-surface p-6 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-extrabold text-bad-fg">Delete permanently</h2>
-            <p className="max-w-xl text-[13px] text-ink-muted">Removes this page and everything attached to it from the database: its details, offers, rounds, fees, budgets, versions, media, sources, checks, revisions and saved copies. This cannot be undone. To hide it but keep it, set the status to Archived instead.</p>
+            <p className="max-w-xl text-[12.5px] text-ink-muted">Removes this page and everything attached to it from the database: its details, offers, rounds, fees, budgets, versions, media, sources, checks, revisions and saved copies. This cannot be undone. To hide it but keep it, set the status to Archived instead.</p>
           </div>
           <form className="shrink-0">
             <input type="hidden" name="id" value={item.id} />

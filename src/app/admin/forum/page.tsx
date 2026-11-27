@@ -18,7 +18,7 @@ const STATUS: Record<string, string> = { OPEN: "badge-ok", CLOSED: "badge-muted"
 export default async function AdminForumPage({ searchParams }: { searchParams: { show?: string; done?: string } }) {
   await requireArea("community");
   const tab = TABS.find(([k]) => k === searchParams.show)?.[0] ?? "topics";
-  const button = (label: string, tone = "btn-outline") => <button className={`${tone} min-h-[36px] px-3 text-[13px]`}>{label}</button>;
+  const button = (label: string, tone = "btn-outline") => <button className={`${tone} min-h-[36px] px-3 text-[12.5px]`}>{label}</button>;
   const control = (action: (f: FormData) => Promise<void>, id: string, act: string, label: string, tone?: string) => (
     <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="act" value={act} />{button(label, tone)}</form>
   );
@@ -32,7 +32,7 @@ export default async function AdminForumPage({ searchParams }: { searchParams: {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Forum and remarks</h1>
+        <h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Forum and remarks</h1>
         <p className="text-sm text-ink-muted">Everything members write shows at once. Hide anything that shouldn&apos;t be there; it can be shown again.</p>
       </div>
       {searchParams.done ? <p role="status" className="rounded-lg bg-brand-tint px-4 py-2.5 text-sm font-semibold text-brand-dark">{searchParams.done}.</p> : null}

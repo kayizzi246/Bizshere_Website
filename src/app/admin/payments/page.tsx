@@ -40,7 +40,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Payments</h1>
+          <h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Payments</h1>
           <p className="text-sm text-ink-muted">Membership payments made on the website, newest first.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -67,10 +67,10 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
           <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-page px-4 focus-within:border-brand">
             <Icon name="search" className="h-4 w-4 shrink-0 text-ink-muted" />
             <span className="sr-only">Search payments</span>
-            <input name="q" type="search" defaultValue={searchParams.q} placeholder="Name, email, phone or reference" className="w-full min-w-0 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
+            <input name="q" type="search" defaultValue={searchParams.q} placeholder="Name, email, phone or reference" className="w-full min-w-0 bg-transparent text-[12.5px] text-ink outline-none placeholder:text-ink-muted" />
           </label>
           {searchParams.status ? <input type="hidden" name="status" value={searchParams.status} /> : null}
-          <select name="method" defaultValue={searchParams.method ?? ""} aria-label="Payment method" className="h-11 rounded-[10px] border border-line bg-surface px-4 text-[13px] text-ink">
+          <select name="method" defaultValue={searchParams.method ?? ""} aria-label="Payment method" className="h-11 rounded-[10px] border border-line bg-surface px-4 text-[12.5px] text-ink">
             <option value="">All methods</option>
             {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{METHOD_LABEL[m]}</option>)}
           </select>
@@ -81,16 +81,16 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pay
           <div className="inline-flex gap-0.5 rounded-full border border-line bg-page p-1">
             {[["", "All"], ...PAYMENT_STATUSES.map((s) => [s, STATUS_LABEL[s]])].map(([s, l]) => {
               const on = (searchParams.status ?? "") === s;
-              return <Link key={s} href={qs({ status: s || undefined })} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${on ? "bg-surface font-semibold text-heading ring-1 ring-line" : "font-medium text-ink-soft hover:text-heading"}`}>{l}</Link>;
+              return <Link key={s} href={qs({ status: s || undefined })} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] ${on ? "bg-surface font-semibold text-heading ring-1 ring-line" : "font-medium text-ink-soft hover:text-heading"}`}>{l}</Link>;
             })}
           </div>
         </div>
 
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line-strong px-6 py-12 text-center">
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line-strong px-6 py-10 text-center">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand"><Icon name="wallet" className="h-5 w-5" /></span>
             <p className="text-sm font-semibold text-heading">{filtered ? "No payments match these filters." : "No payments yet."}</p>
-            <p className="text-[13px] text-ink-muted">{filtered ? <Link href="/admin/payments">Clear filters</Link> : "Payments appear here as soon as members pay on the site."}</p>
+            <p className="text-[12.5px] text-ink-muted">{filtered ? <Link href="/admin/payments">Clear filters</Link> : "Payments appear here as soon as members pay on the site."}</p>
           </div>
         ) : (
           <>
@@ -147,10 +147,10 @@ function Stat({ label, value, sub, icon, href, warn = false }: { label: string; 
   const body = (
     <>
       <span className="flex items-center justify-between gap-2">
-        <span className="text-[13px] text-ink-muted">{label}</span>
+        <span className="text-[12.5px] text-ink-muted">{label}</span>
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${warn ? "bg-warn-bg text-warn-fg" : "bg-brand-tint text-brand"}`}><Icon name={icon} className="h-4 w-4" /></span>
       </span>
-      <span className="truncate font-display text-[24px] font-bold leading-none tracking-tight text-heading">{value}</span>
+      <span className="truncate font-display text-[21px] font-bold leading-none tracking-tight text-heading">{value}</span>
       <span className={`text-xs ${warn ? "font-semibold text-warn-fg" : "text-ink-muted"}`}>{sub}</span>
     </>
   );

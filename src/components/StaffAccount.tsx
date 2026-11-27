@@ -45,7 +45,7 @@ export function PhoneChange({ phone }: { phone: string | null }) {
         <label className="label">New phone number<input value={next} onChange={(e) => setNext(e.target.value)} disabled={sent} type="tel" autoComplete="off" placeholder="0772 123 456" className="input" /></label>
         <label className="label">Current password<input value={current} onChange={(e) => setCurrent(e.target.value)} disabled={sent} type="password" autoComplete="current-password" className="input" /></label>
       </div>
-      {sent ? <label className="label">Code sent to your new number<input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))} inputMode="numeric" autoComplete="one-time-code" autoFocus className="input text-center text-[18px] tracking-[0.4em]" /></label> : null}
+      {sent ? <label className="label">Code sent to your new number<input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))} inputMode="numeric" autoComplete="one-time-code" autoFocus className="input text-center text-[17px] tracking-[0.4em]" /></label> : null}
       {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-sm font-semibold text-bad-fg">{error}</p> : null}
       <button disabled={busy} className="btn-primary min-h-[44px] w-fit px-5 text-sm">{busy ? "Checking…" : sent ? "Confirm new number" : "Send code to new number"}</button>
     </form>

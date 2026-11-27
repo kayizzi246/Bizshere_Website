@@ -22,7 +22,7 @@ export function ContactButtons({ phone, whatsapp, email, gated, back, me = "me" 
     ...(wa ? [{ label: `WhatsApp ${me}`, Glyph: MessageCircle, tone: "bg-[#1F7A4D] text-white hover:bg-[#17603C] hover:text-white", href: `https://wa.me/${whatsappNumber(wa)}?text=${hello}`, shows: wa !== phone ? wa : null, external: true }] : []),
     ...(email ? [{ label: `Email ${me}`, Glyph: Mail, tone: "bg-accent text-ink hover:bg-accent-dark hover:text-white", href: `mailto:${email}?subject=${hello}`, shows: email }] : []),
   ];
-  if (!buttons.length) return <p className="text-[14px] text-ink-muted">No phone or email listed yet.</p>;
+  if (!buttons.length) return <p className="text-[13px] text-ink-muted">No phone or email listed yet.</p>;
 
   const button = "flex min-h-[46px] items-center gap-2.5 rounded-xl px-3.5 py-1.5 font-display transition-colors";
   return (
@@ -30,19 +30,19 @@ export function ContactButtons({ phone, whatsapp, email, gated, back, me = "me" 
       {buttons.map(({ label, Glyph, tone, href, shows, external }) => (gated ? (
         <Link key={label} href={back} data-onboard="" className={`${button} ${tone}`}>
           <Glyph aria-hidden className="h-4 w-4 shrink-0" />
-          <span className="flex-1 text-[14px] font-bold">{label}</span>
+          <span className="flex-1 text-[13px] font-bold">{label}</span>
           <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />
         </Link>
       ) : (
         <a key={label} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={`${button} ${tone}`}>
           <Glyph aria-hidden className="h-4 w-4 shrink-0" />
           <span className="flex min-w-0 flex-col leading-tight">
-            <span className="text-[14px] font-bold">{label}</span>
+            <span className="text-[13px] font-bold">{label}</span>
             {shows ? <span className="break-all text-[12px] font-medium">{shows}</span> : null}
           </span>
         </a>
       )))}
-      {gated ? <p className="text-center text-[13px] text-ink-muted">Contacts are open to members.</p> : null}
+      {gated ? <p className="text-center text-[12.5px] text-ink-muted">Contacts are open to members.</p> : null}
     </div>
   );
 }

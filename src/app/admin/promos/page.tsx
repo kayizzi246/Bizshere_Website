@@ -142,7 +142,7 @@ export default async function AdminPromosPage({ searchParams }: { searchParams: 
               <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-4">
                 <span className="flex min-w-0 flex-col gap-1">
                   <span className="flex flex-wrap items-center gap-2">
-                    <strong className="font-mono text-[15px] font-extrabold tracking-wide text-heading">{c.code}</strong>
+                    <strong className="font-mono text-[14px] font-extrabold tracking-wide text-heading">{c.code}</strong>
                     <span className={badge}>{label}</span>
                     <span className="text-sm font-semibold text-heading">{c.kind === "PERCENT" ? `${Number(c.value)}% off` : `${money(c.value, currency)} off`}</span>
                   </span>

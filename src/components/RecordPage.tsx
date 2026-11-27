@@ -160,13 +160,13 @@ export async function RecordPage({
 
               <div className="contents md:flex md:min-w-0 md:max-w-[500px] md:flex-col md:gap-5">
                 <div className="order-1 flex flex-col gap-2 md:order-none">
-                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-muted">
                     <span className="inline-flex items-center gap-1.5 font-semibold text-brand-dark"><Icon name={icon} className="h-3.5 w-3.5" />{eyebrow}</span>
                     {viewer.isMember ? <span className="inline-flex items-center gap-1 font-semibold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
                     <RememberVisit item={{ href: back, title, kind: eyebrow.split(" · ")[0], icon, picture }} />
                   </p>
-                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px] lg:text-[42px]">{name}</h1>
-                  {brief ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-soft">{brief.replace(/\s*\(Sample record\.?\)\s*$/i, "")}</p> : null}
+                  <h1 className="text-hero text-[25px] leading-[1.1] text-heading sm:text-[32px] lg:text-[37px]">{name}</h1>
+                  {brief ? <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">{brief.replace(/\s*\(Sample record\.?\)\s*$/i, "")}</p> : null}
                 </div>
 
                 {/* The price, on one white card */}
@@ -175,11 +175,11 @@ export async function RecordPage({
                     <span className="text-[12px] font-semibold text-ink-muted">Price</span>
                     {priceRow.locked ? (
                       <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span aria-hidden className="select-none font-display text-[24px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
-                        <span className="text-[13px] text-ink-muted">Shown to members</span>
+                        <span aria-hidden className="select-none font-display text-[21px] font-extrabold text-heading blur-[6px]">UGX 0,000,000</span>
+                        <span className="text-[12.5px] text-ink-muted">Shown to members</span>
                       </span>
                     ) : (
-                      <span className="text-hero text-[24px] leading-tight text-heading sm:text-[28px]">{empty(priceRow.value) ? <span className="text-[17px] font-semibold text-ink-muted [-webkit-text-stroke:0]">Price not added yet</span> : priceRow.value}</span>
+                      <span className="text-hero text-[21px] leading-tight text-heading sm:text-[25px]">{empty(priceRow.value) ? <span className="text-[16px] font-semibold text-ink-muted [-webkit-text-stroke:0]">Price not added yet</span> : priceRow.value}</span>
                     )}
                   </div>
                 ) : null}
@@ -187,23 +187,23 @@ export async function RecordPage({
                 {/* One main action; the rest quiet */}
                 <div className="order-4 flex flex-col gap-2.5 md:order-none">
                   {locked ? (
-                    <Link href={back} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+                    <Link href={back} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[15px] font-bold text-ink hover:bg-accent-dark hover:text-white">
                       <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{planInfo.daily ? `Unlock the price and sellers · ${planInfo.daily} a day` : "Unlock the price and sellers"}
                     </Link>
                   ) : hasContact || (whereRow && !empty(whereRow.value)) ? (
-                    <a href="#contact" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
+                    <a href="#contact" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
                   ) : null}
                   <div className="flex flex-wrap gap-2">
                     <div className="min-w-[160px] flex-1 sm:flex-none"><WishlistButton id={item.id} small /></div>
                     <ShareButton title={name} path={back} small />
                   </div>
-                  {locked ? <p className="text-[13px] text-ink-muted">Pay with MoMo, Airtel Money or card. The price, the sellers and their phone numbers open straight away.</p> : null}
+                  {locked ? <p className="text-[12.5px] text-ink-muted">Pay with MoMo, Airtel Money or card. The price, the sellers and their phone numbers open straight away.</p> : null}
                 </div>
 
                 {/* Where to buy: for members, the seller and their contacts; visitors were told above what opens */}
                 {!locked && (hasContact || (whereRow && !empty(whereRow.value)) || otherLinks.length || listSections.some((x) => x.table.key === "offers")) ? (
                   <section id="contact" className="order-5 flex scroll-mt-40 flex-col gap-3 border-t border-line pt-4 md:order-none">
-                    <h2 className="text-[13px] font-semibold text-ink-muted">{whereRow ? "Where to buy" : "Contact"}</h2>
+                    <h2 className="text-[12.5px] font-semibold text-ink-muted">{whereRow ? "Where to buy" : "Contact"}</h2>
                     {whereRow && !empty(whereRow.value) ? <div className="rounded-xl border border-line bg-white p-3 text-sm leading-relaxed text-heading">{whereRow.value}</div> : null}
                     {hasContact && contact !== "locked" && contact ? (
                       <div className="flex flex-col gap-2">
@@ -235,7 +235,7 @@ export async function RecordPage({
         <StickyBar label="On this page">
           <div className="container-site flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {productTabs.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[14px] font-bold text-heading transition-colors hover:bg-page group-data-[stuck]/bar:text-white group-data-[stuck]/bar:hover:bg-white/10">{label}</a>
+              <a key={id} href={`#${id}`} className="shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[13px] font-bold text-heading transition-colors hover:bg-page group-data-[stuck]/bar:text-white group-data-[stuck]/bar:hover:bg-white/10">{label}</a>
             ))}
           </div>
         </StickyBar>
@@ -254,7 +254,7 @@ export async function RecordPage({
                 {facts.length ? (
                   <dl className="overflow-hidden rounded-xl border border-line">
                     {facts.map((f, i) => (
-                      <div key={f.label} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${i % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
+                      <div key={f.label} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[12.5px] sm:text-sm ${i % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
                         <dt className="text-ink-muted">{f.label}</dt>
                         <dd className="min-w-0 break-words font-semibold text-heading">{f.locked ? unlock("Tap to see", "text-sm") : f.value}</dd>
                       </div>
@@ -286,7 +286,7 @@ export async function RecordPage({
             <ChildSections sections={sections.filter((x) => x.table.layout === "gallery")} gated={Boolean(details?.gated) && !viewer.isMember} back={back} />
 
             {/* Checks: one short line instead of a panel */}
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-muted">
               <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
             </p>
             <div id="related" className="scroll-mt-36">
@@ -301,11 +301,11 @@ export async function RecordPage({
         {contact && contact !== "locked" && contact.phone ? <StickyContact phone={contact.phone} /> : locked || hasContact || (whereRow && !empty(whereRow.value)) ? (
           <div data-sticky-bar="" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
             {locked ? (
-              <Link href={back} data-onboard="" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-center text-[15px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+              <Link href={back} data-onboard="" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-center text-[14px] font-bold text-ink hover:bg-accent-dark hover:text-white">
                 <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" /><span className="truncate">{planInfo.daily ? `Unlock the price and sellers · ${planInfo.daily} a day` : "Unlock the price and sellers"}</span>
               </Link>
             ) : (
-              <a href="#contact" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
+              <a href="#contact" className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 text-[14px] font-bold text-white hover:bg-brand-dark hover:text-white"><Phone aria-hidden className="h-4 w-4" />Contact the seller</a>
             )}
           </div>
         ) : null}
@@ -323,7 +323,7 @@ export async function RecordPage({
           <Link href={trail[0]} className="inline-flex min-h-[40px] w-fit items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white sm:hidden">
             <ArrowLeft aria-hidden className="h-4 w-4" />All {trail[1].toLowerCase()}
           </Link>
-          <nav aria-label="Breadcrumb" className="hidden flex-wrap items-center gap-1.5 text-[13px] text-white/60 sm:flex">
+          <nav aria-label="Breadcrumb" className="hidden flex-wrap items-center gap-1.5 text-[12.5px] text-white/60 sm:flex">
             <Link href="/" className="text-white/60 hover:text-white">Home</Link>
             <span aria-hidden>/</span>
             <Link href={trail[0]} className="text-white/60 hover:text-white">{trail[1]}</Link>
@@ -348,7 +348,7 @@ export async function RecordPage({
               </div>
               {locked ? (
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
+                  <Link href={back} data-onboard="" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[14px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />{unlockWhat(lockedLabels)}</Link>
                   <span className="text-center text-xs text-white/60 sm:text-left">{planInfo.monthly ? `${planInfo.monthly} a month · ` : ""}MoMo, Airtel Money or card</span>
                 </div>
               ) : null}
@@ -487,7 +487,7 @@ export async function RecordPage({
         </aside>
       </div>
         {/* What they looked at before: easy to go back to, and the site feels like theirs */}
-        <div className="container-site pb-12 sm:pb-14"><RecentStrip exclude={back} title="You looked at these recently" /></div>
+        <div className="container-site pb-10 sm:pb-10"><RecentStrip exclude={back} title="You looked at these recently" /></div>
       </div>
       {/* Phones: Call always in reach when the record has a phone (these records have no WhatsApp number) */}
       {contact && contact !== "locked" ? <StickyContact phone={contact.phone} /> : null}
@@ -511,7 +511,7 @@ function Facts({ rows, unlock }: { rows: DetailRow[]; unlock: (label?: string, c
           // Long values (addresses, lists of sellers) get the full row.
           <div key={r.label} className={`flex min-w-0 flex-col gap-1 rounded-xl bg-page p-3 ${!r.locked && typeof r.value !== "string" ? "col-span-2" : typeof r.value === "string" && r.value.length > 28 ? "col-span-2" : ""}`}>
             <dt className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{r.label}</dt>
-            <dd className="break-words text-[15px] font-bold leading-snug text-heading">
+            <dd className="break-words text-[14px] font-bold leading-snug text-heading">
               {r.locked ? unlock("Members only", "text-sm") : r.value}
             </dd>
           </div>

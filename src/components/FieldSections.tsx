@@ -54,7 +54,7 @@ export function FieldSections({ type, record, gated, skip, back, bare = false, t
     return (
       <dl className="overflow-hidden rounded-xl border border-line">
         {fields.map((f, n) => (
-          <div key={f.name} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[13px] sm:text-sm ${n % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
+          <div key={f.name} className={`grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4 px-4 py-2.5 text-[12.5px] sm:text-sm ${n % 2 ? "bg-white" : "bg-brand-tint/50"}`}>
             <dt className="text-ink-muted">{f.label}</dt>
             <dd className="min-w-0 break-words font-semibold text-heading">
               {gated && isMemberOnly(type, f) ? <Locked back={back} /> : <Value f={f} v={record[f.name]} currency={currency} />}
@@ -78,8 +78,8 @@ export function FieldSections({ type, record, gated, skip, back, bare = false, t
                 <dl className={`grid divide-y divide-line ${long.length ? "sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0" : ""}`}>
                   {short.map((f) => (
                     <div key={f.name} className={`flex items-start justify-between gap-6 py-2.5 ${long.length ? "sm:border-b sm:border-line" : ""}`}>
-                      <dt className="shrink-0 text-[13px] text-ink-muted">{f.label}</dt>
-                      <dd className="min-w-0 text-right text-[13px] font-semibold text-ink">
+                      <dt className="shrink-0 text-[12.5px] text-ink-muted">{f.label}</dt>
+                      <dd className="min-w-0 text-right text-[12.5px] font-semibold text-ink">
                         {gated && isMemberOnly(type, f) ? <Locked back={back} /> : <Value f={f} v={record[f.name]} currency={currency} />}
                       </dd>
                     </div>

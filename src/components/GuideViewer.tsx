@@ -15,8 +15,8 @@ export function GuideViewer({ file, title, locked, back }: { file: string; title
         <h2 className="inline-flex items-center gap-2 font-display text-lg font-extrabold text-heading"><FileText aria-hidden className="h-5 w-5 text-brand" />Read the guide</h2>
         {!locked ? (
           <span className="flex gap-2">
-            <PdfOpenButton file={file} download={download} title={title} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
-            <a href={download} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
+            <PdfOpenButton file={file} download={download} title={title} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[12.5px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
+            <a href={download} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[12.5px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
           </span>
         ) : null}
       </div>

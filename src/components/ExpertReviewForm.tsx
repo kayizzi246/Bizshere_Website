@@ -17,7 +17,7 @@ export function ExpertReviewForm({ consultantId, back, signedIn, status }: { con
           <input type="hidden" name="consultantId" value={consultantId} />
           <input type="hidden" name="back" value={back} />
           <fieldset className="flex flex-col gap-1.5">
-            <legend className="mb-1 text-[13px] font-semibold text-ink-soft">Your rating</legend>
+            <legend className="mb-1 text-[12.5px] font-semibold text-ink-soft">Your rating</legend>
             <div className="flex flex-wrap gap-1.5">
               {[1, 2, 3, 4, 5].map((n) => (
                 <label key={n} className="cursor-pointer">
@@ -29,8 +29,8 @@ export function ExpertReviewForm({ consultantId, back, signedIn, status }: { con
               ))}
             </div>
           </fieldset>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold text-ink-soft">Your review
-            <textarea name="body" rows={3} required minLength={10} maxLength={1000} placeholder="What did they help you with, and how did it go?" className="input w-full py-2 text-[14px]" />
+          <label className="flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft">Your review
+            <textarea name="body" rows={3} required minLength={10} maxLength={1000} placeholder="What did they help you with, and how did it go?" className="input w-full py-2 text-[13px]" />
           </label>
           <button className="btn-primary min-h-[44px] w-fit px-5 text-sm">Send review</button>
           <p className="text-[12px] text-ink-muted">Reviews are checked by our team before they show. One review per person; writing again replaces yours.</p>

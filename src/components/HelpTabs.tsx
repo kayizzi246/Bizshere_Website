@@ -66,7 +66,7 @@ export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
               style={vars(x.id)}
               /* The picked tab wears its own colour; the rest stay the quiet stone, so one tab is
                  clearly chosen and the panel below opens in the colour the pill just showed. */
-              className={`shrink-0 whitespace-nowrap rounded-full border-2 px-4 py-1.5 font-display text-[14px] font-bold transition-colors duration-200 ${on ? "border-[var(--tab-ink)] bg-[var(--tab-soft)] text-[var(--tab-ink)]" : "border-transparent bg-[#E2E0D8] text-[#0B1F33] hover:bg-[#D8D6CD]"}`}>
+              className={`shrink-0 whitespace-nowrap rounded-full border-2 px-4 py-1.5 font-display text-[13px] font-bold transition-colors duration-200 ${on ? "border-[var(--tab-ink)] bg-[var(--tab-soft)] text-[var(--tab-ink)]" : "border-transparent bg-line text-heading hover:bg-[#D8D6CD]"}`}>
               {x.label}
             </button>
           );
@@ -79,13 +79,13 @@ export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
           {t.stat ? (
             <div className="absolute left-4 top-4 z-10 flex flex-col gap-1 rounded-md bg-white p-3 sm:left-6 sm:top-6">
               <span className="text-[11px] font-semibold text-ink-muted">{t.stat.label}</span>
-              <span className="font-display text-[24px] font-extrabold leading-none text-[var(--tab-ink)]">{t.stat.value}</span>
+              <span className="font-display text-[21px] font-extrabold leading-none text-[var(--tab-ink)]">{t.stat.value}</span>
               <span aria-hidden className="mt-1 h-1.5 w-16 rounded-full bg-[var(--tab-soft)]" />
             </div>
           ) : null}
           <div className="help-rise relative z-[2] ml-auto w-full max-w-[420px] translate-y-2 overflow-hidden rounded-t-md bg-white">
             <div className="flex items-center gap-1.5 border-b border-[#EEECE6] px-3 py-2">
-              <span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" /><span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" /><span aria-hidden className="h-2 w-2 rounded-full bg-[#E2E0D8]" />
+              <span aria-hidden className="h-2 w-2 rounded-full bg-line" /><span aria-hidden className="h-2 w-2 rounded-full bg-line" /><span aria-hidden className="h-2 w-2 rounded-full bg-line" />
               <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-ink-muted"><Icon name={t.icon} className="h-3.5 w-3.5 text-[var(--tab-ink)]" />{t.window}</span>
             </div>
             <div className="p-4 sm:p-5"><Preview t={t} /></div>
@@ -94,14 +94,14 @@ export function HelpTabs({ tabs }: { tabs: HelpTab[] }) {
 
         {/* The words */}
         <div className="relative z-[2] flex flex-col gap-4 p-6 sm:p-9">
-          <h3 className="font-display text-[22px] font-extrabold leading-tight text-[#0B1F33] sm:text-[26px]">{t.title}</h3>
-          <p className="text-[15px] leading-relaxed text-ink-soft">{t.text}</p>
+          <h3 className="font-display text-[19px] font-extrabold leading-tight text-heading sm:text-[23px]">{t.title}</h3>
+          <p className="text-[14px] leading-relaxed text-ink-soft">{t.text}</p>
           {/* Like the hero buttons: solid, bold, small corners (client, 12 Nov 2026) */}
-          <Link href={t.href} className="inline-flex h-14 w-fit items-center justify-center rounded-md bg-accent px-8 font-display text-[16px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">{t.action}</Link>
+          <Link href={t.href} className="inline-flex h-14 w-fit items-center justify-center rounded-md bg-accent px-8 font-display text-[15px] font-extrabold text-ink transition-colors hover:bg-[#FFA54A] hover:text-ink">{t.action}</Link>
           <span aria-hidden className="help-rule my-2 h-px w-full" />
-          {t.stat ? <p className="font-display text-[15px] font-bold text-[var(--tab-ink)]">{t.stat.value} {t.stat.label.toLowerCase()} on BizSphere-Ug</p> : null}
+          {t.stat ? <p className="font-display text-[14px] font-bold text-[var(--tab-ink)]">{t.stat.value} {t.stat.label.toLowerCase()} on BizSphere-Ug</p> : null}
           <ul className="flex flex-col gap-2">
-            {t.points.map((p) => <li key={p} className="flex items-start gap-2 text-[14px] text-ink-soft"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--tab-ink)]" />{p}</li>)}
+            {t.points.map((p) => <li key={p} className="flex items-start gap-2 text-[13px] text-ink-soft"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--tab-ink)]" />{p}</li>)}
           </ul>
         </div>
       </div>
@@ -113,11 +113,11 @@ function Preview({ t }: { t: HelpTab }) {
   if (t.kind === "vat") {
     return (
       <div className="flex flex-col gap-3">
-        <span className="font-display text-[15px] font-extrabold text-[#0B1F33]">VAT calculator</span>
-        <dl className="flex flex-col gap-2.5 text-[13px]">
-          <div className="flex justify-between gap-3 rounded-md bg-[#F6F5F1] px-3 py-2"><dt className="text-ink-muted">Price</dt><dd className="font-semibold tabular-nums text-[#0B1F33]">UGX 1,000,000</dd></div>
-          <div className="flex justify-between gap-3 rounded-md bg-[#F6F5F1] px-3 py-2"><dt className="text-ink-muted">VAT (18%)</dt><dd className="font-semibold tabular-nums text-[#0B1F33]">UGX 180,000</dd></div>
-          <div className="flex justify-between gap-3 px-3 pt-1"><dt className="font-semibold text-[#0B1F33]">Total</dt><dd className="font-display text-[17px] font-extrabold tabular-nums text-[#1F7A4D]">UGX 1,180,000</dd></div>
+        <span className="font-display text-[14px] font-extrabold text-heading">VAT calculator</span>
+        <dl className="flex flex-col gap-2.5 text-[12.5px]">
+          <div className="flex justify-between gap-3 rounded-md bg-[#F6F5F1] px-3 py-2"><dt className="text-ink-muted">Price</dt><dd className="font-semibold tabular-nums text-heading">UGX 1,000,000</dd></div>
+          <div className="flex justify-between gap-3 rounded-md bg-[#F6F5F1] px-3 py-2"><dt className="text-ink-muted">VAT (18%)</dt><dd className="font-semibold tabular-nums text-heading">UGX 180,000</dd></div>
+          <div className="flex justify-between gap-3 px-3 pt-1"><dt className="font-semibold text-heading">Total</dt><dd className="font-display text-[16px] font-extrabold tabular-nums text-[#1F7A4D]">UGX 1,180,000</dd></div>
         </dl>
         <span className="text-[11px] text-ink-muted">Worked example</span>
       </div>
@@ -126,15 +126,15 @@ function Preview({ t }: { t: HelpTab }) {
   if (t.kind === "chips") {
     return (
       <ul className="flex flex-wrap gap-2">
-        {t.rows.map((r) => <li key={r.href + r.title}><Link href={r.href} className="inline-flex rounded-full bg-[#F1EFE9] px-3 py-1.5 text-[12px] text-[#0B1F33] hover:bg-[#0B1F33] hover:text-white">{r.title}</Link></li>)}
-        {t.more ? <li><Link href={t.more.href} data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] text-ink hover:bg-[#0B1F33] hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{t.more.label}</Link></li> : null}
+        {t.rows.map((r) => <li key={r.href + r.title}><Link href={r.href} className="inline-flex rounded-full bg-[#F1EFE9] px-3 py-1.5 text-[12px] text-heading hover:bg-navy hover:text-white">{r.title}</Link></li>)}
+        {t.more ? <li><Link href={t.more.href} data-pay="" data-next="/websites" className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] text-ink hover:bg-navy hover:text-white"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />{t.more.label}</Link></li> : null}
       </ul>
     );
   }
   if (!t.rows.length) {
     return (
       <div className="flex flex-col gap-3">
-        <Link href={t.href} className="flex items-center gap-2 rounded-full bg-[#F1EFE9] px-4 py-2.5 text-[13px] text-ink-muted hover:text-[#0B1F33]"><MessagesSquare aria-hidden className="h-4 w-4" />Ask other owners a question…</Link>
+        <Link href={t.href} className="flex items-center gap-2 rounded-full bg-[#F1EFE9] px-4 py-2.5 text-[12.5px] text-ink-muted hover:text-heading"><MessagesSquare aria-hidden className="h-4 w-4" />Ask other owners a question…</Link>
         <p className="text-[12px] text-ink-muted">Be the first to start a conversation.</p>
       </div>
     );
@@ -143,10 +143,10 @@ function Preview({ t }: { t: HelpTab }) {
     <ul className="flex flex-col divide-y divide-[#EEECE6]">
       {t.rows.map((r, n) => (
         <li key={r.href + r.title}>
-          <Link href={r.href} className="group flex items-center gap-3 py-2.5 text-[#0B1F33] hover:text-[#0B1F33]">
+          <Link href={r.href} className="group flex items-center gap-3 py-2.5 text-heading hover:text-heading">
             {t.kind === "steps" ? <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#F1EFE9] text-[12px] font-bold">{n + 1}</span> : null}
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-[13px] font-semibold group-hover:underline group-hover:underline-offset-4">{r.title}</span>
+              <span className="truncate text-[12.5px] font-semibold group-hover:underline group-hover:underline-offset-4">{r.title}</span>
               {r.sub ? <span className="truncate text-[11px] text-ink-muted">{r.sub}</span> : null}
             </span>
             {r.side ? <span className="shrink-0 text-[11px] font-semibold text-[#1F7A4D]">{r.side}</span> : <ArrowRight aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" />}

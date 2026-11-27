@@ -153,22 +153,22 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
   // The heading tick shows a dash when only some are ticked
   useEffect(() => { if (allBox.current) allBox.current.indeterminate = somePicked && !allPicked; }, [somePicked, allPicked, open]);
 
-  const box = "input min-h-[40px] w-full min-w-0 px-2.5 text-[13px]";
+  const box = "input min-h-[40px] w-full min-w-0 px-2.5 text-[12.5px]";
 
   return (
     <section id="products" className="flex scroll-mt-20 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <h2 className="text-base font-extrabold text-heading">Products</h2>
-          <p className="text-[13px] text-ink-muted">{saved.length ? `${saved.length} product${saved.length === 1 ? "" : "s"}, ${live} live on the website.` : "No products yet."} Add, edit or import them in one window.</p>
+          <p className="text-[12.5px] text-ink-muted">{saved.length ? `${saved.length} product${saved.length === 1 ? "" : "s"}, ${live} live on the website.` : "No products yet."} Add, edit or import them in one window.</p>
         </div>
         <button type="button" onClick={start} className="btn-primary min-h-[46px] px-5"><Package aria-hidden className="h-4 w-4" />Manage products</button>
       </div>
       {message && !open ? <p role={message.tone === "ok" ? "status" : "alert"} className={`rounded-xl p-3 text-sm font-semibold ${message.tone === "ok" ? "bg-brand-tint text-brand-dark" : "bg-bad-bg text-bad-fg"}`}>{message.text}</p> : null}
       {saved.length ? (
         <ul className="flex flex-wrap gap-2">
-          {saved.slice(0, 8).map((r) => <li key={r.key} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-page px-3 py-1 text-[13px] text-ink-soft">{r.productName}<span className={`${TONE[r.status]} !px-1.5 !py-0 text-[10px]`}>{STATUS_LABEL[r.status]}</span></li>)}
-          {saved.length > 8 ? <li className="self-center text-[13px] text-ink-muted">and {saved.length - 8} more</li> : null}
+          {saved.slice(0, 8).map((r) => <li key={r.key} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-page px-3 py-1 text-[12.5px] text-ink-soft">{r.productName}<span className={`${TONE[r.status]} !px-1.5 !py-0 text-[10px]`}>{STATUS_LABEL[r.status]}</span></li>)}
+          {saved.length > 8 ? <li className="self-center text-[12.5px] text-ink-muted">and {saved.length - 8} more</li> : null}
         </ul>
       ) : null}
 
@@ -178,38 +178,38 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
             {/* Header */}
             <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
               <div className="flex min-w-0 flex-col">
-                <h2 id="products-title" className="truncate font-display text-[18px] font-extrabold text-heading">Products: {supplierName}</h2>
-                <p className="text-[13px] text-ink-muted">{rows.length - removed.length} product{rows.length - removed.length === 1 ? "" : "s"}. Changes are saved when you press Save.</p>
+                <h2 id="products-title" className="truncate font-display text-[17px] font-extrabold text-heading">Products: {supplierName}</h2>
+                <p className="text-[12.5px] text-ink-muted">{rows.length - removed.length} product{rows.length - removed.length === 1 ? "" : "s"}. Changes are saved when you press Save.</p>
               </div>
               <button type="button" onClick={close} aria-label="Close" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-heading hover:bg-page"><X className="h-5 w-5" /></button>
             </div>
 
             {/* Tools */}
             <div className="flex flex-wrap items-center gap-2 border-b border-line bg-page/60 px-4 py-3 sm:px-6">
-              <button type="button" onClick={add} className="btn-primary min-h-[42px] px-4 text-[14px]"><Plus aria-hidden className="h-4 w-4" />Add product</button>
-              <button type="button" onClick={() => fileInput.current?.click()} className="btn-outline min-h-[42px] px-4 text-[14px]"><FileSpreadsheet aria-hidden className="h-4 w-4" />Import Excel or CSV</button>
-              <button type="button" onClick={template} className="min-h-[42px] px-2 text-[13px] font-semibold text-brand hover:text-brand-dark"><Download aria-hidden className="mr-1 inline h-4 w-4" />Download template</button>
+              <button type="button" onClick={add} className="btn-primary min-h-[42px] px-4 text-[13px]"><Plus aria-hidden className="h-4 w-4" />Add product</button>
+              <button type="button" onClick={() => fileInput.current?.click()} className="btn-outline min-h-[42px] px-4 text-[13px]"><FileSpreadsheet aria-hidden className="h-4 w-4" />Import Excel or CSV</button>
+              <button type="button" onClick={template} className="min-h-[42px] px-2 text-[12.5px] font-semibold text-brand hover:text-brand-dark"><Download aria-hidden className="mr-1 inline h-4 w-4" />Download template</button>
               <input ref={fileInput} type="file" accept=".xlsx,.csv,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])} />
               <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" tabIndex={-1} aria-hidden onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
               {picked.size ? (
                 <span className="flex items-center gap-1.5">
-                  <button type="button" onClick={removePicked} className="btn-danger min-h-[42px] px-4 text-[14px]"><Trash2 aria-hidden className="h-4 w-4" />Delete selected ({picked.size})</button>
-                  <button type="button" onClick={() => setPicked(new Set())} className="min-h-[42px] px-2 text-[13px] font-semibold text-ink-soft hover:text-heading">Clear</button>
+                  <button type="button" onClick={removePicked} className="btn-danger min-h-[42px] px-4 text-[13px]"><Trash2 aria-hidden className="h-4 w-4" />Delete selected ({picked.size})</button>
+                  <button type="button" onClick={() => setPicked(new Set())} className="min-h-[42px] px-2 text-[12.5px] font-semibold text-ink-soft hover:text-heading">Clear</button>
                 </span>
               ) : null}
               <label className="ml-auto flex min-w-[180px] flex-1 items-center gap-2 rounded-xl border border-line bg-surface px-3 sm:max-w-[260px] sm:flex-none">
                 <Search aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />
                 <span className="sr-only">Find a product</span>
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a product" className="min-h-[40px] w-full bg-transparent text-[14px] outline-none" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a product" className="min-h-[40px] w-full bg-transparent text-[13px] outline-none" />
               </label>
             </div>
-            {notice ? <p role="status" className="border-b border-line bg-brand-tint px-4 py-2.5 text-[13px] font-semibold text-brand-dark sm:px-6">{notice}</p> : null}
-            {message ? <p role="alert" className={`border-b border-line px-4 py-2.5 text-[13px] font-semibold sm:px-6 ${message.tone === "ok" ? "bg-brand-tint text-brand-dark" : "bg-bad-bg text-bad-fg"}`}>{message.text}</p> : null}
+            {notice ? <p role="status" className="border-b border-line bg-brand-tint px-4 py-2.5 text-[12.5px] font-semibold text-brand-dark sm:px-6">{notice}</p> : null}
+            {message ? <p role="alert" className={`border-b border-line px-4 py-2.5 text-[12.5px] font-semibold sm:px-6 ${message.tone === "ok" ? "bg-brand-tint text-brand-dark" : "bg-bad-bg text-bad-fg"}`}>{message.text}</p> : null}
 
             {/* The products */}
             <div className="flex-1 overflow-auto">
               {shown.length ? (
-                <table className="w-full min-w-[960px] border-collapse text-left text-[13px]">
+                <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
                   <thead className="sticky top-0 z-10 bg-surface text-[11px] font-semibold uppercase tracking-wider text-ink-muted shadow-[0_1px_0_rgb(0_0_0/0.08)]">
                     <tr><th className="w-10 py-2.5 pl-4"><input ref={allBox} type="checkbox" checked={allPicked} onChange={(e) => tickAll(e.target.checked)} aria-label={q ? "Select all products found" : "Select all products"} className="h-[17px] w-[17px] cursor-pointer accent-brand" /></th><th className="w-[88px] px-3 py-2.5">Photo</th><th className="px-2 py-2.5">Product name *</th><th className="w-[120px] px-2 py-2.5">Price from</th><th className="w-[120px] px-2 py-2.5">Price to</th><th className="w-[130px] px-2 py-2.5">Package unit</th><th className="w-[130px] px-2 py-2.5">Availability</th><th className="w-[120px] px-2 py-2.5">Show</th><th className="w-[96px] px-3 py-2.5"><span className="sr-only">Actions</span></th></tr>
                   </thead>
@@ -278,14 +278,14 @@ export function ProductsManager({ contentItemId, supplierName, initial }: { cont
                 <div className="flex h-full flex-col items-center justify-center gap-3 p-10 text-center">
                   <Package aria-hidden className="h-10 w-10 text-ink-muted" />
                   <p className="font-semibold text-heading">{q ? "No product matches." : "No products yet."}</p>
-                  {!q ? <p className="max-w-sm text-[13px] text-ink-muted">Press Add product, or import a whole list from Excel or CSV. Download the template to see the columns.</p> : null}
+                  {!q ? <p className="max-w-sm text-[12.5px] text-ink-muted">Press Add product, or import a whole list from Excel or CSV. Download the template to see the columns.</p> : null}
                 </div>
               )}
             </div>
 
             {/* Footer: the only way out besides Close */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3 sm:px-6">
-              <span className="text-[13px] text-ink-muted">{dirty ? "You have changes that are not saved yet." : "No changes yet."}</span>
+              <span className="text-[12.5px] text-ink-muted">{dirty ? "You have changes that are not saved yet." : "No changes yet."}</span>
               <span className="flex gap-2">
                 <button type="button" onClick={close} disabled={busy} className="btn-outline min-h-[46px] px-5">Close</button>
                 <button type="button" onClick={save} disabled={busy} className="btn-primary min-h-[46px] px-8 disabled:opacity-60">{busy ? <><Loader2 aria-hidden className="h-4 w-4 animate-spin" />Saving…</> : "Save"}</button>

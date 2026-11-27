@@ -59,7 +59,7 @@ export function BulkBar({ action, move, back, targets }: { action: (form: FormDa
       <input type="hidden" name="back" value={back} />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <span className="text-sm font-bold text-heading">{ticked} selected</span>
-        {kept ? <span className="text-[13px] text-ink-muted">{kept} in use, so {kept === 1 ? "it" : "they"} will be kept if you delete</span> : null}
+        {kept ? <span className="text-[12.5px] text-ink-muted">{kept} in use, so {kept === 1 ? "it" : "they"} will be kept if you delete</span> : null}
         <span className="ml-auto flex items-center gap-3">
           <button type="button" onClick={clear} className="text-sm font-semibold text-ink-soft hover:text-brand">Clear</button>
           {deletable ? (

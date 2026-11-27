@@ -34,7 +34,7 @@ export default async function CategoriesPage({ searchParams }: { searchParams: {
   ]);
   const countOf = (k: string) => counts.find((c) => c.kind === k)?._count._all ?? 0;
   const total = counts.reduce((n, c) => n + c._count._all, 0);
-  const tab = (active: boolean) => `rounded-full px-3 py-1.5 text-[13px] font-semibold ${active ? "bg-brand text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:border-brand hover:text-brand"}`;
+  const tab = (active: boolean) => `rounded-full px-3 py-1.5 text-[12.5px] font-semibold ${active ? "bg-brand text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:border-brand hover:text-brand"}`;
   const back = <input type="hidden" name="back" value={kind ?? ""} />;
 
   return (

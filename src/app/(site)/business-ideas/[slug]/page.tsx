@@ -161,7 +161,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
   const onward = (id: string) => {
     const n = steps.findIndex((x) => x.id === id);
     const to = steps[n + 1];
-    return to ? <a href={`#${to.id}`} className="inline-flex w-fit items-center gap-1.5 rounded-full bg-page px-4 py-2 text-[14px] font-bold text-heading hover:bg-brand-tint hover:text-brand-dark">Next: step {n + 2}, {to.title.toLowerCase()}<ArrowDown aria-hidden className="h-4 w-4" /></a> : null;
+    return to ? <a href={`#${to.id}`} className="inline-flex w-fit items-center gap-1.5 rounded-full bg-page px-4 py-2 text-[13px] font-bold text-heading hover:bg-brand-tint hover:text-brand-dark">Next: step {n + 2}, {to.title.toLowerCase()}<ArrowDown aria-hidden className="h-4 w-4" /></a> : null;
   };
 
   // The figures a visitor weighs first, beside the starting capital. Only the ones filled in.
@@ -198,27 +198,27 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
               <div className="contents md:flex md:min-w-0 md:flex-col md:gap-5">
                 <div className="order-1 flex flex-col gap-2 md:order-none">
-                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+                  <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-muted">
                     {item.primaryCategory ? <Link href={`/business-ideas?category=${item.primaryCategory.id}`} className="font-semibold text-brand-dark hover:text-brand">{item.primaryCategory.name}</Link> : null}
                     <span>Reviewed {date(item.lastReviewedAt)}</span>
                     {viewer.isMember ? <span className="inline-flex items-center gap-1 font-semibold text-accent-dark"><BadgeCheck aria-hidden className="h-3.5 w-3.5" />Full access</span> : null}
                     <RememberVisit item={{ href: path, title: name, kind: "Business idea", icon: "idea", picture: idea.pictureUrl }} />
                   </p>
-                  <h1 className="text-hero text-[28px] leading-[1.1] text-heading sm:text-[36px] lg:text-[42px]">{name} business</h1>
-                  {item.shortSummary ? <p className="max-w-2xl text-[16px] leading-relaxed text-ink-soft">{item.shortSummary.replace(/\s*\(Sample record for development\.\)\s*$/i, "")}</p> : null}
+                  <h1 className="text-hero text-[25px] leading-[1.1] text-heading sm:text-[32px] lg:text-[37px]">{name} business</h1>
+                  {item.shortSummary ? <p className="max-w-2xl text-[15px] leading-relaxed text-ink-soft">{item.shortSummary.replace(/\s*\(Sample record for development\.\)\s*$/i, "")}</p> : null}
                 </div>
 
                 {/* The figures, in one card: starting capital first, then the facts beside it */}
                 <dl className="order-3 grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white md:order-none xl:grid-cols-[minmax(0,1.4fr)_repeat(var(--n),minmax(0,1fr))]" style={{ "--n": facts.length } as React.CSSProperties}>
                   <div className="col-span-2 flex flex-col gap-1 bg-page p-4 xl:col-span-1">
                     <dt className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-muted"><Wallet aria-hidden className="h-4 w-4 text-accent-dark" />Starting capital</dt>
-                    <dd className="text-hero text-[22px] leading-tight text-heading [overflow-wrap:anywhere] sm:text-[24px]">{capitalFull ?? <span className="text-[17px] font-semibold text-ink-soft [-webkit-text-stroke:0]">Being priced</span>}</dd>
+                    <dd className="text-hero text-[19px] leading-tight text-heading [overflow-wrap:anywhere] sm:text-[21px]">{capitalFull ?? <span className="text-[16px] font-semibold text-ink-soft [-webkit-text-stroke:0]">Being priced</span>}</dd>
                     <dd className="text-[12px] text-ink-muted">Costed for {scenario?.location?.name ?? "Uganda"}</dd>
                   </div>
                   {facts.map(([Glyph, label, value]) => (
                     <div key={label} className="flex flex-col gap-1 border-t border-line p-3.5 odd:border-l xl:border-l xl:border-t-0 xl:p-4">
                       <dt className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-muted"><Glyph aria-hidden className="h-4 w-4 text-brand" />{label}</dt>
-                      <dd className="font-display text-[15px] font-extrabold leading-snug text-heading">{value}</dd>
+                      <dd className="font-display text-[14px] font-extrabold leading-snug text-heading">{value}</dd>
                     </div>
                   ))}
                 </dl>
@@ -226,26 +226,26 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 {/* One main action; the rest quiet */}
                 <div className="order-4 flex flex-col gap-2.5 md:order-none">
                   {gated ? (
-                    <Link href={path} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[16px] font-bold text-ink hover:bg-accent-dark hover:text-white">
+                    <Link href={path} data-onboard="" className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-accent px-6 text-center text-[15px] font-bold text-ink hover:bg-accent-dark hover:text-white">
                       <LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{unlockFrom ? `Unlock the full plan · ${unlockFrom}` : "Unlock the full plan"}
                     </Link>
                   ) : scenarios.some((sc) => sc.lines.length) ? (
-                    <Link href={reqPath} className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[16px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />See the startup budget</Link>
+                    <Link href={reqPath} className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-lg bg-brand px-6 text-[15px] font-bold text-white hover:bg-brand-dark hover:text-white"><ClipboardList aria-hidden className="h-4 w-4" />See the startup budget</Link>
                   ) : null}
                   <div className="flex flex-wrap gap-2">
                     {gated && scenarios.some((sc) => sc.lines.length) ? (
-                      <Link href={reqPath} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
+                      <Link href={reqPath} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><ClipboardList aria-hidden className="h-4 w-4" />Startup budget</Link>
                     ) : null}
-                    <a href={pdfDownload} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Business plan (PDF)</a>
+                    <a href={pdfDownload} className="inline-flex h-11 items-center gap-2 rounded-lg border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><FileDown aria-hidden className="h-4 w-4" />Business plan (PDF)</a>
                     <div className="min-w-[160px] flex-1 sm:flex-none"><WishlistButton id={item.id} small /></div>
                   </div>
-                  {gated ? <p className="text-[13px] text-ink-muted">Pay with MoMo, Airtel Money or card. Everything opens straight away.</p> : null}
+                  {gated ? <p className="text-[12.5px] text-ink-muted">Pay with MoMo, Airtel Money or card. Everything opens straight away.</p> : null}
                 </div>
 
                 <div className="order-5 flex flex-col gap-2 border-t border-line pt-4 md:order-none">
-                  <h2 className="text-[13px] font-semibold text-ink-muted">In this plan</h2>
+                  <h2 className="text-[12.5px] font-semibold text-ink-muted">In this plan</h2>
                   <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-6 gap-y-1.5 lg:grid-cols-2">
-                    {inside.map((t) => <li key={t} className="flex items-start gap-2 text-[14px] leading-snug text-heading"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent-dark" strokeWidth={3} />{t}</li>)}
+                    {inside.map((t) => <li key={t} className="flex items-start gap-2 text-[13px] leading-snug text-heading"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent-dark" strokeWidth={3} />{t}</li>)}
                   </ul>
                 </div>
               </div>
@@ -261,8 +261,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             {steps.map((x, n) => (
               <li key={x.id} className="shrink-0">
                 <a href={`#${x.id}`} className="group flex h-full items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-heading hover:bg-page hover:text-brand-dark group-data-[stuck]/bar:text-white group-data-[stuck]/bar:hover:bg-white/10 group-data-[stuck]/bar:hover:text-white">
-                  <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint font-display text-[13px] font-extrabold text-brand-dark group-hover:bg-brand group-hover:text-white group-data-[stuck]/bar:bg-accent group-data-[stuck]/bar:text-ink">{n + 1}</span>
-                  <span className="font-display text-[14px] font-bold leading-tight">{x.title}</span>
+                  <span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-tint font-display text-[12.5px] font-extrabold text-brand-dark group-hover:bg-brand group-hover:text-white group-data-[stuck]/bar:bg-accent group-data-[stuck]/bar:text-ink">{n + 1}</span>
+                  <span className="font-display text-[13px] font-bold leading-tight">{x.title}</span>
                 </a>
               </li>
             ))}
@@ -278,8 +278,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <details className="group/drop [&>summary::-webkit-details-marker]:hidden">
               <summary className={dropHead}>{head("template", "Everything about this business, as one simple table.")}<DropHint /></summary>
             <div className="mt-5 overflow-x-auto rounded-xl border border-line">
-              <table className="w-full min-w-[640px] text-left text-[15px] sm:text-[16px]">
-                <thead className="bg-brand-deep text-[14px] text-white">
+              <table className="w-full min-w-[640px] text-left text-[14px] sm:text-[15px]">
+                <thead className="bg-brand-deep text-[13px] text-white">
                   <tr><th className="w-12 px-3 py-3 font-bold">S/N</th><th className="w-56 px-3 py-3 font-bold">Name</th><th className="px-3 py-3 font-bold">Details</th><th className="px-3 py-3 font-bold">Notes</th></tr>
                 </thead>
                 <tbody>
@@ -317,7 +317,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 <nav aria-label="Business size" className="inline-flex w-fit gap-1 rounded-full border border-line bg-page p-1">
                   {scenarios.map((s) => (
                     <Link key={s.id} href={`?scenario=${s.level}#budget`} scroll={false} aria-current={s.level === scenario!.level ? "true" : undefined}
-                      className={`rounded-full px-3 py-1 text-[13px] font-semibold ${s.level === scenario!.level ? "bg-brand text-white hover:text-white" : "text-ink-soft hover:text-brand"}`}>{PLAN_LABEL[s.level]}</Link>
+                      className={`rounded-full px-3 py-1 text-[12.5px] font-semibold ${s.level === scenario!.level ? "bg-brand text-white hover:text-white" : "text-ink-soft hover:text-brand"}`}>{PLAN_LABEL[s.level]}</Link>
                   ))}
                 </nav>
               ) : null}
@@ -326,7 +326,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                 <Stat label="Items" value={String(scenario.lines.length)} />
                 <div className="flex flex-col gap-1.5 rounded-2xl bg-page p-3 sm:p-4">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-muted">Priced</span>
-                  <span className="font-display text-[18px] font-extrabold leading-tight text-heading sm:text-[22px]">{priced}<span className="text-[14px] font-semibold text-ink-muted"> / {scenario.lines.length}</span></span>
+                  <span className="font-display text-[17px] font-extrabold leading-tight text-heading sm:text-[19px]">{priced}<span className="text-[13px] font-semibold text-ink-muted"> / {scenario.lines.length}</span></span>
                   <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-brand" style={{ width: `${scenario.lines.length ? Math.round((priced / scenario.lines.length) * 100) : 0}%` }} /></span>
                 </div>
                 <Stat label="Total" value={gated ? "Members" : budgetTotal(scenario.lines) === null ? "Pending" : money(budgetTotal(scenario.lines)!, scenario.currency)} accent />
@@ -334,7 +334,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             ) : null}
             {scenario ? (
               <div className="overflow-x-auto rounded-xl border border-line">
-                <table className="w-full min-w-[640px] text-left text-[13px] sm:text-sm">
+                <table className="w-full min-w-[640px] text-left text-[12.5px] sm:text-sm">
                   <thead className="bg-brand-deep text-xs text-white/90">
                     <tr>
                       <th className="w-12 px-3 py-2.5 font-semibold">Sn</th><th className="px-3 py-2.5 font-semibold">Item</th>
@@ -364,8 +364,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                         ))}
                         <tr className="border-t border-line"><td colSpan={6} className="bg-navy px-4 py-4 text-white">
                           <span className="flex flex-wrap items-center justify-between gap-3">
-                            <span className="flex flex-col"><span className="font-display text-[16px] font-extrabold">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total are for members</span><span className="text-[14px] text-white/80">Every item priced, so you know what to raise before you spend.</span></span>
-                            <Link href={path} data-onboard="" className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-accent px-5 text-[15px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock the full budget</Link>
+                            <span className="flex flex-col"><span className="font-display text-[15px] font-extrabold">{hiddenLines} more {hiddenLines === 1 ? "item" : "items"} and the total are for members</span><span className="text-[13px] text-white/80">Every item priced, so you know what to raise before you spend.</span></span>
+                            <Link href={path} data-onboard="" className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-accent px-5 text-[14px] font-bold text-ink hover:bg-white hover:text-ink"><LockKeyhole aria-hidden className="h-4 w-4" />Unlock the full budget</Link>
                           </span>
                         </td></tr>
                       </>
@@ -401,7 +401,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
                       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-brand ring-1 ring-line transition group-hover:bg-brand group-hover:text-white group-hover:ring-brand"><Icon name={t.contentType === "RECIPE" ? "recipe" : DIRECTORIES.find((d) => d.type === t.contentType)?.icon ?? "link"} className="h-5 w-5" /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-accent-dark">{contentTypeLabel[t.contentType] ?? "Related"}</span>
-                        <span className="truncate font-display text-[15px] font-bold text-heading group-hover:text-brand">{t.title.replace(/^Sample:?\s*/i, "")}</span>
+                        <span className="truncate font-display text-[14px] font-bold text-heading group-hover:text-brand">{t.title.replace(/^Sample:?\s*/i, "")}</span>
                       </span>
                       <span aria-hidden className="text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-brand">→</span>
                     </Link>
@@ -420,8 +420,8 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
             <summary className={dropHead}>{head("plan-pdf", "The whole plan, with the steps to start, to keep or print.")}<DropHint /></summary>
             <div className="mt-5 flex flex-col gap-4">
               <span className="flex flex-wrap gap-2">
-                <PdfOpenButton file={pdfPath} download={pdfDownload} title={`${name} business plan`} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
-                <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
+                <PdfOpenButton file={pdfPath} download={pdfDownload} title={`${name} business plan`} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[12.5px] font-semibold text-heading hover:border-brand hover:text-brand"><BookOpen aria-hidden className="h-3.5 w-3.5" />Full screen</PdfOpenButton>
+                <a href={pdfDownload} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[12.5px] font-semibold text-white hover:bg-brand-dark hover:text-white"><FileDown aria-hidden className="h-3.5 w-3.5" />Download</a>
               </span>
             {/* Read on the page: computers in the browser viewer, phones (iPhones too) with the pages drawn right here (PdfViewer.tsx) */}
             <PdfReader file={pdfPath} download={pdfDownload} title={`${name} business plan`} what="plan" />
@@ -433,7 +433,7 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 
           <ChildSections compact sections={otherMedia} gated={gated} back={path} />
 
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-muted">
             <Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link>
           </p>
 
@@ -468,11 +468,11 @@ export default async function IdeaPage({ params, searchParams }: { params: { slu
 function StepHead({ no, of, kicker, title, sub }: { no: number; of: number; kicker: string; title: string; sub: string }) {
   return (
     <div className="flex items-start gap-3.5">
-      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-display text-[16px] font-extrabold text-white md:absolute md:-left-[4.25rem] md:top-5 md:ring-8 md:ring-page">{no}</span>
+      <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy font-display text-[15px] font-extrabold text-white md:absolute md:-left-[4.25rem] md:top-5 md:ring-8 md:ring-page">{no}</span>
       <span className="flex min-w-0 flex-col gap-1">
         <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-accent-dark">Step {no} of {of} · {kicker}</span>
-        <h2 className="font-display text-[18px] font-bold leading-tight text-heading sm:text-[19px]">{title}</h2>
-        <p className="text-[14px] text-ink-soft">{sub}</p>
+        <h2 className="font-display text-[17px] font-bold leading-tight text-heading sm:text-[18px]">{title}</h2>
+        <p className="text-[13px] text-ink-soft">{sub}</p>
       </span>
     </div>
   );
@@ -483,7 +483,7 @@ function Stat({ label, value, accent = false }: { label: string; value: string; 
   return (
     <div className={`flex flex-col gap-1.5 rounded-2xl p-3 sm:p-4 ${accent ? "bg-brand text-white" : "bg-page"}`}>
       <span className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${accent ? "text-white/75" : "text-ink-muted"}`}>{label}</span>
-      <span className={`truncate font-display text-[18px] font-extrabold leading-tight sm:text-[22px] ${accent ? "" : "text-heading"}`}>{value}</span>
+      <span className={`truncate font-display text-[17px] font-extrabold leading-tight sm:text-[19px] ${accent ? "" : "text-heading"}`}>{value}</span>
     </div>
   );
 }

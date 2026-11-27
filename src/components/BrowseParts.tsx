@@ -35,7 +35,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
   /** One more drop-down in the search bar, on compact heroes too (funding: the fund type). "" is any. */
   filter?: { label: string; any: string; value: string; options: string[]; onChange: (v: string) => void };
 }) {
-  const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-heading";
+  const select = "h-11 rounded-xl px-3 text-[13px] font-semibold text-heading";
   return (
     // overflow-x-clip (not overflow-hidden) and z-40: the search bar's dropdowns open below the band, over the cards
     // and the pinned filter bar (z-30), but under the site header (z-45).
@@ -45,13 +45,13 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
           <nav aria-label="Sections" className="max-w-full overflow-x-auto [scrollbar-width:none]">
             <div className="inline-flex gap-0.5 rounded-full bg-white/[0.06] raised p-1">
               {tabs.map(([href, text]) => (
-                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{text}</Link>
+                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{text}</Link>
               ))}
             </div>
           </nav>
         ) : null}
-        <h1 className={`text-hero max-w-4xl ${compact ? "text-[24px] sm:text-[28px] xl:text-[32px]" : "text-[28px] sm:text-[36px] xl:text-[42px]"}`}>{title}</h1>
-        <p data-size={compact ? "" : undefined} className={`max-w-xl leading-relaxed text-white/70 ${compact ? "text-[13px] sm:text-[14px]" : "text-[15px] sm:text-[17px]"}`}>{intro}</p>
+        <h1 className={`text-hero max-w-4xl ${compact ? "text-[21px] sm:text-[25px] xl:text-[28px]" : "text-[25px] sm:text-[32px] xl:text-[37px]"}`}>{title}</h1>
+        <p data-size={compact ? "" : undefined} className={`max-w-xl leading-relaxed text-white/70 ${compact ? "text-[12.5px] sm:text-[13px]" : "text-[14px] sm:text-[16px]"}`}>{intro}</p>
         {/* One inline search bar: words, category, sort and the button. Wraps to two rows on phones. */}
         <form role="search" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
           className={`mt-1 grid w-full grid-cols-2 gap-1 rounded-2xl bg-white p-1.5 text-left text-ink sm:flex sm:items-center sm:gap-0 ${compact ? "max-w-2xl" : "max-w-3xl"}`}>
@@ -63,7 +63,7 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
               onChange={(e) => onSearch(e.target.value)}
               placeholder={hint}
               aria-label={label}
-              className="h-11 w-full rounded-xl bg-transparent pl-11 pr-10 text-[15px] text-heading outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
+              className="h-11 w-full rounded-xl bg-transparent pl-11 pr-10 text-[14px] text-heading outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
             />
             {q ? (
               <button type="button" onClick={() => onSearch("")} aria-label="Clear the search" className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-muted hover:bg-page hover:text-heading">
@@ -88,17 +88,17 @@ export function BrowseHero<T extends string>({ title, intro, tabs, active, q, on
             <GlassSelect label="Sort by" value={sort} onChange={(v) => onSort(v as T)} className={select} icon={<ArrowUpDown className="h-4 w-4 text-brand" />} options={[...sorts]} />
           </div>
           </>}
-          <button className="btn-primary col-span-2 h-11 shrink-0 rounded-xl px-6 text-[15px] font-semibold sm:ml-1">Search</button>
+          <button className="btn-primary col-span-2 h-11 shrink-0 rounded-xl px-6 text-[14px] font-semibold sm:ml-1">Search</button>
         </form>
         {popular.length && !compact ? (
           // Phones: one row to swipe sideways (long names stacked one per line and pushed the results down,
           // client, 9 Nov 2026); from sm: centred and wrapping as before.
-          <div className="flex w-full max-w-3xl items-center gap-2 text-[13px] text-white/60 sm:w-auto sm:justify-center">
+          <div className="flex w-full max-w-3xl items-center gap-2 text-[12.5px] text-white/60 sm:w-auto sm:justify-center">
             <span className="shrink-0">Popular:</span>
             <div className="-mr-4 flex min-w-0 gap-1.5 overflow-x-auto pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mr-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pr-0">
               {popular.map((e) => (
                 <button key={e} type="button" onClick={() => { onSearch(e); onSubmit(); }}
-                  className="max-w-[11rem] shrink-0 truncate whitespace-nowrap rounded-full bg-white/[0.08] raised px-2.5 py-1 text-[12px] text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white sm:max-w-[14rem] sm:py-0.5 sm:text-[13px]">{e}</button>
+                  className="max-w-[11rem] shrink-0 truncate whitespace-nowrap rounded-full bg-white/[0.08] raised px-2.5 py-1 text-[12px] text-white/80 transition hover:-translate-y-0.5 hover:border-accent hover:text-white sm:max-w-[14rem] sm:py-0.5 sm:text-[12.5px]">{e}</button>
               ))}
             </div>
           </div>

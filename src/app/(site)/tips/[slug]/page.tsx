@@ -66,10 +66,10 @@ export default async function TipPage({ params, searchParams }: { params: { slug
       {/* Topic, title, date and reading time, on the site's own dark header */}
       <header className="under-header hero-glow text-white">
         <div className="container-site flex max-w-3xl flex-col gap-4 pad-hero">
-          <Link href="/tips" className="inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-white/80 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All business tips</Link>
-          <span className="text-[13px] font-semibold uppercase tracking-[0.1em] text-accent">{item.primaryCategory?.name ?? "Business tip"}</span>
-          <h1 className="text-hero text-[30px] leading-[1.15] text-white sm:text-[42px]">{item.title}</h1>
-          <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[14px] text-white/85">
+          <Link href="/tips" className="inline-flex w-fit items-center gap-1.5 text-[13px] font-semibold text-white/80 hover:text-white"><ArrowLeft aria-hidden className="h-4 w-4" />All business tips</Link>
+          <span className="text-[12.5px] font-semibold uppercase tracking-[0.1em] text-accent">{item.primaryCategory?.name ?? "Business tip"}</span>
+          <h1 className="text-hero text-[26px] leading-[1.15] text-white sm:text-[37px]">{item.title}</h1>
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-white/85">
             <span>{date(item.publishedAt ?? item.updatedAt)}</span>
             <span className="inline-flex items-center gap-1.5"><Clock aria-hidden className="h-4 w-4" />{readMinutes(details)} min read</span>
             <a href="#remarks" className="inline-flex items-center gap-1.5 text-white/85 hover:text-white"><MessageCircle aria-hidden className="h-4 w-4" />{remarks.length} remark{remarks.length === 1 ? "" : "s"}</a>
@@ -87,8 +87,8 @@ export default async function TipPage({ params, searchParams }: { params: { slug
           <img src={item.businessTip.pictureUrl} alt="" className="w-full rounded-2xl bg-page object-cover" />
         ) : null}
         {otherVideo ? <a href={otherVideo} target="_blank" rel="noopener noreferrer" className="btn-outline w-fit">Watch the video ↗</a> : null}
-        {item.shortSummary ? <p className="border-l-4 border-accent pl-4 text-[18px] font-medium leading-relaxed text-heading sm:text-[20px]">{item.shortSummary}</p> : null}
-        <div className="flex flex-col gap-5 text-[17px] leading-[1.75] text-ink sm:text-[18px]">
+        {item.shortSummary ? <p className="border-l-4 border-accent pl-4 text-[17px] font-medium leading-relaxed text-heading sm:text-[18px]">{item.shortSummary}</p> : null}
+        <div className="flex flex-col gap-5 text-[16px] leading-[1.75] text-ink sm:text-[17px]">
           {paragraphs.map((p, n) => {
             const lines = p.split("\n").map((l) => l.trim()).filter(Boolean);
             const list = lines.length > 1 && lines.every((l) => /^([-•*]|\d+[.)])\s+/.test(l));
@@ -98,13 +98,13 @@ export default async function TipPage({ params, searchParams }: { params: { slug
           })}
         </div>
         {gated && details.length > PREVIEW ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-brand-tint p-5 text-[15px] font-semibold text-brand-dark">
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-brand-tint p-5 text-[14px] font-semibold text-brand-dark">
             <LockKeyhole aria-hidden className="h-5 w-5" />The rest of this tip is for members.
             <Link href={viewer.userId ? "/membership" : `/login?callbackUrl=${encodeURIComponent(path)}`} className="btn-primary min-h-[44px] px-5 text-sm">{viewer.userId ? "Become a member" : "Log in"}</Link>
           </div>
         ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-          <span className="text-[14px] text-ink-muted">Was this useful? Share it with another business owner.</span>
+          <span className="text-[13px] text-ink-muted">Was this useful? Share it with another business owner.</span>
           <ShareButton title={item.title} path={path} />
         </div>
       </article>
@@ -112,7 +112,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
       {/* What to read next */}
       {next.length ? (
         <section className="flex flex-col gap-4">
-          <h2 className="font-display text-[20px] font-extrabold text-heading">Read next</h2>
+          <h2 className="font-display text-[18px] font-extrabold text-heading">Read next</h2>
           <ul className="grid gap-3 sm:grid-cols-3">
             {next.map((o) => {
               const pic = tipPicture(o.businessTip);
@@ -123,7 +123,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
                     {pic ? <img src={pic} alt="" loading="lazy" className="aspect-[16/9] w-full object-cover" /> : null}
                     <span className="flex flex-1 flex-col gap-1.5 p-4">
                       <span className="text-[12px] text-ink-muted">{o.primaryCategory?.name ?? "Business tip"} · {readMinutes(o.overview)} min read</span>
-                      <span className="font-display text-[15px] font-bold leading-snug text-heading group-hover:underline group-hover:underline-offset-4">{o.title}</span>
+                      <span className="font-display text-[14px] font-bold leading-snug text-heading group-hover:underline group-hover:underline-offset-4">{o.title}</span>
                     </span>
                   </Link>
                 </li>
@@ -135,7 +135,7 @@ export default async function TipPage({ params, searchParams }: { params: { slug
 
       {/* Members' remarks */}
       <section id="remarks" className="flex scroll-mt-28 flex-col gap-4">
-        <h2 className="flex items-center gap-2 font-display text-[20px] font-extrabold text-heading"><MessageCircle aria-hidden className="h-5 w-5 text-[#BE185D]" />Members&apos; remarks <span className="text-base font-semibold text-ink-muted">({remarks.length})</span></h2>
+        <h2 className="flex items-center gap-2 font-display text-[18px] font-extrabold text-heading"><MessageCircle aria-hidden className="h-5 w-5 text-[#BE185D]" />Members&apos; remarks <span className="text-base font-semibold text-ink-muted">({remarks.length})</span></h2>
         {note === "sent" ? <p role="status" className="rounded-xl bg-brand-tint p-3 text-sm font-bold text-brand-dark">Thank you. Your remark is up.</p> : note ? <p role="alert" className="rounded-xl bg-bad-bg p-3 text-sm font-semibold text-bad-fg">Not added. {note}</p> : null}
         {remarks.length ? (
           <ol className="flex flex-col gap-3">
@@ -146,10 +146,10 @@ export default async function TipPage({ params, searchParams }: { params: { slug
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold ${team ? "bg-brand text-white" : "bg-[#FCE7F1] text-[#BE185D]"}`}>{(team ? "B" : shortName(r.author.name).charAt(0)).toUpperCase()}</span>
                   <div className="flex min-w-0 flex-1 flex-col gap-1 rounded-2xl rounded-tl-md border border-line bg-surface px-4 py-3">
                     <span className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="text-[14px] font-bold text-heading">{team ? "BizSphere team" : shortName(r.author.name)}</span>
+                      <span className="text-[13px] font-bold text-heading">{team ? "BizSphere team" : shortName(r.author.name)}</span>
                       <time dateTime={r.createdAt.toISOString()} className="text-[12px] text-ink-muted">{ago(r.createdAt)}</time>
                     </span>
-                    <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-ink-soft">{r.body}</p>
+                    <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed text-ink-soft">{r.body}</p>
                   </div>
                 </li>
               );

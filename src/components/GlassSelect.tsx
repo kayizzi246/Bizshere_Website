@@ -84,7 +84,7 @@ export function GlassSelect({ options, value, defaultValue, onChange, name, labe
     <div ref={root} className="relative min-w-0" onKeyDown={onKey}>
       {name ? <input ref={hidden} type="hidden" name={name} value={current} data-glass-select="" /> : null}
       <button type="button" onClick={() => (open ? setOpen(false) : show())} aria-haspopup="listbox" aria-expanded={open} aria-controls={listId} aria-label={`${label}: ${selected?.label ?? ""}`}
-        className={`flex w-full min-w-0 items-center gap-2 text-left outline-none ${className || `h-11 rounded-xl border px-3 text-[14px] font-medium ${dark ? "border-transparent bg-white/[0.06] raised text-white" : "border-line bg-white text-heading hover:border-brand"}`}`}>
+        className={`flex w-full min-w-0 items-center gap-2 text-left outline-none ${className || `h-11 rounded-xl border px-3 text-[13px] font-medium ${dark ? "border-transparent bg-white/[0.06] raised text-white" : "border-line bg-white text-heading hover:border-brand"}`}`}>
         {icon ? <span aria-hidden className="shrink-0">{icon}</span> : null}
         <span className="min-w-0 flex-1 truncate">{selected?.label}</span>
         <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 opacity-60 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
@@ -98,7 +98,7 @@ export function GlassSelect({ options, value, defaultValue, onChange, name, labe
             return (
               <li key={o.value || "__any"} role="option" aria-selected={on}
                 onPointerEnter={() => setActive(n)} onClick={() => pick(o.value)}
-                className={`flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-[14px] transition-colors ${n === active ? (dark ? "bg-white/[0.12]" : "bg-brand/10") : ""} ${on ? "font-semibold" : ""}`}>
+                className={`flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-[13px] transition-colors ${n === active ? (dark ? "bg-white/[0.12]" : "bg-brand/10") : ""} ${on ? "font-semibold" : ""}`}>
                 <span className="flex-1">{o.label}</span>
                 {on ? <Check aria-hidden className={`h-4 w-4 shrink-0 ${dark ? "text-accent" : "text-brand"}`} /> : null}
               </li>

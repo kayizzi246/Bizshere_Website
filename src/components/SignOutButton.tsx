@@ -9,7 +9,7 @@ export function SignOutButton({ to = "/login?callbackUrl=%2Fadmin", className = 
   const [busy, setBusy] = useState(false);
   return (
     <button type="button" disabled={busy} onClick={() => { setBusy(true); signOut({ callbackUrl: to }); }}
-      className={plain ? className : `flex h-11 w-full items-center gap-3 rounded-xl px-3 text-[13px] font-medium ${className}`}>
+      className={plain ? className : `flex h-11 w-full items-center gap-3 rounded-xl px-3 text-[12.5px] font-medium ${className}`}>
       {plain ? null : <LogOut aria-hidden className="h-4 w-4" />}{busy ? "Signing out…" : "Sign out"}
     </button>
   );

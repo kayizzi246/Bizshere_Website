@@ -96,15 +96,15 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
   ];
   profile.push({ label: "Specialty", tags: c.specialties });
   const th = "px-4 py-2.5 text-left text-[12px] font-semibold text-white";
-  const td = "px-4 py-3 align-top text-[14px] text-ink-soft";
+  const td = "px-4 py-3 align-top text-[13px] text-ink-soft";
   const card = "flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-4 sm:p-5";
-  const h2 = "font-display text-[20px] font-extrabold leading-tight text-heading sm:text-[22px]";
+  const h2 = "font-display text-[18px] font-extrabold leading-tight text-heading sm:text-[19px]";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article data-compact-page="">
         {item.publicationStatus !== "PUBLISHED" ? (
-          <p role="status" className="bg-accent px-4 py-3 text-center text-[14px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/expert" className="underline">Back to my dashboard</Link></p>
+          <p role="status" className="bg-accent px-4 py-3 text-center text-[13px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/expert" className="underline">Back to my dashboard</Link></p>
         ) : null}
         {/* ── Who they are, and what they do ── */}
         <header className="under-header hero-glow hero-still bg-navy text-white">
@@ -114,7 +114,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
                 <div className="flex min-w-0 flex-col gap-1.5">
                   <ProfileTitle name={name} />
-                  {role ? <p data-size="" className="text-[14px] font-medium text-white/85">{role}</p> : null}
+                  {role ? <p data-size="" className="text-[13px] font-medium text-white/85">{role}</p> : null}
                 </div>
               </div>
               <div className="shrink-0 text-ink sm:w-52">
@@ -126,7 +126,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
         </header>
 
         <div className="bg-page">
-          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pb-12 pt-4 sm:pb-14 sm:pt-5 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-5 pb-10 pt-4 sm:pb-10 sm:pt-5 lg:pb-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-4">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
               <ProfileCard big label="Business expert profile" photo={c.photoUrl} name={business ?? name} sub={business ? name : null} rows={profile} />
@@ -157,7 +157,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                       {c.services.map((s, n) => (
                         <li key={s.id} className="flex gap-3 p-4">
                           {s.imageUrl ? <ServicePicture src={s.imageUrl} /> : null}
-                          <div className="flex min-w-0 flex-1 flex-col gap-1 text-[14px]">
+                          <div className="flex min-w-0 flex-1 flex-col gap-1 text-[13px]">
                             <span className="font-display font-bold text-heading">{n + 1}. {s.name}</span>
                             {s.description ?? s.remark ? <span className="whitespace-pre-line text-ink-soft">{s.description ?? s.remark}</span> : null}
                             {s.duration ? <span className="text-ink-soft"><span className="text-ink-muted">Duration:</span> {s.duration}</span> : null}
@@ -167,7 +167,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                       ))}
                     </ol>
                   </>
-                ) : <p className="border-t border-line px-5 py-4 text-[14px] text-ink-muted">No services added yet.</p>}
+                ) : <p className="border-t border-line px-5 py-4 text-[13px] text-ink-muted">No services added yet.</p>}
               </section>
 
               {/* ── Jobs done ── */}
@@ -182,14 +182,14 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                       ))}
                     </tbody>
                   </table>
-                ) : <p className="border-t border-line px-5 py-4 text-[14px] text-ink-muted">No jobs added yet.</p>}
+                ) : <p className="border-t border-line px-5 py-4 text-[13px] text-ink-muted">No jobs added yet.</p>}
               </section>
 
               {about || c.experience ? (
                 <section className={card}>
                   <h2 className={h2}>About {name}</h2>
-                  {about ? <p data-size="" className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{about}</p> : null}
-                  {c.experience ? <p data-size="" className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{c.experience}</p> : null}
+                  {about ? <p data-size="" className="whitespace-pre-line text-[13px] leading-relaxed text-ink-soft">{about}</p> : null}
+                  {c.experience ? <p data-size="" className="whitespace-pre-line text-[13px] leading-relaxed text-ink-soft">{c.experience}</p> : null}
                 </section>
               ) : null}
 
@@ -201,9 +201,9 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                       <li key={r.id} className="flex flex-col gap-1.5 rounded-xl bg-page px-4 py-3">
                         <span className="flex flex-wrap items-center gap-2">
                           <span aria-label={`${r.rating} out of 5`} className="inline-flex gap-0.5 text-accent">{Array.from({ length: 5 }, (_, n) => <Star key={n} aria-hidden className={`h-4 w-4 ${n < r.rating ? "fill-current" : "text-line-strong"}`} />)}</span>
-                          {r.confirmedEngagement ? <span className="text-[13px] font-semibold text-brand-dark">Confirmed client</span> : null}
+                          {r.confirmedEngagement ? <span className="text-[12.5px] font-semibold text-brand-dark">Confirmed client</span> : null}
                         </span>
-                        <p className="text-[15px] leading-relaxed text-heading">{r.body}</p>
+                        <p className="text-[14px] leading-relaxed text-heading">{r.body}</p>
                       </li>
                     ))}
                   </ul>
@@ -217,7 +217,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                     {c.qualifications.map((q) => (
                       <li key={q.id} className="flex items-start gap-2.5">
                         <GraduationCap aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-                        <span className="text-[15px] text-heading"><strong className="font-display font-extrabold">{q.qualification}</strong>{q.institution ? `, ${q.institution}` : ""}{q.year ? ` (${q.year})` : ""}</span>
+                        <span className="text-[14px] text-heading"><strong className="font-display font-extrabold">{q.qualification}</strong>{q.institution ? `, ${q.institution}` : ""}{q.year ? ` (${q.year})` : ""}</span>
                       </li>
                     ))}
                   </ul>
@@ -226,7 +226,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
 
               {gated ? <MemberValue wide back={path} plan={plan} unlocks={[...(c.phone ? ["Phone and WhatsApp"] : []), ...(c.email ? ["Email address"] : []), ...(c.services.some((x) => x.price) ? ["Service prices"] : []), ...(c.profileUrl ? ["Full profile download"] : [])]} /> : null}
 
-              <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
+              <p className="text-[12.5px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
             </div>
 
             {/* ── Get in touch: first on phones, beside the profile on wide screens ── */}
@@ -240,7 +240,7 @@ export default async function ExpertPage({ params }: { params: { slug: string } 
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Glyph aria-hidden className="h-3.5 w-3.5" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-col">
                         <dt className="text-[12px] font-medium text-ink-muted">{label}</dt>
-                        <dd className="min-w-0 break-words font-display text-[14px] font-semibold text-heading">{value}</dd>
+                        <dd className="min-w-0 break-words font-display text-[13px] font-semibold text-heading">{value}</dd>
                       </span>
                     </div>
                   ))}

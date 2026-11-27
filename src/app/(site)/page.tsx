@@ -54,7 +54,7 @@ export default async function HomePage() {
         </div>
         {/* Wider on big screens (client, 26 Nov 2026: "increase width, make it responsive on all screens"): up to 1680px like the
             navbar, 24px side margins from 1536px so it lines up with the bar (26 Nov 2026; 48px before). The right panel stays compact (340px, 380px from 1536px) and sits level with the middle of the left side. Below 1280px it stacks as before. */}
-        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-12 pt-8 sm:pb-14 sm:pt-10 xl:my-auto xl:py-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-10 2xl:px-6">
+        <div className="container-site relative grid grid-cols-[minmax(0,1fr)] gap-6 pb-10 pt-8 sm:pb-10 sm:pt-10 xl:my-auto xl:py-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:items-center xl:gap-x-10 2xl:max-w-[1680px] 2xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)] 2xl:gap-x-10 2xl:px-6">
           <div className="relative flex min-w-0 flex-col items-start">
             {/* The soft light from the section pages (client, 9 Nov 2026): blue shining down from the top onto the
                 headline, faded on every side so it blends into the navy. Behind the text, never takes a click. */}
@@ -67,7 +67,7 @@ export default async function HomePage() {
                 wide — and every size here is below it, so nothing can wrap.
                 23 Nov 2026 (client): bigger again. 24 Nov 2026 (client): smaller, and Bold instead of Black; bigger
                 again on phones the same day, as wide as one line allows. */}
-            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(22px,7.8vw,34px)] text-white sm:text-[34px] xl:text-[38px] 2xl:text-[42px]">
+            <h1 data-home="" className="text-hero hero-title mb-4 whitespace-nowrap text-[clamp(22px,7.8vw,34px)] text-white sm:text-[30px] xl:text-[33px] 2xl:text-[37px]">
               <span className="sr-only">Bizsphere-UG: </span>
               <span className="text-accent">B2B</span> Information Portal<span className="text-accent">.</span>
             </h1>
@@ -75,7 +75,7 @@ export default async function HomePage() {
             {/* One short line instead of the nine-item list that was here (18 Nov 2026): the list
                 repeated the directory tiles immediately under it, and nobody reads a label twice.
                 What a visitor needs to know is what the site answers for them. */}
-            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[13.5px] 2xl:max-w-4xl 2xl:text-[14.5px]">
+            <p data-size="" className="mb-4 max-w-2xl text-[12.5px] leading-[1.6] text-white/90 sm:text-[12.5px] 2xl:max-w-4xl 2xl:text-[13.5px]">
               {/* The client's words, 23 Nov 2026 */}
               Up-to-Date Market Prices, Business Ideas, Trusted Suppliers, Business Machines, Funding Sources,
               Business Experts, Business Guides, Business Tools and Business News, all in one place.{" "}
@@ -92,7 +92,7 @@ export default async function HomePage() {
                   {/* Answers the pointer (16 Nov 2026): the tile rises a hair, its edge takes the logo
                       orange and the icon grows a little. Movement, not shadow. Pressing it settles the
                       tile back down, so a tap is felt on a phone where there is no hover. */}
-                  <Link href={d.href} className="group flex h-full min-h-[56px] w-full items-center gap-2.5 rounded-xl bg-white/[0.10] raised px-3.5 py-3 text-[14px] leading-tight text-white transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:bg-white/10 hover:text-white active:translate-y-0 active:bg-white/[0.14] motion-reduce:hover:translate-y-0 sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[44px] sm:gap-2 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[15px] lg:min-h-[48px] lg:gap-2.5 lg:px-4 lg:py-2.5 lg:text-[15px]">
+                  <Link href={d.href} className="group flex h-full min-h-[56px] w-full items-center gap-2.5 rounded-xl bg-white/[0.10] raised px-3.5 py-3 text-[13px] leading-tight text-white transition-[color,background-color,border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-accent hover:bg-white/10 hover:text-white active:translate-y-0 active:bg-white/[0.14] motion-reduce:hover:translate-y-0 sm:inline-flex sm:h-auto sm:w-auto sm:min-h-[44px] sm:gap-2 sm:rounded-lg sm:px-3.5 sm:py-2 sm:text-[14px] lg:min-h-[48px] lg:gap-2.5 lg:px-4 lg:py-2.5 lg:text-[14px]">
                     <Icon name={d.icon} className="h-5 w-5 shrink-0 text-accent transition-transform duration-150 group-hover:scale-110 motion-reduce:group-hover:scale-100 sm:h-[18px] sm:w-[18px] lg:h-5 lg:w-5" />
                     {d.title}
                   </Link>
@@ -103,7 +103,7 @@ export default async function HomePage() {
             {/* Funding by who gives it (client, 26 Nov 2026): each funder category opens /funding filtered to it.
                 Smaller pills than the tiles above, so they read as a second level of the same choice. */}
             <nav aria-label="Funding by funder category" className="mt-3 flex w-full max-w-[720px] items-center gap-1.5 overflow-x-auto [scrollbar-width:none] max-sm:-mr-5 max-sm:pr-5 sm:flex-wrap sm:overflow-visible lg:max-w-[820px] 2xl:max-w-[1200px] [&::-webkit-scrollbar]:hidden">
-              <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-white/75"><Icon name="funding" className="h-4 w-4 text-accent" />Funding by funder:</span>
+              <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold text-white/75"><Icon name="funding" className="h-4 w-4 text-accent" />Funding by funder:</span>
               {FUNDER_CATEGORIES.filter((c) => c !== "Other").map((c) => (
                 <Link key={c} href={`/funding?providerCategory=${encodeURIComponent(c)}`} className="inline-flex min-h-[32px] shrink-0 items-center whitespace-nowrap rounded-full bg-white/[0.08] px-3 text-[12.5px] font-medium text-white/90 transition-colors duration-150 hover:bg-accent hover:text-ink">{c}</Link>
               ))}
@@ -112,8 +112,8 @@ export default async function HomePage() {
             <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               {/* Words from the client, 24 Nov 2026; "Today's market prices" was taken off the same day.
                   Orange and white, as in the menu bar, instead of navy with a moving ring (client, 24 Nov 2026). */}
-              <Link href="/suppliers/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[14px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-accent text-ink hover:bg-[#FFA64D] hover:text-ink">Join our suppliers</Link>
-              <Link href="/experts/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[14px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-white text-brand-deep hover:bg-brand-tint hover:text-brand-deep">Join our experts</Link>
+              <Link href="/suppliers/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[13px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-accent text-ink hover:bg-[#FFA64D] hover:text-ink">Join our suppliers</Link>
+              <Link href="/experts/join" className="inline-flex h-12 items-center justify-center rounded-lg px-7 text-[13px] font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:hover:translate-y-0 bg-white text-brand-deep hover:bg-brand-tint hover:text-brand-deep">Join our experts</Link>
             </div>
           </div>
 
@@ -130,7 +130,7 @@ export default async function HomePage() {
               <div className="flex items-center gap-3 pb-4">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Icon name="video" className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-center gap-2 font-display text-[14px] leading-tight tracking-[-0.01em] text-white">
+                  <span className="flex items-center gap-2 font-display text-[13px] leading-tight tracking-[-0.01em] text-white">
                     {yt.video?.live ? (
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded bg-[#FF0033] px-2 py-0.5 text-[10px] tracking-wider text-white"><span aria-hidden className="live-dot h-1.5 w-1.5 rounded-full bg-white" />LIVE</span>
                     ) : null}
@@ -139,7 +139,7 @@ export default async function HomePage() {
                   <span className="text-[12px] text-white/60">From idea to action in four steps.</span>
                 </span>
                 {yt.channelId ? (
-                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/10 raised px-3 py-1.5 text-[13px] text-white hover:border-accent hover:bg-accent hover:text-ink">
+                  <a href={`https://www.youtube.com/channel/${yt.channelId}?sub_confirmation=1`} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/10 raised px-3 py-1.5 text-[12.5px] text-white hover:border-accent hover:bg-accent hover:text-ink">
                     <Icon name="video" className="h-4 w-4" />{yt.video ? "Subscribe" : "Watch on YouTube"}
                   </a>
                 ) : null}

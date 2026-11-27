@@ -42,13 +42,13 @@ export default async function WhatsNewPage() {
           </div>
         ) : groups.map((g) => (
           <section key={g.type} className="card flex flex-col gap-1 p-5 sm:p-6">
-            <h2 className="font-display text-[19px] font-extrabold text-heading">{HEADING[g.type]} <span className="font-normal text-ink-muted">({g.rows.length})</span></h2>
+            <h2 className="font-display text-[18px] font-extrabold text-heading">{HEADING[g.type]} <span className="font-normal text-ink-muted">({g.rows.length})</span></h2>
             <ul className="flex flex-col divide-y divide-line">
               {g.rows.map((r) => (
                 <li key={r.id}>
                   <Link href={itemHref(r)} className="group flex flex-col gap-0.5 py-3 text-ink hover:text-ink">
-                    <span className="font-display text-[16px] font-bold text-heading group-hover:text-brand">{r.title.replace(/^Sample:\s*/i, "")}</span>
-                    {r.shortSummary ? <span className="line-clamp-2 text-[15px] text-ink-soft">{r.shortSummary}</span> : null}
+                    <span className="font-display text-[15px] font-bold text-heading group-hover:text-brand">{r.title.replace(/^Sample:\s*/i, "")}</span>
+                    {r.shortSummary ? <span className="line-clamp-2 text-[14px] text-ink-soft">{r.shortSummary}</span> : null}
                     <span className="text-[12px] text-ink-muted">Added {date(r.publishedAt)}</span>
                   </Link>
                 </li>

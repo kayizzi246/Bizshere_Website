@@ -89,7 +89,7 @@ export async function SiteHeader() {
                         <Link href={m.href} className="group/item flex items-start gap-3 rounded-xl p-2.5 text-ink hover:bg-page hover:text-ink">
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={m.icon} className="h-4 w-4" /></span>
                           <span className="flex min-w-0 flex-col gap-0.5">
-                            <span className="text-[13px] font-bold leading-tight text-heading group-hover/item:text-brand">{m.title}</span>
+                            <span className="text-[12.5px] font-bold leading-tight text-heading group-hover/item:text-brand">{m.title}</span>
                             <span className="line-clamp-2 text-[11.5px] leading-snug text-ink-muted">{m.text}</span>
                           </span>
                         </Link>
@@ -135,26 +135,26 @@ export async function SiteHeader() {
           }>
             <div className="absolute right-0 top-12 flex max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-2rem)] flex-col gap-1 overflow-y-auto rounded-2xl border border-line bg-white p-3 shadow-[0_12px_32px_rgba(7,26,51,0.12)] xl:hidden">
               <AccessButton viewer={viewer} mobile />
-              <Link href="/" className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-ink hover:bg-page">Home</Link>
+              <Link href="/" className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[14px] font-semibold text-ink hover:bg-page">Home</Link>
               <span className="px-3 pb-1 pt-3 text-[11px] font-bold uppercase tracking-widest text-ink-muted">Directories</span>
               {DIRECTORIES.map((d) => (
-                <Link key={d.href} href={d.href} className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-ink hover:bg-page">
+                <Link key={d.href} href={d.href} className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[14px] font-semibold text-ink hover:bg-page">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-brand-tint text-brand"><Icon name={d.icon} className="h-4 w-4" /></span>
                   {d.title}
                 </Link>
               ))}
-              <Link href="/search" className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[15px] font-semibold text-brand hover:bg-page"><Icon name="search" className="h-4 w-4" />Search everything</Link>
+              <Link href="/search" className="flex items-center gap-3 rounded-lg px-3 py-2 font-display text-[14px] font-semibold text-brand hover:bg-page"><Icon name="search" className="h-4 w-4" />Search everything</Link>
               <div className="my-1 border-t border-line" />
-              <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Pricing</Link>
+              <Link href="/membership" className="rounded-lg px-3 py-2.5 text-[14px] font-semibold text-ink hover:bg-page">Pricing</Link>
               <div className="flex flex-col gap-2 py-1.5">
                 {JOIN.map(([href, label, icon, variant, tone]) => (
                   <Button key={href} asChild variant={variant} size="lg" className={`w-full ${tone}`}><Link href={href}><Icon name={icon} className="h-4 w-4" />{label}</Link></Button>
                 ))}
               </div>
-              <Link href="/about" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">About</Link>
-              <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Contact</Link>
-              {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Log in</Link> : null}
-              {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[15px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
+              <Link href="/about" className="rounded-lg px-3 py-2.5 text-[14px] font-semibold text-ink hover:bg-page">About</Link>
+              <Link href="/contact" className="rounded-lg px-3 py-2.5 text-[14px] font-semibold text-ink hover:bg-page">Contact</Link>
+              {!viewer.userId ? <Link href="/login" className="rounded-lg px-3 py-2.5 text-[14px] font-semibold text-ink hover:bg-page">Log in</Link> : null}
+              {staff ? <Link href="/admin" className="rounded-lg px-3 py-2.5 text-[14px] font-semibold text-ink hover:bg-page">Admin</Link> : null}
             </div>
           </MobileMenu>
         </div>
@@ -166,7 +166,7 @@ export async function SiteHeader() {
 /** The one call to action, for visitors only: "Get full access" for people signed in was taken off on 24 Nov 2026 (client). */
 function AccessButton({ viewer, mobile = false }: { viewer: { userId: string | null }; mobile?: boolean }) {
   if (viewer.userId) return null;
-  const size = mobile ? "h-11 w-full justify-center text-[15px]" : "h-9 text-[12px]";
+  const size = mobile ? "h-11 w-full justify-center text-[14px]" : "h-9 text-[12px]";
   return (
     // Deep blue rather than the mid blue, so the one button carries the most weight in the bar.
     <Link href="/signup" className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-brand-deep px-4 font-semibold text-white transition-colors hover:bg-navy hover:text-white ${size}`}>

@@ -115,7 +115,7 @@ export function ForumChat({ topicId, initial, more, closed: closedAtStart, write
         role="log" aria-live="polite" aria-label="Messages"
         className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6"
       >
-        {hasMore ? <div className="mb-3 flex justify-center"><button type="button" onClick={earlier} className="rounded-full bg-white/90 px-4 py-1.5 text-[13px] font-semibold text-brand shadow-sm hover:bg-white">Show earlier messages</button></div> : null}
+        {hasMore ? <div className="mb-3 flex justify-center"><button type="button" onClick={earlier} className="rounded-full bg-white/90 px-4 py-1.5 text-[12.5px] font-semibold text-brand shadow-sm hover:bg-white">Show earlier messages</button></div> : null}
         {!messages.length ? <p className="mt-10 text-center text-sm text-ink-muted">No messages yet. Say hello.</p> : null}
         <ol className="flex flex-col gap-1.5">
           {messages.map((m, n) => {
@@ -127,15 +127,15 @@ export function ForumChat({ topicId, initial, more, closed: closedAtStart, write
                 {newDay ? <span className="my-2 self-center rounded-lg bg-white/90 px-3 py-1 text-[12px] font-semibold text-ink-soft shadow-sm">{day(m.at)}</span> : null}
                 <div id={`m-${m.id}`} className={`group flex max-w-[85%] flex-col rounded-2xl px-3 pb-1.5 pt-2 shadow-sm sm:max-w-[70%] ${m.mine ? "self-end rounded-tr-md bg-[#D9FDD3]" : "self-start rounded-tl-md bg-white"} ${sameAuthor ? "mt-0" : "mt-1.5"}`}>
                   {!m.mine && !sameAuthor ? (
-                    <span className={`text-[13px] font-bold ${m.team ? "text-brand" : "text-[#0F5B3E]"}`}>{m.name}{m.team ? <span className="ml-1.5 rounded bg-brand-tint px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-brand-dark">Team</span> : null}</span>
+                    <span className={`text-[12.5px] font-bold ${m.team ? "text-brand" : "text-[#0F5B3E]"}`}>{m.name}{m.team ? <span className="ml-1.5 rounded bg-brand-tint px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-brand-dark">Team</span> : null}</span>
                   ) : null}
                   {m.reply ? (
                     <button type="button" onClick={() => jump(m.reply!.id)} className="my-1 flex flex-col rounded-lg border-l-4 border-[#0F5B3E] bg-black/[0.05] px-2.5 py-1.5 text-left">
                       <span className="text-[12px] font-bold text-[#0F5B3E]">{m.reply.name}</span>
-                      <span className="line-clamp-2 text-[13px] text-ink-soft">{m.reply.body}</span>
+                      <span className="line-clamp-2 text-[12.5px] text-ink-soft">{m.reply.body}</span>
                     </button>
                   ) : null}
-                  <p className="whitespace-pre-wrap break-words text-[15px] leading-snug text-ink">{m.body}</p>
+                  <p className="whitespace-pre-wrap break-words text-[14px] leading-snug text-ink">{m.body}</p>
                   <span className="mt-0.5 flex items-center justify-end gap-2 text-[11px] text-ink-muted">
                     {write === "member" && !closed ? (
                       <button type="button" onClick={() => { setReply(m); box.current?.focus(); }} className="inline-flex items-center gap-1 font-semibold text-ink-muted hover:text-brand sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100">
@@ -161,12 +161,12 @@ export function ForumChat({ topicId, initial, more, closed: closedAtStart, write
               <div className="flex items-start gap-2 rounded-xl border-l-4 border-[#0F5B3E] bg-white px-3 py-2">
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="text-[12px] font-bold text-[#0F5B3E]">Replying to {reply.mine ? "yourself" : reply.name}</span>
-                  <span className="truncate text-[13px] text-ink-soft">{reply.body}</span>
+                  <span className="truncate text-[12.5px] text-ink-soft">{reply.body}</span>
                 </span>
                 <button type="button" onClick={() => setReply(null)} aria-label="Cancel reply" className="rounded-full p-1 text-ink-muted hover:bg-page"><X className="h-4 w-4" /></button>
               </div>
             ) : null}
-            {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[13px] font-semibold text-bad-fg">{error}</p> : null}
+            {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[12.5px] font-semibold text-bad-fg">{error}</p> : null}
             <div className="flex items-end gap-2">
               <label className="sr-only" htmlFor="chat-box">Message</label>
               <textarea
@@ -174,7 +174,7 @@ export function ForumChat({ topicId, initial, more, closed: closedAtStart, write
                 onChange={(e) => { setBody(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${Math.min(e.target.scrollHeight, 140)}px`; }}
                 // Enter sends on a computer; on a phone it makes a new line, as in WhatsApp
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); send(); } }}
-                className="max-h-[140px] min-h-[44px] flex-1 resize-none rounded-3xl border-0 bg-white px-4 py-2.5 text-[15px] text-ink outline-none ring-1 ring-black/5 focus:ring-2 focus:ring-[#0F5B3E]/40"
+                className="max-h-[140px] min-h-[44px] flex-1 resize-none rounded-3xl border-0 bg-white px-4 py-2.5 text-[14px] text-ink outline-none ring-1 ring-black/5 focus:ring-2 focus:ring-[#0F5B3E]/40"
               />
               <button type="submit" disabled={sending || !body.trim()} aria-label="Send" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F5B3E] text-white transition-colors hover:bg-[#0B4630] disabled:opacity-50">
                 <SendHorizontal aria-hidden className="h-5 w-5" />

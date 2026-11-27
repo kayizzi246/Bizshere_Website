@@ -95,7 +95,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         {canContent ? (
           <div className="mx-3 mb-2 flex flex-col gap-1.5">
-            <Link href="/admin/content/new" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent text-[13px] font-semibold text-[#1F2328] hover:bg-white hover:text-[#1F2328]">
+            <Link href="/admin/content/new" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent text-[12.5px] font-semibold text-[#1F2328] hover:bg-white hover:text-[#1F2328]">
               <Icon name="plus" className="h-4 w-4" />Add content
             </Link>
             {/* Many at once, from a spreadsheet (17 Nov 2026). Quiet beside Add content: it is the
@@ -109,7 +109,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Suspense fallback={null}><SideNav items={items} dark /></Suspense>
         </div>
         <div className="flex flex-col gap-1 border-t border-white/10 p-3">
-          <Link href="/" target="_blank" className="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
+          <Link href="/" target="_blank" className="flex h-10 items-center gap-3 rounded-lg px-3 text-[12.5px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white">
             <Icon name="external" className="h-4 w-4" />View website
           </Link>
           <div className="mt-1 rounded-lg bg-white/[0.06] p-2">{userCard}</div>
@@ -134,7 +134,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
         {/* Left-aligned to the sidebar (no centring), so wide screens don't open a gap beside it */}
-        <main className="flex w-full min-w-0 max-w-[1600px] flex-col gap-3.5 px-3.5 pb-16 pt-4 sm:px-5 lg:gap-4 lg:px-6 lg:pt-5">{children}</main>
+        <main className="flex w-full min-w-0 max-w-[1600px] flex-col gap-3.5 px-3.5 pb-12 pt-4 sm:px-5 lg:gap-4 lg:px-6 lg:pt-5">{children}</main>
       </div>
     </div>
   );

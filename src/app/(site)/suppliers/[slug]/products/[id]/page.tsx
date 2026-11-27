@@ -61,15 +61,15 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
   // One main action (client, 12 Nov 2026: simple, made to convert): Call, or Unlock for visitors; WhatsApp and Email quiet
   const buy = gated ? (
     <div className="flex flex-col gap-2">
-      <Link href={path} data-onboard="" className={`${btn} min-h-[54px] w-full bg-accent text-center text-[16px] text-ink hover:bg-accent-dark hover:text-white`}><LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{planInfo.daily ? `Unlock the price and contacts · ${planInfo.daily} a day` : "Unlock the price and contacts"}</Link>
-      <p className="text-[13px] text-ink-muted">Pay with MoMo, Airtel Money or card. The price and the seller&apos;s phone open straight away.</p>
+      <Link href={path} data-onboard="" className={`${btn} min-h-[54px] w-full bg-accent text-center text-[15px] text-ink hover:bg-accent-dark hover:text-white`}><LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />{planInfo.daily ? `Unlock the price and contacts · ${planInfo.daily} a day` : "Unlock the price and contacts"}</Link>
+      <p className="text-[12.5px] text-ink-muted">Pay with MoMo, Airtel Money or card. The price and the seller&apos;s phone open straight away.</p>
     </div>
   ) : (
     <div className="flex flex-col gap-2">
-      {s.phone ? <a href={`tel:${(phoneNumbers(s.phone)[0] ?? s.phone).replace(/\s/g, "")}`} className={`${btn} min-h-[54px] w-full bg-brand text-[16px] text-white hover:bg-brand-dark hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call {s.phone}</a> : null}
+      {s.phone ? <a href={`tel:${(phoneNumbers(s.phone)[0] ?? s.phone).replace(/\s/g, "")}`} className={`${btn} min-h-[54px] w-full bg-brand text-[15px] text-white hover:bg-brand-dark hover:text-white`}><Phone aria-hidden className="h-4 w-4" />Call {s.phone}</a> : null}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2">
-        {s.phone ? <a href={whatsappHref(s.whatsapp || (phoneNumbers(s.phone)[0] ?? s.phone), ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
-        {s.email ? <a href={`mailto:${s.email}?subject=${encodeURIComponent(name)}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[14px] font-semibold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4" />Email</a> : null}
+        {s.phone ? <a href={whatsappHref(s.whatsapp || (phoneNumbers(s.phone)[0] ?? s.phone), ask)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[13px] font-semibold text-heading hover:border-[#25D366] hover:text-heading"><MessageCircle aria-hidden className="h-4 w-4 text-[#1DA851]" />WhatsApp</a> : null}
+        {s.email ? <a href={`mailto:${s.email}?subject=${encodeURIComponent(name)}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><Mail aria-hidden className="h-4 w-4" />Email</a> : null}
       </div>
       {!s.phone && !s.email ? <Link href={back} className="text-sm font-semibold">See the seller&apos;s page →</Link> : null}
     </div>
@@ -82,7 +82,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
       <section className="speckle under-header-pad">
         <div className="container-site flex flex-col gap-5 pad-hero">
           {/* Where you are */}
-          <nav aria-label="You are here" className="flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted">
+          <nav aria-label="You are here" className="flex flex-wrap items-center gap-1.5 text-[12.5px] text-ink-muted">
             <Link href="/suppliers" className="text-ink-muted hover:text-brand">Suppliers</Link><span aria-hidden>/</span>
             <Link href={back} className="text-ink-muted hover:text-brand">{supplierName}</Link><span aria-hidden>/</span>
             <span className="truncate text-ink-soft">{name}</span>
@@ -97,11 +97,11 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
             {/* Name, price and how to buy: stays in view beside the photos on wide screens */}
             <div className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-32">
               <div className="flex flex-col gap-2">
-                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
+                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px]">
                   <Link href={back} className="inline-flex items-center gap-1.5 font-semibold text-brand-dark hover:text-brand"><Store aria-hidden className="h-4 w-4" />{supplierName}</Link>
                   {product.availability ? <span className={`inline-flex items-center gap-1 font-semibold ${inStock ? "text-[#1F7A4D]" : "text-ink-muted"}`}>{inStock ? <CheckCircle2 aria-hidden className="h-3.5 w-3.5" /> : null}{product.availability}</span> : null}
                 </p>
-                <h1 className="text-hero text-[26px] leading-[1.12] text-heading sm:text-[32px] lg:text-[36px]">{name}</h1>
+                <h1 className="text-hero text-[23px] leading-[1.12] text-heading sm:text-[28px] lg:text-[32px]">{name}</h1>
               </div>
 
               {/* The price and how it is sold, on one card: the price large with its unit beside it, then the facts in
@@ -110,21 +110,21 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
                 <div className="flex flex-col gap-1.5 p-5">
                   {gated ? (
                     <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <span aria-hidden className="select-none font-display text-[30px] font-extrabold leading-none text-heading blur-[7px]">UGX 00,000</span>
-                      <span className="text-[13px] text-ink-muted">Price shown to members</span>
+                      <span aria-hidden className="select-none font-display text-[26px] font-extrabold leading-none text-heading blur-[7px]">UGX 00,000</span>
+                      <span className="text-[12.5px] text-ink-muted">Price shown to members</span>
                     </p>
                   ) : (
                     <p className="flex flex-wrap items-baseline gap-x-2">
-                      {price ? <span className="text-hero text-[32px] leading-none text-heading sm:text-[38px]">{price}</span> : <span className="text-[18px] font-semibold text-ink-soft">Ask the seller for the price</span>}
-                      {price && product.unit ? <span className="text-[15px] text-ink-muted">/ {product.unit}</span> : null}
+                      {price ? <span className="text-hero text-[28px] leading-none text-heading sm:text-[33px]">{price}</span> : <span className="text-[17px] font-semibold text-ink-soft">Ask the seller for the price</span>}
+                      {price && product.unit ? <span className="text-[14px] text-ink-muted">/ {product.unit}</span> : null}
                     </p>
                   )}
                   {product.quotedAt ? <p className="inline-flex items-center gap-1.5 text-[12px] text-ink-muted"><CheckCircle2 aria-hidden className="h-3.5 w-3.5 text-[#1F7A4D]" />Price checked {date(product.quotedAt)}</p> : null}
                 </div>
                 {product.unit || minOrder ? (
                   <dl className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] border-t border-line bg-page/60">
-                    {product.unit ? <div className="flex flex-col gap-0.5 px-5 py-3"><dt className="text-[12px] text-ink-muted">Sold per</dt><dd className="font-display text-[15px] font-bold text-heading">{product.unit}</dd></div> : null}
-                    {minOrder ? <div className="flex flex-col gap-0.5 border-line px-5 py-3 [&:not(:first-child)]:border-l"><dt className="text-[12px] text-ink-muted">Smallest order</dt><dd className="font-display text-[15px] font-bold text-heading">{minOrder}</dd></div> : null}
+                    {product.unit ? <div className="flex flex-col gap-0.5 px-5 py-3"><dt className="text-[12px] text-ink-muted">Sold per</dt><dd className="font-display text-[14px] font-bold text-heading">{product.unit}</dd></div> : null}
+                    {minOrder ? <div className="flex flex-col gap-0.5 border-line px-5 py-3 [&:not(:first-child)]:border-l"><dt className="text-[12px] text-ink-muted">Smallest order</dt><dd className="font-display text-[14px] font-bold text-heading">{minOrder}</dd></div> : null}
                   </dl>
                 ) : null}
               </div>
@@ -138,10 +138,10 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
                   {s.pictureUrl ? <img src={s.pictureUrl} alt="" className="h-full w-full object-cover" /> : <Store aria-hidden className="h-5 w-5 text-brand/50" />}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate font-display text-[15px] font-bold text-heading">{supplierName}</span>
+                  <span className="truncate font-display text-[14px] font-bold text-heading">{supplierName}</span>
                   <span className="flex items-center gap-1 text-[12px] text-ink-muted">{s.country ? <><MapPin aria-hidden className="h-3 w-3" />{s.country} · </> : null}{s.listings.length} product{s.listings.length === 1 ? "" : "s"}</span>
                 </span>
-                <span className="text-[13px] font-semibold text-brand group-hover:underline">See shop →</span>
+                <span className="text-[12.5px] font-semibold text-brand group-hover:underline">See shop →</span>
               </Link>
               <p className="flex items-start gap-2 text-[12px] leading-snug text-ink-muted"><ShieldCheck aria-hidden className="mt-px h-4 w-4 shrink-0" />Always check the goods before you pay, and take care with payments to anyone you have not met.</p>
             </div>
@@ -150,8 +150,8 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
           {/* About the product */}
           {product.specifications ? (
             <section className="flex max-w-3xl flex-col gap-2 border-t border-line pt-6">
-              <h2 className="font-display text-[19px] font-bold text-heading">About this product</h2>
-              <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{product.specifications}</p>
+              <h2 className="font-display text-[18px] font-bold text-heading">About this product</h2>
+              <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{product.specifications}</p>
             </section>
           ) : null}
         </div>
@@ -161,7 +161,7 @@ export default async function SupplierProductPage({ params }: { params: { slug: 
       {!gated ? <StickyContact phone={s.phone} whatsapp={s.whatsapp || (s.phone ? (phoneNumbers(s.phone)[0] ?? s.phone) : null)} message={ask} /> : null}
 
       <div className="bg-page">
-        <div className="container-site pb-24 pt-7 sm:pb-14 sm:pt-9 lg:pb-16 lg:pt-10">
+        <div className="container-site pb-24 pt-7 sm:pb-10 sm:pt-9 lg:pb-12 lg:pt-10">
           {more.length ? (
             <SupplierCatalog items={more} gated={gated} back={back} title={`More from ${supplierName}`} />
           ) : (

@@ -62,8 +62,8 @@ function Card({ table, row, gated, back, compact = false }: { table: ChildTable;
   return (
     <div className={`flex flex-col rounded-2xl border border-line bg-white ${compact ? "gap-2 border-0 bg-page p-3" : "gap-3 p-6"}`}>
       {title ? (
-        link?.href ? <Link href={link.href} className="font-display text-[15px] font-bold leading-tight text-heading hover:text-brand">{title}</Link>
-          : <span className={`font-display text-[15px] font-bold leading-tight ${table.key === "reviews" ? "text-accent" : "text-heading"}`}>{title}</span>
+        link?.href ? <Link href={link.href} className="font-display text-[14px] font-bold leading-tight text-heading hover:text-brand">{title}</Link>
+          : <span className={`font-display text-[14px] font-bold leading-tight ${table.key === "reviews" ? "text-accent" : "text-heading"}`}>{title}</span>
       ) : null}
       {table.key === "reviews" && row.confirmedEngagement ? <span className="-mt-1 text-xs font-semibold text-brand">Confirmed engagement</span> : null}
       {short.length ? (
@@ -71,7 +71,7 @@ function Card({ table, row, gated, back, compact = false }: { table: ChildTable;
           {short.map((f) => (
             <div key={f.name} className="flex min-w-0 flex-col">
               <dt className="text-[11px] text-ink-muted">{f.label}</dt>
-              <dd className="break-words text-[13px] font-semibold text-ink">{gated && f.member ? <Locked back={back} /> : <Value f={f} v={row[f.name]} row={row} currency={currency} />}</dd>
+              <dd className="break-words text-[12.5px] font-semibold text-ink">{gated && f.member ? <Locked back={back} /> : <Value f={f} v={row[f.name]} row={row} currency={currency} />}</dd>
             </div>
           ))}
         </dl>
@@ -79,7 +79,7 @@ function Card({ table, row, gated, back, compact = false }: { table: ChildTable;
       {long.map((f) => (
         <div key={f.name} className="flex flex-col gap-0.5">
           <span className="text-[11px] text-ink-muted">{f.label}</span>
-          {gated && f.member ? <Locked back={back} /> : <p className="whitespace-pre-line text-[13px] leading-relaxed text-ink-soft">{String(row[f.name])}</p>}
+          {gated && f.member ? <Locked back={back} /> : <p className="whitespace-pre-line text-[12.5px] leading-relaxed text-ink-soft">{String(row[f.name])}</p>}
         </div>
       ))}
     </div>
@@ -160,7 +160,7 @@ function Value({ f, v, row, currency }: { f: ChildField; v: unknown; row: Row; c
 
 function Locked({ back }: { back: string }) {
   return (
-    <Link href={back} data-onboard="" className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand">
+    <Link href={back} data-onboard="" className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-brand">
       <LockKeyhole aria-hidden className="h-3 w-3" /> Tap to see
     </Link>
   );

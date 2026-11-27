@@ -84,7 +84,7 @@ export function ServiceSearch({ path, label, q, filters, values, count, adv, adv
       {/* Advanced search: this directory's other fields, plus phrase, exclusions, freshness and order */}
       <div className="flex flex-col">
         <input id={`adv-${id}`} type="checkbox" defaultChecked={advancedActive} className="peer sr-only" aria-label="Show advanced search" />
-        <label htmlFor={`adv-${id}`} className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-[13px] font-semibold text-brand hover:text-brand-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brand">
+        <label htmlFor={`adv-${id}`} className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-[12.5px] font-semibold text-brand hover:text-brand-dark peer-focus-visible:ring-2 peer-focus-visible:ring-brand">
           <SlidersHorizontal aria-hidden className="h-4 w-4" />
           Advanced search{advancedActive ? <span className="rounded-full bg-brand px-1.5 text-[11px] text-white">on</span> : null}
         </label>
@@ -114,7 +114,7 @@ export function ServiceSearch({ path, label, q, filters, values, count, adv, adv
               ))}
             </div>
             <div className="flex shrink-0 items-center justify-between gap-4 lg:justify-end">
-              <Link href={path} className="text-[13px] font-semibold">Reset</Link>
+              <Link href={path} className="text-[12.5px] font-semibold">Reset</Link>
               <button className="btn-primary min-h-[40px] px-6">Apply</button>
             </div>
           </div>
@@ -122,7 +122,7 @@ export function ServiceSearch({ path, label, q, filters, values, count, adv, adv
       </div>
 
       {searching ? (
-        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-[13px]">
+        <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-[12.5px]">
           <span className="mr-1 text-ink-muted"><strong className="text-ink">{count}</strong> {count === 1 ? "result" : "results"}</span>
           {q ? <Chip href={without("q")}>“{q}”</Chip> : null}
           {active.map((a) => <Chip key={a.name} href={without(a.name)}>{a.text}</Chip>)}

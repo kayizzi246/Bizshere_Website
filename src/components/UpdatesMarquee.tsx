@@ -25,7 +25,7 @@ export function UpdatesMarquee({ updates, live = null, dark = false }: { updates
   // Dark: plain text with an orange dot before each item (no chips). Light: chips.
   const chip = dark
     ? "inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.08] raised pl-1 pr-2.5 text-[11px] font-normal text-white sm:h-8 sm:text-[11.5px]"
-    : "inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-page/70 px-3 py-1 text-[13px] text-ink-soft";
+    : "inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-page/70 px-3 py-1 text-[12.5px] text-ink-soft";
   const hover = dark ? "hover:border-accent hover:bg-white/[0.16] hover:text-white" : "hover:border-brand/40 hover:bg-white hover:text-ink";
   const items = (dup: boolean) =>
     row.map((u, n) => {

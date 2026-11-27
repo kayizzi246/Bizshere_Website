@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import "primeicons/primeicons.css";
-import "../styles/primereact-theme.css";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ImageFit } from "@/components/ImageFit";
@@ -26,17 +24,7 @@ const inter = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
-// Headings, navigation and titles (client, 24 Nov 2026, from their typography sheet): Manrope, Medium to ExtraBold.
-// Inter does the rest: body text, forms, tables, buttons and labels. Kept in the repo like Inter, under the SIL
-// Open Font License (src/fonts/manrope-LICENSE.txt).
-const manrope = localFont({
-  src: "../fonts/manrope-latin-var.woff2",
-  weight: "200 800",
-  style: "normal",
-  variable: "--font-heading",
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-});
+// One font (client, 27 Nov 2026: "fonts match"): Manrope was dropped, and --font-heading points at Inter (globals.css).
 
 
 // The browser bar in the site's navy on phones, and the same when opened from the home screen (manifest.ts)
@@ -58,7 +46,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: ScrollEffects adds `reveal-ready` to <html> on the client.
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
         <ImageFit />

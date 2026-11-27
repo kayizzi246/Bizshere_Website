@@ -132,7 +132,7 @@ export function RecentStrip({ exclude, only, title = "Pick up where you left off
               )}
               <span className="flex min-w-0 flex-col gap-0.5">
                 <span className="truncate text-[11px] font-semibold text-accent-dark">{x.kind}</span>
-                <span className="line-clamp-2 text-[13px] font-bold leading-snug text-heading group-hover:text-brand">{x.title.replace(/^Sample:\s*/i, "")}</span>
+                <span className="line-clamp-2 text-[12.5px] font-bold leading-snug text-heading group-hover:text-brand">{x.title.replace(/^Sample:\s*/i, "")}</span>
                 <span className="text-[11px] text-ink-muted">{ago(x.at)}</span>
               </span>
             </Link>
@@ -154,7 +154,7 @@ export function ReadMore({ text, lines = 4, className = "" }: { text: string; li
   return (
     <div className="flex flex-col items-start gap-2">
       <p
-        className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-soft ${className}`}
+        className={`whitespace-pre-line text-[14px] leading-relaxed text-ink-soft ${className}`}
         style={long && !open ? { display: "-webkit-box", WebkitLineClamp: lines, WebkitBoxOrient: "vertical", overflow: "hidden" } : undefined}
       >
         {text}

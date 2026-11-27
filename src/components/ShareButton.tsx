@@ -29,7 +29,7 @@ export function ShareButton({ title, path, compact = false , small = false }: { 
     );
   }
   return (
-    <button type="button" onClick={share} className={`inline-flex items-center justify-center gap-1.5 border border-line text-ink hover:border-brand hover:text-brand ${small ? "h-11 rounded-lg px-4 text-[14px] font-semibold" : "h-12 w-full rounded-xl text-sm font-bold"}`}>
+    <button type="button" onClick={share} className={`inline-flex items-center justify-center gap-1.5 border border-line text-ink hover:border-brand hover:text-brand ${small ? "h-11 rounded-lg px-4 text-[13px] font-semibold" : "h-12 w-full rounded-xl text-sm font-bold"}`}>
       {done ? <Check aria-hidden className="h-4 w-4" /> : <Share2 aria-hidden className="h-4 w-4" />}{done ? "Link copied" : "Share"}
     </button>
   );

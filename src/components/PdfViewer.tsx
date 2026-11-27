@@ -103,7 +103,7 @@ function PdfPages({ file, zoom, fallback }: { file: string; zoom: number; fallba
   if (failed) return <>{fallback}</>;
   if (!info) {
     return (
-      <div role="status" className="flex flex-col items-center gap-3 px-6 py-20 text-center text-sm text-white/80">
+      <div role="status" className="flex flex-col items-center gap-3 px-6 py-14 text-center text-sm text-white/80">
         <span aria-hidden className="h-8 w-8 animate-spin rounded-full border-[3px] border-white/25 border-t-white" />
         Opening the document…
       </div>
@@ -133,9 +133,9 @@ function PdfOverlay({ file, download, title, onClose }: { file: string; download
     return () => { document.body.style.overflow = before; window.removeEventListener("keydown", key); };
   }, [onClose]);
 
-  const bar = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg text-[13px] font-semibold";
+  const bar = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg text-[12.5px] font-semibold";
   const failed = (
-    <div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 py-16 text-center">
+    <div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 py-12 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"><FileText aria-hidden className="h-5 w-5" /></span>
       <p className="text-sm text-white/85">This document can&apos;t be shown here on this device. Open it in a new tab, or download it.</p>
       <span className="flex flex-wrap justify-center gap-2">
@@ -149,7 +149,7 @@ function PdfOverlay({ file, download, title, onClose }: { file: string; download
     <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[300] flex flex-col bg-[#1B2430]">
       <div className="flex items-center gap-2 border-b border-white/10 bg-navy px-3 py-2 text-white sm:px-4">
         <FileText aria-hidden className="hidden h-5 w-5 shrink-0 text-accent sm:block" />
-        <span className="min-w-0 flex-1 truncate font-display text-sm font-bold sm:text-[15px]">{title}</span>
+        <span className="min-w-0 flex-1 truncate font-display text-sm font-bold sm:text-[14px]">{title}</span>
         {native === false ? (
           <span className="flex items-center">
             <button type="button" onClick={() => setZoom((z) => Math.max(1, z - 0.5))} disabled={zoom <= 1} aria-label="Zoom out" className={`${bar} w-10 text-white hover:bg-white/10 disabled:opacity-40`}><Minus aria-hidden className="h-4 w-4" /></button>
@@ -205,9 +205,9 @@ export function PdfReader({ file, download, title, what = "document" }: { file: 
   if (native) return <iframe src={withHash(file)} title={`${title} (PDF)`} loading="lazy" className="h-[760px] w-full rounded-xl border border-line bg-page" />;
   // Until the browser is known: the same room, so the page doesn't jump
   if (native === null) return <div aria-hidden className="h-[70vh] max-h-[760px] min-h-[420px] w-full rounded-xl border border-line bg-page" />;
-  const bar = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold";
+  const bar = "inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 text-[12.5px] font-semibold";
   const failed = (
-    <div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 py-16 text-center">
+    <div className="mx-auto flex max-w-sm flex-col items-center gap-4 px-6 py-12 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"><FileText aria-hidden className="h-5 w-5" /></span>
       <p className="text-sm text-white/85">This {what} can&apos;t be shown on this device. Open it in a new tab, or download it.</p>
       <span className="flex flex-wrap justify-center gap-2">

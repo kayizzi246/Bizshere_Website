@@ -23,7 +23,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   return (
     <>
       <div>
-        <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Contact details</h1>
+        <h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Contact details</h1>
         <p className="text-sm text-ink-muted">How people reach you. These show in the footer, on the Contact page and in the payment pop-up. The WhatsApp number becomes the green chat button on every page of the site.</p>
       </div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
@@ -43,7 +43,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
             <a href={whatsappHref(c.whatsapp, "Hello BizSphere-Ug")} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white hover:bg-[#1DA851] hover:text-white">
               <MessageCircle aria-hidden className="h-4 w-4" />Test the WhatsApp button
             </a>
-          ) : <span className="text-[13px] text-ink-muted">No WhatsApp number yet: the chat button is hidden until you add one.</span>}
+          ) : <span className="text-[12.5px] text-ink-muted">No WhatsApp number yet: the chat button is hidden until you add one.</span>}
         </div>
       </form>
     </>

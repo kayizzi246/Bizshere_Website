@@ -30,7 +30,7 @@ export async function SiteFooter() {
     select: { expertProfile: { select: { id: true } }, orgMemberships: { where: { organization: { supplier: { isNot: null } } }, select: { userId: true }, take: 1 } },
   }).catch(() => null) : null;
   const portal = me?.orgMemberships.length ? "/supplier" : me?.expertProfile ? "/expert" : null;
-  const footerLink = "text-[13px] text-white/60 transition-colors hover:text-white";
+  const footerLink = "text-[12.5px] text-white/60 transition-colors hover:text-white";
   const contact = [
     c.whatsapp && { icon: "phone", text: `WhatsApp ${c.whatsapp}`, href: whatsappHref(c.whatsapp, "Hello BizSphere-Ug, I'd like to know more.") },
     c.phone && c.phone !== c.whatsapp && { icon: "phone", text: c.phone, href: `tel:${c.phone.replace(/\s/g, "")}` },
@@ -44,13 +44,13 @@ export async function SiteFooter() {
   return (
     <footer className="hero-glow mt-auto overflow-hidden text-white">
       <div className="container-site">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 py-10 sm:py-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 py-10 sm:py-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-8">
           <div className="col-span-2 flex flex-col gap-4 lg:col-span-1 lg:pr-8">
             {/* The logo turned all white for the navy: brightness-0 makes it black, invert makes that white */}
             <Link href="/" aria-label="BizSphere-Ug home" className="w-fit">
               <Image src="/brand/logo-full.png" alt="BizSphere-Ug: Powering your Business, Guiding your Growth" width={1018} height={696} className="h-12 w-auto brightness-0 invert" />
             </Link>
-            <p data-size="" className="max-w-xs text-[13px] leading-relaxed text-white/65">{site.tagline}</p>
+            <p data-size="" className="max-w-xs text-[12.5px] leading-relaxed text-white/65">{site.tagline}</p>
             {contact.length ? (
               <ul className="flex flex-col gap-1.5 text-[12px]">
                 {contact.map((i) => (
@@ -63,7 +63,7 @@ export async function SiteFooter() {
             ) : null}
             {/* The member badge: opens "My membership" (time left, renew, payments) on the account page */}
             {viewer.isMember ? (
-              <Link href="/account#membership" title="Your membership" className="inline-flex h-10 w-fit items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-1.5 pr-4 text-[13px] font-semibold text-brand-dark transition-colors hover:bg-accent hover:text-ink">
+              <Link href="/account#membership" title="Your membership" className="inline-flex h-10 w-fit items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-1.5 pr-4 text-[12.5px] font-semibold text-brand-dark transition-colors hover:bg-accent hover:text-ink">
                 <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-white"><Icon name="check" className="h-4 w-4" /></span> Member
               </Link>
             ) : null}

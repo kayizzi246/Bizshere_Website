@@ -17,20 +17,20 @@ export function SplitShell({ heading, sub, foot, panel, panelOnPhone = false, ch
           {/* 40/48px (16 Nov 2026; was 64/80, which dwarfed the sign-in heading below it). This page
               sets its own size rather than using <Logo full />, so it has to be changed here too. */}
           <Link href="/" aria-label="BizSphere-Ug home"><Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-10 w-auto sm:h-12" priority /></Link>
-          <Link href="/" className="inline-flex items-center gap-2 text-[13px] font-semibold text-ink-soft hover:text-brand sm:text-[14px]"><ArrowLeft aria-hidden className="h-4 w-4" />Back to website</Link>
+          <Link href="/" className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-ink-soft hover:text-brand sm:text-[13px]"><ArrowLeft aria-hidden className="h-4 w-4" />Back to website</Link>
         </div>
 
         <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center gap-6">
           {heading ? (
             <div className="flex flex-col gap-1.5">
-              <h1 className="text-hero text-[30px] leading-[1.1] text-heading sm:text-[36px]">{heading}</h1>
-              {sub ? <p className="text-[15px] text-ink-muted">{sub}</p> : null}
+              <h1 className="text-hero text-[26px] leading-[1.1] text-heading sm:text-[32px]">{heading}</h1>
+              {sub ? <p className="text-[14px] text-ink-muted">{sub}</p> : null}
             </div>
           ) : null}
           {children}
         </div>
 
-        {foot ? <div className="text-center text-[13px] text-ink-muted">{foot}</div> : null}
+        {foot ? <div className="text-center text-[12.5px] text-ink-muted">{foot}</div> : null}
       </div>
 
       <aside className={`hero-glow hero-still relative isolate m-3 flex-col justify-end overflow-hidden rounded-3xl bg-navy p-6 text-white sm:p-10 lg:flex xl:p-14 ${panelOnPhone ? "flex" : "hidden"}`}>
@@ -45,11 +45,11 @@ export function SplitShell({ heading, sub, foot, panel, panelOnPhone = false, ch
 export function PanelWords({ lead, accent, text, chips }: { lead: string; accent: string; text: string; chips?: string[] }) {
   return (
     <>
-      <h2 className="max-w-md text-hero text-[30px] leading-[1.08] lg:text-[36px] xl:text-[44px]">{lead} <span className="text-accent">{accent}</span></h2>
-      <p className="max-w-md text-[16px] leading-relaxed text-white/75">{text}</p>
+      <h2 className="max-w-md text-hero text-[26px] leading-[1.08] lg:text-[32px] xl:text-[39px]">{lead} <span className="text-accent">{accent}</span></h2>
+      <p className="max-w-md text-[15px] leading-relaxed text-white/75">{text}</p>
       {chips ? (
         <ul className="flex max-w-md flex-wrap gap-2">
-          {chips.map((c) => <li key={c} className="rounded-full bg-white/10 px-3 py-1.5 text-[13px] font-semibold text-white/90">{c}</li>)}
+          {chips.map((c) => <li key={c} className="rounded-full bg-white/10 px-3 py-1.5 text-[12.5px] font-semibold text-white/90">{c}</li>)}
         </ul>
       ) : null}
     </>

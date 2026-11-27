@@ -75,8 +75,8 @@ export function DirectoryBoard<T extends string>({ crumb, heading, count, note, 
 /** "Nothing matches" in the list. */
 export function BoardEmpty({ any, onClear }: { any: boolean; onClear: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-white px-6 py-12 text-center">
-      <p data-size="" className="text-[13px] font-semibold text-heading">{any ? "Nothing matches this search. Try other words or another category." : "Nothing published here yet."}</p>
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-white px-6 py-10 text-center">
+      <p data-size="" className="text-[12.5px] font-semibold text-heading">{any ? "Nothing matches this search. Try other words or another category." : "Nothing published here yet."}</p>
       {any ? <button type="button" onClick={onClear} className="text-[12px] font-semibold text-brand hover:text-brand-dark">Clear the search</button> : null}
     </div>
   );
@@ -171,9 +171,9 @@ export function RowFrame({ id, href, title, external, thumb, meta, pills, body, 
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
             {external ? (
-              <a href={external} target="_blank" rel="noopener noreferrer" className="text-[15px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand sm:text-[16px]">{title}<span aria-hidden className="ml-1 text-brand">↗</span></a>
+              <a href={external} target="_blank" rel="noopener noreferrer" className="text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand sm:text-[15px]">{title}<span aria-hidden className="ml-1 text-brand">↗</span></a>
             ) : (
-              <Link href={href} className="text-[15px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand sm:text-[16px]">{title}</Link>
+              <Link href={href} className="text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand sm:text-[15px]">{title}</Link>
             )}
             <p data-size="" className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[12px] text-ink-muted">{meta}</p>
           </div>
@@ -224,7 +224,7 @@ export function GridFrame({ id, href, title, src, icon, meta, pills, body, actio
       <div className="flex flex-1 flex-col gap-1.5 p-2.5 sm:gap-2 sm:p-4">
         {/* The category on its own line, then the detail (client, 26 Nov 2026: the category was cut to "Fo…") */}
         <p data-size="" className="flex min-w-0 flex-col gap-0.5 text-[11px] text-ink-muted [&>*]:truncate">{meta}</p>
-        <Link href={href} className="line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
+        <Link href={href} className="line-clamp-2 text-[13px] font-bold leading-snug tracking-[-0.015em] text-heading hover:text-brand">{title}</Link>
         {pills ? <ul className="flex flex-wrap gap-1">{pills}</ul> : null}
         {body}
         <div className="mt-auto flex gap-1.5 pt-1.5 [&>*]:h-8 [&>*]:flex-1 [&>*]:px-2 [&>*]:text-[11px]">{actions}</div>
@@ -272,7 +272,7 @@ export function RowPhoto({ href, src, icon = "link" }: { href: string; src: stri
 /** A small tile on the left of a row without a photo (initials or the directory's icon). Wide screens only. */
 function RowTile({ text, icon }: { text?: string; icon?: string }) {
   return (
-    <span aria-hidden className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-white text-[13px] font-bold tracking-[-0.02em] text-brand-dark sm:flex">
+    <span aria-hidden className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-white text-[12.5px] font-bold tracking-[-0.02em] text-brand-dark sm:flex">
       {text ?? <Icon name={icon ?? "link"} className="h-5 w-5 text-brand" strokeWidth={1.75} />}
     </span>
   );
@@ -306,7 +306,7 @@ export function ListingRow({ i, n = 0, icon, variant }: { i: BrowseListing; /** 
         {i.country ? <li className={chip}><MapPin aria-hidden className="h-3 w-3 text-ink-muted" />{i.country}</li> : null}
         {i.sells ? <li className={`${chip} max-w-full`}><Package aria-hidden className="h-3 w-3 shrink-0 text-ink-muted" /><span className="truncate">{i.sells}</span></li> : null}
       </> : null}
-      body={about ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-soft">{about}</p> : null}
+      body={about ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[12.5px] leading-relaxed text-ink-soft">{about}</p> : null}
       actions={i.external ? (
         <a href={i.external} target="_blank" rel="noopener noreferrer" className={solidButton}>Visit<span aria-hidden>↗</span></a>
       ) : (
@@ -345,7 +345,7 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
   const title = clean(i.title);
   const t = FUND_TONES[n % FUND_TONES.length];
   const part = "inline-flex items-center px-2 py-0.5";
-  const button = "inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink";
+  const button = "inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[12.5px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink";
   return (
     <article className="group relative overflow-hidden rounded-xl border border-line bg-white">
       {/* The colour edge as a bar, not a border: public pages hide card borders (globals.css) */}
@@ -372,19 +372,19 @@ function FundRow({ i, n }: { i: BrowseListing; n: number }) {
             <WishlistHeart id={i.id} className="!h-7 !w-7 border border-line" />
           </span>
         </div>
-        <Link href={i.href} className={`w-fit text-[16px] font-[900] leading-snug tracking-[-0.015em] hover:underline sm:text-[17px] ${t.name}`}>{title}</Link>
+        <Link href={i.href} className={`w-fit text-[15px] font-[900] leading-snug tracking-[-0.015em] hover:underline sm:text-[16px] ${t.name}`}>{title}</Link>
         {/* One line under the name: the funder, or what the fund is for when they share a name */}
-        {funder ?? purpose ?? i.summary ? <p data-size="" className="line-clamp-1 text-[13px] font-semibold text-heading">{funder ?? purpose ?? i.summary}</p> : null}
+        {funder ?? purpose ?? i.summary ? <p data-size="" className="line-clamp-1 text-[12.5px] font-semibold text-heading">{funder ?? purpose ?? i.summary}</p> : null}
       </div>
       <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-line px-4 py-2 sm:px-5 ${i.applyLocked ? "bg-[#FFFBEB]" : "bg-page"}`}>
         {i.applyLocked ? (
           <>
-            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[13px] leading-snug text-ink-soft"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0 text-accent-dark" />Become a member to see the {amount?.locked ? "amount, " : ""}terms and how to apply.</p>
+            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[12.5px] leading-snug text-ink-soft"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0 text-accent-dark" />Become a member to see the {amount?.locked ? "amount, " : ""}terms and how to apply.</p>
             <Link href={`/membership?onboard=pay&next=${encodeURIComponent(i.href)}`} data-pay="" data-next={i.href} aria-label={`Unlock ${title}`} className={button}>Unlock</Link>
           </>
         ) : (
           <>
-            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[13px] leading-snug text-ink-soft"><Banknote aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />{amount?.value ? <strong className="font-bold text-heading">{amount.value}</strong> : "Amount not added"}</p>
+            <p data-size="" className="flex min-w-0 flex-1 basis-40 items-center gap-2.5 text-[12.5px] leading-snug text-ink-soft"><Banknote aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />{amount?.value ? <strong className="font-bold text-heading">{amount.value}</strong> : "Amount not added"}</p>
             {/* View, never Apply, from the list (client, 25 Nov 2026): the details first; Apply now is on the fund's page */}
             <Link href={i.href} aria-label={`View ${title}`} className={button}>View</Link>
           </>
@@ -425,7 +425,7 @@ function CellsRow({ i }: { i: BrowseListing }) {
         {deadline ? <li className={chip}><CalendarClock aria-hidden className="h-3 w-3 text-ink-muted" />Closes {deadline}</li> : null}
       </>}
       body={<>
-        {about ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-soft">{about}</p> : null}
+        {about ? <p data-size="" className="line-clamp-2 max-w-[62ch] text-[12.5px] leading-relaxed text-ink-soft">{about}</p> : null}
         {purpose ? <p data-size="" className="flex items-start gap-1.5 text-[12px] text-ink-muted"><Target aria-hidden className="mt-0.5 h-3 w-3 shrink-0" /><span className="line-clamp-1"><span className="font-medium text-ink-soft">For:</span> {purpose}</span></p> : null}
       </>}
       // View, never Apply, from the list (client, 25 Nov 2026): the details first; Apply now (locked for visitors) is on the fund's page
@@ -458,20 +458,20 @@ export function BoardAside({ path, tabs, active, locked, members, help, row = fa
       {locked ? (
         <div className="flex flex-col gap-2.5 rounded-2xl bg-navy p-4 text-white">
           <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent"><span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />Members</span>
-          <h3 className="text-[16px] font-bold leading-tight tracking-[-0.02em] text-white">{m.title}</h3>
-          <p data-size="" className="text-[13px] leading-relaxed text-white/75">{m.text}</p>
-          <Link href={`/membership?onboard=pay&next=${encodeURIComponent(path)}`} data-pay="" data-next={path} className="inline-flex h-10 items-center justify-center rounded-lg bg-accent px-4 text-[13px] font-bold text-ink hover:bg-[#FFA54A] hover:text-ink">Become a member</Link>
+          <h3 className="text-[15px] font-bold leading-tight tracking-[-0.02em] text-white">{m.title}</h3>
+          <p data-size="" className="text-[12.5px] leading-relaxed text-white/75">{m.text}</p>
+          <Link href={`/membership?onboard=pay&next=${encodeURIComponent(path)}`} data-pay="" data-next={path} className="inline-flex h-10 items-center justify-center rounded-lg bg-accent px-4 text-[12.5px] font-bold text-ink hover:bg-[#FFA54A] hover:text-ink">Become a member</Link>
         </div>
       ) : null}
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-white p-4 text-center">
-        <h3 className="text-[16px] font-bold leading-tight tracking-[-0.02em] text-heading">{h.title}</h3>
-        <p data-size="" className="text-[13px] leading-relaxed text-ink-muted">{h.text}</p>
-        <Link href={helpLink[0]} className="mt-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-[13px] font-bold text-white hover:bg-brand-dark hover:text-white"><Users aria-hidden className="h-3.5 w-3.5" />{helpLink[1]}</Link>
+        <h3 className="text-[15px] font-bold leading-tight tracking-[-0.02em] text-heading">{h.title}</h3>
+        <p data-size="" className="text-[12.5px] leading-relaxed text-ink-muted">{h.text}</p>
+        <Link href={helpLink[0]} className="mt-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-[12.5px] font-bold text-white hover:bg-brand-dark hover:text-white"><Users aria-hidden className="h-3.5 w-3.5" />{helpLink[1]}</Link>
       </div>
       {(others.length ? others : [["/search", "Search everything"] as [string, string]]).map(([href, label]) => (
         <Link key={href} href={href} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5 text-ink hover:border-ink-muted/50 hover:text-ink">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-tint text-accent-dark">{href === "/search" ? <Search aria-hidden className="h-4 w-4" /> : <Tag aria-hidden className="h-4 w-4" />}</span>
-          <span className="min-w-0 flex-1 text-[14px] font-bold leading-tight tracking-[-0.01em] text-heading">{label}</span>
+          <span className="min-w-0 flex-1 text-[13px] font-bold leading-tight tracking-[-0.01em] text-heading">{label}</span>
           <ChevronRight aria-hidden className="h-4 w-4 text-ink-muted transition group-hover:translate-x-0.5" />
         </Link>
       ))}

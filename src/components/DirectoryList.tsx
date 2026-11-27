@@ -100,19 +100,19 @@ export function ListingHeader({ title, intro, tabs, active, overlap = false }: {
 }) {
   return (
     <header className="under-header hero-glow bg-navy text-white">
-      <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-12 ${overlap ? "pb-20 sm:pb-24" : "pb-9 sm:pb-12"}`}>
+      <div className={`container-site flex flex-col gap-6 pt-9 sm:pt-10 ${overlap ? "pb-14 sm:pb-16" : "pb-9 sm:pb-10"}`}>
         {tabs ? (
           <nav aria-label="Sections" className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none]">
             <div className="inline-flex gap-0.5 rounded-full bg-white/[0.06] raised p-1">
               {tabs.map(([href, label]) => (
-                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{label}</Link>
+                <Link key={href} href={href} aria-current={href === active ? "page" : undefined} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] ${href === active ? "bg-white font-semibold text-ink hover:text-ink" : "font-medium text-white/75 hover:bg-white/10 hover:text-white"}`}>{label}</Link>
               ))}
             </div>
           </nav>
         ) : null}
         <div className="flex max-w-3xl flex-col gap-3">
-          <h1 className="text-hero text-[28px] sm:text-[36px] xl:text-[42px]">{title}</h1>
-          <p className="text-[15px] leading-relaxed text-white/75 sm:text-base">{intro}</p>
+          <h1 className="text-hero text-[25px] sm:text-[32px] xl:text-[37px]">{title}</h1>
+          <p className="text-[14px] leading-relaxed text-white/75 sm:text-base">{intro}</p>
         </div>
       </div>
     </header>

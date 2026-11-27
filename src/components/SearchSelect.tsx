@@ -118,7 +118,7 @@ export function SearchSelect({ options, name, defaultValue = "", placeholder = "
               <span className="sr-only">Search {label}</span>
               <input ref={search} value={query} onChange={(e) => { setQuery(e.target.value); setActive(0); }} placeholder={`Search ${label.toLowerCase()}…`}
                 role="combobox" aria-expanded aria-controls={listId} aria-autocomplete="list"
-                className="h-11 min-w-0 flex-1 bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-muted" />
+                className="h-11 min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-muted" />
               {query ? <span className="shrink-0 text-[11px] font-semibold text-ink-muted">{shown.length}</span> : null}
             </label>
           ) : null}
@@ -129,7 +129,7 @@ export function SearchSelect({ options, name, defaultValue = "", placeholder = "
               return (
                 <li key={o.value || "__none"} data-n={n} role="option" aria-selected={on}
                   onPointerEnter={() => setActive(n)} onClick={() => pick(o.value)}
-                  className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-[14px] transition-colors ${n === active ? "bg-brand/10" : ""} ${on ? "font-semibold text-brand" : ""}`}>
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-[13px] transition-colors ${n === active ? "bg-brand/10" : ""} ${on ? "font-semibold text-brand" : ""}`}>
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate">{mark(o.label)}</span>
                     {o.hint ? <span className="truncate text-[12px] font-normal text-ink-muted">{mark(o.hint)}</span> : null}
@@ -138,7 +138,7 @@ export function SearchSelect({ options, name, defaultValue = "", placeholder = "
                 </li>
               );
             })}
-            {shown.length === 0 ? <li className="px-3 py-6 text-center text-[13px] text-ink-muted">{emptyText}</li> : null}
+            {shown.length === 0 ? <li className="px-3 py-6 text-center text-[12.5px] text-ink-muted">{emptyText}</li> : null}
           </ul>
         </div>
       ) : null}

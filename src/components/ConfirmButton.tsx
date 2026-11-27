@@ -49,7 +49,7 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
             <h2 id="confirm-title" className="font-display text-lg font-extrabold tracking-tight text-heading">{title}</h2>
             <p id="confirm-text" className="text-sm leading-relaxed text-ink-soft">{message}</p>
           </div>
-          {plain ? null : <ul className="flex flex-col gap-1 rounded-xl bg-page p-3 text-[13px] text-ink-muted">
+          {plain ? null : <ul className="flex flex-col gap-1 rounded-xl bg-page p-3 text-[12.5px] text-ink-muted">
             <li>• Its details, offers, rounds, fees, budgets and versions</li>
             <li>• Media, sources, checks, revisions and saved copies</li>
             <li className="font-semibold text-bad-fg">• This cannot be undone</li>
@@ -73,7 +73,7 @@ export function ConfirmButton({ action, title = "Delete permanently?", message, 
   return (
     <>
       <button type="button" onClick={() => setOpen(true)}
-        className={`inline-flex items-center justify-center gap-2 rounded-full border border-bad-fg/30 bg-bad-bg px-4 text-[13px] font-semibold text-bad-fg hover:border-bad-fg ${className}`}>
+        className={`inline-flex items-center justify-center gap-2 rounded-full border border-bad-fg/30 bg-bad-bg px-4 text-[12.5px] font-semibold text-bad-fg hover:border-bad-fg ${className}`}>
         <Trash2 aria-hidden className="h-3.5 w-3.5" />{children}
       </button>
       {/* The real submit, clicked from the pop-up; it stays inside the form so the form's fields are sent. */}

@@ -37,7 +37,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   // 16px on phones (18 Nov 2026): iPhone Safari zooms the whole page in when a field whose text is
   // under 16px takes the keyboard, which threw the payment pop-up off the screen mid-sign-in. From
   // sm (a real keyboard, no zooming) the designed 15px comes back.
-  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[16px] sm:text-[15px]";
+  const field = size === "lg" ? "min-h-[56px] text-lg" : "min-h-[48px] text-[15px] sm:text-[14px]";
 
   useEffect(() => { if (phone) codeInput.current?.focus(); }, [phone]);
   useEffect(() => {
@@ -83,8 +83,8 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   if (phone) {
     return (
       <form onSubmit={(e) => { e.preventDefault(); verify(String(new FormData(e.currentTarget).get("code") ?? "")); }} className="flex flex-col gap-4" noValidate>
-        <p className={size === "lg" ? "text-[15px] text-ink-soft" : "text-[13px] text-ink-soft"}>Enter the code we sent to <strong className="whitespace-nowrap text-ink">{phone}</strong>.</p>
-        <label className={`label ${size === "lg" ? "" : "text-[13px]"}`}>
+        <p className={size === "lg" ? "text-[14px] text-ink-soft" : "text-[12.5px] text-ink-soft"}>Enter the code we sent to <strong className="whitespace-nowrap text-ink">{phone}</strong>.</p>
+        <label className={`label ${size === "lg" ? "" : "text-[12.5px]"}`}>
           Code
           {/* Checks itself as soon as the last digit is typed (or pasted, or filled from the SMS) */}
           <input ref={codeInput} name="code" inputMode="numeric" autoComplete="one-time-code" maxLength={length} placeholder={"•".repeat(length)}
@@ -105,7 +105,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
   return (
     <div className="flex flex-col gap-4">
       <form onSubmit={(e) => { e.preventDefault(); send(String(new FormData(e.currentTarget).get("phone") ?? "")); }} className="flex flex-col gap-4" noValidate>
-        <label className={`label ${size === "lg" ? "" : "text-[13px]"}`}>
+        <label className={`label ${size === "lg" ? "" : "text-[12.5px]"}`}>
           Phone number
           <span className="relative">
             <Smartphone aria-hidden className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" />
@@ -122,7 +122,7 @@ export function PhoneSignIn({ onSignedIn, googleEnabled, googleCallbackUrl, size
         <>
           <div className="flex items-center gap-3 text-xs text-ink-muted"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
           <button type="button" onClick={() => signIn("google", { callbackUrl: googleCallbackUrl })}
-            className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink ${size === "lg" ? "min-h-[52px]" : "min-h-[48px] text-[14px]"}`}>
+            className={`btn w-full border border-line-strong bg-white text-ink hover:border-ink hover:text-ink ${size === "lg" ? "min-h-[52px]" : "min-h-[48px] text-[13px]"}`}>
             <GoogleMark /> Continue with Google
           </button>
         </>

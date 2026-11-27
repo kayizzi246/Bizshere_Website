@@ -24,12 +24,12 @@ export function DashHero({ kind, name, sub, photo, Fallback, viewHref, signOut, 
             </span>
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-accent">{kind}</span>
-              <h1 className="text-hero truncate text-[26px] leading-tight text-white sm:text-[34px]">{name}</h1>
-              {sub ? <span className="truncate text-[14px] text-white/75">{sub}</span> : null}
+              <h1 className="text-hero truncate text-[23px] leading-tight text-white sm:text-[30px]">{name}</h1>
+              {sub ? <span className="truncate text-[13px] text-white/75">{sub}</span> : null}
             </span>
           </div>
           <span className="flex flex-wrap items-center gap-2">
-            <Link href={viewHref} data-open="" className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-[14px] font-semibold text-heading hover:bg-accent hover:text-ink"><ExternalLink aria-hidden className="h-4 w-4" />See my page</Link>
+            <Link href={viewHref} data-open="" className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-[13px] font-semibold text-heading hover:bg-accent hover:text-ink"><ExternalLink aria-hidden className="h-4 w-4" />See my page</Link>
             {signOut}
           </span>
         </div>
@@ -38,8 +38,8 @@ export function DashHero({ kind, name, sub, photo, Fallback, viewHref, signOut, 
             <li key={label} className="flex flex-col gap-1.5 rounded-2xl bg-white/[0.07] raised p-3 backdrop-blur-sm sm:flex-row sm:items-center sm:gap-4 sm:p-4">
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${tone}`}><Icon aria-hidden className="h-4 w-4 sm:h-5 sm:w-5" /></span>
               <span className="flex min-w-0 flex-col">
-                <span className="font-display text-[24px] font-extrabold leading-none text-white sm:text-[28px]">{value}</span>
-                <span className="text-[11px] leading-tight text-white/75 sm:text-[13px]">{label}</span>
+                <span className="font-display text-[21px] font-extrabold leading-none text-white sm:text-[25px]">{value}</span>
+                <span className="text-[11px] leading-tight text-white/75 sm:text-[12.5px]">{label}</span>
               </span>
             </li>
           ))}
@@ -55,8 +55,8 @@ export function DashSteps({ steps }: { steps: [string, string][] }) {
     <ol className="grid gap-2 sm:grid-cols-3 sm:gap-3">
       {steps.map(([title, text], n) => (
         <li key={title} className="flex items-start gap-3 rounded-2xl bg-white p-4">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint font-display text-[14px] font-bold text-brand-dark">{n + 1}</span>
-          <span className="flex flex-col gap-0.5"><span className="font-display text-[14px] font-bold text-heading">{title}</span><span className="text-[13px] leading-snug text-ink-muted">{text}</span></span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint font-display text-[13px] font-bold text-brand-dark">{n + 1}</span>
+          <span className="flex flex-col gap-0.5"><span className="font-display text-[13px] font-bold text-heading">{title}</span><span className="text-[12.5px] leading-snug text-ink-muted">{text}</span></span>
         </li>
       ))}
     </ol>
@@ -70,8 +70,8 @@ export function DashCard({ id, Icon, title, note, strong = false, children }: { 
       <div className="flex items-center gap-3">
         <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${strong ? "bg-brand text-white" : "bg-brand-tint text-brand"}`}><Icon aria-hidden className="h-5 w-5" /></span>
         <span className="flex min-w-0 flex-col">
-          <h2 className="font-display text-[18px] font-extrabold leading-tight text-heading sm:text-[20px]">{title}</h2>
-          {note ? <span className="text-[13px] text-ink-muted">{note}</span> : null}
+          <h2 className="font-display text-[17px] font-extrabold leading-tight text-heading sm:text-[18px]">{title}</h2>
+          {note ? <span className="text-[12.5px] text-ink-muted">{note}</span> : null}
         </span>
       </div>
       {children}
@@ -83,6 +83,6 @@ export function DashCard({ id, Icon, title, note, strong = false, children }: { 
 export function DashNotice({ ok, bad }: { ok?: string; bad?: string }) {
   if (!ok && !bad) return null;
   return bad
-    ? <p role="alert" className="rounded-2xl bg-bad-bg px-5 py-4 text-[15px] font-semibold text-bad-fg">{bad}</p>
-    : <p role="status" className="rounded-2xl bg-[#E6F4EC] px-5 py-4 text-[15px] font-semibold text-[#1F7A4D]">✓ {ok}</p>;
+    ? <p role="alert" className="rounded-2xl bg-bad-bg px-5 py-4 text-[14px] font-semibold text-bad-fg">{bad}</p>
+    : <p role="status" className="rounded-2xl bg-[#E6F4EC] px-5 py-4 text-[14px] font-semibold text-[#1F7A4D]">✓ {ok}</p>;
 }

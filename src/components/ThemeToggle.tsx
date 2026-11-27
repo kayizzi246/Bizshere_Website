@@ -20,7 +20,7 @@ export function ThemeToggle({ initial, withLabel = false }: { initial: "light" |
   return (
     <button type="button" onClick={flip} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} title={dark ? "Light mode" : "Dark mode"}
       className={withLabel
-        ? "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-[13px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white"
+        ? "flex h-10 w-full items-center gap-3 rounded-xl px-3 text-[12.5px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white"
         : "flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface text-heading hover:border-brand hover:text-brand"}>
       {dark ? <Sun aria-hidden className="h-4 w-4" /> : <Moon aria-hidden className="h-4 w-4" />}
       {withLabel ? <span>{dark ? "Light mode" : "Dark mode"}</span> : null}

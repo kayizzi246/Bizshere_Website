@@ -103,28 +103,28 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
               <span aria-hidden className="size-pill absolute inset-y-1 left-1 rounded-xl bg-brand" style={{ width: `calc((100% - 0.5rem) / ${plans.length})`, transform: `translateX(${sizeAt * 100}%)` }} />
               {plans.map((p) => (
                 <button key={p.level} type="button" role="radio" aria-checked={p.level === plan.level} onClick={() => switchTo(p.level)}
-                  className={`relative rounded-xl px-3 py-3 font-display text-[15px] font-extrabold transition-colors duration-200 ${p.level === plan.level ? "text-white" : "text-ink-soft hover:text-brand"}`}>
+                  className={`relative rounded-xl px-3 py-3 font-display text-[14px] font-extrabold transition-colors duration-200 ${p.level === plan.level ? "text-white" : "text-ink-soft hover:text-brand"}`}>
                   {p.label}
                 </button>
               ))}
             </div>
           ) : null}
           <div className="flex flex-col items-center gap-1.5 rounded-2xl bg-brand-dark px-4 py-6 text-center text-white">
-            <span className="text-[15px] font-medium">Start-up cost{plans.length > 1 ? `, ${plan.label.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
+            <span className="text-[14px] font-medium">Start-up cost{plans.length > 1 ? `, ${plan.label.toLowerCase()} business` : ""}{plan.scale ? ` (${plan.scale})` : ""}</span>
             {gated ? (
               <a href={unlockHref} data-onboard="" className="inline-flex items-center gap-2 py-1 font-display text-2xl font-extrabold text-white hover:text-accent"><LockKeyhole aria-hidden className="h-6 w-6" />Unlock the estimate</a>
             ) : (
-              <span className="text-hero text-[34px] leading-[1.1] tabular-nums sm:text-[46px]">{estimate === null ? "Some costs pending" : fmt(shownEstimate, plan.currency)}</span>
+              <span className="text-hero text-[30px] leading-[1.1] tabular-nums sm:text-[40px]">{estimate === null ? "Some costs pending" : fmt(shownEstimate, plan.currency)}</span>
             )}
             {/* Only say how many items are counted when some are not priced yet */}
-            <span className="text-[13px] text-white/85">
+            <span className="text-[12.5px] text-white/85">
               {withOptional
                 ? plan.count.priced < plan.count.all ? `${plan.count.all - plan.count.priced} items not priced yet · ` : ""
                 : plan.count.pricedEssential < essential ? `${essential - plan.count.pricedEssential} items not priced yet · ` : ""}
               {plan.place} prices{plan.asOf ? `, ${plan.asOf}` : ""}
             </span>
             {plan.count.optional ? (
-              <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-[14px] font-medium">
+              <label className="mt-1 inline-flex cursor-pointer items-center gap-2 text-[13px] font-medium">
                 <input type="checkbox" checked={withOptional} onChange={(e) => setWithOptional(e.target.checked)} className="h-4 w-4 accent-[#F28C28]" />
                 Include {plan.count.optional} optional {plan.count.optional === 1 ? "item" : "items"}
               </label>
@@ -132,7 +132,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             {/* How far the visitor's own list has got */}
             {estimate ? (
               <div className="mt-3 flex w-full max-w-md flex-col gap-1.5">
-                <span className="flex items-baseline justify-between gap-3 text-[13px] font-semibold">
+                <span className="flex items-baseline justify-between gap-3 text-[12.5px] font-semibold">
                   <span>{picked.length ? "Your plan so far" : "Tap + Add to build your plan"}</span>
                   {picked.length ? <span className="tabular-nums">{Math.round(covered * 100)}%</span> : null}
                 </span>
@@ -165,10 +165,10 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             const subtotal = shown.reduce((n, l) => n + (l.price ?? 0) * l.qty, 0);
             return (
               <section key={c} id={slug(c)} aria-label={c} className="flex flex-col gap-2">
-                <h4 className="flex items-center gap-2.5 font-display text-[19px] font-extrabold text-heading">
+                <h4 className="flex items-center gap-2.5 font-display text-[18px] font-extrabold text-heading">
                   <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone}`}><Glyph aria-hidden className="h-4 w-4" strokeWidth={2} /></span>
                   {c}<span className="text-sm font-medium text-ink-muted">{shown.length}</span>
-                  {!gated && subtotal > 0 ? <span className="ml-auto text-[15px] tabular-nums text-ink-soft">{fmt(subtotal, plan.currency)}</span> : null}
+                  {!gated && subtotal > 0 ? <span className="ml-auto text-[14px] tabular-nums text-ink-soft">{fmt(subtotal, plan.currency)}</span> : null}
                 </h4>
                 {[...shown.filter((l) => !l.optional), ...shown.filter((l) => l.optional)].map((l, n) => (
                   <RequirementCard key={l.id} l={l} n={n} tone={tone} currency={plan.currency} added={mine[l.id] ?? 0} onToggle={() => pick(l, mine[l.id] ? 0 : l.qty || 1)} />
@@ -204,7 +204,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
       {/* ── My list: the visitor's own selection and total (beside the list on wide screens) ── */}
       <aside aria-label="My requirements list"
         className={`flex-col rounded-2xl border border-line bg-white lg:sticky lg:top-24 lg:inset-auto lg:z-auto lg:flex lg:max-h-none lg:rounded-b-2xl ${listOpen ? "fixed inset-x-0 bottom-0 z-[61] flex max-h-[85vh] overflow-y-auto rounded-b-none" : "hidden"}`}>
-        <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[15px] font-extrabold text-heading">
+        <h3 className="flex items-center justify-between gap-2 border-b border-line px-5 py-4 font-display text-[14px] font-extrabold text-heading">
           <span className="flex items-center gap-2">My requirements list{picked.length ? <span key={picked.length} className="list-pop rounded-full bg-brand px-2 text-xs text-white">{picked.length}</span> : null}</span>
           <button type="button" onClick={() => setListOpen(false)} aria-label="Close my list" className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-soft hover:bg-page lg:hidden"><X className="h-4 w-4" /></button>
         </h3>
@@ -212,7 +212,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
           <div className="flex flex-col items-center gap-2 px-5 py-6 text-center">
             <span className="float flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-tint text-brand"><ShoppingCart aria-hidden className="h-7 w-7" /></span>
             <span className="font-display text-base font-bold text-heading">Your list is empty</span>
-            <span className="text-[13px] text-ink-muted">Tap <strong>+ Add</strong> to build your plan.</span>
+            <span className="text-[12.5px] text-ink-muted">Tap <strong>+ Add</strong> to build your plan.</span>
           </div>
         ) : (
           <>
@@ -237,7 +237,7 @@ export function BudgetCalculator({ name, plans, initial, gated, unlockHref, hidd
             <div className="flex flex-col gap-1 border-t-2 border-heading px-5 py-4">
               <span className="flex items-baseline justify-between gap-2"><span className="font-bold">My total</span><span className="font-display text-xl font-extrabold text-brand-deep">{fmt(shownTotal, plan.currency)}</span></span>
               {myUnpriced ? <span className="text-xs text-ink-muted">Plus {myUnpriced} {myUnpriced === 1 ? "item" : "items"} not yet priced</span> : null}
-              <a href={`${myPlanHref}&download=1`} className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 text-[14px] font-semibold text-ink hover:bg-brand hover:text-white"><FileDown aria-hidden className="h-4 w-4" />Download my plan (PDF)</a>
+              <a href={`${myPlanHref}&download=1`} className="mt-3 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 text-[13px] font-semibold text-ink hover:bg-brand hover:text-white"><FileDown aria-hidden className="h-4 w-4" />Download my plan (PDF)</a>
               <span className="mt-1 flex items-center justify-between gap-2">
                 <a href={myPlanHref} target="_blank" rel="noopener" className="text-xs font-semibold text-brand hover:text-brand-dark">View my plan</a>
                 <button type="button" onClick={() => setMine({})} className="text-xs font-semibold text-ink-muted hover:text-bad-fg">Clear my list</button>
@@ -264,7 +264,7 @@ function RequirementCard({ l, n, tone, currency, added, onToggle }: { l: CalcLin
       <div className="flex min-w-0 flex-1 items-center gap-3.5">
         <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${tone}`}><I aria-hidden className="h-6 w-6" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-col gap-1">
-          <h5 className="font-display text-[17px] font-extrabold leading-tight text-heading">
+          <h5 className="font-display text-[16px] font-extrabold leading-tight text-heading">
             {l.item}{l.optional ? <span className="ml-2 rounded-full bg-accent-tint px-2 py-0.5 align-middle text-xs font-bold text-accent-dark">Optional</span> : null}
           </h5>
           {l.details ? <p className="line-clamp-2 text-sm leading-relaxed text-ink-muted">{l.details}</p> : null}
@@ -276,7 +276,7 @@ function RequirementCard({ l, n, tone, currency, added, onToggle }: { l: CalcLin
             <span className="text-sm text-ink-muted">{l.reason ?? "Price to be confirmed"}</span>
           ) : (
             <>
-              <span className="whitespace-nowrap font-display text-[18px] font-extrabold text-brand-deep">{fmt(l.price * l.qty, currency)}</span>
+              <span className="whitespace-nowrap font-display text-[17px] font-extrabold text-brand-deep">{fmt(l.price * l.qty, currency)}</span>
               {l.qty !== 1 || l.unit ? <span className="whitespace-nowrap text-xs text-ink-muted">{qty}{l.qty !== 1 ? ` × ${fmt(l.price, currency)}` : ""}</span> : null}
             </>
           )}

@@ -47,11 +47,11 @@ export default async function Page({ searchParams }: { searchParams: Params }) {
         initial={{ q: first(searchParams.q), category: first(searchParams.category), sort: first(searchParams.sort), page: Math.max(1, Number.parseInt(first(searchParams.page), 10) || 1) }}
       />
       <div className="bg-page">
-        <div className="container-site flex flex-col gap-8 pb-10 sm:pb-14">
+        <div className="container-site flex flex-col gap-8 pb-10 sm:pb-10">
           {/* When nothing fits */}
           <section className="mx-auto flex max-w-2xl flex-col items-center gap-3 py-6 text-center">
             <h2 className="text-block-title text-heading">Can&apos;t find what you&apos;re looking for?</h2>
-            <p className="text-[15px] leading-relaxed text-ink-muted">We keep adding business ideas for Uganda. Search every directory at once, or tell us which business you&apos;d like a plan for.</p>
+            <p className="text-[14px] leading-relaxed text-ink-muted">We keep adding business ideas for Uganda. Search every directory at once, or tell us which business you&apos;d like a plan for.</p>
             <div className="flex flex-wrap justify-center gap-2.5 pt-1">
               <Link href="/search" className="btn-primary"><Icon name="search" className="h-4 w-4" />Search everything</Link>
               <Link href="/contact" className="inline-flex h-11 items-center rounded-lg border border-line bg-white px-5 text-sm font-semibold text-heading hover:border-brand hover:text-brand">Suggest a business idea</Link>

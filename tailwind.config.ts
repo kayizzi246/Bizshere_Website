@@ -11,6 +11,20 @@ const config: Config = {
   // leave the hover look stuck on.
   future: { hoverOnlyWhenSupported: true },
   theme: {
+    // One step smaller than Tailwind's defaults (client, 27 Nov 2026: "reduce the font sizes of the all site").
+    fontSize: {
+      xs: ["0.719rem", { lineHeight: "1rem" }], // 11.5px
+      sm: ["0.8125rem", { lineHeight: "1.25rem" }], // 13px
+      base: ["0.9375rem", { lineHeight: "1.5rem" }], // 15px
+      lg: ["1.0625rem", { lineHeight: "1.6rem" }], // 17px
+      xl: ["1.1875rem", { lineHeight: "1.7rem" }], // 19px
+      "2xl": ["1.375rem", { lineHeight: "1.9rem" }], // 22px
+      "3xl": ["1.625rem", { lineHeight: "2.1rem" }], // 26px
+      "4xl": ["2rem", { lineHeight: "2.4rem" }], // 32px
+      "5xl": ["2.5rem", { lineHeight: "1.1" }], // 40px
+      "6xl": ["3.25rem", { lineHeight: "1.05" }], // 52px
+      "7xl": ["4rem", { lineHeight: "1" }], // 64px
+    },
     extend: {
       colors: {
         // GitHub (Primer) palette (client, 14 Nov 2026): blue #0969da (links/selected), green #1f883d (primary).

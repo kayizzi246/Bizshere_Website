@@ -30,7 +30,7 @@ export default async function ContactPage({ searchParams }: { searchParams: { ab
       <div className="container-site flex flex-col gap-8 pad-body">
         <div className="flex max-w-2xl flex-col gap-3">
           <h1 className="text-page-title text-heading">Talk to us</h1>
-          <p className="text-[16px] leading-relaxed text-ink-soft sm:text-[17px]">Questions about membership, listing your business as a supplier or expert, or something you saw on the site. A person answers, in English or Luganda.</p>
+          <p className="text-[15px] leading-relaxed text-ink-soft sm:text-[16px]">Questions about membership, listing your business as a supplier or expert, or something you saw on the site. A person answers, in English or Luganda.</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:gap-10">
@@ -40,7 +40,7 @@ export default async function ContactPage({ searchParams }: { searchParams: { ab
                 {ways.map((w) => (
                   <a key={w.label} href={w.href} {...(w.external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={`flex min-h-[60px] items-center gap-3 rounded-2xl px-5 py-3 font-display transition-colors ${w.tone}`}>
                     <w.Glyph aria-hidden className="h-5 w-5 shrink-0" />
-                    <span className="flex min-w-0 flex-col leading-tight"><span className="text-[16px] font-extrabold">{w.label}</span><span className="break-all text-[13px] font-semibold opacity-90">{w.value}</span></span>
+                    <span className="flex min-w-0 flex-col leading-tight"><span className="text-[15px] font-extrabold">{w.label}</span><span className="break-all text-[12.5px] font-semibold opacity-90">{w.value}</span></span>
                   </a>
                 ))}
               </div>
@@ -53,7 +53,7 @@ export default async function ContactPage({ searchParams }: { searchParams: { ab
                 {c.hours ? <div className="flex items-start gap-2.5"><Clock aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-brand" /><span><dt className="font-bold text-heading">Hours</dt><dd className="text-ink-soft">{c.hours}</dd></span></div> : null}
               </dl>
             ) : null}
-            <ul className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 text-[14px] text-ink-soft">
+            <ul className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 text-[13px] text-ink-soft">
               <li>Want to be listed? <Link href="/suppliers/join">Become a supplier</Link> or <Link href="/experts/join">become an expert</Link>: register and pay in five minutes, our team checks the listing.</li>
               <li>Plans and prices: see <Link href="/membership">membership</Link>. Pay with MTN MoMo, Airtel Money or a card.</li>
               <li>Found something wrong on a page? <Link href="/corrections">Report a correction</Link>.</li>

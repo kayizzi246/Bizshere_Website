@@ -32,7 +32,7 @@ export function ExpertRows({ initial }: { initial: ExpertRowsValue }) {
       {initial.jobs.map((j) => <input key={j.id} type="hidden" name="ex_loaded_job" value={j.id} />)}
 
       <section id="s-services" className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">Services</h2><p className="text-[13px] text-ink-muted">Only the name is needed. Prices are shown to members only. Leave a row empty to skip it.</p></div>
+        <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">Services</h2><p className="text-[12.5px] text-ink-muted">Only the name is needed. Prices are shown to members only. Leave a row empty to skip it.</p></div>
         <ol className="flex flex-col gap-3">
           {services.map(({ key: k, row }, n) => (
             <li key={k} className="flex items-start gap-3 rounded-xl border border-line p-3">
@@ -58,7 +58,7 @@ export function ExpertRows({ initial }: { initial: ExpertRowsValue }) {
       </section>
 
       <section id="s-jobs" className="flex scroll-mt-20 flex-col gap-4 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">Jobs done</h2><p className="text-[13px] text-ink-muted">The job and the client it was done for. Choose No to keep one off the page. Jobs the expert sends in are approved in Expert work.</p></div>
+        <div className="flex flex-col gap-0.5"><h2 className="text-base font-extrabold text-heading">Jobs done</h2><p className="text-[12.5px] text-ink-muted">The job and the client it was done for. Choose No to keep one off the page. Jobs the expert sends in are approved in Expert work.</p></div>
         <ol className="flex flex-col gap-3">
           {jobs.map(({ key: k, row }, n) => (
             <li key={k} className="flex items-start gap-3 rounded-xl border border-line p-3">

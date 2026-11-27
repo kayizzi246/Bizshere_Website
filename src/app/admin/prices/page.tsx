@@ -54,7 +54,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <div><h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Record what a product cost at a market on a given day. Each day is a new price, so the history stays; use Edit only to correct a mistake. This is separate from what suppliers and experts pay: that is under Subscription prices.</p></div>
+      <div><h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Market prices</h1><p className="text-sm text-ink-muted">Record what a product cost at a market on a given day. Each day is a new price, so the history stays; use Edit only to correct a mistake. This is separate from what suppliers and experts pay: that is under Subscription prices.</p></div>
       {searchParams.error ? <p role="alert" className="rounded-xl bg-bad-bg p-4 text-sm font-semibold text-bad-fg">{searchParams.error}</p> : null}
       {notice ? <p role="status" className="rounded-xl bg-brand-tint p-4 text-sm font-bold text-brand-dark">{notice}</p> : null}
 
@@ -143,7 +143,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
                     <span className="text-sm font-semibold text-heading">{m.name}</span>
                     <span className="text-xs text-ink-muted">{[m.marketType, m.town, m.location?.name].filter(Boolean).join(" · ") || "No details yet"} · {plural(m._count.observations, "price", "prices")}</span>
                   </span>
-                  <Link href={`/admin/prices?editMarket=${m.id}#markets`} className="btn-outline min-h-[36px] px-4 text-[13px]">Edit</Link>
+                  <Link href={`/admin/prices?editMarket=${m.id}#markets`} className="btn-outline min-h-[36px] px-4 text-[12.5px]">Edit</Link>
                   <form>
                     <input type="hidden" name="id" value={m.id} />
                     <ConfirmButton action={deleteMarket} plain className="h-9" title={`Delete "${m.name}"?`}
@@ -188,7 +188,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
                     <span className="text-sm font-semibold text-heading">{p.name}{p.variety ? ` (${p.variety})` : ""}{p.grade ? `, ${p.grade}` : ""}</span>
                     <span className="text-xs text-ink-muted">{p.category?.name ?? "No category"} · {p.supplierId ? supplierName.get(p.supplierId) ?? "Supplier" : "No supplier"} · {p.standardUnit ?? "No unit set"} · {plural(p._count.observations, "price", "prices")}</span>
                   </span>
-                  <Link href={`/admin/prices?editProduct=${p.id}#products`} className="btn-outline min-h-[36px] px-4 text-[13px]">Edit</Link>
+                  <Link href={`/admin/prices?editProduct=${p.id}#products`} className="btn-outline min-h-[36px] px-4 text-[12.5px]">Edit</Link>
                   <form>
                     <input type="hidden" name="id" value={p.id} />
                     <ConfirmButton action={deleteProduct} plain className="h-9" title={`Delete "${p.name}"?`}
@@ -246,7 +246,7 @@ export default async function AdminPricesPage({ searchParams }: { searchParams: 
                   <td className="text-ink-muted">{o.collector?.name ?? "—"}</td>
                   <td>
                     <span className="flex justify-end gap-2">
-                      <Link href={`/admin/prices?edit=${o.id}`} className="btn-outline min-h-[36px] px-4 text-[13px]">Edit</Link>
+                      <Link href={`/admin/prices?edit=${o.id}`} className="btn-outline min-h-[36px] px-4 text-[12.5px]">Edit</Link>
                       <form>
                         <input type="hidden" name="id" value={o.id} />
                         <ConfirmButton action={deleteObservation} plain className="h-9" title="Delete this price?"

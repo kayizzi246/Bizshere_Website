@@ -191,7 +191,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
               <div className="flex items-center gap-2.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name={iconOf(d.type)} className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-display text-[13px] font-bold text-heading">{SITE_DIRECTORIES.find((x) => x.type === d.type)?.title ?? d.label}</span>
+                  <span className="truncate font-display text-[12.5px] font-bold text-heading">{SITE_DIRECTORIES.find((x) => x.type === d.type)?.title ?? d.label}</span>
                   <span className="text-[11.5px] text-ink-muted"><strong className="text-ink">{countOf(d.type, "PUBLISHED")}</strong> on the website{countOf(d.type, "DRAFT") ? ` · ${countOf(d.type, "DRAFT")} draft` : ""}</span>
                 </span>
               </div>
@@ -206,7 +206,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
             <li className="flex flex-col gap-2.5 rounded-lg border border-line bg-surface p-3">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Icon name="prices" className="h-4 w-4" /></span>
-                <span className="flex min-w-0 flex-col"><span className="truncate font-display text-[13px] font-bold text-heading">Market prices</span><span className="text-[11.5px] text-ink-muted">{stalePrices ? `${stalePrices} older than 30 days` : "Up to date"}</span></span>
+                <span className="flex min-w-0 flex-col"><span className="truncate font-display text-[12.5px] font-bold text-heading">Market prices</span><span className="text-[11.5px] text-ink-muted">{stalePrices ? `${stalePrices} older than 30 days` : "Up to date"}</span></span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 <Link href="/admin/prices" className="inline-flex h-8 items-center gap-1 rounded-md bg-brand px-2.5 text-[12px] font-semibold text-white hover:bg-brand-dark hover:text-white"><Icon name="plus" className="h-3.5 w-3.5" />Add or update</Link>
@@ -227,7 +227,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                 <h3 className="font-bold text-heading">Money received</h3>
                 <p className="text-[12px] text-ink-muted">The last 30 days, day by day. Only payments that went through.</p>
               </div>
-              <span className="nums font-display text-[18px] font-bold tracking-tight text-heading">{money(chartTotal)}</span>
+              <span className="nums font-display text-[17px] font-bold tracking-tight text-heading">{money(chartTotal)}</span>
             </div>
             {chartTotal > 0 ? (
               <AreaChart points={chart} format={(n) => money(Math.round(n))} />
@@ -338,7 +338,7 @@ function Kpi({ href, label, value, sub, foot, trend = null, warn = false }: {
       <span className="flex items-start justify-between gap-2">
         <span className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-[11.5px] text-ink-muted">{label}</span>
-          <span className="nums truncate font-display text-[22px] font-bold leading-none tracking-tight text-heading sm:text-[24px]">{value}</span>
+          <span className="nums truncate font-display text-[19px] font-bold leading-none tracking-tight text-heading sm:text-[21px]">{value}</span>
         </span>
         {trend !== null ? (
           <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${up ? "border-line text-ink" : "border-bad-fg/30 text-bad-fg"}`}>

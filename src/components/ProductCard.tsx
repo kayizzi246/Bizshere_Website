@@ -77,7 +77,7 @@ export function ProductCard({ product, back, price }: { product: Product; back: 
         {facts.length ? (
           <dl className="flex flex-col divide-y divide-line">
             {facts.map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-4 py-2 text-[13px]">
+              <div key={k} className="flex justify-between gap-4 py-2 text-[12.5px]">
                 <dt className="text-ink-muted">{k}</dt>
                 <dd className="text-right font-semibold text-ink">{v}</dd>
               </div>
@@ -85,7 +85,7 @@ export function ProductCard({ product, back, price }: { product: Product; back: 
           </dl>
         ) : null}
 
-        <ul className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
+        <ul className="flex flex-col gap-1.5 text-[12.5px] text-ink-soft">
           <li className="flex items-center gap-2"><Check aria-hidden className="h-3.5 w-3.5 text-brand" />Download straight away</li>
           <li className="flex items-center gap-2"><Check aria-hidden className="h-3.5 w-3.5 text-brand" />Included with membership</li>
         </ul>

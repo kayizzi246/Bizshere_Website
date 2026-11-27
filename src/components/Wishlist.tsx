@@ -63,7 +63,7 @@ export function WishlistButton({ id, small = false }: { id: string; small?: bool
   const on = ids.has(id);
   return (
     <button type="button" onClick={() => toggle(id)} aria-pressed={on}
-      className={`inline-flex w-full items-center justify-center gap-1.5 border ${small ? "h-11 rounded-lg px-4 text-[14px] font-semibold" : "h-12 rounded-xl text-sm font-bold"} ${on ? "border-accent bg-accent-tint text-accent-dark" : "border-line text-ink hover:border-brand hover:text-brand"}`}>
+      className={`inline-flex w-full items-center justify-center gap-1.5 border ${small ? "h-11 rounded-lg px-4 text-[13px] font-semibold" : "h-12 rounded-xl text-sm font-bold"} ${on ? "border-accent bg-accent-tint text-accent-dark" : "border-line text-ink hover:border-brand hover:text-brand"}`}>
       <Heart aria-hidden className={`h-4 w-4 ${on ? "fill-current" : ""}`} />{on ? "In your wishlist" : "Add to wishlist"}
     </button>
   );
@@ -75,7 +75,7 @@ export function SaveButton({ id }: { id: string }) {
   const on = ids.has(id);
   return (
     <button type="button" onClick={() => toggle(id)} aria-pressed={on} aria-label={on ? "Remove from wishlist" : "Save to wishlist"}
-      className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-lg border bg-white px-4 text-[15px] font-semibold ${on ? "border-accent text-accent-dark" : "border-line text-heading hover:border-brand hover:text-brand"}`}>
+      className={`inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-lg border bg-white px-4 text-[14px] font-semibold ${on ? "border-accent text-accent-dark" : "border-line text-heading hover:border-brand hover:text-brand"}`}>
       <Heart aria-hidden className={`h-4 w-4 ${on ? "fill-current" : ""}`} />{on ? "Saved" : "Save"}
     </button>
   );
@@ -149,8 +149,8 @@ function WishlistDrawer({ onClose }: { onClose: () => void }) {
       <div ref={panel} tabIndex={-1} className={`absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col bg-surface shadow-[-12px_0_40px_rgba(7,26,51,0.18)] outline-none ${closing ? "drawer-out" : "drawer-in"}`}>
         <div className="flex items-center gap-3 border-b border-line px-5 py-4 sm:px-6">
           <Heart aria-hidden className="h-5 w-5 fill-accent text-accent" />
-          <h2 id="wishlist-title" className="font-display text-[17px] font-extrabold uppercase tracking-[0.06em] text-heading">Your wishlist</h2>
-          <span className="text-[13px] font-medium text-ink-muted">({ids.size} {ids.size === 1 ? "item" : "items"})</span>
+          <h2 id="wishlist-title" className="font-display text-[16px] font-extrabold uppercase tracking-[0.06em] text-heading">Your wishlist</h2>
+          <span className="text-[12.5px] font-medium text-ink-muted">({ids.size} {ids.size === 1 ? "item" : "items"})</span>
           <button type="button" onClick={close} aria-label="Close wishlist" className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-ink-soft hover:bg-page hover:text-ink"><X className="h-5 w-5" /></button>
         </div>
 
@@ -162,10 +162,10 @@ function WishlistDrawer({ onClose }: { onClose: () => void }) {
               ))}
             </ul>
           ) : shown.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
+            <div className="flex h-full flex-col items-center justify-center gap-3 py-12 text-center">
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-tint"><Heart aria-hidden className="h-7 w-7 text-accent" /></span>
-              <p className="font-display text-[18px] font-extrabold text-heading">Nothing saved yet</p>
-              <p className="max-w-[260px] text-[13px] text-ink-muted">Tap the heart on any business idea, machine, supplier or listing to keep it here.</p>
+              <p className="font-display text-[17px] font-extrabold text-heading">Nothing saved yet</p>
+              <p className="max-w-[260px] text-[12.5px] text-ink-muted">Tap the heart on any business idea, machine, supplier or listing to keep it here.</p>
               <Link href="/business-ideas" onClick={close} className="btn-primary mt-2 min-h-[44px] rounded-full px-5">Browse business ideas</Link>
             </div>
           ) : (
@@ -178,7 +178,7 @@ function WishlistDrawer({ onClose }: { onClose: () => void }) {
                     {i.picture ? <img src={i.picture} alt="" loading="lazy" className="h-full w-full object-cover" /> : <Heart className="h-6 w-6 text-line-strong" />}
                   </Link>
                   <span className="flex min-w-0 flex-1 flex-col gap-1">
-                    <Link href={i.href} onClick={close} className="line-clamp-2 text-[15px] font-semibold leading-snug text-heading hover:text-brand">{i.title}</Link>
+                    <Link href={i.href} onClick={close} className="line-clamp-2 text-[14px] font-semibold leading-snug text-heading hover:text-brand">{i.title}</Link>
                     <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-brand">{i.type}</span>
                     {i.summary ? <span className="line-clamp-1 text-[12px] text-ink-muted">{i.summary}</span> : null}
                   </span>
@@ -191,10 +191,10 @@ function WishlistDrawer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex flex-col gap-2 border-t border-line px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:px-6">
-          <Link href="/account#wishlist" onClick={close} className="btn-primary min-h-[50px] w-full rounded-xl text-[15px]">
+          <Link href="/account#wishlist" onClick={close} className="btn-primary min-h-[50px] w-full rounded-xl text-[14px]">
             Organise in my account <ArrowRight aria-hidden className="h-4 w-4" />
           </Link>
-          <button type="button" onClick={close} className="min-h-[40px] text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-muted hover:text-ink">Continue browsing</button>
+          <button type="button" onClick={close} className="min-h-[40px] text-[12.5px] font-semibold uppercase tracking-[0.08em] text-ink-muted hover:text-ink">Continue browsing</button>
         </div>
       </div>
     </div>

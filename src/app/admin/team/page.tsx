@@ -72,7 +72,7 @@ export default async function TeamPage({ searchParams }: { searchParams: { why?:
         <h2 className="text-lg font-extrabold text-heading">Add a team member</h2>
         {searchParams.error && searchParams.add ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{ERROR[searchParams.error] ?? ERROR.invalid}</p> : null}
         <div className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[13px] text-white">1</span>Who is it?</span>
+          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[12.5px] text-white">1</span>Who is it?</span>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="label">Their name<input name="name" autoComplete="off" placeholder="e.g. Sarah Namuli" className="input min-h-[48px]" /></label>
             <label className="label">Their phone number<input name="phone" type="tel" autoComplete="off" placeholder="0772 123 456" className="input min-h-[48px]" /><span className="text-xs font-normal text-ink-muted">We text them an invitation. They choose their own password.</span></label>
@@ -86,10 +86,10 @@ export default async function TeamPage({ searchParams }: { searchParams: { why?:
           </details>
         </div>
         <div className="flex flex-col gap-2">
-          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[13px] text-white">2</span>What may they do?</span>
+          <span className="flex items-center gap-2 font-bold text-heading"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-[12.5px] text-white">2</span>What may they do?</span>
           <AreaPicker chosen={[]} withSuper />
         </div>
-        <button className="btn-primary min-h-[50px] w-full px-7 text-[15px] sm:w-fit">Add to the team</button>
+        <button className="btn-primary min-h-[50px] w-full px-7 text-[14px] sm:w-fit">Add to the team</button>
       </form>
 
       {searchParams.why ? <p role="alert" className="rounded-lg bg-bad-bg px-4 py-2.5 text-sm font-semibold text-bad-fg">{searchParams.why.slice(0, 200)}</p> : null}

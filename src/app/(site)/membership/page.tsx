@@ -76,24 +76,24 @@ export default async function MembershipPage() {
     // A warm off-white page with no dark band (client, 24 Nov 2026, after a pricing page they sent): the heading,
     // then flat cards with the price large, a pill button, a dashed line and what it opens.
     <div className="under-header bg-[#F7F8F3]">
-      <header className="container-site flex flex-col items-center gap-4 pb-10 pt-10 text-center sm:pb-12 sm:pt-14">
-        <h1 className="text-hero max-w-3xl text-[28px] leading-[1.12] text-heading sm:text-[36px] lg:text-[42px]">One membership opens everything</h1>
-        <p data-size="" className="max-w-xl text-[15px] leading-relaxed text-ink-muted sm:text-[16px]">Pick how long you need it. Pay with MoMo, Airtel Money or card, and it all opens straight away.</p>
+      <header className="container-site flex flex-col items-center gap-4 pb-10 pt-10 text-center sm:pb-10 sm:pt-10">
+        <h1 className="text-hero max-w-3xl text-[25px] leading-[1.12] text-heading sm:text-[32px] lg:text-[37px]">One membership opens everything</h1>
+        <p data-size="" className="max-w-xl text-[14px] leading-relaxed text-ink-muted sm:text-[15px]">Pick how long you need it. Pay with MoMo, Airtel Money or card, and it all opens straight away.</p>
         {sandbox ? <span className="text-[12px] font-semibold text-accent-dark">Test mode: test prices, no real money is taken</span> : null}
       </header>
 
-      <div className="container-site flex flex-col gap-14 pb-20">
+      <div className="container-site flex flex-col gap-14 pb-14">
         {/* Member status */}
         {viewer.isMember && !viewer.isStaff ? (
           <div className="-mb-6 flex w-full flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface px-5 py-4">
             <span className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand text-white"><Crown aria-hidden className="h-5 w-5" /></span>
               <span className="flex flex-col">
-                <span className="font-display text-[16px] font-extrabold text-heading">You&apos;re a member</span>
-                <span className="text-[13px] text-ink-muted">{memberUntil ? `Full access until ${date(memberUntil)}. Renewing early adds to your time.` : "Full access, with no end date."}</span>
+                <span className="font-display text-[15px] font-extrabold text-heading">You&apos;re a member</span>
+                <span className="text-[12.5px] text-ink-muted">{memberUntil ? `Full access until ${date(memberUntil)}. Renewing early adds to your time.` : "Full access, with no end date."}</span>
               </span>
             </span>
-            <Link href="/account#membership" className="inline-flex items-center gap-1.5 text-[14px] font-bold text-brand hover:text-brand-dark">My membership <ArrowRight aria-hidden className="h-4 w-4" /></Link>
+            <Link href="/account#membership" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-brand hover:text-brand-dark">My membership <ArrowRight aria-hidden className="h-4 w-4" /></Link>
           </div>
         ) : null}
 
@@ -105,29 +105,29 @@ export default async function MembershipPage() {
             const amount = plan.amounts[p];
             const featured = p === "MONTHLY";
             const perDay = amount && c.days > 1 ? Math.round(amount / c.days) : null;
-            const pill = "mt-6 inline-flex min-h-[46px] w-full items-center justify-center rounded-full border px-5 text-[15px] font-medium transition-colors";
+            const pill = "mt-6 inline-flex min-h-[46px] w-full items-center justify-center rounded-full border px-5 text-[14px] font-medium transition-colors";
             return (
-              <div key={p} className={`flex w-[82%] max-w-[320px] shrink-0 snap-start flex-col rounded-lg border bg-[#F0EFEA] p-6 md:w-auto md:max-w-none ${featured ? "order-first border-[#C9C7BD] md:order-none" : "border-[#E2E0D8]"}`}>
+              <div key={p} className={`flex w-[82%] max-w-[320px] shrink-0 snap-start flex-col rounded-lg border bg-[#F0EFEA] p-6 md:w-auto md:max-w-none ${featured ? "order-first border-[#C9C7BD] md:order-none" : "border-line"}`}>
                 <div className="flex min-h-[26px] flex-wrap items-center gap-2">
-                  <h2 data-soft="" className="text-[18px] text-heading">{c.title}</h2>
+                  <h2 data-soft="" className="text-[17px] text-heading">{c.title}</h2>
                   {featured ? <span className="rounded-full bg-[#1F7A4D] px-2.5 py-0.5 text-[12px] font-medium text-white">Recommended</span> : null}
                   {p === "YEARLY" && saving ? <span className="rounded-full bg-accent-tint px-2.5 py-0.5 text-[12px] font-medium text-accent-dark">Save {saving}%</span> : null}
                 </div>
-                <p data-size="" className="mt-2 text-[14px] leading-snug text-[#66655F] md:min-h-[40px]">{c.for}</p>
+                <p data-size="" className="mt-2 text-[13px] leading-snug text-ink-muted md:min-h-[40px]">{c.for}</p>
                 <p className="mt-6 flex flex-wrap items-baseline gap-x-1.5">
-                  <span className="whitespace-nowrap text-[30px] font-semibold leading-none tracking-[-0.03em] text-heading xl:text-[27px] 2xl:text-[32px]">{amount ? money(amount, plan.currency) : "Soon"}</span>
-                  {amount ? <span className="whitespace-nowrap text-[14px] text-[#66655F]">/ {c.per}</span> : null}
+                  <span className="whitespace-nowrap text-[26px] font-semibold leading-none tracking-[-0.03em] text-heading xl:text-[24px] 2xl:text-[28px]">{amount ? money(amount, plan.currency) : "Soon"}</span>
+                  {amount ? <span className="whitespace-nowrap text-[13px] text-ink-muted">/ {c.per}</span> : null}
                 </p>
-                <p data-size="" className="mt-2.5 min-h-[20px] text-[14px] text-[#66655F]">{perDay ? `That is ${money(perDay, plan.currency)} a day` : amount ? "Everything, for today" : ""}</p>
+                <p data-size="" className="mt-2.5 min-h-[20px] text-[13px] text-ink-muted">{perDay ? `That is ${money(perDay, plan.currency)} a day` : amount ? "Everything, for today" : ""}</p>
                 {amount && !viewer.isStaff ? (
                   <Link {...cta(p)} className={`${pill} ${featured ? "border-[#26251F] bg-[#26251F] text-white hover:bg-black hover:text-white" : "border-[#D6D4CA] text-heading hover:border-[#26251F] hover:bg-white hover:text-heading"}`}>
                     {viewer.isMember ? `Renew for ${c.title}` : c.button}
                   </Link>
                 ) : (
-                  <span className={`${pill} border-[#D6D4CA] text-[#66655F]`}>{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
+                  <span className={`${pill} border-[#D6D4CA] text-ink-muted`}>{viewer.isStaff ? "Staff see everything" : "Price coming soon"}</span>
                 )}
-                <p data-size="" className="mt-6 border-t border-dashed border-[#D6D4CA] pt-5 text-[13px] font-medium text-[#66655F]">Everything opens for {c.title}</p>
-                <ul className="mt-3 flex flex-col gap-2.5 text-[14px] leading-snug text-[#3B3A34]">
+                <p data-size="" className="mt-6 border-t border-dashed border-[#D6D4CA] pt-5 text-[12.5px] font-medium text-ink-muted">Everything opens for {c.title}</p>
+                <ul className="mt-3 flex flex-col gap-2.5 text-[13px] leading-snug text-[#3B3A34]">
                   {[...OPENS, ...c.extra].map((x) => <li key={x} className="flex items-start gap-2.5"><Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-heading" strokeWidth={1.75} />{x}</li>)}
                 </ul>
               </div>
@@ -141,13 +141,13 @@ export default async function MembershipPage() {
           <section aria-label="Other ways to start" className="-mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
             {invite.days ? (
               <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
-                <span className="flex items-center gap-2 font-display text-[15px] font-bold text-heading"><Users aria-hidden className="h-4 w-4 text-brand" />Invite a friend</span>
-                <span className="text-[13px] text-ink-muted">When they pay, {invite.days} free days are added to your membership and {invite.days} to theirs. Your link is in <Link href="/account#invite" className="font-semibold">your account</Link>.</span>
+                <span className="flex items-center gap-2 font-display text-[14px] font-bold text-heading"><Users aria-hidden className="h-4 w-4 text-brand" />Invite a friend</span>
+                <span className="text-[12.5px] text-ink-muted">When they pay, {invite.days} free days are added to your membership and {invite.days} to theirs. Your link is in <Link href="/account#invite" className="font-semibold">your account</Link>.</span>
               </div>
             ) : null}
             <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
-              <span className="flex items-center gap-2 font-display text-[15px] font-bold text-heading"><Ticket aria-hidden className="h-4 w-4 text-brand" />Have a discount code?</span>
-              <span className="text-[13px] text-ink-muted">Type it in the payment pop-up before you pay and the price changes there and then.</span>
+              <span className="flex items-center gap-2 font-display text-[14px] font-bold text-heading"><Ticket aria-hidden className="h-4 w-4 text-brand" />Have a discount code?</span>
+              <span className="text-[12.5px] text-ink-muted">Type it in the payment pop-up before you pay and the price changes there and then.</span>
             </div>
           </section>
         ) : null}
@@ -157,12 +157,12 @@ export default async function MembershipPage() {
           <ol className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3">
             {STEPS.map(([t, x], i) => (
               <li key={t} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[14px] font-extrabold text-white">{i + 1}</span>
-                <span className="flex flex-col"><span className="font-display text-[15px] font-bold text-heading">{t}</span><span className="text-[13px] text-ink-muted">{x}</span></span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[13px] font-extrabold text-white">{i + 1}</span>
+                <span className="flex flex-col"><span className="font-display text-[14px] font-bold text-heading">{t}</span><span className="text-[12.5px] text-ink-muted">{x}</span></span>
               </li>
             ))}
           </ol>
-          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center text-[13px] text-ink-muted">
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center text-[12.5px] text-ink-muted">
             <span className="inline-flex items-center gap-1.5"><Smartphone aria-hidden className="h-4 w-4 text-accent-dark" />MTN MoMo and Airtel Money</span>
             <span className="inline-flex items-center gap-1.5"><CreditCard aria-hidden className="h-4 w-4 text-brand" />Visa and Mastercard</span>
             <span className="inline-flex items-center gap-1.5"><ShieldCheck aria-hidden className="h-4 w-4 text-brand" />Secured by Pesapal</span>
@@ -176,14 +176,14 @@ export default async function MembershipPage() {
           <div className="flex flex-col divide-y divide-line rounded-xl border border-line bg-surface">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group px-5 py-4 sm:px-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[16px] font-bold text-heading [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-[15px] font-bold text-heading [&::-webkit-details-marker]:hidden">
                   {q}<span aria-hidden className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-page text-accent-dark transition group-open:rotate-45">+</span>
                 </summary>
-                <p className="mt-3 text-[14px] leading-relaxed text-ink-muted">{a}</p>
+                <p className="mt-3 text-[13px] leading-relaxed text-ink-muted">{a}</p>
               </details>
             ))}
           </div>
-          <p className="text-center text-[13px] text-ink-muted">Want your business listed? <Link href="/suppliers/join" className="font-bold">Become a supplier</Link> or <Link href="/experts/join" className="font-bold">an expert</Link>.</p>
+          <p className="text-center text-[12.5px] text-ink-muted">Want your business listed? <Link href="/suppliers/join" className="font-bold">Become a supplier</Link> or <Link href="/experts/join" className="font-bold">an expert</Link>.</p>
         </section>
 
         {/* Not ready to pay online? A person calls them back: the lead lands in Admin > Leads. */}
@@ -191,7 +191,7 @@ export default async function MembershipPage() {
           <section className="mx-auto grid w-full max-w-5xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
             <div className="flex flex-col gap-3">
               <h2 className="text-section-title text-heading">Rather talk to a person?</h2>
-              <p className="text-[15px] leading-relaxed text-ink-muted">Not sure which plan, or want help paying by mobile money? Leave your number and we call you back, usually within the hour during working hours.{contact.whatsapp ? " Or WhatsApp us now." : ""}</p>
+              <p className="text-[14px] leading-relaxed text-ink-muted">Not sure which plan, or want help paying by mobile money? Leave your number and we call you back, usually within the hour during working hours.{contact.whatsapp ? " Or WhatsApp us now." : ""}</p>
             </div>
             <LeadForm compact interest="membership" whatsapp={contact.whatsapp ? whatsappHref(contact.whatsapp, "Hello BizSphere-Ug, I have a question about membership.") : null} />
           </section>

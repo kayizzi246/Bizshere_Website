@@ -167,8 +167,8 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
       }))]))
     : null;
 
-  const select = "h-11 rounded-xl px-3 text-[14px] font-semibold text-white";
-  const pdfButton = "inline-flex h-11 w-fit items-center gap-2 rounded-xl bg-accent px-5 text-[14px] font-bold text-ink hover:bg-white hover:text-ink";
+  const select = "h-11 rounded-xl px-3 text-[13px] font-semibold text-white";
+  const pdfButton = "inline-flex h-11 w-fit items-center gap-2 rounded-xl bg-accent px-5 text-[13px] font-bold text-ink hover:bg-white hover:text-ink";
   const tab = (on: boolean) => `whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold ${on ? "bg-white text-[#0A0B0D] hover:text-[#0A0B0D]" : "bg-white/[0.06] text-white/80 hover:bg-white/[0.12] hover:text-white"}`;
 
   // One dark page from the very top: title, tabs and the table share the same background.
@@ -177,8 +177,8 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
     <div className="under-header bg-[#0A0B0D] text-white">
       <div className="container-site flex flex-col gap-5 pad-body">
         <div className="flex flex-col gap-1">
-          <h1 className="text-hero text-[28px] text-white sm:text-[36px] xl:text-[42px]">Markets and Prices</h1>
-          <p className="text-[14px] text-white/55">Latest dated wholesale, retail and farm-gate prices from markets across Uganda. Pick a market to see its products, or tap a product to see every market.</p>
+          <h1 className="text-hero text-[25px] text-white sm:text-[32px] xl:text-[37px]">Markets and Prices</h1>
+          <p className="text-[13px] text-white/55">Latest dated wholesale, retail and farm-gate prices from markets across Uganda. Pick a market to see its products, or tap a product to see every market.</p>
         </div>
 
         {/* Advanced search: product words, category, market and sort in one bar (a plain GET form) */}
@@ -186,7 +186,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
           <label className="relative col-span-2 min-w-0 lg:flex-1">
             <span className="sr-only">Search products</span>
             <Search aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
-            <input name="q" type="search" defaultValue={q} placeholder="Search products, e.g. maize, matooke, sugar" className="h-11 w-full rounded-xl bg-transparent pl-10 pr-3 text-[15px] text-white outline-none placeholder:text-white/40" />
+            <input name="q" type="search" defaultValue={q} placeholder="Search products, e.g. maize, matooke, sugar" className="h-11 w-full rounded-xl bg-transparent pl-10 pr-3 text-[14px] text-white outline-none placeholder:text-white/40" />
           </label>
           <div className="col-span-2 rounded-xl bg-white/[0.06] lg:w-52 lg:rounded-none lg:border-l lg:border-white/10 lg:bg-transparent">
             <GlassSelect dark name="category" label="Category" defaultValue={category} className={select} icon={<LayoutGrid className="h-4 w-4 text-accent" />}
@@ -200,10 +200,10 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
             <GlassSelect dark name="sort" label="Sort by" defaultValue={sort} className={select} icon={<ArrowUpDown className="h-4 w-4 text-accent" />} panelClassName="right-0 left-auto"
               options={SORTS.map(([k, l]) => ({ value: k, label: l }))} />
           </div>
-          <button className="col-span-2 h-11 rounded-xl bg-accent px-6 text-[15px] font-bold text-ink hover:bg-white lg:ml-1">Search</button>
+          <button className="col-span-2 h-11 rounded-xl bg-accent px-6 text-[14px] font-bold text-ink hover:bg-white lg:ml-1">Search</button>
         </form>
         {q || marketLabel || categoryLabel ? (
-          <p className="-mt-1 flex flex-wrap items-center gap-2 text-[13px] text-white/60">
+          <p className="-mt-1 flex flex-wrap items-center gap-2 text-[12.5px] text-white/60">
             Showing {rows.length} {rows.length === 1 ? "product" : "products"}{categoryLabel ? <> in <strong className="text-white">{categoryLabel}</strong></> : null}{q ? <> for <strong className="text-white">“{q}”</strong></> : null}{marketLabel ? <> at <strong className="text-white">{marketLabel}</strong></> : null}.
             <Link href="/prices" className="font-semibold text-accent hover:text-white">Clear</Link>
           </p>
@@ -236,7 +236,7 @@ export default async function PricesPage({ searchParams }: { searchParams: { q?:
             <a href={`/membership?onboard=pay&next=${encodeURIComponent(href(market))}`} data-pay="" data-next={href(market)} className={pdfButton}><LockKeyhole aria-hidden className="h-4 w-4" />Download price list (PDF)</a>
           )
         ) : !market && markets.length ? (
-          <p className="flex items-center gap-2 text-[13px] text-white/60"><Download aria-hidden className="h-4 w-4 shrink-0 text-accent" />Pick a market to download its price list as a PDF.</p>
+          <p className="flex items-center gap-2 text-[12.5px] text-white/60"><Download aria-hidden className="h-4 w-4 shrink-0 text-accent" />Pick a market to download its price list as a PDF.</p>
         ) : null}
 
         <section aria-label="Prices" className="border-t border-white/10 pt-3">

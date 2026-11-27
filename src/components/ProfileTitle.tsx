@@ -6,7 +6,7 @@ export function ProfileTitle({ name }: { name: string }) {
   const words = name.trim().split(/ +/);
   const last = words.pop();
   return (
-    <h1 className="text-hero profile-title text-[28px] sm:text-[40px]">
+    <h1 className="text-hero profile-title text-[25px] sm:text-[35px]">
       {words.length ? `${words.join(" ")} ` : ""}<span className={words.length ? "text-accent" : ""}>{last}</span>{/[.!?]$/.test(name.trim()) ? null : <span aria-hidden className="text-accent">.</span>}
     </h1>
   );

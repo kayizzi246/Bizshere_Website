@@ -21,19 +21,19 @@ export function AuthShell({ title, text, children }: { title: string; text: stri
   ].filter(Boolean) as { icon: typeof Phone; label: string; href: string | null }[];
 
   return (
-    <div className="flex justify-center px-4 py-10 sm:py-16">
+    <div className="flex justify-center px-4 py-10 sm:py-12">
       <div className="grid w-full max-w-[920px] overflow-hidden rounded-[28px] bg-brand-deep md:grid-cols-[1fr_1.05fr]">
         {/* Welcome */}
-        <div className="relative isolate overflow-hidden px-6 py-7 text-white sm:px-10 md:py-12">
+        <div className="relative isolate overflow-hidden px-6 py-7 text-white sm:px-10 md:py-10">
           <div aria-hidden className="absolute -right-16 -top-16 -z-10 h-56 w-56 rounded-full bg-white/[0.06]" />
           <div aria-hidden className="absolute -bottom-20 -left-12 -z-10 h-64 w-64 rounded-full bg-brand/40 blur-2xl" />
-          <h1 className="text-center font-display text-[26px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[30px]">{title}</h1>
-          <p className="mx-auto mt-3 max-w-sm text-center text-[14px] leading-relaxed text-white/80 md:text-[15px]">{text}</p>
+          <h1 className="text-center font-display text-[23px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[26px]">{title}</h1>
+          <p className="mx-auto mt-3 max-w-sm text-center text-[13px] leading-relaxed text-white/80 md:text-[14px]">{text}</p>
 
           <div className="mt-8 hidden flex-col items-center gap-4 md:flex">
-            <p className="font-display text-[16px] font-extrabold">Need help?</p>
+            <p className="font-display text-[15px] font-extrabold">Need help?</p>
             {contacts.length ? (
-              <ul className="flex flex-col gap-2.5 text-[14px] text-white/85">
+              <ul className="flex flex-col gap-2.5 text-[13px] text-white/85">
                 {contacts.map((c) => (
                   <li key={c.label} className="flex items-start gap-2.5">
                     <c.icon aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
@@ -42,7 +42,7 @@ export function AuthShell({ title, text, children }: { title: string; text: stri
                 ))}
               </ul>
             ) : null}
-            <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-white/10 raised px-4 py-2 text-[14px] font-semibold text-white hover:bg-white/20 hover:text-white">
+            <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-white/10 raised px-4 py-2 text-[13px] font-semibold text-white hover:bg-white/20 hover:text-white">
               <MessageSquare aria-hidden className="h-4 w-4" />Send us a message
             </Link>
             {/* Uganda flag stripes */}
@@ -54,7 +54,7 @@ export function AuthShell({ title, text, children }: { title: string; text: stri
         </div>
 
         {/* Form */}
-        <div className="flex flex-col justify-center rounded-t-[28px] bg-surface px-6 py-8 sm:px-10 md:rounded-l-none md:rounded-r-[28px] md:rounded-bl-[72px] md:py-12">
+        <div className="flex flex-col justify-center rounded-t-[28px] bg-surface px-6 py-8 sm:px-10 md:rounded-l-none md:rounded-r-[28px] md:rounded-bl-[72px] md:py-10">
           <Link href="/" aria-label="BizSphere-Ug home" className="mx-auto mb-6 block">
             {/* 40/48px, matching SplitShell (16 Nov 2026; was 64). */}
             <Image src="/brand/logo-full.png" alt="BizSphere-Ug" width={1018} height={696} data-nofit="" className="h-10 w-auto sm:h-12" priority />

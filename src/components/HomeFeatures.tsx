@@ -93,7 +93,7 @@ const S = {
   guides: { solid: "bg-[#4338CA] text-white hover:text-white", ink: "text-[#4338CA]", onColour: "", soft: "bg-[#ECEBFB] text-[#4338CA]", softBtn: "bg-[#ECEBFB] text-[#4338CA] hover:bg-[#4338CA] hover:text-white" },
   news: { solid: "bg-[#8B5E1A] text-white hover:text-white", ink: "text-[#8B5E1A]", onColour: "", soft: "bg-[#F6EEDF] text-[#8B5E1A]", softBtn: "bg-[#F6EEDF] text-[#8B5E1A] hover:bg-[#8B5E1A] hover:text-white" },
   prices: { solid: "bg-[#C8102E] text-white hover:text-white", ink: "text-[#C8102E]", onColour: "", soft: "bg-[#FDE8EB] text-[#C8102E]", softBtn: "bg-[#FDE8EB] text-[#C8102E] hover:bg-[#C8102E] hover:text-white" },
-  websites: { solid: "bg-[#475467] text-white hover:text-white", ink: "text-[#475467]", onColour: "", soft: "bg-[#EDF0F4] text-[#475467]", softBtn: "bg-[#EDF0F4] text-[#475467] hover:bg-[#475467] hover:text-white" },
+  websites: { solid: "bg-ink-soft text-white hover:text-white", ink: "text-ink-soft", onColour: "", soft: "bg-[#EDF0F4] text-ink-soft", softBtn: "bg-[#EDF0F4] text-ink-soft hover:bg-ink-soft hover:text-white" },
 } as const;
 /**
  * Each homepage section sits on its own band, edge to edge, so the sections read as separate rooms (client,
@@ -131,7 +131,7 @@ function greeting(name: string | null) {
 function Greeting({ name }: { name: string | null }) {
   const { part, first, Glyph } = greeting(name);
   return (
-    <span className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-accent/30 bg-gradient-to-r from-accent-tint to-brand-tint py-1.5 pl-1.5 pr-4 text-[14px] text-ink-soft">
+    <span className="inline-flex max-w-full items-center gap-2.5 rounded-full border border-accent/30 bg-gradient-to-r from-accent-tint to-brand-tint py-1.5 pl-1.5 pr-4 text-[13px] text-ink-soft">
       <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-ink"><Glyph className="h-[18px] w-[18px]" strokeWidth={2.25} /></span>
       <span className="min-w-0 truncate">{part}{first ? <>, <strong className="font-bold text-heading">{first}</strong></> : null}</span>
     </span>
@@ -140,16 +140,16 @@ function Greeting({ name }: { name: string | null }) {
 
 /** Opens the sign-up and payment pop-up here on the homepage (data-pay, src/components/Onboarding.tsx), for someone signed in who has not paid yet. */
 
-const heading = "text-hero text-[22px] leading-[1.2] text-heading sm:text-[26px] lg:text-[30px]";
-const body = "mx-auto max-w-md text-[14px] leading-relaxed text-ink-soft sm:text-[15px]";
+const heading = "text-hero text-[19px] leading-[1.2] text-heading sm:text-[23px] lg:text-[26px]";
+const body = "mx-auto max-w-md text-[13px] leading-relaxed text-ink-soft sm:text-[14px]";
 
 const Label = ({ href, pill }: { href: string; pill: string }) => {
   const d = directory(href);
-  return <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[13px] ${pill}`}><Icon name={d.icon} className="h-4 w-4" />{d.title}</span>;
+  return <span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] ${pill}`}><Icon name={d.icon} className="h-4 w-4" />{d.title}</span>;
 };
 
 const Go = ({ href, tone = "bg-brand text-white hover:bg-brand-dark hover:text-white", children }: { href: string; tone?: string; children: React.ReactNode }) => (
-  <Link href={href} className={`go-btn group mt-1 inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[14px] font-semibold ${tone}`}>
+  <Link href={href} className={`go-btn group mt-1 inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold ${tone}`}>
     {children}<ArrowRight aria-hidden className="go-arrow h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" />
   </Link>
 );
@@ -166,10 +166,10 @@ function Panel({ href, title, text, action, tint, words, onColour, children }: {
     <li data-reveal="" className={`rise-soft group/panel relative isolate flex flex-col gap-4 overflow-hidden rounded-xl p-5 transition-transform duration-200 hover:-translate-y-1 motion-reduce:hover:translate-y-0 sm:p-6 ${PANEL_H} ${tint}`}>
       <div className={`flex items-start justify-between gap-4 ${words}`}>
         <div className="flex min-w-0 flex-col items-start gap-2">
-          <h3 className="card-title font-display text-[22px] leading-[1.2] sm:text-[24px] lg:text-[26px]">{title}</h3>
-          <p data-size="" className="max-w-lg text-[13px] leading-relaxed opacity-90">{text}</p>
+          <h3 className="card-title font-display text-[19px] leading-[1.2] sm:text-[21px] lg:text-[23px]">{title}</h3>
+          <p data-size="" className="max-w-lg text-[12.5px] leading-relaxed opacity-90">{text}</p>
         </div>
-        <Link href={href} className={`group hidden h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[13px] font-semibold sm:inline-flex ${onColour}`}>
+        <Link href={href} className={`group hidden h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[12.5px] font-semibold sm:inline-flex ${onColour}`}>
           {action}<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-1" />
         </Link>
       </div>
@@ -203,7 +203,7 @@ function Fillers({ list, count, tone }: { list: [string, string, string, string]
       <Link href={href} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-page hover:text-heading">
         <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${tone}`}><Icon name={icon} className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-display text-[13px] font-bold leading-snug">{title}</span>
+          <span className="truncate font-display text-[12.5px] font-bold leading-snug">{title}</span>
           <span className="truncate text-[11px] text-ink-muted">{text}</span>
         </span>
         <ArrowRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5" />
@@ -215,7 +215,7 @@ function Fillers({ list, count, tone }: { list: [string, string, string, string]
 const Points = ({ points, mark, tint, start = false }: { points: [LucideIcon, string][]; mark: string; tint: string; start?: boolean }) => (
   <ul className={`flex flex-wrap gap-2 ${start ? "justify-start" : "justify-center"}`}>
     {points.map(([Glyph, label]) => (
-      <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
+      <li key={label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] ${tint}`}><Glyph aria-hidden className={`h-4 w-4 ${mark}`} strokeWidth={1.75} />{label}</li>
     ))}
   </ul>
 );
@@ -286,13 +286,13 @@ export async function HomeFeatures() {
       {/* A greeting and the visitor's problem first: one tap from "I need…" to the answer (client, 10 Nov 2026) */}
       <div className={`relative isolate overflow-hidden ${BAND.need}`}>
       <NeedIcons />
-      <div className="container-site flex flex-col items-center gap-6 py-9 sm:gap-7 sm:py-12">
+      <div className="container-site flex flex-col items-center gap-6 py-9 sm:gap-7 sm:py-10">
         <div data-reveal="" className="rise-soft flex flex-col items-center gap-3 text-center">
           <Greeting name={viewer.name} />
           {/* The site's heading treatment (16 Nov 2026), as on "Help for every working day." and the
               businesses banner: the word the line turns on in the logo orange, closing on an orange
               mark — here the question mark, since this one asks rather than promises. */}
-          <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+          <h2 className="head-mixed text-hero text-[21px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[25px] lg:text-[26px]">
             What do you need <span className="head-serif">today?</span>
           </h2>
           <p data-size="" className={body}>Choose one and we take you straight there.</p>
@@ -308,14 +308,14 @@ export async function HomeFeatures() {
               <li key={href} data-reveal="" style={{ "--d": `${n * 60}ms` } as React.CSSProperties}>
                 <Link href={href} className="group flex min-h-[64px] items-center gap-2.5 rounded-xl border border-white bg-white p-3 pr-2.5 text-ink transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-[#F7FAFE] hover:text-ink motion-reduce:hover:translate-y-0">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0072CE] to-[#0A4E8C] text-white transition-transform duration-200 group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"><Icon name={directory(href).icon} className="h-[18px] w-[18px]" /></span>
-                  <span className="min-w-0 flex-1 truncate font-display text-[14px] font-semibold leading-snug tracking-[-0.01em] text-heading">{say}</span>
+                  <span className="min-w-0 flex-1 truncate font-display text-[13px] font-semibold leading-snug tracking-[-0.01em] text-heading">{say}</span>
                   <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint text-brand-dark transition-colors duration-200 group-hover:bg-accent group-hover:text-ink"><ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" /></span>
                 </Link>
               </li>
             ))}
           </ul>
         </div>
-        <p data-size="" className="text-center text-[14px] text-ink-soft">Not sure where to start? <Link href="/contact" className="">Tell us what you need</Link> and a person will help you.</p>
+        <p data-size="" className="text-center text-[13px] text-ink-soft">Not sure where to start? <Link href="/contact" className="">Tell us what you need</Link> and a person will help you.</p>
       </div>
       </div>
 
@@ -325,15 +325,15 @@ export async function HomeFeatures() {
           Polished on 12 Nov 2026 (client: keep these designs, make them better): an eyebrow and left-aligned
           heading like the other sections, smaller corners, no faint icons behind the words, bolder names. */}
       <div className={`${BAND.all} pb-4 sm:pb-5`}>
-      <div className="container-site flex flex-col gap-2 pt-9 sm:pt-12">
+      <div className="container-site flex flex-col gap-2 pt-9 sm:pt-10">
         <span className="text-[12px] font-semibold uppercase tracking-[0.16em] text-brand-dark">The platform</span>
         {/* The site's heading treatment (16 Nov 2026). The word is "Everything", not "needs": the promise
             here is that the whole lot is in one place, and "need" is already the orange word in the heading
             above this one — repeating it would blunt both. */}
-        <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+        <h2 className="head-mixed text-hero text-[21px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[25px] lg:text-[26px]">
           Everything <span className="head-serif">a business needs</span>
         </h2>
-        <p data-size="" className="max-w-2xl text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
+        <p data-size="" className="max-w-2xl text-[13px] leading-relaxed text-ink-soft sm:text-[14px]">Ideas, machines, money, suppliers and advice, all checked by our team. Open any one to begin.</p>
       </div>
 
       {/* Business Ideas: a green panel built like Machines and Experts below it, and the same height: the words
@@ -342,8 +342,8 @@ export async function HomeFeatures() {
       <div className="container-site pb-4 pt-6 sm:pt-7">
       <div data-reveal="" className={`rise-soft skin-ideas relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${ideas.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
                 <div className="flex flex-col items-start gap-4">
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business ideas</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white/90 sm:text-[15px]">Ready plans with every cost, line by line.</p>
+          <h3 className="card-title font-display text-[19px] leading-[1.2] text-white sm:text-[21px] lg:text-[23px]">Business ideas</h3>
+          <p data-size="" className="max-w-md text-[13px] leading-relaxed text-white/90 sm:text-[14px]">Ready plans with every cost, line by line.</p>
           <Go href="/business-ideas" tone={S.ideas.onColour}>See business ideas</Go>
         </div>
         {ideas.length ? (
@@ -357,7 +357,7 @@ export async function HomeFeatures() {
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-medium leading-snug text-heading sm:text-[13px]">{clean(idea.title)}</span>
+                    <span className="font-display text-[12.5px] font-medium leading-snug text-heading sm:text-[12.5px]">{clean(idea.title)}</span>
                     <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-tint text-navy transition-colors group-hover:bg-navy group-hover:text-white"><ArrowRight className="h-4 w-4" /></span>
                   </span>
                 </Link>
@@ -372,8 +372,8 @@ export async function HomeFeatures() {
       <div className="container-site">
       <div data-machines="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] panel-drop panel-drop-left isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${machines.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Business machines</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white sm:text-[15px]">What each machine does and costs.</p>
+          <h3 className="card-title font-display text-[19px] leading-[1.2] text-white sm:text-[21px] lg:text-[23px]">Business machines</h3>
+          <p data-size="" className="max-w-md text-[13px] leading-relaxed text-white sm:text-[14px]">What each machine does and costs.</p>
           <Go href="/machines" tone={S.machines.onColour}>See business machines</Go>
         </div>
         {/* Redesigned (client, 25 Nov 2026), like the business ideas above: white shop cards, the whole machine on
@@ -394,7 +394,7 @@ export async function HomeFeatures() {
                         <img src={x?.pictureUrl ?? ""} alt="" loading="lazy" data-nofit="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05] motion-reduce:transition-none" />
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none sm:px-1.5 sm:pb-1.5 sm:pt-3">
-                        <span className="line-clamp-2 font-display text-[12.5px] font-medium leading-snug text-white sm:text-[13px]" title={clean(m.title)}>{clean(m.title)}</span>
+                        <span className="line-clamp-2 font-display text-[12.5px] font-medium leading-snug text-white sm:text-[12.5px]" title={clean(m.title)}>{clean(m.title)}</span>
                         <span className="flex items-center justify-between gap-2">
                           {hasPrice ? (locked
                             ? <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-white/70"><span aria-hidden className="select-none font-display text-[12px] font-medium blur-[5px]">UGX 0.0M</span><LockKeyhole aria-hidden className="h-3.5 w-3.5" /></span>
@@ -429,7 +429,7 @@ export async function HomeFeatures() {
                     <Link href={`/funding/${f.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#FFF6EC] hover:text-heading">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-accent-dark"><Icon name="funding" className="h-[18px] w-[18px]" strokeWidth={1.75} /></span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[13px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
+                        <span className="truncate font-display text-[12.5px] font-bold group-hover:text-accent-dark">{clean(f.title)}</span>
                         {/* The funder category first, as on /funding (client, 26 Nov 2026: "make it visible on the home page as well") */}
                         <span className="truncate text-[11px] text-ink-muted">
                           <span className="font-semibold text-accent-dark">{funderCategoryOf(f.fundingProgramme?.providerCategory, f.fundingProgramme?.provider.providerCategory, org ? org.tradingName ?? org.legalName : null)}</span>
@@ -460,10 +460,10 @@ export async function HomeFeatures() {
                     <Link href={`/suppliers/${x.slug}`} className="group flex h-full items-center gap-3 px-4 py-3 text-heading transition-colors hover:bg-[#EEF6FC] hover:text-heading">
                       <span className={`relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg ${picture ? "bg-page" : MONOGRAM[n % MONOGRAM.length]}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or seller-entered address */}
-                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[13px] font-extrabold leading-none">{name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase()}</span>}
+                        {picture ? <img src={picture} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden className="font-display text-[12.5px] font-extrabold leading-none">{name.split(/\s+/).slice(0, 2).map((w) => w.charAt(0)).join("").toUpperCase()}</span>}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate font-display text-[13px] font-bold leading-snug group-hover:text-brand">{name}</span>
+                        <span className="truncate font-display text-[12.5px] font-bold leading-snug group-hover:text-brand">{name}</span>
                         {sells ? <span className="truncate text-[10px] text-ink-soft">{sells}</span> : null}
                         {x.supplier?.country ? <span className="inline-flex items-center gap-1 text-[9.5px] text-ink-muted"><MapPin aria-hidden className="h-3 w-3 shrink-0" />{x.supplier.country}</span> : null}
                       </span>
@@ -482,8 +482,8 @@ export async function HomeFeatures() {
       <div data-experts="" data-reveal="" className={`rise-soft relative grid grid-cols-[minmax(0,1fr)] skin-experts isolate items-center gap-6 overflow-hidden rounded-xl p-5 sm:p-7 ${PANEL_H} ${experts.length ? "lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10" : ""}`}>
         <div data-reveal="" className="relative flex flex-col items-start gap-4">
           <Label href="/experts" pill={S.experts.onColour} />
-          <h3 className="card-title font-display text-[22px] leading-[1.2] text-white sm:text-[24px] lg:text-[26px]">Find an expert</h3>
-          <p data-size="" className="max-w-md text-[14px] leading-relaxed text-white/90 sm:text-[15px]">Checked advisors for the hard parts.</p>
+          <h3 className="card-title font-display text-[19px] leading-[1.2] text-white sm:text-[21px] lg:text-[23px]">Find an expert</h3>
+          <p data-size="" className="max-w-md text-[13px] leading-relaxed text-white/90 sm:text-[14px]">Checked advisors for the hard parts.</p>
           <Points points={EXPERT_POINTS} mark="text-white" tint="bg-white/15 text-white" start />
           <Go href="/experts" tone={S.experts.onColour}>Find an expert</Go>
         </div>
@@ -495,13 +495,13 @@ export async function HomeFeatures() {
               const role = [c?.professionalTitle, c?.specialties.slice(0, 2).join(", ")].filter(Boolean).join(" · ");
               return (
                 <Link key={e.slug} data-reveal="" style={{ "--d": `${n * 90}ms` } as React.CSSProperties} href={itemHref(e)} className={`group flex items-center gap-3 rounded-lg bg-white p-2.5 text-heading transition-colors hover:bg-[#FBF9FE] hover:text-heading sm:gap-4`}>
-                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[16px] text-[#4A1D6B] sm:h-14 sm:w-14">
+                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white font-display text-[15px] text-[#4A1D6B] sm:h-14 sm:w-14">
                     {/* eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address */}
                     {c?.photoUrl ? <img src={c.photoUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : name.charAt(0)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     {/* Smaller (client, 14 Nov 2026), to match the funding and supplier panels */}
-                    <span className="font-display text-[12.5px] font-medium leading-snug sm:text-[13px]">{name}</span>
+                    <span className="font-display text-[12.5px] font-medium leading-snug sm:text-[12.5px]">{name}</span>
                     {role ? <span className="line-clamp-1 text-[10px] text-ink-soft sm:text-[11px]">{role}</span> : null}
                     {c?.district ? <span className="flex items-center gap-1 text-[9.5px] text-ink-muted sm:text-[10px]"><MapPin aria-hidden className="h-2.5 w-2.5" />{c.district}</span> : null}
                   </span>
@@ -523,10 +523,10 @@ export async function HomeFeatures() {
       <div data-everyday="" className="speckle">
       <div className="container-site flex flex-col items-center gap-5 pb-8 pt-7 sm:gap-6 sm:pb-10 sm:pt-8">
         <div data-reveal="" className="rise-soft flex max-w-2xl flex-col items-center gap-3 text-center">
-          <h2 className="head-mixed text-hero text-[24px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[28px] lg:text-[30px]">
+          <h2 className="head-mixed text-hero text-[21px] leading-[1.15] tracking-[-0.025em] text-heading sm:text-[25px] lg:text-[26px]">
             Help for <span className="head-serif">every working day</span>
           </h2>
-          <p data-size="" className="text-[14px] leading-relaxed text-ink-soft sm:text-[15px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
+          <p data-size="" className="text-[13px] leading-relaxed text-ink-soft sm:text-[14px]">Guides, tools, prices, news, tips and the forum, checked and kept up to date by our team.</p>
         </div>
         <HelpTabs tabs={helpTabs} />
       </div>

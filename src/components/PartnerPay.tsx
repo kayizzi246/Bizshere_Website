@@ -75,24 +75,24 @@ export function PartnerPay({ kind, options, done, title }: { kind: PartnerKind; 
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="btn-primary min-h-[48px] w-full rounded-xl text-[15px] font-bold">Choose a plan and pay</button>
+      <button type="button" onClick={() => setOpen(true)} className="btn-primary min-h-[48px] w-full rounded-xl text-[14px] font-bold">Choose a plan and pay</button>
 
       {open ? (
         <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/70 p-3">
           <div className={`onboard-pop flex w-full flex-col overflow-hidden rounded-3xl bg-white ${order ? "h-[min(680px,92dvh)] max-w-lg" : "max-h-[92dvh] max-w-md"}`}>
             <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-              <span className="min-w-0 truncate font-display text-[16px] font-extrabold text-heading">{order ? "Secure payment" : title}</span>
+              <span className="min-w-0 truncate font-display text-[15px] font-extrabold text-heading">{order ? "Secure payment" : title}</span>
               <button type="button" onClick={close} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-1 ring-line hover:ring-brand"><X aria-hidden className="h-4 w-4" /></button>
             </div>
 
             {order ? (
               <>
-                {failed ? <p className="bg-accent-tint px-4 py-2 text-[13px] font-semibold text-accent-dark">That attempt didn&apos;t go through. You can try again below.</p> : null}
+                {failed ? <p className="bg-accent-tint px-4 py-2 text-[12.5px] font-semibold text-accent-dark">That attempt didn&apos;t go through. You can try again below.</p> : null}
                 <iframe src={order.url} title="Pesapal secure payment" allow="payment" className="min-h-0 w-full flex-1 border-0" />
               </>
             ) : options.length ? (
               <div className="flex flex-col gap-3 overflow-y-auto p-5">
-                <p className="text-[14px] text-ink-muted">Your details are saved. Choose how long to list your page.</p>
+                <p className="text-[13px] text-ink-muted">Your details are saved. Choose how long to list your page.</p>
                 <div role="radiogroup" aria-label="How long" className="flex flex-col gap-2">
                   {options.map((o) => {
                     const on = o.period === period;
@@ -100,20 +100,20 @@ export function PartnerPay({ kind, options, done, title }: { kind: PartnerKind; 
                       <button key={o.period} type="button" role="radio" aria-checked={on} onClick={() => setPeriod(o.period)}
                         className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left ring-1 transition-colors ${on ? "bg-brand-tint ring-brand" : "bg-white ring-line hover:ring-brand/40"}`}>
                         <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${on ? "bg-brand text-white" : "ring-1 ring-line-strong"}`}>{on ? <Check aria-hidden className="h-3 w-3" strokeWidth={3} /> : null}</span>
-                        <span className="flex-1 text-[15px] font-semibold text-heading">{o.label}</span>
-                        <span className="text-[15px] font-bold tabular-nums text-heading">{o.price}</span>
+                        <span className="flex-1 text-[14px] font-semibold text-heading">{o.label}</span>
+                        <span className="text-[14px] font-bold tabular-nums text-heading">{o.price}</span>
                       </button>
                     );
                   })}
                 </div>
-                {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[14px] font-semibold text-bad-fg">{error}</p> : null}
-                <button type="button" onClick={start} disabled={busy} className="btn-primary min-h-[48px] w-full rounded-xl text-[15px] font-bold">
+                {error ? <p role="alert" className="rounded-lg bg-bad-bg px-3 py-2 text-[13px] font-semibold text-bad-fg">{error}</p> : null}
+                <button type="button" onClick={start} disabled={busy} className="btn-primary min-h-[48px] w-full rounded-xl text-[14px] font-bold">
                   {busy ? <Loader2 aria-hidden className="h-4 w-4 animate-spin" /> : null}Pay now
                 </button>
-                <p className="text-center text-[13px] text-ink-muted">MTN MoMo, Airtel Money, Visa or Mastercard, by Pesapal.</p>
+                <p className="text-center text-[12.5px] text-ink-muted">MTN MoMo, Airtel Money, Visa or Mastercard, by Pesapal.</p>
               </div>
             ) : (
-              <p className="p-5 text-[14px] font-semibold text-ink-soft">Prices are coming soon. Your details are saved, and you can pay here once they&apos;re set.</p>
+              <p className="p-5 text-[13px] font-semibold text-ink-soft">Prices are coming soon. Your details are saved, and you can pay here once they&apos;re set.</p>
             )}
           </div>
         </div>

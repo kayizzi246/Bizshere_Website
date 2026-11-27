@@ -50,7 +50,7 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
     return s ? `/tips?${s}` : "/tips";
   };
   const excerpt = (t: (typeof all)[number]) => (t.shortSummary || t.overview || "").replace(/\s+/g, " ").trim();
-  const tab = "whitespace-nowrap border-b-2 px-1 pb-2.5 text-[14px] font-semibold transition-colors";
+  const tab = "whitespace-nowrap border-b-2 px-1 pb-2.5 text-[13px] font-semibold transition-colors";
 
   return (
     <>
@@ -72,14 +72,14 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
             <form action="/tips" role="search" className="order-1 mb-0 flex w-full items-center gap-2 rounded-xl border border-line bg-page px-3 lg:order-2 lg:mb-3 lg:max-w-xs">
               {topic ? <input type="hidden" name="topic" value={topic} /> : null}
               <Search aria-hidden className="h-4 w-4 shrink-0 text-ink-muted" />
-              <input name="q" type="search" defaultValue={q} placeholder="Search the tips" aria-label="Search business tips" className="h-11 w-full min-w-0 bg-transparent text-[14px] text-ink outline-none" />
+              <input name="q" type="search" defaultValue={q} placeholder="Search the tips" aria-label="Search business tips" className="h-11 w-full min-w-0 bg-transparent text-[13px] text-ink outline-none" />
             </form>
           </div>
-          {q ? <p className="-mt-2 text-[14px] text-ink-soft" aria-live="polite"><strong className="font-semibold text-ink">{found.length} tip{found.length === 1 ? "" : "s"}</strong> for “{q}”. <Link href={link({})} className="font-semibold">Clear the search</Link></p> : null}
+          {q ? <p className="-mt-2 text-[13px] text-ink-soft" aria-live="polite"><strong className="font-semibold text-ink">{found.length} tip{found.length === 1 ? "" : "s"}</strong> for “{q}”. <Link href={link({})} className="font-semibold">Clear the search</Link></p> : null}
 
           {found.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-line px-6 py-14 text-center">
-              <p className="text-[15px] font-semibold text-heading">{all.length ? "No tips match that. Try other words or another topic." : "The first tips are being written. Come back soon."}</p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-line px-6 py-10 text-center">
+              <p className="text-[14px] font-semibold text-heading">{all.length ? "No tips match that. Try other words or another topic." : "The first tips are being written. Come back soon."}</p>
               {all.length ? <Link href="/tips" className="btn-outline min-h-[44px] px-5 text-sm">Show all tips</Link> : null}
             </div>
           ) : (
@@ -100,13 +100,13 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
                       ) : (
                         // No photo or video: a plain panel of the same size, so the grid lines up
                         <span className="flex aspect-[16/9] items-end rounded-xl border border-line bg-page p-4">
-                          <span className="font-display text-[15px] font-bold leading-snug text-ink-soft">{t.primaryCategory?.name ?? "Business tip"}</span>
+                          <span className="font-display text-[14px] font-bold leading-snug text-ink-soft">{t.primaryCategory?.name ?? "Business tip"}</span>
                         </span>
                       )}
                       <span className="flex flex-1 flex-col gap-2">
                         <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-dark">{t.primaryCategory?.name ?? "Business tip"}</span>
-                        <h2 className="font-display text-[19px] font-bold leading-snug text-heading group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">{t.title}</h2>
-                        <p className="line-clamp-2 text-[14px] leading-relaxed text-ink-soft">{excerpt(t)}</p>
+                        <h2 className="font-display text-[18px] font-bold leading-snug text-heading group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">{t.title}</h2>
+                        <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-soft">{excerpt(t)}</p>
                         <span className="mt-auto flex flex-wrap items-center gap-x-2 pt-1 text-[12px] text-ink-muted">
                           <span>{date(t.publishedAt ?? t.updatedAt)}</span><span aria-hidden>·</span><span>{readMinutes(t.overview)} min read</span>
                           {remarks ? <><span aria-hidden>·</span><span className="inline-flex items-center gap-1"><MessageCircle aria-hidden className="h-3.5 w-3.5" />{remarks}</span></> : null}
@@ -122,7 +122,7 @@ export default async function TipsPage({ searchParams }: { searchParams: { q?: s
           {pages > 1 ? (
             <nav aria-label="Pages" className="flex items-center justify-center gap-3 border-t border-line pt-6">
               {current > 1 ? <Link href={link({ page: current - 1 })} className="btn-outline min-h-[44px] px-5 text-sm">← Newer tips</Link> : null}
-              <span className="text-[14px] text-ink-muted">Page {current} of {pages}</span>
+              <span className="text-[13px] text-ink-muted">Page {current} of {pages}</span>
               {current < pages ? <Link href={link({ page: current + 1 })} className="btn-outline min-h-[44px] px-5 text-sm">Older tips →</Link> : null}
             </nav>
           ) : null}

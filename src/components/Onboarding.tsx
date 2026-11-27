@@ -219,12 +219,12 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, of
 
         {checkout ? null : <WhyPanel renew={renew} />}
 
-        <div className={`flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 ${checkout ? "sm:px-6 md:py-6" : "md:px-12 md:py-14"}`}>
+        <div className={`flex flex-col justify-center px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-9 sm:pb-8 sm:pt-7 ${checkout ? "sm:px-6 md:py-6" : "md:px-12 md:py-10"}`}>
           {step === "account" ? (
             <div className="onboard-stagger flex flex-col gap-6">
               <StepBar n={1} />
               <div className="flex flex-col gap-2.5">
-                <h2 id="onboard-title" className="font-display text-[18px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[20px] md:text-[21px]">Enter your phone number</h2>
+                <h2 id="onboard-title" className="font-display text-[17px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[18px] md:text-[18px]">Enter your phone number</h2>
                 <p className="text-[12.5px] leading-relaxed text-ink-muted">We text you a code. No password. Next you pay, and everything opens. Already a member? Use the same number.</p>
               </div>
               <PhoneSignIn size="lg" onSignedIn={signedInNow} googleEnabled={googleEnabled} googleCallbackUrl={`/?onboard=pay&next=${encodeURIComponent(next)}`} />
@@ -237,8 +237,8 @@ function OnboardingModal({ step, setStep, next, renew, initialPeriod, picked, of
         {confirmLeave ? (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/90 p-6 backdrop-blur-sm">
             <div role="alertdialog" aria-labelledby="leave-title" className="flex max-w-sm flex-col gap-3 rounded-2xl border border-line bg-white p-6 text-center shadow-[0_12px_32px_rgba(7,26,51,0.14)]">
-              <p id="leave-title" className="font-display text-[18px] font-bold text-heading">Stop this payment?</p>
-              <p className="text-[13px] text-ink-muted">If you&apos;ve already approved it on your phone, wait a moment: we&apos;ll open your access as soon as it arrives.</p>
+              <p id="leave-title" className="font-display text-[17px] font-bold text-heading">Stop this payment?</p>
+              <p className="text-[12.5px] text-ink-muted">If you&apos;ve already approved it on your phone, wait a moment: we&apos;ll open your access as soon as it arrives.</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => setConfirmLeave(false)} className="btn-primary min-h-[44px]">Keep paying</button>
                 <button type="button" onClick={() => { setConfirmLeave(false); void close(); }} className="btn-outline min-h-[44px]">Cancel payment</button>
@@ -268,14 +268,14 @@ function WhyPanel({ renew }: { renew: boolean }) {
         <span className="hidden w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80 sm:inline-flex">
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />BizSphere membership
         </span>
-        <p className="font-display text-[20px] font-bold leading-[1.12] tracking-[-0.025em] sm:mt-4 sm:text-[21px] md:text-[23px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
-        <p className="mt-3 hidden text-[13.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
+        <p className="font-display text-[18px] font-bold leading-[1.12] tracking-[-0.025em] sm:mt-4 sm:text-[18px] md:text-[20px]">{renew ? "Keep every door open." : "Unlock everything in 2 steps"}</p>
+        <p className="mt-3 hidden text-[12.5px] leading-relaxed text-white/70 sm:block">{renew ? "Renew now and the new time is added to what you have left:" : "Your phone number, then pay with MoMo, Airtel Money or card. You get:"}</p>
       </div>
       <ul className="onboard-stagger relative mt-5 hidden flex-col gap-2.5 sm:flex md:mt-0">
         {WHY.map((w) => (
           <li key={w.title} className="flex items-start gap-3.5 rounded-2xl bg-white/[0.06] p-3.5 transition-colors duration-200 hover:bg-white/[0.1]">
             <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent"><w.icon className="h-[18px] w-[18px]" /></span>
-            <span className="text-[13px] leading-snug text-white/70"><span className="block font-semibold text-white">{w.title}</span>{w.text}</span>
+            <span className="text-[12.5px] leading-snug text-white/70"><span className="block font-semibold text-white">{w.title}</span>{w.text}</span>
           </li>
         ))}
       </ul>
@@ -459,12 +459,12 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
     return (
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3 pr-12">
-          <button type="button" onClick={changePlan} className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold text-ink-soft ring-1 ring-line hover:bg-page"><ArrowLeft className="h-4 w-4" />Change plan</button>
-          <span className="min-w-0 truncate text-[13px] text-ink-muted"><span id="onboard-title" className="font-semibold text-heading">{OPTIONS[period].title}</span> · {price}</span>
+          <button type="button" onClick={changePlan} className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[12.5px] font-semibold text-ink-soft ring-1 ring-line hover:bg-page"><ArrowLeft className="h-4 w-4" />Change plan</button>
+          <span className="min-w-0 truncate text-[12.5px] text-ink-muted"><span id="onboard-title" className="font-semibold text-heading">{OPTIONS[period].title}</span> · {price}</span>
         </div>
         <div className="relative overflow-hidden rounded-2xl border border-line bg-page">
           {!frameReady ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[13px] text-ink-muted">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[12.5px] text-ink-muted">
               <span aria-hidden className="h-7 w-7 animate-spin rounded-full border-[3px] border-brand border-t-transparent" />
               Opening the secure payment page…
             </div>
@@ -493,17 +493,17 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
     <form onSubmit={start} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         {renew ? null : <StepBar n={2} />}
-        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[20px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[22px]`}>{renew ? "Renew or change plan" : showAll ? "Pick how long" : "Pay and you're in"}</h2>
-        <p className="text-[13px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "Every plan opens everything. Only the length differs."}</p>
+        <h2 id="onboard-title" className={`${renew ? "" : "mt-3 "}font-display text-[18px] font-bold leading-[1.15] tracking-[-0.02em] text-heading sm:text-[19px]`}>{renew ? "Renew or change plan" : showAll ? "Pick how long" : "Pay and you're in"}</h2>
+        <p className="text-[12.5px] leading-relaxed text-ink-muted">{renew ? "Keep your plan or pick another: the time you buy is added to the end of your current membership." : "Every plan opens everything. Only the length differs."}</p>
       </div>
 
       {available.length && !showAll ? (
         <div className="flex items-center gap-3 rounded-xl border-2 border-brand bg-brand-tint/40 px-4 py-3.5">
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[15px] font-bold text-heading">{OPTIONS[period].title} of full access</span>
-            <span className="text-[13px] text-ink-muted">{price}, paid once</span>
+            <span className="text-[14px] font-bold text-heading">{OPTIONS[period].title} of full access</span>
+            <span className="text-[12.5px] text-ink-muted">{price}, paid once</span>
           </span>
-          <button type="button" onClick={() => setShowAll(true)} className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold text-brand ring-1 ring-brand/30 hover:bg-white">Change</button>
+          <button type="button" onClick={() => setShowAll(true)} className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-semibold text-brand ring-1 ring-brand/30 hover:bg-white">Change</button>
         </div>
       ) : available.length ? (
         <fieldset className="flex flex-col gap-2">
@@ -518,7 +518,7 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
                 <input type="radio" name="period" value={p} checked={on} onChange={() => { setPeriod(p); setOffer(null); setCodeError(null); }} className="sr-only" />
                 <span aria-hidden className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${on ? "border-brand bg-brand text-white" : "border-line-strong"}`}>{on ? <Check className="h-3 w-3" strokeWidth={3} /> : null}</span>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-heading">
+                  <span className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-heading">
                     {OPTIONS[p].title}
                     {mine ? <span className="rounded-full bg-heading px-2 py-0.5 text-[11px] font-bold text-white">Your plan</span> : null}
                     {badge ? <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${p === "YEARLY" ? "bg-accent-tint text-accent-dark" : "bg-brand text-white"}`}>{badge}</span> : null}
@@ -526,7 +526,7 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
                   <span className="text-[12px] text-ink-muted">{OPTIONS[p].note}</span>
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block font-display text-[16px] font-bold tracking-tight text-heading">{fmt(plan.amounts[p]!, plan.currency)}</span>
+                  <span className="block font-display text-[15px] font-bold tracking-tight text-heading">{fmt(plan.amounts[p]!, plan.currency)}</span>
                   <span className="block text-[11px] text-ink-muted">per {OPTIONS[p].per}</span>
                 </span>
               </label>
@@ -534,13 +534,13 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
           })}
         </fieldset>
       ) : (
-        <p className="rounded-xl border border-line bg-page p-4 text-[13px] text-ink-muted">Membership prices are being confirmed. Please check back soon.</p>
+        <p className="rounded-xl border border-line bg-page p-4 text-[12.5px] text-ink-muted">Membership prices are being confirmed. Please check back soon.</p>
       )}
 
       {/* A discount code, out of the way behind one link: most people have none, and a field they
           can't fill in only makes paying look harder than it is. */}
       {available.length && !codeOpen && !offer ? (
-        <button type="button" onClick={() => setCodeOpen(true)} className="-my-1 self-start text-[13px] font-semibold text-brand underline-offset-2 hover:underline">Have a discount code?</button>
+        <button type="button" onClick={() => setCodeOpen(true)} className="-my-1 self-start text-[12.5px] font-semibold text-brand underline-offset-2 hover:underline">Have a discount code?</button>
       ) : null}
       {available.length && (codeOpen || offer) ? (
         <div className="flex flex-col gap-1.5">
@@ -550,23 +550,23 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
               <input value={code} onChange={(e) => { setCode(e.target.value); setOffer(null); setCodeError(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void applyCode(code, period); } }}
                 placeholder="Discount code" autoCapitalize="characters" autoComplete="off" spellCheck={false} maxLength={32}
                 /* 16px on phones so iPhone Safari doesn't zoom the pop-up in when the keyboard opens */
-                className="input h-11 w-full text-[16px] uppercase sm:text-sm" />
+                className="input h-11 w-full text-[15px] uppercase sm:text-sm" />
             </label>
-            <button type="button" onClick={() => void applyCode(code, period)} disabled={codeBusy || !code.trim()} className="btn-outline h-11 shrink-0 px-4 text-[13px]">{codeBusy ? "Checking…" : "Apply"}</button>
+            <button type="button" onClick={() => void applyCode(code, period)} disabled={codeBusy || !code.trim()} className="btn-outline h-11 shrink-0 px-4 text-[12.5px]">{codeBusy ? "Checking…" : "Apply"}</button>
           </div>
           {offer ? (
-            <p role="status" className="flex flex-wrap items-center gap-x-2 text-[13px] font-semibold text-brand-dark">
+            <p role="status" className="flex flex-wrap items-center gap-x-2 text-[12.5px] font-semibold text-brand-dark">
               <Check aria-hidden className="h-4 w-4" strokeWidth={3} />{offer.code} · {offer.label}
               <span className="font-normal text-ink-muted">was <s>{fmt(amount!, plan.currency)}</s>, now {fmt(offer.total, plan.currency)}</span>
             </p>
           ) : codeError ? (
-            <p role="alert" className="text-[13px] font-medium text-bad-fg">{codeError}</p>
+            <p role="alert" className="text-[12.5px] font-medium text-bad-fg">{codeError}</p>
           ) : null}
         </div>
       ) : null}
 
       {error ? (
-        <div role="alert" className="flex flex-col gap-1.5 rounded-lg bg-warn-bg px-3 py-2.5 text-[13px] font-medium text-warn-fg">
+        <div role="alert" className="flex flex-col gap-1.5 rounded-lg bg-warn-bg px-3 py-2.5 text-[12.5px] font-medium text-warn-fg">
           <p>{error}</p>
           {/* Never a dead end: a direct way to reach a person who can activate the membership */}
           <p className="flex flex-wrap gap-x-3 gap-y-1">
@@ -577,7 +577,7 @@ function PayStep({ plan, help, renew, initialPeriod, picked, offerCode, pending,
         </div>
       ) : null}
 
-      <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[14px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Pay ${price}` : "Continue"}</button>
+      <button disabled={busy || !price} className="btn-primary min-h-[48px] w-full text-[13px]"><LockKeyhole className="h-4 w-4" />{busy ? "Opening payment…" : price ? `Pay ${price}` : "Continue"}</button>
       <p className="-mt-2 text-center text-[12px] text-ink-muted">Next: choose MoMo, Airtel Money or card, then approve on your phone.</p>
 
       <div className="flex flex-col items-center gap-2">

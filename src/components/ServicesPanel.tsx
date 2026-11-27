@@ -47,9 +47,9 @@ export function ServicesPanel({ path, row = false }: { path: string; row?: boole
           <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#FFCF1A]" />Our services
         </span>
         <span aria-hidden className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-[#FFCF1A]"><Users className="h-5 w-5" /></span>
-        <h3 id="services" className="text-[18px] font-bold leading-tight tracking-[-0.02em] text-white">{f.title}</h3>
-        <p data-size="" className="text-[13px] leading-relaxed text-white/75">{f.text}</p>
-        <Link href={f.href} className="group mt-auto inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[13px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink">
+        <h3 id="services" className="text-[17px] font-bold leading-tight tracking-[-0.02em] text-white">{f.title}</h3>
+        <p data-size="" className="text-[12.5px] leading-relaxed text-white/75">{f.text}</p>
+        <Link href={f.href} className="group mt-auto inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#FFCF1A] px-4 text-[12.5px] font-bold text-ink transition-colors hover:bg-[#FFDB52] hover:text-ink">
           {f.button}<ArrowRight aria-hidden className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
         </Link>
       </div>
@@ -62,7 +62,7 @@ export function ServicesPanel({ path, row = false }: { path: string; row?: boole
               <Link href={href} className="group flex items-center gap-3 rounded-xl p-2.5 text-ink transition-colors hover:bg-page hover:text-ink">
                 <span aria-hidden className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tone}`}><ServiceIcon className="h-4 w-4" /></span>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-[14px] font-bold leading-tight tracking-[-0.01em] text-heading">{title}</span>
+                  <span className="text-[13px] font-bold leading-tight tracking-[-0.01em] text-heading">{title}</span>
                   <span className="truncate text-[12px] text-ink-muted">{text}</span>
                 </span>
                 <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-ink-muted transition group-hover:translate-x-0.5 group-hover:text-heading" />

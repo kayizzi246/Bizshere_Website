@@ -15,7 +15,7 @@ export function SupplierCatalog({ items, gated, back, title = "Products", wide =
     <section className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-display text-[clamp(16px,1.5vw,19px)] font-extrabold text-heading">{title}</h2>
-        <span className="text-[13px] text-ink-muted">{items.length} {items.length === 1 ? "product" : "products"}</span>
+        <span className="text-[12.5px] text-ink-muted">{items.length} {items.length === 1 ? "product" : "products"}</span>
       </div>
       {items.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line-strong bg-white px-5 py-8 text-center text-sm text-ink-muted">This supplier hasn&apos;t added products yet.</p>
@@ -30,13 +30,13 @@ export function SupplierCatalog({ items, gated, back, title = "Products", wide =
                   {p.image ? <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" /> : <Package aria-hidden className="h-10 w-10 text-brand/30" strokeWidth={1.5} />}
                 </span>
                 <span className="flex flex-1 flex-col gap-1 p-3">
-                  <span className="line-clamp-2 text-[14px] font-semibold leading-snug text-heading group-hover:text-brand">{p.name.replace(/^Sample:\s*/i, "")}</span>
+                  <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-heading group-hover:text-brand">{p.name.replace(/^Sample:\s*/i, "")}</span>
                   {p.text ? <span className="line-clamp-2 text-[12px] leading-snug text-ink-muted">{p.text}</span> : null}
                   <span className="mt-auto pt-1.5">
                     {gated ? (
-                      <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-brand"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />See price</span>
+                      <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-brand"><LockKeyhole aria-hidden className="h-3.5 w-3.5" />See price</span>
                     ) : p.price ? (
-                      <span className="text-[14px] font-bold text-brand-dark">{p.price}{p.unit ? <span className="text-[12px] font-normal text-ink-muted"> / {p.unit}</span> : null}</span>
+                      <span className="text-[13px] font-bold text-brand-dark">{p.price}{p.unit ? <span className="text-[12px] font-normal text-ink-muted"> / {p.unit}</span> : null}</span>
                     ) : <span className="text-[12px] text-ink-muted">Ask for price</span>}
                   </span>
                   {p.minOrder ? <span className="text-[12px] text-ink-muted">Min order: {p.minOrder}</span> : null}

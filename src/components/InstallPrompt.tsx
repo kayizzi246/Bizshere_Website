@@ -61,7 +61,7 @@ export function InstallPrompt() {
       {/* eslint-disable-next-line @next/next/no-img-element -- the site's own icon */}
       <img src="/icon.png" alt="" className="h-10 w-10 shrink-0 rounded-lg bg-brand-tint object-contain ring-1 ring-line" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="font-display text-[13px] font-bold leading-[1.25] text-heading [text-wrap:balance]">Keep BizSphere-Ug on your phone</p>
+        <p className="font-display text-[12.5px] font-bold leading-[1.25] text-heading [text-wrap:balance]">Keep BizSphere-Ug on your phone</p>
         {mode === "install" ? (
           <p className="text-[11.5px] leading-snug text-ink-soft sm:text-[12px]">Open it from your home screen, like an app.</p>
         ) : (

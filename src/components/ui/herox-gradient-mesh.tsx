@@ -171,7 +171,7 @@ export default function HeroxGradientMesh() {
   const ease = [0.22, 1, 0.36, 1] as const;
 
   return (
-    <section className="relative isolate w-full overflow-hidden bg-brand-deep px-5 py-24 text-white sm:px-8 sm:py-28 lg:py-36">
+    <section className="relative isolate w-full overflow-hidden bg-brand-deep px-5 py-16 text-white sm:px-8 sm:py-20 lg:py-36">
       <style>{`
         @keyframes heroxmesh-drift-1 {
           0%, 100% { transform: translate3d(0, 0, 0) scale(1); }

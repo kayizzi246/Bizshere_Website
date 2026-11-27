@@ -46,7 +46,7 @@ export function Gate({
         ) : (
           <div className="flex max-w-sm flex-col items-center gap-2.5 rounded-2xl border border-line bg-white px-6 py-5 text-center">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand"><LockKeyhole aria-hidden className="h-[18px] w-[18px]" /></span>
-            {title ? <span className="text-[17px] font-bold">{title}</span> : null}
+            {title ? <span className="text-[16px] font-bold">{title}</span> : null}
             {text ? <span className="text-sm text-ink-muted">{text}</span> : null}
             <Link {...open} className="btn-primary">{button}</Link>
             <span className="text-[12px] text-ink-muted">Pay with MoMo, Airtel Money or card. It opens straight away.</span>

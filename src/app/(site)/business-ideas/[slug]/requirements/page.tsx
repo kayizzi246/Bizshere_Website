@@ -48,11 +48,11 @@ export default async function RequirementsPage({ params, searchParams }: { param
       <article className="bg-page">
         <header className="under-header-pad bg-brand-dark text-white">
           <div className="container-site flex flex-col items-center gap-3 pad-hero text-center">
-            <Link href={overview} className="inline-flex items-center gap-1 text-[13px] font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />{name}</Link>
-            <h1 className="text-hero text-[28px] leading-tight sm:text-[36px]">Startup budget</h1>
+            <Link href={overview} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-white hover:text-white/80"><ArrowLeft aria-hidden className="h-3.5 w-3.5" />{name}</Link>
+            <h1 className="text-hero text-[25px] leading-tight sm:text-[32px]">Startup budget</h1>
             <nav aria-label="Pages" className="inline-flex gap-1 rounded-full bg-white p-1">
-              <Link href={overview} className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-ink-soft hover:text-brand">Business details</Link>
-              <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[13px] font-semibold text-white">Startup budget</span>
+              <Link href={overview} className="rounded-full px-4 py-1.5 text-[12.5px] font-semibold text-ink-soft hover:text-brand">Business details</Link>
+              <span aria-current="page" className="rounded-full bg-brand px-4 py-1.5 text-[12.5px] font-semibold text-white">Startup budget</span>
             </nav>
           </div>
         </header>
@@ -64,7 +64,7 @@ export default async function RequirementsPage({ params, searchParams }: { param
                 hidden={Object.fromEntries(scenarios.map((s) => [s.level, gated ? Math.max(0, s.lines.length - FREE_PREVIEW.budgetLines) : 0]))}
                 pdfHref={`/business-ideas/${item.slug}/pdf`} />
             ) : (
-              <p className="rounded-2xl border border-dashed border-line-strong bg-white px-6 py-14 text-center text-sm text-ink-muted">The requirements for this idea are being prepared. <Link href={overview} className="font-semibold">See the overview</Link></p>
+              <p className="rounded-2xl border border-dashed border-line-strong bg-white px-6 py-10 text-center text-sm text-ink-muted">The requirements for this idea are being prepared. <Link href={overview} className="font-semibold">See the overview</Link></p>
             )}
           </section>
 

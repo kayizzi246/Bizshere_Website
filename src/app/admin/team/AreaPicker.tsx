@@ -22,7 +22,7 @@ export function AreaPicker({ chosen, withSuper = false }: { chosen: string[]; wi
   const has = (k: string) => picked.includes(k);
   const add = (keys: string[]) => setPicked((p) => [...new Set([...p, ...keys])]);
   const drop = (keys: string[]) => setPicked((p) => p.filter((k) => !keys.includes(k)));
-  const chip = "rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors";
+  const chip = "rounded-full border px-3 py-1.5 text-[12.5px] font-semibold transition-colors";
 
   return (
     <div className="flex flex-col gap-3">
@@ -31,7 +31,7 @@ export function AreaPicker({ chosen, withSuper = false }: { chosen: string[]; wi
           {([[false, "Only some parts", "A sub-admin: they see and change only what you tick below"], [true, "Everything", "A super admin: every area, the team, prices and deletes"]] as const).map(([value, title, help]) => (
             <label key={title} className={`flex cursor-pointer items-start gap-2.5 rounded-xl border-2 p-3 ${full === value ? "border-brand bg-brand-tint" : "border-line"}`}>
               <input type="radio" name="access" value={value ? "super" : "some"} checked={full === value} onChange={() => setFull(value)} className="mt-1 h-4 w-4 accent-brand" />
-              <span className="flex flex-col"><span className="font-bold text-heading">{title}</span><span className="text-[13px] text-ink-muted">{help}</span></span>
+              <span className="flex flex-col"><span className="font-bold text-heading">{title}</span><span className="text-[12.5px] text-ink-muted">{help}</span></span>
             </label>
           ))}
         </div>
@@ -40,7 +40,7 @@ export function AreaPicker({ chosen, withSuper = false }: { chosen: string[]; wi
       {full ? null : (
         <>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[13px] font-semibold text-ink-soft">Quick choices (tap to tick a whole job)</span>
+            <span className="text-[12.5px] font-semibold text-ink-soft">Quick choices (tap to tick a whole job)</span>
             <div className="flex flex-wrap gap-2">
               {JOBS.map((j) => {
                 const on = j.keys.every(has);
@@ -60,7 +60,7 @@ export function AreaPicker({ chosen, withSuper = false }: { chosen: string[]; wi
                     <button type="button" onClick={() => (all ? drop(keys) : add(keys))} className="rounded-full bg-page px-2 py-0.5 text-[11px] font-semibold normal-case tracking-normal text-brand hover:bg-brand-tint">{all ? "none" : "all"}</button>
                   </legend>
                   {AREAS.filter((a) => a.group === g).map((a) => (
-                    <label key={a.key} className="flex cursor-pointer items-start gap-2 text-[13px]">
+                    <label key={a.key} className="flex cursor-pointer items-start gap-2 text-[12.5px]">
                       <input type="checkbox" name="areas" value={a.key} checked={has(a.key)} onChange={(e) => (e.target.checked ? add([a.key]) : drop([a.key]))} className="mt-0.5 h-4 w-4 shrink-0 accent-brand" />
                       <span className="flex flex-col"><span className="font-semibold text-ink">{a.label}</span>{a.help ? <span className="text-[12px] text-ink-muted">{a.help}</span> : null}</span>
                     </label>
@@ -69,7 +69,7 @@ export function AreaPicker({ chosen, withSuper = false }: { chosen: string[]; wi
               );
             })}
           </div>
-          <p className="text-[13px] text-ink-muted" aria-live="polite">{picked.length ? `${picked.length} of ${AREA_KEYS.length} areas ticked.` : "Nothing ticked yet."}</p>
+          <p className="text-[12.5px] text-ink-muted" aria-live="polite">{picked.length ? `${picked.length} of ${AREA_KEYS.length} areas ticked.` : "Nothing ticked yet."}</p>
         </>
       )}
     </div>

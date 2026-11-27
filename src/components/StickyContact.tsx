@@ -24,7 +24,7 @@ export function StickyContact({ phone, whatsapp, message = "Hello, I found you o
   const call = phone?.trim() ? (phoneNumbers(phone)[0] ?? phone.trim()) : null;
   const wa = whatsapp?.trim() || null;
   if (!call && !wa) return null;
-  const btn = "inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg px-5 font-display text-[15px] font-bold text-white hover:text-white";
+  const btn = "inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg px-5 font-display text-[14px] font-bold text-white hover:text-white";
   return (
     <div data-sticky-bar="" {...(ours ? { "data-own-whatsapp": "" } : {})}
       className="fixed inset-x-0 bottom-0 z-30 flex gap-2 border-t border-line bg-white/95 px-3 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur lg:hidden">

@@ -43,10 +43,10 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
           </span>
           <div className="flex min-w-0 flex-col gap-1">
             <span className="flex flex-wrap items-center gap-2">
-              <h2 className="font-display text-[20px] font-extrabold tracking-tight">My membership</h2>
+              <h2 className="font-display text-[18px] font-extrabold tracking-tight">My membership</h2>
               <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${isMember ? "bg-white text-brand-dark" : chip[1]}`}>{chip[0]}</span>
             </span>
-            <span className={`text-[14px] ${isMember ? "text-white/80" : "text-ink-muted"}`}>
+            <span className={`text-[13px] ${isMember ? "text-white/80" : "text-ink-muted"}`}>
               {isStaff ? "Staff accounts see everything." :
                 active && end ? <>Member · {PERIOD_LABEL[sub!.period]} · full access until <strong className="font-semibold text-white">{date(end)}</strong></> :
                 isMember ? "Full access, with no end date." :
@@ -57,7 +57,7 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
         </div>
         {isStaff || (isMember && !end) ? null : isMember || ended ? (
           <Link href={`/membership?onboard=renew&period=${sub?.period ?? "MONTHLY"}`} data-renew="" data-period={sub?.period ?? "MONTHLY"}
-            className={`inline-flex min-h-[46px] items-center gap-2 rounded-full px-5 text-[15px] font-bold transition ${isMember ? "bg-white text-heading hover:bg-brand-tint hover:text-heading" : "bg-brand text-white hover:bg-brand-dark hover:text-white"}`}>
+            className={`inline-flex min-h-[46px] items-center gap-2 rounded-full px-5 text-[14px] font-bold transition ${isMember ? "bg-white text-heading hover:bg-brand-tint hover:text-heading" : "bg-brand text-white hover:bg-brand-dark hover:text-white"}`}>
             <RefreshCw aria-hidden className="h-4 w-4" /> {isMember ? "Renew or change plan" : "Renew now"}
           </Link>
         ) : (
@@ -69,8 +69,8 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
         <div className="grid gap-5 border-t border-line p-6 sm:grid-cols-[1.4fr_1fr] sm:p-7">
           <div className="flex flex-col gap-2.5">
             <span className="flex items-baseline justify-between gap-3">
-              <span className="flex items-center gap-2 text-[14px] font-semibold text-heading"><CalendarClock aria-hidden className="h-4 w-4 text-brand" />{daysLeft === 0 ? "Ends today" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`}</span>
-              <span className="text-[13px] text-ink-muted">Renews {date(end)}</span>
+              <span className="flex items-center gap-2 text-[13px] font-semibold text-heading"><CalendarClock aria-hidden className="h-4 w-4 text-brand" />{daysLeft === 0 ? "Ends today" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`}</span>
+              <span className="text-[12.5px] text-ink-muted">Renews {date(end)}</span>
             </span>
             <span aria-hidden className="h-2 overflow-hidden rounded-full bg-page"><span className={`block h-full rounded-full ${soon ? "bg-accent" : "bg-brand"}`} style={{ width: `${used}%` }} /></span>
             <span className="text-[12px] text-ink-muted">Renewing early adds the new time to the end of this one, so you never lose a day.</span>
@@ -78,10 +78,10 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
           <form action={setAutoRenew} className="flex items-start gap-3 rounded-2xl bg-page p-4">
             {sub!.autoRenew ? <BellRing aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand" /> : <BellOff aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-ink-muted" />}
             <span className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="text-[14px] font-semibold text-heading">Renewal reminders {sub!.autoRenew ? "on" : "off"}</span>
+              <span className="text-[13px] font-semibold text-heading">Renewal reminders {sub!.autoRenew ? "on" : "off"}</span>
               <span className="text-[12px] text-ink-muted">{sub!.autoRenew ? "We text or email you before it renews (3 days and 1 day before; 1 day for a weekly plan), with a link to pay." : "No reminders: your membership simply ends on the date above."}</span>
               <input type="hidden" name="on" value={sub!.autoRenew ? "false" : "true"} />
-              <button className="mt-1 self-start text-[13px] font-bold text-brand hover:text-brand-dark">{sub!.autoRenew ? "Turn off" : "Turn on"}</button>
+              <button className="mt-1 self-start text-[12.5px] font-bold text-brand hover:text-brand-dark">{sub!.autoRenew ? "Turn off" : "Turn on"}</button>
             </span>
           </form>
         </div>
@@ -89,9 +89,9 @@ export function MembershipPanel({ isMember, isStaff, sub, payments }: {
 
       {history.length ? (
         <div className="border-t border-line p-6 sm:p-7">
-          <h3 className="mb-3 text-[15px] font-bold text-heading">Payments</h3>
+          <h3 className="mb-3 text-[14px] font-bold text-heading">Payments</h3>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-[13px]">
+            <table className="w-full min-w-[520px] text-left text-[12.5px]">
               <thead className="text-ink-muted"><tr><th className="pb-2 font-medium">Date</th><th className="pb-2 font-medium">Plan</th><th className="pb-2 font-medium">Amount</th><th className="pb-2 font-medium">Paid with</th><th className="pb-2 font-medium">Status</th></tr></thead>
               <tbody>
                 {history.map((p) => (

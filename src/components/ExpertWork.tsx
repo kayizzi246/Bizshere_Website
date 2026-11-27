@@ -34,14 +34,14 @@ export function ExpertWork({ work }: { work: Work[] }) {
               <span className="flex items-start gap-2">
                 {w.imageUrl ? null : <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand"><Briefcase aria-hidden className="h-4 w-4" /></span>}
                 <span className="flex min-w-0 flex-col">
-                  <span className="font-display text-[15px] font-bold leading-snug text-heading">{w.title}</span>
+                  <span className="font-display text-[14px] font-bold leading-snug text-heading">{w.title}</span>
                   {w.clientName || w.year || w.isCaseStudy ? <span className="text-[12px] text-ink-muted">{[w.isCaseStudy ? "Case study" : null, w.clientName, w.year].filter(Boolean).join(" · ")}</span> : null}
                 </span>
               </span>
-              {w.summary ? <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{w.summary}</p> : null}
-              {w.outcome ? <p className="text-[13px] text-ink-soft"><span className="font-semibold text-heading">Result:</span> {w.outcome}</p> : null}
+              {w.summary ? <p className="whitespace-pre-line text-[13px] leading-relaxed text-ink-soft">{w.summary}</p> : null}
+              {w.outcome ? <p className="text-[12.5px] text-ink-soft"><span className="font-semibold text-heading">Result:</span> {w.outcome}</p> : null}
               {w.fileUrl || w.linkUrl ? (
-                <span className="mt-auto flex flex-wrap gap-4 pt-1 text-[13px] font-semibold">
+                <span className="mt-auto flex flex-wrap gap-4 pt-1 text-[12.5px] font-semibold">
                   {w.fileUrl ? <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5"><FileText aria-hidden className="h-4 w-4" />Open the file</a> : null}
                   {w.linkUrl ? <a href={w.linkUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5"><Link2 aria-hidden className="h-4 w-4" />View online</a> : null}
                 </span>

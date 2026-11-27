@@ -103,13 +103,13 @@ export default async function SupplierPage({ params }: { params: { slug: string 
   ];
   profile.push({ label: "What they sell", tags: s.items });
   const th = "px-4 py-2.5 text-left text-[12px] font-semibold text-white";
-  const td = "px-4 py-3 align-top text-[14px] text-ink-soft";
+  const td = "px-4 py-3 align-top text-[13px] text-ink-soft";
 
   return (
     <OnboardingGate signedIn={Boolean(viewer.userId)} isMember={viewer.isMember} googleEnabled={googleEnabled} plan={plan}>
       <article data-compact-page="">
         {item.publicationStatus !== "PUBLISHED" ? (
-          <p role="status" className="bg-accent px-4 py-3 text-center text-[14px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/supplier" className="underline">Back to my dashboard</Link></p>
+          <p role="status" className="bg-accent px-4 py-3 text-center text-[13px] font-semibold text-ink">Only you can see this page for now. Our team is checking it, and it goes on the website once approved. <Link href="/supplier" className="underline">Back to my dashboard</Link></p>
         ) : null}
         {/* ── Shop banner ── */}
         <header className="under-header hero-glow bg-navy text-white">
@@ -119,7 +119,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
               <div className="flex min-w-0 items-start gap-4 sm:items-center sm:gap-5">
                 <div className="flex min-w-0 flex-col gap-2">
                   <ProfileTitle name={name} />
-                  {[item.primaryCategory?.name, kind, s.country].some(Boolean) ? <p className="text-[15px] text-white/80">{[item.primaryCategory?.name, kind, s.country].filter(Boolean).join(" · ")}</p> : null}
+                  {[item.primaryCategory?.name, kind, s.country].some(Boolean) ? <p className="text-[14px] text-white/80">{[item.primaryCategory?.name, kind, s.country].filter(Boolean).join(" · ")}</p> : null}
                 </div>
               </div>
               <div className="shrink-0 text-ink sm:w-52">
@@ -131,7 +131,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
         </header>
 
         <div className="bg-page">
-          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-6 pb-12 pt-4 sm:pb-14 sm:pt-5 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          <div className="container-site grid grid-cols-[minmax(0,1fr)] items-start gap-6 pb-10 pt-4 sm:pb-10 sm:pt-5 lg:pb-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
             {/* ── The shop ── */}
             <div className="flex min-w-0 flex-col gap-6">
               {/* ── The profile: photo or logo on the left, the details on the right ── */}
@@ -140,8 +140,8 @@ export default async function SupplierPage({ params }: { params: { slug: string 
               {/* ── Products ── */}
               <section id="products" className="scroll-mt-28 overflow-hidden rounded-2xl border border-line bg-white">
                 <div className="flex items-baseline justify-between gap-3 px-4 py-4 sm:px-5">
-                  <h2 className="font-display text-[20px] font-extrabold leading-tight text-heading">Products</h2>
-                  <span className="text-[13px] text-ink-muted">{products.length} {products.length === 1 ? "product" : "products"}</span>
+                  <h2 className="font-display text-[18px] font-extrabold leading-tight text-heading">Products</h2>
+                  <span className="text-[12.5px] text-ink-muted">{products.length} {products.length === 1 ? "product" : "products"}</span>
                 </div>
                 {products.length ? (
                   <>
@@ -170,7 +170,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                       {products.map((p, n) => (
                         <li key={p.id} className="relative flex gap-3 p-4">
                           {p.image ? <ProductPicture src={p.image} /> : null}
-                          <div className="flex min-w-0 flex-1 flex-col gap-1 text-[14px]">
+                          <div className="flex min-w-0 flex-1 flex-col gap-1 text-[13px]">
                             <Link href={`${path}/products/${p.id}`} className="font-display font-bold text-heading after:absolute after:inset-0">{n + 1}. {p.name.replace(/^Sample:\s*/i, "")}</Link>
                             {p.text ? <span className="line-clamp-2 text-ink-soft">{p.text}</span> : null}
                             {p.unit ? <span className="text-ink-soft"><span className="text-ink-muted">Pack:</span> {p.unit}</span> : null}
@@ -180,13 +180,13 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                       ))}
                     </ol>
                   </>
-                ) : <p className="border-t border-line px-5 py-4 text-[14px] text-ink-muted">This supplier hasn&apos;t added products yet.</p>}
+                ) : <p className="border-t border-line px-5 py-4 text-[13px] text-ink-muted">This supplier hasn&apos;t added products yet.</p>}
               </section>
 
               {about ? (
                 <section className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
                   <h2 className="font-display text-lg font-extrabold text-heading">About {name}</h2>
-                  <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{about}</p>
+                  <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">{about}</p>
                 </section>
               ) : null}
               {/* What else they offer (brands, wholesale or retail, installation, spare parts…), as filled in the admin */}
@@ -196,7 +196,7 @@ export default async function SupplierPage({ params }: { params: { slug: string 
                 </section>
               ) : null}
               {gated ? <MemberValue wide back={path} plan={plan} unlocks={[...(s.phone || s.whatsapp ? ["Phone and WhatsApp"] : []), ...(s.email ? ["Email address"] : []), ...(s.listings.some((l) => l.priceMin !== null || l.priceMax !== null) ? ["Product prices"] : []), ...(catalogueLocked ? ["Catalogue download"] : [])]} /> : null}
-              <p className="text-[13px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
+              <p className="text-[12.5px] text-ink-muted"><Link href={`/corrections?item=${item.id}`} className="font-semibold text-ink-soft hover:text-brand">Report a mistake</Link></p>
             </div>
 
             {/* ── Contact: first on phones, beside the shop on wide screens ── */}

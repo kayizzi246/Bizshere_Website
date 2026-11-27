@@ -46,7 +46,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
+        <div><h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Users and businesses</h1><p className="text-sm text-ink-muted">Members, business accounts and staff</p></div>
         <Link href={qs({ create: "1" })} className="btn-primary">+ Create account</Link>
       </div>
 
@@ -78,7 +78,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { tab?
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
-          {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${tab === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>)}
+          {TABS.map(([t, l]) => <Link key={t} role="tab" aria-selected={tab === t} href={`?tab=${t}`} className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] ${tab === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>{l}</Link>)}
         </div></div>
         <form className="flex w-full gap-2 sm:w-auto"><input type="hidden" name="tab" value={tab} /><input name="q" defaultValue={q} placeholder="Name, email or phone" className="input min-h-[44px] min-w-0 flex-1 sm:w-64 sm:flex-none" /><button className="btn-outline min-h-[44px]">Search</button></form>
       </div>

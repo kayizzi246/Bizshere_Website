@@ -24,11 +24,11 @@ export function ProfileCard({ label, photo, name, sub, rows, big = false }: { la
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element -- uploaded or editor-entered address
             <img src={photo} alt={name} data-nofit="" className={`${big ? "max-h-[400px]" : "max-h-[260px]"} w-full rounded-xl object-contain`} />
-          ) : <span aria-hidden className={`flex items-center justify-center rounded-2xl bg-brand-tint font-display font-extrabold text-brand ${big ? "h-40 w-40 text-[52px]" : "h-28 w-28 text-[38px]"}`}>{name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
+          ) : <span aria-hidden className={`flex items-center justify-center rounded-2xl bg-brand-tint font-display font-extrabold text-brand ${big ? "h-40 w-40 text-[46px]" : "h-28 w-28 text-[33px]"}`}>{name.split(/ +/).map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>}
         </div>
         <div className="flex flex-col gap-0.5 border-t border-line bg-page px-4 py-4 text-center">
-          <span className="font-display text-[16px] font-extrabold leading-snug text-heading">{name}</span>
-          {sub ? <span className="text-[13px] text-ink-soft">{sub}</span> : null}
+          <span className="font-display text-[15px] font-extrabold leading-snug text-heading">{name}</span>
+          {sub ? <span className="text-[12.5px] text-ink-soft">{sub}</span> : null}
         </div>
       </div>
 
@@ -39,7 +39,7 @@ export function ProfileCard({ label, photo, name, sub, rows, big = false }: { la
               {icon(r.label)}
               <div className="flex min-w-0 flex-col gap-0.5">
                 <dt className="text-[12px] leading-tight text-ink-muted">{r.label}</dt>
-                <dd className="min-w-0 text-[14px] font-medium leading-snug text-heading [overflow-wrap:anywhere]">{r.value}</dd>
+                <dd className="min-w-0 text-[13px] font-medium leading-snug text-heading [overflow-wrap:anywhere]">{r.value}</dd>
               </div>
             </div>
           ))}
@@ -50,7 +50,7 @@ export function ProfileCard({ label, photo, name, sub, rows, big = false }: { la
             <div className="flex min-w-0 flex-col gap-2">
               <span className="text-[12px] leading-tight text-ink-muted">{r.label}</span>
               <ul className="flex flex-wrap gap-1.5">
-                {r.tags!.map((t) => <li key={t} className="rounded-full border border-line bg-page px-3 py-1 text-[13px] font-medium text-heading">{t}</li>)}
+                {r.tags!.map((t) => <li key={t} className="rounded-full border border-line bg-page px-3 py-1 text-[12.5px] font-medium text-heading">{t}</li>)}
               </ul>
             </div>
           </div>

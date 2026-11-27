@@ -53,7 +53,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">All content</h1><p className="text-sm text-ink-muted">Find a page, then Edit or View it.</p></div>
+        <div><h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">All content</h1><p className="text-sm text-ink-muted">Find a page, then Edit or View it.</p></div>
         <Link href={`/admin/content/new${type ? `?type=${type}` : ""}`} className="btn-primary">+ Add {addLabel}</Link>
       </div>
 
@@ -62,7 +62,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       {/* Which service */}
       <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0"><div role="tablist" className="inline-flex gap-0.5 rounded-full border border-line bg-surface p-1">
         {mine.map(([t, l]) => (
-          <Link key={t} role="tab" aria-selected={type === t} href={href({ type: t })} className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] ${type === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>
+          <Link key={t} role="tab" aria-selected={type === t} href={href({ type: t })} className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] ${type === t ? "bg-brand-deep font-semibold text-white hover:text-white" : "font-medium text-ink-soft hover:bg-page hover:text-heading"}`}>
             {t ? <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: SERVICE_STYLE[t].colour }} /> : null}{l}
           </Link>
         ))}
@@ -71,7 +71,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       {/* Live or not, and a search */}
       <div className="flex flex-wrap items-center gap-2">
         {SHOW.map(([k, l], n) => (
-          <Link key={k} href={href({ show: k })} aria-current={show[0] === k ? "page" : undefined} className={`rounded-full px-3 py-1.5 text-[13px] font-semibold ${show[0] === k ? "bg-heading text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:text-heading"}`}>
+          <Link key={k} href={href({ show: k })} aria-current={show[0] === k ? "page" : undefined} className={`rounded-full px-3 py-1.5 text-[12.5px] font-semibold ${show[0] === k ? "bg-heading text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:text-heading"}`}>
             {l} <span className={show[0] === k ? "text-white/70" : "text-ink-muted"}>{counts[n]}</span>
           </Link>
         ))}
@@ -88,7 +88,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
       {/* Funding Sources: which kind of funder */}
       {type === "FUNDING_PROGRAMME" ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[13px] font-semibold text-ink-muted">Funder category</span>
+          <span className="mr-1 text-[12.5px] font-semibold text-ink-muted">Funder category</span>
           {([["", "All"], ...FUNDER_CATEGORIES.map((c) => [c, c]), ["none", "No category"]] as [string, string][]).map(([k, l]) => (
             <Link key={k || "all"} href={href({ funder: k })} aria-current={funder === k ? "page" : undefined} className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ${funder === k ? "bg-brand-deep text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:text-heading"}`}>{l}</Link>
           ))}
@@ -99,7 +99,7 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
         {/* After a delete, back to this same list */}
         <input type="hidden" name="back" value={keep} />
         <SelectedActions review={sendForReReview} archive={archiveContent} remove={user.superAdmin ? deleteContentBulk : undefined} />
-        {total > items.length ? <p className="border-b border-line bg-page px-3 py-2 text-[13px] text-ink-muted">Showing the newest {items.length} of {total}. Search or pick a service to find others.</p> : null}
+        {total > items.length ? <p className="border-b border-line bg-page px-3 py-2 text-[12.5px] text-ink-muted">Showing the newest {items.length} of {total}. Search or pick a service to find others.</p> : null}
         <div className="overflow-x-auto">
           <table className="table-base min-w-[720px]">
             <thead><tr><th className="w-9"><SelectAllRows /></th><th>Name</th><th>Status</th><th>Last changed</th><th className="text-right">Actions</th></tr></thead>
@@ -131,8 +131,8 @@ export default async function ContentPage({ searchParams }: { searchParams: { ty
                     <td className="whitespace-nowrap text-ink-muted">{date(i.updatedAt)}</td>
                     <td>
                       <span className="flex justify-end gap-2">
-                        <Link href={`/admin/content/${i.id}`} className="btn-primary min-h-[38px] px-4 text-[13px]">Edit</Link>
-                        <Link href={itemHref(i)} target="_blank" className="btn-outline min-h-[38px] px-3 text-[13px]">View ↗</Link>
+                        <Link href={`/admin/content/${i.id}`} className="btn-primary min-h-[38px] px-4 text-[12.5px]">Edit</Link>
+                        <Link href={itemHref(i)} target="_blank" className="btn-outline min-h-[38px] px-3 text-[12.5px]">View ↗</Link>
                       </span>
                     </td>
                   </tr>

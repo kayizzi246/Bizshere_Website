@@ -80,32 +80,32 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
     <div className="flex flex-col gap-6">
       {/* 1. What is being imported */}
       <section className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-6">
-        <h2 className="font-display text-[15px] font-bold text-heading">1. What are you importing?</h2>
+        <h2 className="font-display text-[14px] font-bold text-heading">1. What are you importing?</h2>
         <div className="flex flex-wrap gap-2">
           {allowed.map((k) => (
             <button key={k} type="button" onClick={() => { setKind(k); reset(); }}
-              className={`rounded-full border-2 px-4 py-1.5 text-[13px] font-semibold transition-colors ${k === kind ? "border-brand bg-brand-tint text-brand-dark" : "border-transparent bg-page text-ink-soft hover:bg-line/40"}`}>
+              className={`rounded-full border-2 px-4 py-1.5 text-[12.5px] font-semibold transition-colors ${k === kind ? "border-brand bg-brand-tint text-brand-dark" : "border-transparent bg-page text-ink-soft hover:bg-line/40"}`}>
               {IMPORT_KINDS[k]}
             </button>
           ))}
         </div>
-        <p className="text-[13px] text-ink-soft">
+        <p className="text-[12.5px] text-ink-soft">
           The first row of the sheet must name the columns. Order does not matter and extra columns are ignored.
           Only <strong className="font-semibold text-heading">Name</strong> is required.
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={template} className="inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-[13px] font-semibold text-heading hover:bg-page">
+          <button type="button" onClick={template} className="inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-semibold text-heading hover:bg-page">
             <Download className="h-4 w-4" />Download the template
           </button>
-          <button type="button" onClick={() => fileInput.current?.click()} className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand px-3 text-[13px] font-semibold text-white hover:bg-brand-deep">
+          <button type="button" onClick={() => fileInput.current?.click()} className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand px-3 text-[12.5px] font-semibold text-white hover:bg-brand-deep">
             <Upload className="h-4 w-4" />Choose a file
           </button>
           <input ref={fileInput} type="file" className="sr-only" tabIndex={-1} aria-hidden
             accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             onChange={(e) => e.target.files?.[0] && read(e.target.files[0])} />
-          {fileName ? <span className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted"><FileSpreadsheet className="h-4 w-4" />{fileName}</span> : null}
+          {fileName ? <span className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-muted"><FileSpreadsheet className="h-4 w-4" />{fileName}</span> : null}
         </div>
-        <details className="text-[13px] text-ink-soft">
+        <details className="text-[12.5px] text-ink-soft">
           <summary className="cursor-pointer font-semibold text-heading">Columns it understands</summary>
           <ul className="mt-2 flex flex-col gap-1">
             {cols.map((c) => (
@@ -120,13 +120,13 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
       </section>
 
       {problem ? (
-        <p role="alert" className="flex items-start gap-2 rounded-lg bg-bad-bg px-4 py-3 text-[13px] font-medium text-bad-fg">
+        <p role="alert" className="flex items-start gap-2 rounded-lg bg-bad-bg px-4 py-3 text-[12.5px] font-medium text-bad-fg">
           <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />{problem}
         </p>
       ) : null}
 
       {result && !result.error ? (
-        <div role="status" className="flex flex-col gap-2 rounded-lg bg-brand-tint px-4 py-3 text-[13px] text-brand-dark">
+        <div role="status" className="flex flex-col gap-2 rounded-lg bg-brand-tint px-4 py-3 text-[12.5px] text-brand-dark">
           <p className="font-semibold">{result.saved} saved as drafts. They are in the directory now, not on the public site until published.</p>
           {result.failed.length ? (
             <div>
@@ -144,17 +144,17 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
       {drafts.length ? (
         <section className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-[15px] font-bold text-heading">2. Check what was read</h2>
-            <p className="text-[13px] text-ink-soft">
+            <h2 className="font-display text-[14px] font-bold text-heading">2. Check what was read</h2>
+            <p className="text-[12.5px] text-ink-soft">
               <strong className="font-semibold text-heading">{good.length}</strong> ready
               {bad.length ? <> · <strong className="font-semibold text-bad-fg">{bad.length}</strong> with a problem</> : null}
             </p>
           </div>
-          {notice ? <p className="text-[13px] text-ink-soft">{notice}</p> : null}
-          {drafts.length >= MAX_ROWS ? <p className="text-[13px] text-warn-fg">Only the first {MAX_ROWS} rows are imported at a time. Import the rest as a second file.</p> : null}
+          {notice ? <p className="text-[12.5px] text-ink-soft">{notice}</p> : null}
+          {drafts.length >= MAX_ROWS ? <p className="text-[12.5px] text-warn-fg">Only the first {MAX_ROWS} rows are imported at a time. Import the rest as a second file.</p> : null}
 
           <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-            <table className="w-full min-w-[640px] border-collapse text-[13px]">
+            <table className="w-full min-w-[640px] border-collapse text-[12.5px]">
               <thead>
                 <tr className="border-b border-line text-left text-[12px] uppercase tracking-wide text-ink-muted">
                   {cols.slice(0, 6).map((c) => <th key={c.field} className="py-2 pr-3 font-semibold">{c.heading}</th>)}
@@ -176,12 +176,12 @@ export function ImportClient({ allowed }: { allowed: ImportKind[] }) {
 
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={save} disabled={busy || !good.length}
-              className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-5 font-display text-[14px] font-bold text-[#1F2328] hover:bg-accent-dark hover:text-white disabled:opacity-50">
+              className="inline-flex h-11 items-center gap-2 rounded-lg bg-accent px-5 font-display text-[13px] font-bold text-[#1F2328] hover:bg-accent-dark hover:text-white disabled:opacity-50">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {busy ? "Saving…" : `Save ${good.length} as drafts`}
             </button>
-            <button type="button" onClick={reset} className="h-11 rounded-lg px-3 text-[13px] font-semibold text-ink-soft hover:text-heading">Start again</button>
-            {bad.length ? <span className="text-[13px] text-ink-muted">Rows with a problem are not saved. Fix them in the sheet and import it again.</span> : null}
+            <button type="button" onClick={reset} className="h-11 rounded-lg px-3 text-[12.5px] font-semibold text-ink-soft hover:text-heading">Start again</button>
+            {bad.length ? <span className="text-[12.5px] text-ink-muted">Rows with a problem are not saved. Fix them in the sheet and import it again.</span> : null}
           </div>
         </section>
       ) : null}

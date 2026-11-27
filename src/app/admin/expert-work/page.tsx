@@ -41,7 +41,7 @@ export default async function ExpertWorkPage({ searchParams }: { searchParams: {
                 {w.clientName || w.year ? <span className="text-xs text-ink-muted">{[w.clientName, w.year].filter(Boolean).join(" · ")}</span> : null}
                 {w.summary ? <p className="whitespace-pre-line text-sm text-ink-soft">{w.summary}</p> : null}
                 {w.outcome ? <p className="text-sm text-ink-soft"><strong>Result:</strong> {w.outcome}</p> : null}
-                <span className="flex flex-wrap gap-3 text-[13px] font-semibold">
+                <span className="flex flex-wrap gap-3 text-[12.5px] font-semibold">
                   {w.fileUrl ? <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1"><FileText aria-hidden className="h-4 w-4" />Open file</a> : null}
                   {w.linkUrl ? <a href={w.linkUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1"><Link2 aria-hidden className="h-4 w-4" />{w.linkUrl.replace(/^https?:\/\//, "").slice(0, 40)}</a> : null}
                 </span>

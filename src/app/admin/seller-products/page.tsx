@@ -46,13 +46,13 @@ export default async function SellerProductsPage({ searchParams }: { searchParam
     supplierId ? prisma.supplier.findUnique({ where: { id: supplierId }, select: { contentItem: { select: { id: true, title: true } } } }) : null,
   ]);
   const link = (key: string) => `/admin/seller-products?${new URLSearchParams({ show: key, ...(q ? { q } : {}), ...(supplierId ? { supplier: supplierId } : {}) })}`;
-  const pill = (active: boolean) => `rounded-full px-3 py-1.5 text-[13px] font-semibold ${active ? "bg-brand text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:border-brand hover:text-brand"}`;
+  const pill = (active: boolean) => `rounded-full px-3 py-1.5 text-[12.5px] font-semibold ${active ? "bg-brand text-white hover:text-white" : "border border-line bg-surface text-ink-soft hover:border-brand hover:text-brand"}`;
   const decide = (id: string, decision: "approve" | "reject", label: string) => (
     <form action={reviewSellerProduct}>
       <input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value={decision} /><input type="hidden" name="show" value={tab.key} />
       {decision === "approve"
-        ? <button className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[13px] font-bold text-white hover:bg-brand-dark"><Check aria-hidden className="h-4 w-4" />{label}</button>
-        : <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-bad-fg hover:bg-bad-bg"><X aria-hidden className="h-4 w-4" />{label}</button>}
+        ? <button className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-[12.5px] font-bold text-white hover:bg-brand-dark"><Check aria-hidden className="h-4 w-4" />{label}</button>
+        : <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[12.5px] font-semibold text-bad-fg hover:bg-bad-bg"><X aria-hidden className="h-4 w-4" />{label}</button>}
     </form>
   );
 
@@ -86,11 +86,11 @@ export default async function SellerProductsPage({ searchParams }: { searchParam
             <>
               {p.status !== "PUBLISHED" ? decide(p.id, "approve", "Approve") : null}
               {p.status !== "ARCHIVED" ? decide(p.id, "reject", p.status === "PUBLISHED" ? "Hide" : "Reject") : null}
-              <Link href={`/admin/content/${p.supplier.contentItem.id}?product=${p.id}#t-listings`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand">Edit</Link>
+              <Link href={`/admin/content/${p.supplier.contentItem.id}?product=${p.id}#t-listings`} className="inline-flex h-9 items-center rounded-lg border border-line px-3 text-[12.5px] font-semibold text-ink hover:border-brand hover:text-brand">Edit</Link>
             </>
           )} />
       )}
-      {rows.length === LIMIT ? <p className="text-[13px] text-ink-muted">Showing the newest {LIMIT}. Search to find others.</p> : null}
+      {rows.length === LIMIT ? <p className="text-[12.5px] text-ink-muted">Showing the newest {LIMIT}. Search to find others.</p> : null}
     </div>
   );
 }

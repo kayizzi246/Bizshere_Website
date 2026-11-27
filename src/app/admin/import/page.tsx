@@ -23,8 +23,8 @@ export default async function ImportPage() {
   return (
     <div className="flex flex-col gap-5 p-4 sm:p-6">
       <header className="flex flex-col gap-1">
-        <h1 className="font-display text-[22px] font-extrabold tracking-tight text-heading">Import from a spreadsheet</h1>
-        <p className="text-[14px] text-ink-soft">
+        <h1 className="font-display text-[19px] font-extrabold tracking-tight text-heading">Import from a spreadsheet</h1>
+        <p className="text-[13px] text-ink-soft">
           Add many at once from Excel (.xlsx) or CSV. Everything arrives as a draft, so nothing reaches the public
           site until you publish it.
         </p>

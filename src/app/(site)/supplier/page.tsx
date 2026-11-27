@@ -67,8 +67,8 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
     include: { contentItem: { select: { title: true, slug: true, publicationStatus: true } }, listings: { orderBy: { createdAt: "desc" } }, organization: { select: { locations: { orderBy: { isPrimary: "desc" }, take: 1 } } } },
   });
 
-  const input = "input min-h-[44px] w-full text-[14px]";
-  const label = "flex flex-col gap-1 text-[13px] font-semibold text-ink-soft";
+  const input = "input min-h-[44px] w-full text-[13px]";
+  const label = "flex flex-col gap-1 text-[12.5px] font-semibold text-ink-soft";
   const signOut = <span className="w-32"><SignOutButton to="/supplier" className="border border-line bg-white text-ink-soft hover:border-brand" /></span>;
 
   if (suppliers.length === 0) {
@@ -105,7 +105,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
 
             <div className="container-site flex flex-col gap-6 pad-body sm:gap-7">
               <DashNotice ok={searchParams.saved ? NOTICE[searchParams.saved] : undefined} bad={searchParams.error ? ERROR[searchParams.error] : undefined} />
-              {s.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[15px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your products now, and use &quot;See my page&quot; to see how it will look.</p> : null}
+              {s.contentItem.publicationStatus !== "PUBLISHED" ? <p role="status" className="rounded-2xl bg-accent-tint px-5 py-4 text-[14px] font-semibold text-accent-dark">Your page is not on the website yet: our team is checking your details. You can add your products now, and use &quot;See my page&quot; to see how it will look.</p> : null}
               <DashSteps steps={[["Add a product", "Its name, a few photos and the price."], ["We check it", "Our team looks at it, usually the same day."], ["Buyers see it", "It shows on your page and they call you."]]} />
 
               <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
@@ -113,7 +113,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                 <div className="flex min-w-0 flex-col gap-5 lg:gap-6">
                   {editing ? (
                     <DashCard id="edit-product" Icon={Pencil} strong title={`Change ${editing.productName}`} note="Save it and our team checks it again.">
-                      <Link href="/supplier" className="-mt-2 w-fit text-[14px] font-semibold">← Cancel, go back</Link>
+                      <Link href="/supplier" className="-mt-2 w-fit text-[13px] font-semibold">← Cancel, go back</Link>
                       <ProductForm supplierId={s.id} product={editing} input={input} label={label} />
                     </DashCard>
                   ) : (
@@ -124,7 +124,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
 
                   <DashCard Icon={Package} title={`My products (${s.listings.length})`} note={s.listings.length ? "Tap Change to edit one, or Remove to take it off your page." : undefined}>
                     {s.listings.length === 0 ? (
-                      <p className="rounded-2xl bg-page p-6 text-center text-[14px] text-ink-muted">You have no products yet. Add your first one above: it takes a minute.</p>
+                      <p className="rounded-2xl bg-page p-6 text-center text-[13px] text-ink-muted">You have no products yet. Add your first one above: it takes a minute.</p>
                     ) : (
                       <ul className="flex flex-col gap-2.5">
                         {s.listings.map((p) => {
@@ -138,12 +138,12 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                                 {p.moreImages.length ? <span className="absolute bottom-0.5 right-0.5 rounded-full bg-black/70 px-1.5 text-[10px] font-bold text-white">+{p.moreImages.length}</span> : null}
                               </span>
                               <span className="flex min-w-0 flex-1 flex-col gap-1">
-                                <span className="truncate font-display text-[15px] font-bold text-heading">{p.productName}</span>
-                                <span className="text-[13px] text-ink-soft">{hasPrice ? moneyRange(p.priceMin, p.priceMax, p.currency) : "No price"}{p.unit ? ` · ${p.unit}` : ""}</span>
+                                <span className="truncate font-display text-[14px] font-bold text-heading">{p.productName}</span>
+                                <span className="text-[12.5px] text-ink-soft">{hasPrice ? moneyRange(p.priceMin, p.priceMax, p.currency) : "No price"}{p.unit ? ` · ${p.unit}` : ""}</span>
                                 <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${st.cls}`}><st.Icon aria-hidden className="h-3 w-3" />{st.label}</span>
                               </span>
                               <span className="flex items-center gap-2">
-                                <Link href={`/supplier?edit=${p.id}#edit-product`} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[13px] font-semibold text-heading hover:border-brand hover:text-brand"><Pencil aria-hidden className="h-3.5 w-3.5" />Change</Link>
+                                <Link href={`/supplier?edit=${p.id}#edit-product`} className="inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-4 text-[12.5px] font-semibold text-heading hover:border-brand hover:text-brand"><Pencil aria-hidden className="h-3.5 w-3.5" />Change</Link>
                                 <form>
                                   <input type="hidden" name="supplierId" value={s.id} /><input type="hidden" name="id" value={p.id} />
                                   <ConfirmButton action={deleteProduct} title={`Remove ${p.productName}?`} message="It comes off your page and from this list. This cannot be undone." plain className="h-10">Remove</ConfirmButton>
@@ -170,7 +170,7 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                       <label className={label}>Email (if you have one)<input name="email" type="email" defaultValue={s.email ?? ""} className={input} /></label>
                       <label className={label}>Country<input name="country" defaultValue={s.country ?? ""} className={input} /></label>
                       <label className={label}>Website (if you have one)<input name="website" type="url" defaultValue={s.website ?? ""} placeholder="https://" className={input} /></label>
-                      <button className="btn-primary min-h-[48px] w-full px-5 text-[15px]">Save my details</button>
+                      <button className="btn-primary min-h-[48px] w-full px-5 text-[14px]">Save my details</button>
                     </form>
                   </DashCard>
 
@@ -178,13 +178,13 @@ export default async function SupplierPortal({ searchParams }: { searchParams: {
                     <form action={saveSupplierPhoto} className="flex flex-col gap-3">
                       <input type="hidden" name="supplierId" value={s.id} />
                       <UploadButton target="pictureUrl" kind="image" />
-                      <input name="pictureUrl" defaultValue={s.pictureUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[13px] text-ink-muted`} />
-                      <button className="btn-primary min-h-[48px] w-full px-5 text-[15px]">Save photo</button>
+                      <input name="pictureUrl" defaultValue={s.pictureUrl ?? ""} placeholder="Filled in after you upload" aria-label="Photo address" className={`${input} text-[12.5px] text-ink-muted`} />
+                      <button className="btn-primary min-h-[48px] w-full px-5 text-[14px]">Save photo</button>
                     </form>
                   </DashCard>
 
                   <details className="rounded-3xl border border-line bg-white p-5 [&>summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer list-none items-center gap-3 font-display text-[16px] font-bold text-heading"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-page text-ink-soft"><KeyRound aria-hidden className="h-5 w-5" /></span>Change my PIN</summary>
+                    <summary className="flex cursor-pointer list-none items-center gap-3 font-display text-[15px] font-bold text-heading"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-page text-ink-soft"><KeyRound aria-hidden className="h-5 w-5" /></span>Change my PIN</summary>
                     <form action={changeMyPin} className="mt-4 flex flex-col gap-3">
                       <input type="hidden" name="back" value="/supplier" />
                       <label className={label}>New 4-digit PIN<input name="password" type="password" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} required autoComplete="new-password" className={`${input} tracking-[0.5em]`} /></label>
@@ -211,9 +211,9 @@ function ProductForm({ supplierId, product, input, label }: {
   const num = (v: unknown) => (v === null || v === undefined ? "" : String(Number(v)));
   // Three plain questions, numbered, with big boxes; everything else folds away under "More details".
   // Only the name is needed (client, 11 Nov 2026: as easy as possible for the supplier).
-  const step = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[13px] font-bold text-white";
-  const question = "flex items-center gap-2 font-display text-[15px] font-bold text-heading";
-  const big = `${input} min-h-[52px] text-[16px]`;
+  const step = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand font-display text-[12.5px] font-bold text-white";
+  const question = "flex items-center gap-2 font-display text-[14px] font-bold text-heading";
+  const big = `${input} min-h-[52px] text-[15px]`;
   const more = Boolean(product && (product.priceMax !== null || product.unit || product.minimumOrderQuantity !== null || product.availability || product.specifications));
   return (
     <form action={saveProduct} className="mt-4 flex flex-col gap-5">
@@ -226,28 +226,28 @@ function ProductForm({ supplierId, product, input, label }: {
       </label>
 
       <div className="flex flex-col gap-2">
-        <span className={question}><span className={step}>2</span>Add photos <span className="font-sans text-[13px] font-normal text-ink-muted">(buyers look at photos first)</span></span>
+        <span className={question}><span className={step}>2</span>Add photos <span className="font-sans text-[12.5px] font-normal text-ink-muted">(buyers look at photos first)</span></span>
         <ProductPhotos initial={[product?.imageUrl, ...(product?.moreImages ?? [])].filter((p): p is string => Boolean(p))} />
       </div>
 
       <label className="flex flex-col gap-2">
-        <span className={question}><span className={step}>3</span>What is the price? <span className="font-sans text-[13px] font-normal text-ink-muted">(in UGX; leave empty if it changes)</span></span>
+        <span className={question}><span className={step}>3</span>What is the price? <span className="font-sans text-[12.5px] font-normal text-ink-muted">(in UGX; leave empty if it changes)</span></span>
         <input name="priceMin" inputMode="numeric" defaultValue={num(product?.priceMin)} placeholder="e.g. 150,000" className={big} />
       </label>
 
       <details open={more} className="rounded-xl bg-page p-3 [&>summary::-webkit-details-marker]:hidden">
-        <summary className="cursor-pointer list-none text-[14px] font-semibold text-brand">+ More details (optional): pack size, minimum order, description</summary>
+        <summary className="cursor-pointer list-none text-[13px] font-semibold text-brand">+ More details (optional): pack size, minimum order, description</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className={label}>Pack or unit<input name="unit" placeholder="e.g. piece, 50 kg bag" defaultValue={product?.unit ?? ""} className={input} /></label>
           <label className={label}>Smallest order<input name="minimumOrderQuantity" inputMode="numeric" placeholder="e.g. 10" defaultValue={num(product?.minimumOrderQuantity)} className={input} /></label>
           <label className={label}>Highest price, if the price is a range (UGX)<input name="priceMax" inputMode="numeric" defaultValue={num(product?.priceMax)} className={input} /></label>
           <label className={label}>Is it in stock?<input name="availability" placeholder="e.g. In stock, 2 weeks" defaultValue={product?.availability ?? ""} className={input} /></label>
-          <label className={`${label} sm:col-span-2`}>Description<textarea name="specifications" rows={3} placeholder="Size, colour, brand, anything a buyer should know" defaultValue={product?.specifications ?? ""} className="input w-full py-2 text-[14px]" /></label>
+          <label className={`${label} sm:col-span-2`}>Description<textarea name="specifications" rows={3} placeholder="Size, colour, brand, anything a buyer should know" defaultValue={product?.specifications ?? ""} className="input w-full py-2 text-[13px]" /></label>
         </div>
       </details>
 
       <div className="flex flex-col gap-1.5">
-        <button className="btn-primary min-h-[52px] w-full px-6 text-[16px] sm:w-fit">{product ? "Save changes" : "Add this product"}</button>
+        <button className="btn-primary min-h-[52px] w-full px-6 text-[15px] sm:w-fit">{product ? "Save changes" : "Add this product"}</button>
         <span className="text-[12px] text-ink-muted">Our team checks it, then it shows on your page.</span>
       </div>
     </form>
