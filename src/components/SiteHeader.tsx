@@ -34,8 +34,9 @@ const JOIN = [
 ] as const;
 
 // Navigation links and buttons in Inter, the one font on the site (client, 13 Nov 2026).
-// Bigger and bold (client, 26 Nov 2026: "increase the font size and also font weight"; semibold 11.5px from 25 Nov 2026)
-const link = "whitespace-nowrap rounded-lg px-2 py-1.5 font-display text-[12.5px] font-bold text-ink transition-colors hover:bg-page hover:text-brand min-[1360px]:px-2.5 min-[1360px]:text-[13px] min-[1600px]:px-3 min-[1600px]:text-[14px]";
+// Bold (client, 26 Nov 2026: "increase the font size and also font weight"; semibold 11.5px from 25 Nov 2026).
+// Sizes brought back down a step (client, 27 Nov 2026: "reduce the font sizes"): 11.5 / 12 / 12.5px, was 12.5 / 13 / 14px.
+const link = "whitespace-nowrap rounded-lg px-2 py-1.5 font-display text-[11.5px] font-bold text-ink transition-colors hover:bg-page hover:text-brand min-[1360px]:px-2.5 min-[1360px]:text-[12px] min-[1600px]:px-3 min-[1600px]:text-[12.5px]";
 const round = "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-ink hover:border-brand hover:text-brand";
 
 /**
